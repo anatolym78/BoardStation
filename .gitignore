@@ -1,0 +1,120 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+*~
+*.autosave
+*.a
+*.core
+*.moc
+*.o
+*.obj
+*.orig
+*.rej
+*.so
+*.so.*
+*_pch.h.cpp
+*_resource.rc
+*.qm
+.#*
+*.*#
+core
+!core/
+tags
+.DS_Store
+.directory
+*.debug
+Makefile*
+*.prl
+*.app
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+Thumbs.db
+*.res
+*.rc
+/.qmake.cache
+/.qmake.stash
+
+# qtcreator generated files
+*.pro.user*
+*.qbs.user*
+CMakeLists.txt.user*
+
+# xemacs temporary files
+*.flc
+
+# Vim temporary files
+.*.swp
+
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
+
+# MinGW generated files
+*.Debug
+*.Release
+
+# Python byte code
+*.pyc
+
+# Binaries
+# --------
+*.dll
+*.exe
+
+# Directories with generated files
+.moc/
+.obj/
+.pch/
+.rcc/
+.uic/
+/build*/
+configuration.json
+Лот 14_Шифр_Уникум.pdf
+ПЗ к дорожной карте_Уникум Этап 2.docx
+Требования_модуль_отображения.docx
+.vs/BoardStation/v16/Browse.VC.db
+.vs/BoardStation/v16/Browse.VC.db-shm
+.vs/BoardStation/v16/Browse.VC.db-wal
+.vs/BoardStation/v16/Browse.VC.opendb
+.vs/BoardStation/v16/ipch/AutoPCH/842e5b3db512e71d/BOARDDATAEMULATOR.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/8a1d6a3c2a945208/PARAMETERSLISTMODEL.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/bc0e49dd015137bb/PARAMETERSSTORAGE.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/cb9e7a59210d0ed0/BOARDSTATIONAPP.ipch
+release/moc_predefs.h.cbt
+release/qmake_qmake_qm_files.qrc
+release/qt/qtvars.xml
+release/qt/qmake/import.qml
+release/qt/qmake/moc_predefs.h.cbt
+release/qt/qmake/props.txt
+release/qt/qmake/qtvars.log
+release/qt/qmake/qtvars.pro
+release/qt/qmake/qtvars.xml
+debug/BoardStation.Build.CppClean.log
+debug/BoardStation.log
+debug/moc_predefs.h
+debug/moc_predefs.h.cbt
+debug/qmake_qmake_qm_files.qrc
+debug/BoardStation.tlog/BoardStation.lastbuildstate
+debug/BoardStation.tlog/CustomBuild.command.1.tlog
+debug/BoardStation.tlog/CustomBuild.read.1.tlog
+debug/BoardStation.tlog/CustomBuild.write.1.tlog
+debug/BoardStation.tlog/unsuccessfulbuild
+debug/qt/qtvars.xml
+debug/qt/qmake/import.qml
+debug/qt/qmake/moc_predefs.h.cbt
+debug/qt/qmake/props.txt
+debug/qt/qmake/qtvars.log
+debug/qt/qmake/qtvars.pro
+debug/qt/qmake/qtvars.xml
