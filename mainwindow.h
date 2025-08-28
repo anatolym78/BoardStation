@@ -5,7 +5,7 @@
 #include <QMdiSubWindow>
 #include <QMap>
 #include <QChartView>
-#include "ViewModel/EnginesModel.h"
+#include "ViewModel/OutParametersModel.h"
 
 class BoardStationApp;
 class ChartBuilder;
@@ -37,7 +37,7 @@ private slots:
 
 private:
     void setupModel();
-    void setupEnginesModel();
+    void setupOutParametersModel();
     void setupDockWidgets();
     void setupConnections();
     void createChartWindow(const QString &parameterName);
@@ -47,7 +47,7 @@ private:
     Ui::MainWindow *ui;
     BoardStationApp *m_app;
     ChartBuilder *m_chartBuilder;
-    EnginesModel *m_enginesModel;
+    OutParametersModel *m_outParametersModel;
     
     // Словарь графиков по меткам параметров
     QMap<QString, QtCharts::QChartView*> m_chartViews;

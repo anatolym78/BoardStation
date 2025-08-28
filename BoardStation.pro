@@ -22,8 +22,14 @@ SOURCES += \
     Model/ParametersStorage.cpp \
     Model/ChartBuilder.cpp \
     ViewModel/ParametersListModel.cpp \
-    ViewModel/EnginesModel.cpp \
-    ViewModel/EngineSliderDelegate.cpp \
+    ViewModel/OutParametersModel.cpp \
+    ViewModel/Parameters/OutParameter.cpp \
+    ViewModel/Parameters/StringOutParameter.cpp \
+    ViewModel/Parameters/RealOutParameter.cpp \
+    ViewModel/Parameters/RangedRealOutParameter.cpp \
+    ViewModel/Parameters/ListedRealOutParameter.cpp \
+    ViewModel/Parameters/ConfigurationReader.cpp \
+    ViewModel/Parameters/ParametersParser.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -42,8 +48,15 @@ HEADERS += \
     Model/ParametersStorage.h \
     Model/ChartBuilder.h \
     ViewModel/ParametersListModel.h \
-    ViewModel/EnginesModel.h \
-    ViewModel/EngineSliderDelegate.h \
+    ViewModel/OutParametersModel.h \
+    ViewModel/Parameters/OutParameter.h \
+    ViewModel/Parameters/StringOutParameter.h \
+    ViewModel/Parameters/RealOutParameter.h \
+    ViewModel/Parameters/RangedRealOutParameter.h \
+    ViewModel/Parameters/ListedRealOutParameter.h \
+    ViewModel/Parameters/ConfigurationReader.h \
+    ViewModel/Parameters/ParametersParser.h \
+    ViewModel/Parameters/Parameters.h \
     mainwindow.h
 
 FORMS += \

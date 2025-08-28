@@ -4,9 +4,10 @@
 #include <QApplication>
 #include <QObject>
 #include "ViewModel/ParametersListModel.h"
-#include "ViewModel/EnginesModel.h"
+#include "ViewModel/OutParametersModel.h"
 #include "Model/IDriver.h"
 #include "Model/ParametersStorage.h"
+#include "ViewModel/Parameters/Parameters.h"
 
 class MainWindow;
 class JsonReader;
@@ -28,8 +29,12 @@ public:
     ParametersStorage* getParametersStorage() const;
     void addSampleData();
     
-    // Методы для работы с моделью двигателей
-    EnginesModel* getEnginesModel() const;
+    // Методы для работы с моделью исходящих параметров
+    OutParametersModel* getOutParametersModel() const;
+    
+    // Методы для работы с исходящими параметрами
+    void loadOutParameters();
+    QList<OutParameter*> getOutParameters() const;
 
 private slots:
     void onDataAvailable();
@@ -42,9 +47,12 @@ private:
     MainWindow *m_mainWindow;
     ParametersStorage *m_parametersStorage;
     ParametersListModel *m_parametersModel;
-    EnginesModel *m_enginesModel;
+    OutParametersModel *m_outParametersModel;
     drv::IDriver *m_driver;
     JsonReader *m_jsonReader;
+    
+    // Исходящие параметры
+    QList<OutParameter*> m_outParameters;
 };
 
 #endif // BOARDSTATIONAPP_H

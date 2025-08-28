@@ -3,7 +3,6 @@
 #include "BoardStationApp.h"
 #include "Model/Parameter.h"
 #include "Model/ChartBuilder.h"
-#include "ViewModel/EngineSliderDelegate.h"
 #include <QDebug>
 #include <QStyledItemDelegate>
 #include <QHeaderView>
@@ -18,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_app(nullptr)
     , m_chartBuilder(new ChartBuilder(this))
-    , m_enginesModel(nullptr)
+    , m_outParametersModel(nullptr)
 {
     ui->setupUi(this);
     setupDockWidgets();
@@ -41,8 +40,8 @@ void MainWindow::setApp(BoardStationApp *app)
         // Настраиваем модель
         setupModel();
         
-        // Настраиваем модель двигателей
-        setupEnginesModel();
+        // Настраиваем модель исходящих параметров
+        setupOutParametersModel();
         
         // Подключаем сигналы обновления параметров для обновления графиков
         if (m_app->getParametersStorage()) {
@@ -111,30 +110,21 @@ void MainWindow::setupModel()
     }
 }
 
-void MainWindow::setupEnginesModel()
+void MainWindow::setupOutParametersModel()
 {
     if (!m_app) return;
     
-    // Получаем модель двигателей из приложения и связываем с QTableView
-    auto enginesModel = m_app->getEnginesModel();
-    if (enginesModel) {
-        ui->enginesTableView->setModel(enginesModel);
-        
-        // Настраиваем делегат для отображения слайдеров
-        ui->enginesTableView->setItemDelegate(new EngineSliderDelegate());
+    // Получаем модель исходящих параметров из приложения и связываем с QTableView
+    auto outParametersModel = m_app->getOutParametersModel();
+    if (outParametersModel) {
+        ui->enginesTableView->setModel(outParametersModel);
         
         // Настраиваем заголовки колонок
         ui->enginesTableView->horizontalHeader()->setStretchLastSection(true);
         ui->enginesTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         ui->enginesTableView->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
         
-        // Открываем постоянные редакторы для слайдеров в третьей колонке
-        for (int row = 0; row < enginesModel->rowCount(); ++row) {
-            QModelIndex sliderIndex = enginesModel->index(row, 2);
-            ui->enginesTableView->openPersistentEditor(sliderIndex);
-        }
-        
-        qDebug() << "MainWindow: Модель двигателей успешно связана с QTableView";
+        qDebug() << "MainWindow: Модель исходящих параметров успешно связана с QTableView";
     }
 }
 

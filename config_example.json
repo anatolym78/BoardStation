@@ -1,0 +1,43 @@
+{
+  "Parameters": [
+    {
+      "label": "Altitude",
+      "valueType": "double",
+      "controlType": "QSpinBox"
+    },
+    {
+      "label": "MotorOne",
+      "valueType": "double",
+      "controlType": "QSlider",
+      "range": "-500,500,25"
+    },
+    {
+      "label": "MotorTwo",
+      "valueType": "double",
+      "controlType": "QSlider",
+      "range": "-500,500,50"
+    },
+    {
+      "label": "MotorThree",
+      "valueType": "double",
+      "controlType": "QSpinBox",
+      "range": "-500,500,100"
+    },
+    {
+      "label": "MotorFour",
+      "valueType": "double",
+      "controlType": "QComboBox",
+      "values": [-500, -250, 0, 250, 500]
+    },
+    {
+      "label": "Name",
+      "valueType": "string",
+      "controlType": "QTextEdit"
+    },
+    {
+      "label": "Waiting",
+      "valueType": "bool",
+      "controlType": "QCheckBox"
+    }
+  ]
+}

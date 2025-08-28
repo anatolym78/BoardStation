@@ -1,17 +1,16 @@
-#ifndef ENGINESMODEL_H
-#define ENGINESMODEL_H
+#ifndef OUTPARAMETERMODEL_H
+#define OUTPARAMETERMODEL_H
 
 #include <QAbstractTableModel>
-#include <QSlider>
 #include <QWidget>
 
-class EnginesModel : public QAbstractTableModel
+class OutParametersModel : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    explicit EnginesModel(QObject *parent = nullptr);
-    ~EnginesModel() override = default;
+    explicit OutParametersModel(QObject *parent = nullptr);
+    ~OutParametersModel() override = default;
 
     // QAbstractTableModel interface
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -21,22 +20,8 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-    // Методы для работы с данными
-    void setEngineValue(int row, int value);
-    int getEngineValue(int row) const;
-    QString getEngineName(int row) const;
-    QSlider* getSlider(int row) const;
-
 private:
-    struct EngineData {
-        QString name;
-        int value;
-        QSlider *slider;
-    };
-
-    QList<EngineData> m_engines;
-    
-    void setupEngines();
+    void setupParameters();
 };
 
-#endif // ENGINESMODEL_H
+#endif // OUTPARAMETERMODEL_H
