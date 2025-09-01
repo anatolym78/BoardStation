@@ -42,12 +42,16 @@ QVariant ParametersListModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case LabelColumn:
+            qDebug() << "ParametersListModel: Returning label for row" << index.row() << ":" << param.label;
             return param.label;
         case ValueColumn:
+            qDebug() << "ParametersListModel: Returning value for row" << index.row() << ":" << param.lastValueData();
             return param.lastValueData();
         case UnitColumn:
+            qDebug() << "ParametersListModel: Returning unit for row" << index.row() << ":" << param.unit;
             return param.unit;
         case TimestampColumn:
+            qDebug() << "ParametersListModel: Returning timestamp for row" << index.row() << ":" << param.lastTimestamp().toString("hh:mm:ss");
             return param.lastTimestamp().toString("hh:mm:ss");
         default:
             return QVariant();

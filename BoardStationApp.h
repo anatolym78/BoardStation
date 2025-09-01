@@ -8,6 +8,8 @@
 #include "Model/IDriver.h"
 #include "Model/ParametersStorage.h"
 #include "ViewModel/Parameters/Parameters.h"
+#include "ViewModel/Parameters/OutParametersStorage.h"
+#include "Interface/Charts/ChartBuilder.h"
 
 class MainWindow;
 class JsonReader;
@@ -27,14 +29,13 @@ public:
     // Методы для работы с моделью параметров
     ParametersListModel* getParametersModel() const;
     ParametersStorage* getParametersStorage() const;
-    void addSampleData();
     
     // Методы для работы с моделью исходящих параметров
     OutParametersModel* getOutParametersModel() const;
     
     // Методы для работы с исходящими параметрами
     void loadOutParameters();
-    QList<OutParameter*> getOutParameters() const;
+    OutParametersStorage* getOutParametersStorage() const;
 
 private slots:
     void onDataAvailable();
@@ -48,11 +49,9 @@ private:
     ParametersStorage *m_parametersStorage;
     ParametersListModel *m_parametersModel;
     OutParametersModel *m_outParametersModel;
+    OutParametersStorage *m_outParametersStorage;
     drv::IDriver *m_driver;
     JsonReader *m_jsonReader;
-    
-    // Исходящие параметры
-    QList<OutParameter*> m_outParameters;
 };
 
 #endif // BOARDSTATIONAPP_H

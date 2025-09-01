@@ -1,8 +1,8 @@
 #include "BoardDataEmulator.h"
-#include "AltitudeGenerator.h"
-#include "LongitudeGenerator.h"
-#include "LatitudeGenerator.h"
-#include "SpeedGenerator.h"
+#include "BoardDataGenerators/AltitudeGenerator.h"
+#include "BoardDataGenerators/LongitudeGenerator.h"
+#include "BoardDataGenerators/LatitudeGenerator.h"
+#include "BoardDataGenerators/SpeedGenerator.h"
 #include <QDebug>
 
 namespace drv {

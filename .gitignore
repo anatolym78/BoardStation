@@ -118,3 +118,7 @@ debug/qt/qmake/props.txt
 debug/qt/qmake/qtvars.log
 debug/qt/qmake/qtvars.pro
 debug/qt/qmake/qtvars.xml
+.vs/BoardStation/v16/ipch/AutoPCH/8944b1c6e8e04617/LATITUDEGENERATOR.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/8c8d217dc8e5a9dc/LISTEDREALOUTPARAMETERDELEGATE.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/b6885af92c48f93a/PARAMETERSPARSER.ipch
+.vs/BoardStation/v16/ipch/AutoPCH/e5e2e15cf4893ea0/OUTPARAMETERSMODEL.ipch

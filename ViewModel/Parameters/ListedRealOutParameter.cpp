@@ -1,5 +1,7 @@
 #include "ListedRealOutParameter.h"
 #include <QString>
+#include <cmath>
+#include <algorithm>
 
 ListedRealOutParameter::ListedRealOutParameter(const QString &label, 
                                                double value,
@@ -29,10 +31,10 @@ void ListedRealOutParameter::setValue(double value)
     
     // Ищем ближайшее значение из списка
     double closestValue = m_values.first();
-    double minDistance = qAbs(value - closestValue);
+    double minDistance = std::abs(value - closestValue);
     
     for (double listValue : m_values) {
-        double distance = qAbs(value - listValue);
+        double distance = std::abs(value - listValue);
         if (distance < minDistance) {
             minDistance = distance;
             closestValue = listValue;
@@ -41,3 +43,9 @@ void ListedRealOutParameter::setValue(double value)
     
     RealOutParameter::setValue(closestValue);
 }
+
+
+
+
+
+

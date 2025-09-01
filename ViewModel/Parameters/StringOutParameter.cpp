@@ -1,13 +1,13 @@
 #include "StringOutParameter.h"
+#include <QString>
 
 StringOutParameter::StringOutParameter(const QString &label, 
                                      const QString &value,
                                      const QStringList &valuesList,
                                      const QString &controlType)
-    : OutParameter(label)
+    : OutParameter(label, controlType)
     , m_value(value)
     , m_valuesList(valuesList)
-    , m_controlType(controlType)
 {
 }
 
@@ -27,7 +27,4 @@ void StringOutParameter::setValueFromString(const QString &value)
     m_value = value;
 }
 
-QString StringOutParameter::getControlType() const
-{
-    return m_controlType;
-}
+

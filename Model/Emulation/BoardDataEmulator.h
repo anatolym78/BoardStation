@@ -2,7 +2,7 @@
 #define BOARDDATAEMULATOR_H
 
 #include "../IDriver.h"
-#include "ParameterGenerator.h"
+#include "BoardDataGenerators/ParameterGenerator.h"
 #include "../JsonWriter.h"
 #include <QTimer>
 #include <QQueue>

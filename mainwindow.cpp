@@ -2,7 +2,8 @@
 #include "ui_mainwindow.h"
 #include "BoardStationApp.h"
 #include "Model/Parameter.h"
-#include "Model/ChartBuilder.h"
+#include "Interface/Charts/ChartBuilder.h"
+
 #include <QDebug>
 #include <QStyledItemDelegate>
 #include <QHeaderView>
@@ -42,6 +43,11 @@ void MainWindow::setApp(BoardStationApp *app)
         
         // Настраиваем модель исходящих параметров
         setupOutParametersModel();
+        
+        // Создаем виджеты управления после установки модели
+        if (m_app->getOutParametersModel()) {
+            m_app->getOutParametersModel()->createControlWidgets(ui->enginesTableView);
+        }
         
         // Подключаем сигналы обновления параметров для обновления графиков
         if (m_app->getParametersStorage()) {
@@ -282,3 +288,5 @@ void MainWindow::onChartWindowClosed(const QString &parameterName)
         qDebug() << "MainWindow: График удален из словаря для параметра:" << parameterName;
     }
 }
+
+

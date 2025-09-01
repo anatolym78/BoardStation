@@ -2,6 +2,7 @@
 #include "StringOutParameter.h"
 #include "RangedRealOutParameter.h"
 #include "ListedRealOutParameter.h"
+#include "BooleanOutParameter.h"
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QDebug>
@@ -79,8 +80,19 @@ OutParameter* ParametersParser::createParameter(const QString &label,
         return new RangedRealOutParameter(label, 0.0, -1000.0, 1000.0, 1.0, controlType);
     }
     else if (valueType == "bool") {
-        // Для булевых параметров используем QCheckBox
-        return new StringOutParameter(label, "false", QStringList{"true", "false"}, "QCheckBox");
+        // Для булевых параметров используем BooleanOutParameter
+        QString falseAlias = QObject::tr("Off");
+        QString trueAlias = QObject::tr("On");
+        
+        // Пытаемся получить алиасы из конфигурации
+        if (parameterObj.contains("falseAlias")) {
+            falseAlias = parameterObj["falseAlias"].toString();
+        }
+        if (parameterObj.contains("trueAlias")) {
+            trueAlias = parameterObj["trueAlias"].toString();
+        }
+        
+        return new BooleanOutParameter(label, false, falseAlias, trueAlias, controlType);
     }
     
     qWarning() << "ParametersParser: Неподдерживаемый тип значения:" << valueType;

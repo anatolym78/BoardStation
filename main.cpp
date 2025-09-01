@@ -1,5 +1,13 @@
-#include "mainwindow.h"
 #include "BoardStationApp.h"
+
+// Макрос для переключения между интерфейсами
+#define QML_GUI
+
+#ifdef QML_GUI
+    #include "QmlMainWindow.h"
+#else
+    #include "mainwindow.h"
+#endif
 
 #include <QLocale>
 #include <QTranslator>
@@ -18,9 +26,15 @@ int main(int argc, char *argv[])
         }
     }
     
+#ifdef QML_GUI
+    QmlMainWindow w;
+    w.setApp(&app);
+    w.showMaximized();
+#else
     MainWindow w;
     w.setApp(&app);
     w.showMaximized();
+#endif
     
     return app.exec();
 }

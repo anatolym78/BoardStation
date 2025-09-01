@@ -19,11 +19,9 @@ public:
     // Переопределенные методы
     QString getValueAsString() const override;
     void setValueFromString(const QString &value) override;
-    QString getControlType() const override;
 
 protected:
     double m_value;
-    QString m_controlType;
 };
 
 #endif // REALOUTPARAMETER_H

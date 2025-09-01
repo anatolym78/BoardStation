@@ -24,12 +24,19 @@ public:
     bool isValid() const override;
     QString getValueAsString() const override;
     void setValueFromString(const QString &value) override;
-    QString getControlType() const override;
+    
+    // Метод для получения виджета управления
+    QWidget* getControlWidget() const { return nullptr; } // Убрано, теперь создается через OutParameterWidgetCreator
+    
+    // Метод для установки родителя виджета (убрано, больше не нужно)
+    void setWidgetParent(QWidget *parent) { Q_UNUSED(parent); }
+    
+    // Геттер для значений (используется в OutParameterWidgetCreator)
+    QStringList getValues() const { return m_valuesList; }
 
 private:
     QString m_value;
     QStringList m_valuesList;
-    QString m_controlType;
 };
 
 #endif // STRINGOUTPARAMETER_H

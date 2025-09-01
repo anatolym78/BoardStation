@@ -4,9 +4,8 @@
 RealOutParameter::RealOutParameter(const QString &label, 
                                    double value,
                                    const QString &controlType)
-    : OutParameter(label)
+    : OutParameter(label, controlType)
     , m_value(value)
-    , m_controlType(controlType)
 {
 }
 
@@ -24,7 +23,4 @@ void RealOutParameter::setValueFromString(const QString &value)
     }
 }
 
-QString RealOutParameter::getControlType() const
-{
-    return m_controlType;
-}
+

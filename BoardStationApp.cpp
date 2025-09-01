@@ -3,6 +3,9 @@
 #include "Model/JsonReader.h"
 #include "Model/Emulation/BoardDataEmulator.h"
 #include "Model/ParametersStorage.h"
+#include "ViewModel/Parameters/OutParametersStorage.h"
+#include "ViewModel/Parameters/ConfigurationReader.h"
+#include "ViewModel/Parameters/ParametersParser.h"
 #include <QDebug>
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
@@ -12,7 +15,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_driver(nullptr)
     , m_jsonReader(new JsonReader(this))
 {
-    qDebug() << "BoardStationApp: Инициализация приложения";
+    qDebug() << "BoardStationApp: Application initialization";
     
     // Создаем хранилище параметров
     m_parametersStorage = new ParametersStorage(this);
@@ -20,8 +23,14 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Создаем модель параметров
     m_parametersModel = new ParametersListModel(m_parametersStorage, this);
     
+    // Создаем хранилище исходящих параметров
+    m_outParametersStorage = new OutParametersStorage(this);
+    
     // Создаем модель исходящих параметров
     m_outParametersModel = new OutParametersModel(this);
+    
+    // Устанавливаем хранилище в модель
+    m_outParametersModel->setStorage(m_outParametersStorage);
     
     // Загружаем исходящие параметры
     loadOutParameters();
@@ -35,17 +44,22 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 BoardStationApp::~BoardStationApp()
 {
-    qDebug() << "BoardStationApp: Завершение работы приложения";
+    qDebug() << "BoardStationApp: Application shutdown";
 }
 
 void BoardStationApp::setMainWindow(MainWindow *mainWindow)
 {
     m_mainWindow = mainWindow;
     
-    if (m_mainWindow && m_parametersModel)
+    if (m_mainWindow)
     {
-        // Устанавливаем родителя для модели - главное окно
-        m_parametersModel->setParent(m_mainWindow);
+        // Устанавливаем родителя для моделей - главное окно
+        if (m_parametersModel) {
+            m_parametersModel->setParent(m_mainWindow);
+        }
+        if (m_outParametersModel) {
+            m_outParametersModel->setParent(m_mainWindow);
+        }
     }
 }
 
@@ -74,7 +88,7 @@ void BoardStationApp::setupDriver()
     // Создаем эмулятор данных платы и присваиваем его интерфейсу
     m_driver = new drv::BoardDataEmulator(this);
     
-    qDebug() << "BoardStationApp: Драйвер настроен";
+    qDebug() << "BoardStationApp: Driver configured";
 }
 
 void BoardStationApp::connectSignals()
@@ -83,13 +97,13 @@ void BoardStationApp::connectSignals()
     {
         connect(m_driver, &drv::IDriver::dataAvailable,
                 this, &BoardStationApp::onDataAvailable);
-        qDebug() << "BoardStationApp: Сигналы подключены";
+        qDebug() << "BoardStationApp: Signals connected";
     }
 }
 
 void BoardStationApp::onDataAvailable()
 {
-    qDebug() << "BoardStationApp: Получены новые данные от драйвера";
+    qDebug() << "BoardStationApp: Received new data from driver";
     
     if (!m_parametersModel || !m_driver)
     {
@@ -98,11 +112,11 @@ void BoardStationApp::onDataAvailable()
     
     // Читаем данные от драйвера
     QString data = QString::fromStdString(m_driver->read());
-    qDebug() << "BoardStationApp: Прочитаны данные от драйвера:" << data;
+    qDebug() << "BoardStationApp: Read data from driver:" << data;
     
     if (data.isEmpty())
     {
-        qDebug() << "BoardStationApp: Данные от драйвера пусты";
+        qDebug() << "BoardStationApp: Driver data is empty";
         return;
     }
     
@@ -111,7 +125,7 @@ void BoardStationApp::onDataAvailable()
     
     if (newParameters.isEmpty())
     {
-        qDebug() << "BoardStationApp: Не удалось извлечь параметры из данных драйвера";
+        qDebug() << "BoardStationApp: Failed to extract parameters from driver data";
 
         return;
     }
@@ -122,19 +136,19 @@ void BoardStationApp::onDataAvailable()
 
 void BoardStationApp::loadOutParameters()
 {
-    qDebug() << "BoardStationApp: Загружаем исходящие параметры из configuration.json";
+    qDebug() << "BoardStationApp: Loading out parameters from configuration.json";
     
     // Создаем читатель конфигурации
     ConfigurationReader reader;
     
     // Формируем полный путь к файлу конфигурации
     QString configPath = QApplication::applicationDirPath() + "/configuration.json";
-    qDebug() << "BoardStationApp: Путь к конфигурации:" << configPath;
+    qDebug() << "BoardStationApp: Configuration path:" << configPath;
     
     // Загружаем конфигурацию
     if (!reader.loadConfiguration(configPath))
     {
-        qWarning() << "BoardStationApp: Не удалось загрузить конфигурацию из" << configPath;
+        qWarning() << "BoardStationApp: Failed to load configuration from" << configPath;
         return;
     }
     
@@ -142,7 +156,7 @@ void BoardStationApp::loadOutParameters()
     QJsonArray parametersArray = reader.getParametersNode();
     if (parametersArray.isEmpty())
     {
-        qWarning() << "BoardStationApp: Узел Parameters пуст или не найден";
+        qWarning() << "BoardStationApp: Parameters node is empty or not found";
         return;
     }
     
@@ -150,12 +164,15 @@ void BoardStationApp::loadOutParameters()
     ParametersParser parser;
     
     // Парсим параметры
-    m_outParameters = parser.parseParameters(parametersArray);
+    QList<OutParameter*> parsedParameters = parser.parseParameters(parametersArray);
     
-    qDebug() << "BoardStationApp: Успешно загружено" << m_outParameters.size() << "исходящих параметров";
+    // Добавляем параметры в хранилище
+    m_outParametersStorage->addParameters(parsedParameters);
+    
+    qDebug() << "BoardStationApp: Successfully loaded" << parsedParameters.size() << "out parameters";
 }
 
-QList<OutParameter*> BoardStationApp::getOutParameters() const
+OutParametersStorage* BoardStationApp::getOutParametersStorage() const
 {
-    return m_outParameters;
+    return m_outParametersStorage;
 }
