@@ -1,0 +1,18 @@
+{
+  "Parameters": [
+    {
+      "label": "Camera",
+      "valueType": "bool",
+      "controlType": "QCheckBox",
+      "trueAlias": "Вкл.",
+      "falseAlias": "Выкл."
+    },
+    {
+      "label": "Engine",
+      "valueType": "bool",
+      "controlType": "QCheckBox",
+      "trueAlias": "On",
+      "falseAlias": "Off"
+    }
+  ]
+}

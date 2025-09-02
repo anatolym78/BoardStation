@@ -2,10 +2,10 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
-Frame {
+Item {
     id: chartsPanel
-    Layout.fillWidth: true
-    Layout.fillHeight: true
+
+
     
     property var parametersModel: null
     property var chartBuilder: null

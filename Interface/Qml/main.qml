@@ -41,8 +41,6 @@ Item
     // Main frame
     Frame
     {
-        Layout.fillWidth: true
-        Layout.fillHeight: true
         anchors.fill: parent
 
          RowLayout
@@ -54,7 +52,9 @@ Item
              DroneDataPanel
              {
                  id: droneDataPanel
-                 
+                 Layout.preferredWidth: 1
+                 Layout.fillWidth: true
+                 Layout.fillHeight: true
                  onToggleChart: {
                      chartsPanel.toggleChart(parameterIndex)
                  }
@@ -63,15 +63,20 @@ Item
              ChartsPanel
              {
                  id: chartsPanel
+                 Layout.preferredWidth: 2
                  Layout.fillWidth: true
                  Layout.fillHeight: true
+
              }
 
              // Drone control panel - управляющие параметры, отправляемые дрону
              DroneControlPanel
              {
                  id: droneControlPanel
-                 Layout.minimumWidth: 250
+                 Layout.preferredWidth: 1
+                 Layout.fillWidth: true
+                 Layout.fillHeight: true
+                 //Layout.minimumWidth: 250
              }
          }
     }

@@ -5,10 +5,8 @@ import QtQuick.Layouts 1.12
 Rectangle
 {
     id: droneDataPanel
-    Layout.preferredWidth: 500
-    Layout.fillHeight: true
+
     color: "#f0f0f0"
-    border.color: "#cccccc"
     
     property var parametersModel: null
     
@@ -47,23 +45,24 @@ Rectangle
             Layout.fillWidth: true
             spacing: 0
             
-            Repeater {
-                model: parametersModel ? parametersModel.columnCount() : 0
+ //            Repeater
+ //            {
+ //                model: parametersModel ? parametersModel.columnCount() : 0
                 
-                Rectangle {
-                    width: 120
-                    height: 30
-                    color: "#e0e0e0"
-                    border.width: 1
-                    border.color: "#cccccc"
+ //                Rectangle {
+ //                    width: 120
+ //                    height: 30
+ //                    color: "#e0e0e0"
+ //                    border.width: 1
+ //                    border.color: "#cccccc"
  
-                    Text {
-                        anchors.centerIn: parent
-                        text: parametersModel ? parametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
-                        font.bold: true
-                    }
-                }
-            }
+ //                    Text {
+ //                        anchors.centerIn: parent
+ //                        text: parametersModel ? parametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
+ //                        font.bold: true
+ //                    }
+ //                }
+ //            }
         }
         
         TableView {

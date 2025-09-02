@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 3.16)
+project(BooleanParameterTest)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Поиск Qt5
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
+
+# Исходные файлы
+set(SOURCES
+    test_boolean_parameter.cpp
+    ViewModel/Parameters/BooleanOutParameter.cpp
+    ViewModel/Parameters/OutParametersStorage.cpp
+    ViewModel/Parameters/ParametersParser.cpp
+    ViewModel/Parameters/ListedRealOutParameter.cpp
+    ViewModel/Parameters/RealOutParameter.cpp
+    ViewModel/Parameters/OutParameter.cpp
+    ViewModel/Parameters/StringOutParameter.cpp
+    ViewModel/Parameters/RangedRealOutParameter.cpp
+)
+
+# Заголовочные файлы
+set(HEADERS
+    ViewModel/Parameters/BooleanOutParameter.h
+    ViewModel/Parameters/OutParametersStorage.h
+    ViewModel/Parameters/ParametersParser.h
+    ViewModel/Parameters/ListedRealOutParameter.h
+    ViewModel/Parameters/RealOutParameter.h
+    ViewModel/Parameters/OutParameter.h
+    ViewModel/Parameters/StringOutParameter.h
+    ViewModel/Parameters/RangedRealOutParameter.h
+)
+
+# Создание исполняемого файла
+add_executable(BooleanParameterTest ${SOURCES} ${HEADERS})
+
+# Подключение Qt5
+target_link_libraries(BooleanParameterTest Qt5::Core Qt5::Widgets)
+
+# Включение директорий
+target_include_directories(BooleanParameterTest PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# Настройки компиляции
+if(WIN32)
+    target_compile_definitions(BooleanParameterTest PRIVATE WIN32_LEAN_AND_MEAN)
+endif()
+
+# Копирование DLL (для Windows)
+if(WIN32)
+    add_custom_command(TARGET BooleanParameterTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Qt5::Core>
+        $<TARGET_FILE_DIR:BooleanParameterTest>
+    )
+    add_custom_command(TARGET BooleanParameterTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:Qt5::Widgets>
+        $<TARGET_FILE_DIR:BooleanParameterTest>
+    )
+endif()

@@ -1,0 +1,39 @@
+{
+  "Parameters": [
+    {
+      "label": "Camera",
+      "valueType": "bool",
+      "controlType": "QCheckBox",
+      "falseAlias": "Camera Off",
+      "trueAlias": "Camera On"
+    },
+    {
+      "label": "Engine Speed",
+      "valueType": "double",
+      "controlType": "QSlider",
+      "range": "0,100,5"
+    },
+    {
+      "label": "Altitude",
+      "valueType": "double",
+      "controlType": "QSpinBox",
+      "range": "0,10000,100"
+    },
+    {
+      "label": "Flight Mode",
+      "valueType": "double",
+      "controlType": "QComboBox",
+      "values": [0, 1, 2, 3, 4]
+    },
+    {
+      "label": "Name",
+      "valueType": "string",
+      "controlType": "QTextEdit"
+    },
+    {
+      "label": "Status",
+      "valueType": "string",
+      "controlType": "QTextEdit"
+    }
+  ]
+}

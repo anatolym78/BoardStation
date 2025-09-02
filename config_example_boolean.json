@@ -1,0 +1,34 @@
+{
+  "Parameters": [
+    {
+      "label": "Камера",
+      "valueType": "bool",
+      "controlType": "QCheckBox",
+      "aliases": {
+        "false": "Выключена",
+        "true": "Включена"
+      }
+    },
+    {
+      "label": "Двигатель",
+      "valueType": "bool",
+      "controlType": "QComboBox",
+      "aliases": {
+        "false": "Остановлен",
+        "true": "Работает"
+      }
+    },
+    {
+      "label": "Скорость",
+      "valueType": "double",
+      "controlType": "QComboBox",
+      "values": [0.0, 25.0, 50.0, 75.0, 100.0]
+    },
+    {
+      "label": "Высота",
+      "valueType": "double",
+      "controlType": "QSpinBox",
+      "range": "0,1000,10"
+    }
+  ]
+}

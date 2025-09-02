@@ -4,17 +4,15 @@ import QtQuick.Layouts 1.12
 
 Rectangle {
     id: droneControlPanel
-    Layout.preferredWidth: 500
-    Layout.fillHeight: true
+
     color: "#f0f0f0"  // Тот же фон, что и у левой панели
-    border.color: "#cccccc"
     
     property var outParametersModel: null
     
     // Таймер для принудительного обновления таблицы
     Timer {
         id: refreshTimer
-        interval: 1000 // Обновляем каждую секунду
+        interval: 5000 // Обновляем каждую секунду
         repeat: true
         running: true
         onTriggered: {
@@ -43,23 +41,24 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 0
             
-            Repeater {
-                model: outParametersModel ? outParametersModel.columnCount() : 0
+ //            Repeater
+ //            {
+ //                model: outParametersModel ? outParametersModel.columnCount() : 0
                 
-                Rectangle {
-                    width: 150
-                    height: 30
-                    color: "#e0e0e0"
-                    border.width: 1
-                    border.color: "#cccccc"
+ //                Rectangle {
+ //                    width: 150
+ //                    height: 30
+ //                    color: "#e0e0e0"
+ //                    border.width: 1
+ //                    border.color: "#cccccc"
  
-                    Text {
-                        anchors.centerIn: parent
-                        text: outParametersModel ? outParametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
-                        font.bold: true
-                    }
-                }
-            }
+ //                    Text {
+ //                        anchors.centerIn: parent
+ //                        text: outParametersModel ? outParametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
+ //                        font.bold: true
+ //                    }
+ //                }
+ //            }
         }
         
         TableView {
