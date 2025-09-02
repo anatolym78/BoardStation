@@ -1,57 +1,57 @@
-#include "ParametersListModel.h"
+#include "BoardParametersModel.h"
 #include <QDebug>
 
-ParametersListModel::ParametersListModel(ParametersStorage *storage, QObject *parent)
+BoardParametersModel::BoardParametersModel(BoardParametersStorage *storage, QObject *parent)
     : QAbstractTableModel(parent)
     , m_storage(storage)
 {
     if (m_storage) {
-        connect(m_storage, &ParametersStorage::parameterAdded, 
-                this, &ParametersListModel::onParameterAdded);
-        connect(m_storage, &ParametersStorage::parameterUpdated, 
-                this, &ParametersListModel::onParameterUpdated);
-        connect(m_storage, &ParametersStorage::parametersCleared, 
-                this, &ParametersListModel::onParametersCleared);
+        connect(m_storage, &BoardParametersStorage::parameterAdded, 
+                this, &BoardParametersModel::onParameterAdded);
+        connect(m_storage, &BoardParametersStorage::parameterUpdated, 
+                this, &BoardParametersModel::onParameterUpdated);
+        connect(m_storage, &BoardParametersStorage::parametersCleared, 
+                this, &BoardParametersModel::onParametersCleared);
         
         refreshModel();
     }
 }
 
-int ParametersListModel::rowCount(const QModelIndex &parent) const
+int BoardParametersModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
     return m_parameterLabels.size();
 }
 
-int ParametersListModel::columnCount(const QModelIndex &parent) const
+int BoardParametersModel::columnCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
     return 4; // Четыре колонки: название, значение, единица измерения, время
 }
 
-QVariant ParametersListModel::data(const QModelIndex &index, int role) const
+QVariant BoardParametersModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= m_parameterLabels.size() || !m_storage)
         return QVariant();
 
     const QString &label = m_parameterLabels.at(index.row());
-    const Parameter &param = m_storage->getParameter(label);
+    const BoardParameter &param = m_storage->getParameter(label);
 
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
         case LabelColumn:
-            qDebug() << "ParametersListModel: Returning label for row" << index.row() << ":" << param.label;
+            qDebug() << "BoardParametersModel: Returning label for row" << index.row() << ":" << param.label;
             return param.label;
         case ValueColumn:
-            qDebug() << "ParametersListModel: Returning value for row" << index.row() << ":" << param.lastValueData();
+            qDebug() << "BoardParametersModel: Returning value for row" << index.row() << ":" << param.lastValueData();
             return param.lastValueData();
         case UnitColumn:
-            qDebug() << "ParametersListModel: Returning unit for row" << index.row() << ":" << param.unit;
+            qDebug() << "BoardParametersModel: Returning unit for row" << index.row() << ":" << param.unit;
             return param.unit;
         case TimestampColumn:
-            qDebug() << "ParametersListModel: Returning timestamp for row" << index.row() << ":" << param.lastTimestamp().toString("hh:mm:ss");
+            qDebug() << "BoardParametersModel: Returning timestamp for row" << index.row() << ":" << param.lastTimestamp().toString("hh:mm:ss");
             return param.lastTimestamp().toString("hh:mm:ss");
         default:
             return QVariant();
@@ -61,7 +61,7 @@ QVariant ParametersListModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant ParametersListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant BoardParametersModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole)
         return QVariant();
@@ -84,7 +84,7 @@ QVariant ParametersListModel::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 }
 
-QHash<int, QByteArray> ParametersListModel::roleNames() const
+QHash<int, QByteArray> BoardParametersModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[LabelColumn] = "label";
@@ -94,7 +94,7 @@ QHash<int, QByteArray> ParametersListModel::roleNames() const
     return roles;
 }
 
-void ParametersListModel::setParametersStorage(ParametersStorage *storage)
+void BoardParametersModel::setParametersStorage(BoardParametersStorage *storage)
 {
     if (m_storage) {
         disconnect(m_storage, nullptr, this, nullptr);
@@ -103,18 +103,18 @@ void ParametersListModel::setParametersStorage(ParametersStorage *storage)
     m_storage = storage;
     
     if (m_storage) {
-        connect(m_storage, &ParametersStorage::parameterAdded, 
-                this, &ParametersListModel::onParameterAdded);
-        connect(m_storage, &ParametersStorage::parameterUpdated, 
-                this, &ParametersListModel::onParameterUpdated);
-        connect(m_storage, &ParametersStorage::parametersCleared, 
-                this, &ParametersListModel::onParametersCleared);
+        connect(m_storage, &BoardParametersStorage::parameterAdded, 
+                this, &BoardParametersModel::onParameterAdded);
+        connect(m_storage, &BoardParametersStorage::parameterUpdated, 
+                this, &BoardParametersModel::onParameterUpdated);
+        connect(m_storage, &BoardParametersStorage::parametersCleared, 
+                this, &BoardParametersModel::onParametersCleared);
         
         refreshModel();
     }
 }
 
-void ParametersListModel::refreshModel()
+void BoardParametersModel::refreshModel()
 {
     if (!m_storage) {
         beginResetModel();
@@ -128,59 +128,59 @@ void ParametersListModel::refreshModel()
     endResetModel();
 }
 
-Parameter ParametersListModel::getParameter(int index) const
+BoardParameter BoardParametersModel::getParameter(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
         return m_storage->getParameter(m_parameterLabels.at(index));
     }
-    return Parameter();
+    return BoardParameter();
 }
 
-Parameter ParametersListModel::getParameter(const QString &label) const
+BoardParameter BoardParametersModel::getParameter(const QString &label) const
 {
     if (m_storage) {
         return m_storage->getParameter(label);
     }
-    return Parameter();
+    return BoardParameter();
 }
 
-ParameterValue ParametersListModel::getLastValue(int index) const
+BoardParameterValue BoardParametersModel::getLastValue(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
-        const Parameter &param = m_storage->getParameter(m_parameterLabels.at(index));
+        const BoardParameter &param = m_storage->getParameter(m_parameterLabels.at(index));
         return param.lastValue();
     }
-    return ParameterValue();
+    return BoardParameterValue();
 }
 
-ParameterValue ParametersListModel::getLastValue(const QString &label) const
+BoardParameterValue BoardParametersModel::getLastValue(const QString &label) const
 {
     if (m_storage) {
-        const Parameter &param = m_storage->getParameter(label);
+        const BoardParameter &param = m_storage->getParameter(label);
         return param.lastValue();
     }
-    return ParameterValue();
+    return BoardParameterValue();
 }
 
-QList<ParameterValue> ParametersListModel::getValueHistory(int index) const
+QList<BoardParameterValue> BoardParametersModel::getValueHistory(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
-        const Parameter &param = m_storage->getParameter(m_parameterLabels.at(index));
+        const BoardParameter &param = m_storage->getParameter(m_parameterLabels.at(index));
         return param.values;
     }
-    return QList<ParameterValue>();
+    return QList<BoardParameterValue>();
 }
 
-QList<ParameterValue> ParametersListModel::getValueHistory(const QString &label) const
+QList<BoardParameterValue> BoardParametersModel::getValueHistory(const QString &label) const
 {
     if (m_storage) {
-        const Parameter &param = m_storage->getParameter(label);
+        const BoardParameter &param = m_storage->getParameter(label);
         return param.values;
     }
-    return QList<ParameterValue>();
+    return QList<BoardParameterValue>();
 }
 
-void ParametersListModel::onParameterAdded(const QString &label)
+void BoardParametersModel::onParameterAdded(const QString &label)
 {
     // Добавляем новую строку
     beginInsertRows(QModelIndex(), m_parameterLabels.size(), m_parameterLabels.size());
@@ -188,7 +188,7 @@ void ParametersListModel::onParameterAdded(const QString &label)
     endInsertRows();
 }
 
-void ParametersListModel::onParameterUpdated(const QString &label)
+void BoardParametersModel::onParameterUpdated(const QString &label)
 {
     // Находим индекс строки и обновляем данные
     int row = m_parameterLabels.indexOf(label);
@@ -199,7 +199,7 @@ void ParametersListModel::onParameterUpdated(const QString &label)
     }
 }
 
-void ParametersListModel::onParametersCleared()
+void BoardParametersModel::onParametersCleared()
 {
     // Очищаем все строки
     beginResetModel();

@@ -8,13 +8,13 @@ LatitudeGenerator::LatitudeGenerator(QObject *parent)
 {
 }
 
-Parameter LatitudeGenerator::generate(double time)
+BoardParameter LatitudeGenerator::generate(double time)
 {
     // Генерируем широту по линейному закону
     double latitude = m_startLatitude + m_speed * time;
     
     // Создаем параметр с названием, значением и единицей измерения
-    Parameter param(tr("Latitude"), QString::number(latitude, 'f', 6), tr("°"));
+    BoardParameter param(tr("Latitude"), QString::number(latitude, 'f', 6), tr("°"));
     
     return param;
 }

@@ -1,15 +1,15 @@
-#ifndef PARAMETERSLISTMODEL_H
-#define PARAMETERSLISTMODEL_H
+#ifndef BOARDPARAMETERSMODEL_H
+#define BOARDPARAMETERSMODEL_H
 
 #include <QAbstractTableModel>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QList>
-#include "../Model/Parameter.h"
-#include "../Model/ParametersStorage.h"
+#include "../Model/Parameters/BoardParameter.h"
+#include "../Model/Parameters/BoardParametersStorage.h"
 
-class ParametersListModel : public QAbstractTableModel
+class BoardParametersModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ public:
         TimestampColumn = 3
     };
 
-    explicit ParametersListModel(ParametersStorage *storage, QObject *parent = nullptr);
+    explicit BoardParametersModel(BoardParametersStorage *storage, QObject *parent = nullptr);
 
     // QAbstractTableModel interface
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -31,18 +31,18 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с данными
-    void setParametersStorage(ParametersStorage *storage);
+    void setParametersStorage(BoardParametersStorage *storage);
     void refreshModel();
     
     // Получение параметров
-    Parameter getParameter(int index) const;
-    Parameter getParameter(const QString &label) const;
+    BoardParameter getParameter(int index) const;
+    BoardParameter getParameter(const QString &label) const;
     
     // Методы для работы с историей значений
-    ParameterValue getLastValue(int index) const;
-    ParameterValue getLastValue(const QString &label) const;
-    QList<ParameterValue> getValueHistory(int index) const;
-    QList<ParameterValue> getValueHistory(const QString &label) const;
+    BoardParameterValue getLastValue(int index) const;
+    BoardParameterValue getLastValue(const QString &label) const;
+    QList<BoardParameterValue> getValueHistory(int index) const;
+    QList<BoardParameterValue> getValueHistory(const QString &label) const;
 
 private slots:
     void onParameterAdded(const QString &label);
@@ -50,8 +50,8 @@ private slots:
     void onParametersCleared();
 
 private:
-    ParametersStorage *m_storage;
+    BoardParametersStorage *m_storage;
     QStringList m_parameterLabels; // Кэш меток для индексации строк
 };
 
-#endif // PARAMETERSLISTMODEL_H
+#endif // BOARDPARAMETERSMODEL_H

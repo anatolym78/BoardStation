@@ -1,15 +1,15 @@
-#ifndef CONFIGURATIONREADER_H
-#define CONFIGURATIONREADER_H
+#ifndef APPCONFIGURATIONREADER_H
+#define APPCONFIGURATIONREADER_H
 
 #include <QString>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
 
-class ConfigurationReader
+class AppConfigurationReader
 {
 public:
-    ConfigurationReader();
+    AppConfigurationReader();
     
     // Загружает конфигурацию из файла
     bool loadConfiguration(const QString &filePath);
@@ -27,4 +27,4 @@ private:
     QJsonObject m_configuration;
 };
 
-#endif // CONFIGURATIONREADER_H
+#endif // APPCONFIGURATIONREADER_H

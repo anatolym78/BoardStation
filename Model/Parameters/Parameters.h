@@ -6,7 +6,7 @@
 #include "RealOutParameter.h"
 #include "RangedRealOutParameter.h"
 #include "ListedRealOutParameter.h"
-#include "ConfigurationReader.h"
-#include "ParametersParser.h"
+#include "AppConfigurationReader.h"
+#include "OutParametersParser.h"
 
 #endif // PARAMETERS_H

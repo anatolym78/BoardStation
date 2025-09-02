@@ -1,5 +1,5 @@
-#ifndef JSONREADER_H
-#define JSONREADER_H
+#ifndef BOARDPARAMETERSJSONPARSER_H
+#define BOARDPARAMETERSJSONPARSER_H
 
 #include <QObject>
 #include <QJsonArray>
@@ -7,23 +7,23 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QList>
-#include "Parameter.h"
+#include "BoardParameter.h"
 
-class JsonReader : public QObject
+class BoardParametersJsonParser : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit JsonReader(QObject *parent = nullptr);
+    explicit BoardParametersJsonParser(QObject *parent = nullptr);
     
     // Чтение JSON из строки
-    QList<Parameter> parseParametersFromString(const QString &jsonString);
+    QList<BoardParameter> parseParametersFromString(const QString &jsonString);
     
     // Чтение JSON из файла
-    QList<Parameter> parseParametersFromFile(const QString &filePath);
+    QList<BoardParameter> parseParametersFromFile(const QString &filePath);
     
     // Чтение JSON из QJsonArray
-    QList<Parameter> parseParametersFromJsonArray(const QJsonArray &jsonArray);
+    QList<BoardParameter> parseParametersFromJsonArray(const QJsonArray &jsonArray);
     
     // Проверка валидности JSON
     bool isValidJson(const QString &jsonString);
@@ -33,7 +33,7 @@ public:
 
 signals:
     void parsingError(const QString &error);
-    void parsingSuccess(const QList<Parameter> &parameters);
+    void parsingSuccess(const QList<BoardParameter> &parameters);
 
 private:
     QJsonParseError m_lastParseError;
@@ -44,4 +44,4 @@ private:
     bool isValidTimestamp(const QString &timestamp);
 };
 
-#endif // JSONREADER_H
+#endif // BOARDPARAMETERSJSONPARSER_H

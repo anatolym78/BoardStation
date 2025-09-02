@@ -8,7 +8,7 @@ ChartBuilder::ChartBuilder(QObject *parent)
 {
 }
 
-QChartView* ChartBuilder::createChart(const Parameter &parameter)
+QChartView* ChartBuilder::createChart(const BoardParameter &parameter)
 {
     if (!canCreateChart(parameter))
     {
@@ -28,7 +28,7 @@ QChartView* ChartBuilder::createChart(const Parameter &parameter)
     return chartView;
 }
 
-void ChartBuilder::updateChart(QChartView *chartView, const Parameter &parameter)
+void ChartBuilder::updateChart(QChartView *chartView, const BoardParameter &parameter)
 {
     if (!chartView || !canCreateChart(parameter))
     {
@@ -58,7 +58,7 @@ void ChartBuilder::updateChart(QChartView *chartView, const Parameter &parameter
     }
 }
 
-bool ChartBuilder::canCreateChart(const Parameter &parameter)
+bool ChartBuilder::canCreateChart(const BoardParameter &parameter)
 {
     if (!parameter.hasValues())
     {
@@ -66,7 +66,7 @@ bool ChartBuilder::canCreateChart(const Parameter &parameter)
     }
     
     // Проверяем, что все значения имеют числовой тип
-    for (const ParameterValue &value : parameter.values)
+    for (const BoardParameterValue &value : parameter.values)
     {
         if (!value.value.canConvert<double>())
         {
@@ -77,7 +77,7 @@ bool ChartBuilder::canCreateChart(const Parameter &parameter)
     return true;
 }
 
-void ChartBuilder::buildChart(QChart *chart, const Parameter &parameter)
+void ChartBuilder::buildChart(QChart *chart, const BoardParameter &parameter)
 {
     // Очищаем график от старых данных и осей
     chart->removeAllSeries();
@@ -107,7 +107,7 @@ void ChartBuilder::buildChart(QChart *chart, const Parameter &parameter)
     setupChartAppearance(chart, parameter);
 }
 
-void ChartBuilder::appendNewPoints(QChartView *chartView, const Parameter &parameter)
+void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &parameter)
 {
     QChart *chart = chartView->chart();
     if (!chart || chart->series().isEmpty())
@@ -135,7 +135,7 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const Parameter &param
     // Добавляем только новые точки
     for (int i = existingPoints; i < parameter.values.size(); ++i)
     {
-        const ParameterValue &value = parameter.values[i];
+        const BoardParameterValue &value = parameter.values[i];
         double timeValue = value.timestamp.toMSecsSinceEpoch() / 1000.0;
         double dataValue = value.value.toDouble();
         series->append(timeValue, dataValue);
@@ -169,7 +169,7 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const Parameter &param
         double minValue = parameter.values.first().value.toDouble();
         double maxValue = minValue;
 
-        for (const ParameterValue &value : parameter.values)
+        for (const BoardParameterValue &value : parameter.values)
         {
             double val = value.value.toDouble();
             if (val < minValue) minValue = val;
@@ -197,13 +197,13 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const Parameter &param
     }
 }
 
-QLineSeries* ChartBuilder::createSeries(const Parameter &parameter)
+QLineSeries* ChartBuilder::createSeries(const BoardParameter &parameter)
 {
     QLineSeries *series = new QLineSeries();
     series->setName(parameter.label);
     
     // Добавляем точки на график
-    for (const ParameterValue &value : parameter.values)
+    for (const BoardParameterValue &value : parameter.values)
     {
         double timeValue = value.timestamp.toMSecsSinceEpoch() / 1000.0; // Время в секундах
         double dataValue = value.value.toDouble();
@@ -218,7 +218,7 @@ QLineSeries* ChartBuilder::createSeries(const Parameter &parameter)
     return series;
 }
 
-void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const Parameter &parameter)
+void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardParameter &parameter)
 {
     // Создаем оси
     QValueAxis *axisX = new QValueAxis();
@@ -244,7 +244,7 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const Parameter
         double minValue = parameter.values.first().value.toDouble();
         double maxValue = minValue;
         
-        for (const ParameterValue &value : parameter.values)
+        for (const BoardParameterValue &value : parameter.values)
         {
             double val = value.value.toDouble();
             if (val < minValue) minValue = val;
@@ -275,7 +275,7 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const Parameter
     }
 }
 
-void ChartBuilder::setupChartAppearance(QChart *chart, const Parameter &parameter)
+void ChartBuilder::setupChartAppearance(QChart *chart, const BoardParameter &parameter)
 {
     // Устанавливаем заголовок графика
     chart->setTitle(tr("Chart for %1").arg(parameter.label));

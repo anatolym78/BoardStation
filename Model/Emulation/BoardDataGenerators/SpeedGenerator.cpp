@@ -9,13 +9,13 @@ SpeedGenerator::SpeedGenerator(QObject *parent)
 {
 }
 
-Parameter SpeedGenerator::generate(double time)
+BoardParameter SpeedGenerator::generate(double time)
 {
     // Генерируем скорость с колебаниями по синусоидальному закону
     double speed = m_baseSpeed + m_amplitude * sin(2.0 * M_PI * time / m_period);
     
     // Создаем параметр с названием, значением и единицей измерения
-    Parameter param(tr("Speed"), QString::number(speed, 'f', 1), tr("m/s"));
+    BoardParameter param(tr("Speed"), QString::number(speed, 'f', 1), tr("m/s"));
     
     return param;
 }

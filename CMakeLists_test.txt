@@ -10,26 +10,26 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 # Исходные файлы
 set(SOURCES
     test_boolean_parameter.cpp
-    ViewModel/Parameters/BooleanOutParameter.cpp
-    ViewModel/Parameters/OutParametersStorage.cpp
-    ViewModel/Parameters/ParametersParser.cpp
-    ViewModel/Parameters/ListedRealOutParameter.cpp
-    ViewModel/Parameters/RealOutParameter.cpp
-    ViewModel/Parameters/OutParameter.cpp
-    ViewModel/Parameters/StringOutParameter.cpp
-    ViewModel/Parameters/RangedRealOutParameter.cpp
+    Model/Parameters/BooleanOutParameter.cpp
+    Model/Parameters/OutParametersStorage.cpp
+    Model/Parameters/OutParametersParser.cpp
+    Model/Parameters/ListedRealOutParameter.cpp
+    Model/Parameters/RealOutParameter.cpp
+    Model/Parameters/OutParameter.cpp
+    Model/Parameters/StringOutParameter.cpp
+    Model/Parameters/RangedRealOutParameter.cpp
 )
 
 # Заголовочные файлы
 set(HEADERS
-    ViewModel/Parameters/BooleanOutParameter.h
-    ViewModel/Parameters/OutParametersStorage.h
-    ViewModel/Parameters/ParametersParser.h
-    ViewModel/Parameters/ListedRealOutParameter.h
-    ViewModel/Parameters/RealOutParameter.h
-    ViewModel/Parameters/OutParameter.h
-    ViewModel/Parameters/StringOutParameter.h
-    ViewModel/Parameters/RangedRealOutParameter.h
+    Model/Parameters/BooleanOutParameter.h
+    Model/Parameters/OutParametersStorage.h
+    Model/Parameters/OutParametersParser.h
+    Model/Parameters/ListedRealOutParameter.h
+    Model/Parameters/RealOutParameter.h
+    Model/Parameters/OutParameter.h
+    Model/Parameters/StringOutParameter.h
+    Model/Parameters/RangedRealOutParameter.h
 )
 
 # Создание исполняемого файла

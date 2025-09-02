@@ -18,23 +18,24 @@ SOURCES += \
     Model/Emulation/BoardDataGenerators/LongitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/LatitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
-    Model/JsonReader.cpp \
-    Model/JsonWriter.cpp \
-    Model/ParametersStorage.cpp \
+    Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
+    Model/Parameters/BoardParametersJsonParser.cpp \
+    Model/Parameters/BoardParametersStorage.cpp \
     Interface/Charts/ChartBuilder.cpp \
-    ViewModel/ParametersListModel.cpp \
+    ViewModel/BoardParametersModel.cpp \
     ViewModel/OutParametersModel.cpp \
-    ViewModel/Parameters/OutParameter.cpp \
-    ViewModel/Parameters/StringOutParameter.cpp \
-    ViewModel/Parameters/RealOutParameter.cpp \
-    ViewModel/Parameters/RangedRealOutParameter.cpp \
-    ViewModel/Parameters/ListedRealOutParameter.cpp \
-    ViewModel/Parameters/BooleanOutParameter.cpp \
-    ViewModel/Parameters/OutParametersStorage.cpp \
-    ViewModel/Parameters/ConfigurationReader.cpp \
-    ViewModel/Parameters/ParametersParser.cpp \
-    ViewModel/Parameters/ListedRealOutParameterDelegate.cpp \
-    ViewModel/Parameters/OutParameterWidgetCreator.cpp \
+    Model/Parameters/OutParameter.cpp \
+    Model/Parameters/StringOutParameter.cpp \
+    Model/Parameters/RealOutParameter.cpp \
+    Model/Parameters/RangedRealOutParameter.cpp \
+    Model/Parameters/ListedRealOutParameter.cpp \
+    Model/Parameters/BooleanOutParameter.cpp \
+    Model/Parameters/OutParametersStorage.cpp \
+    Model/Parameters/AppConfigurationReader.cpp \
+    Model/Parameters/OutParametersParser.cpp \
+    Model/Parameters/BoardMessage.cpp \
+    Model/Parameters/BoardMessagesJsonWriter.cpp \
+    Model/Parameters/OutParameterWidgetCreator.cpp \
     main.cpp \
     mainwindow.cpp \
     QmlMainWindow.cpp
@@ -47,26 +48,28 @@ HEADERS += \
     Model/Emulation/BoardDataGenerators/LongitudeGenerator.h \
     Model/Emulation/BoardDataGenerators/LatitudeGenerator.h \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.h \
+    Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.h \
     Model/IDriver.h \
-    Model/JsonReader.h \
-    Model/JsonWriter.h \
-    Model/Parameter.h \
-    Model/ParametersStorage.h \
+    Model/Parameters/BoardParametersJsonParser.h \
+    Model/Parameters/BoardParameter.h \
+    Model/Parameters/BoardParameterValue.h \
+    Model/Parameters/BoardParametersStorage.h \
     Interface/Charts/ChartBuilder.h \
-    ViewModel/ParametersListModel.h \
+    ViewModel/BoardParametersModel.h \
     ViewModel/OutParametersModel.h \
-    ViewModel/Parameters/OutParameter.h \
-    ViewModel/Parameters/StringOutParameter.h \
-    ViewModel/Parameters/RealOutParameter.h \
-    ViewModel/Parameters/RangedRealOutParameter.h \
-    ViewModel/Parameters/ListedRealOutParameter.h \
-    ViewModel/Parameters/BooleanOutParameter.h \
-    ViewModel/Parameters/OutParametersStorage.h \
-    ViewModel/Parameters/ConfigurationReader.h \
-    ViewModel/Parameters/ParametersParser.h \
-    ViewModel/Parameters/ListedRealOutParameterDelegate.h \
-    ViewModel/Parameters/Parameters.h \
-    ViewModel/Parameters/OutParameterWidgetCreator.h \
+    Model/Parameters/OutParameter.h \
+    Model/Parameters/StringOutParameter.h \
+    Model/Parameters/RealOutParameter.h \
+    Model/Parameters/RangedRealOutParameter.h \
+    Model/Parameters/ListedRealOutParameter.h \
+    Model/Parameters/BooleanOutParameter.h \
+    Model/Parameters/OutParametersStorage.h \
+    Model/Parameters/AppConfigurationReader.h \
+    Model/Parameters/OutParametersParser.h \
+    Model/Parameters/BoardMessage.h \
+    Model/Parameters/BoardMessagesJsonWriter.h \
+    Model/Parameters/Parameters.h \
+    Model/Parameters/OutParameterWidgetCreator.h \
     mainwindow.h \
     QmlMainWindow.h
 

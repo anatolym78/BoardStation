@@ -1,28 +1,28 @@
-#ifndef JSONWRITER_H
-#define JSONWRITER_H
+#ifndef BOARDDATAJSONGENERATOR_H
+#define BOARDDATAJSONGENERATOR_H
 
 #include <QObject>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QList>
-#include "Parameter.h"
+#include "../../Parameters/BoardParameter.h"
 
-class JsonWriter : public QObject
+class BoardDataJsonGenerator : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit JsonWriter(QObject *parent = nullptr);
+    explicit BoardDataJsonGenerator(QObject *parent = nullptr);
     
     // Создание JSON строки из списка параметров
-    QString createJsonString(const QList<Parameter> &parameters);
+    QString createJsonString(const QList<BoardParameter> &parameters);
     
     // Создание JSON документа из списка параметров
-    QJsonDocument createJsonDocument(const QList<Parameter> &parameters);
+    QJsonDocument createJsonDocument(const QList<BoardParameter> &parameters);
     
     // Создание JSON массива из списка параметров
-    QJsonArray createJsonArray(const QList<Parameter> &parameters);
+    QJsonArray createJsonArray(const QList<BoardParameter> &parameters);
 
 signals:
     void writingError(const QString &error);
@@ -30,7 +30,7 @@ signals:
 
 private:
     // Преобразование параметра в JSON объект
-    QJsonObject parameterToJsonObject(const Parameter &parameter);
+    QJsonObject parameterToJsonObject(const BoardParameter &parameter);
 };
 
-#endif // JSONWRITER_H
+#endif // BOARDDATAJSONGENERATOR_H

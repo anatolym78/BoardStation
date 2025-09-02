@@ -1,7 +1,6 @@
 #include "ListedRealOutParameter.h"
 #include <QString>
 #include <cmath>
-#include <algorithm>
 
 ListedRealOutParameter::ListedRealOutParameter(const QString &label, 
                                                double value,

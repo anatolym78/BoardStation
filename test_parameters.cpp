@@ -1,4 +1,4 @@
-#include "ViewModel/Parameters/Parameters.h"
+#include "Model/Parameters/Parameters.h"
 #include <QDebug>
 #include <QCoreApplication>
 
@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QCoreApplication app(argc, argv);
     
     // Создаем читатель конфигурации
-    ConfigurationReader reader;
+    AppConfigurationReader reader;
     
     // Загружаем конфигурацию
     if (!reader.loadConfiguration("config_example.json")) {
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     }
     
     // Создаем парсер параметров
-    ParametersParser parser;
+    OutParametersParser parser;
     
     // Парсим параметры
     QList<OutParameter*> parameters = parser.parseParameters(parametersArray);

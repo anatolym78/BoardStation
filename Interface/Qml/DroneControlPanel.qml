@@ -272,7 +272,12 @@ Rectangle {
                 Layout.preferredWidth: 120
                 onClicked: {
                     console.log("Send to drone button clicked")
-                    // Здесь будет логика отправки параметров дрону
+                    // Вызываем C++ метод через объект QmlMainWindow
+                    if (qmlMainWindow) {
+                        qmlMainWindow.sendParametersToBoard()
+                    } else {
+                        console.log("qmlMainWindow object not available")
+                    }
                 }
             }
             

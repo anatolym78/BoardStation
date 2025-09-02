@@ -2,7 +2,6 @@
 #define OUTPARAMETER_H
 
 #include <QString>
-#include <QWidget>
 #include <QObject>
 
 class OutParameter : public QObject
@@ -15,16 +14,15 @@ public:
 
     // Геттеры
     QString getLabel() const { return m_label; }
-    QWidget* getWidget() const { return m_widget; }
-    
-    // Сеттеры
-    void setWidget(QWidget *widget) { m_widget = widget; }
     
     // Виртуальные методы
     virtual bool isValid() const = 0;
     virtual QString getValueAsString() const = 0;
     virtual void setValueFromString(const QString &value) = 0;
     virtual QString getControlType() const { return m_controlType; }
+    
+    // Создание JSON блока параметра
+    QJsonObject toJsonObject() const;
     
     // Сеттеры
     void setControlType(const QString &controlType) { m_controlType = controlType; }
@@ -34,7 +32,6 @@ signals:
 
 protected:
     QString m_label;
-    QWidget *m_widget;
     QString m_controlType;
 };
 

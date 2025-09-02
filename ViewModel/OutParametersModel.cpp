@@ -1,10 +1,10 @@
 #include "OutParametersModel.h"
 #include <QDebug>
 #include <QTableView>
-#include "Parameters/ListedRealOutParameter.h"
-#include "Parameters/RangedRealOutParameter.h"
-#include "Parameters/StringOutParameter.h"
-#include "Parameters/BooleanOutParameter.h"
+#include "Model/Parameters/ListedRealOutParameter.h"
+#include "Model/Parameters/RangedRealOutParameter.h"
+#include "Model/Parameters/StringOutParameter.h"
+#include "Model/Parameters/BooleanOutParameter.h"
 
 OutParametersModel::OutParametersModel(QObject *parent)
     : QAbstractTableModel(parent)

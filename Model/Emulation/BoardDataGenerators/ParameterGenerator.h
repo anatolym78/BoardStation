@@ -2,7 +2,7 @@
 #define PARAMETERGENERATOR_H
 
 #include <QObject>
-#include "./../../Parameter.h"
+#include "./../../Parameters/BoardParameter.h"
 
 class ParameterGenerator : public QObject
 {
@@ -13,7 +13,7 @@ public:
     virtual ~ParameterGenerator() = default;
 
     // Абстрактная функция генерации параметра
-    virtual Parameter generate(double time) = 0;
+    virtual BoardParameter generate(double time) = 0;
 
     // Получение названия генератора
     virtual QString getName() const = 0;

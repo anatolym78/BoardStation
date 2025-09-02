@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "BoardStationApp.h"
-#include "Model/Parameter.h"
+#include "Model/Parameters/BoardParameter.h"
 #include "Interface/Charts/ChartBuilder.h"
 
 #include <QDebug>
@@ -51,7 +51,7 @@ void MainWindow::setApp(BoardStationApp *app)
         
         // Подключаем сигналы обновления параметров для обновления графиков
         if (m_app->getParametersStorage()) {
-            connect(m_app->getParametersStorage(), &ParametersStorage::parameterUpdated,
+            connect(m_app->getParametersStorage(), &BoardParametersStorage::parameterUpdated,
                     this, &MainWindow::onParameterUpdated);
         }
         
@@ -140,9 +140,12 @@ void MainWindow::onSendToBoardButtonClicked()
     ui->debugTextEdit->append(tr("Send to drone button clicked"));
     
     if (m_app) {
-        // Здесь можно добавить логику отправки данных на дрона
-        // Например, отправка текущих параметров или команд управления
-        ui->debugTextEdit->append(tr("Data sent to drone"));
+        // Отправляем параметры на борт
+        m_app->sendParametersToBoard();
+        ui->debugTextEdit->append(tr("Parameters sent to board"));
+    } else {
+        qWarning() << "MainWindow: Application instance is not available";
+        ui->debugTextEdit->append(tr("Error: Application not available"));
     }
 }
 
@@ -201,7 +204,7 @@ void MainWindow::createChartWindow(const QString &parameterName)
         return;
     }
     
-    Parameter param = m_app->getParametersStorage()->getParameter(parameterName);
+    BoardParameter param = m_app->getParametersStorage()->getParameter(parameterName);
     if (!param.hasValues()) {
         qWarning() << "MainWindow: Параметр" << parameterName << "не содержит значений";
         return;
@@ -271,7 +274,7 @@ void MainWindow::updateChart(const QString &parameterName)
     }
     
     // Получаем актуальные данные параметра
-    Parameter param = m_app->getParametersStorage()->getParameter(parameterName);
+    BoardParameter param = m_app->getParametersStorage()->getParameter(parameterName);
     if (!param.hasValues()) {
         return;
     }

@@ -1,14 +1,14 @@
-#ifndef PARAMETERSPARSER_H
-#define PARAMETERSPARSER_H
+#ifndef OUTPARAMETERSPARSER_H
+#define OUTPARAMETERSPARSER_H
 
 #include "OutParameter.h"
 #include <QJsonArray>
 #include <QList>
 
-class ParametersParser
+class OutParametersParser
 {
 public:
-    ParametersParser();
+    OutParametersParser();
     
     // Парсит массив параметров из JSON
     QList<OutParameter*> parseParameters(const QJsonArray &parametersArray);
@@ -37,4 +37,4 @@ private:
     QStringList parseStringValuesList(const QJsonObject &parameterObj);
 };
 
-#endif // PARAMETERSPARSER_H
+#endif // OUTPARAMETERSPARSER_H

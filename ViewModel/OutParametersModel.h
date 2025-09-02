@@ -4,8 +4,8 @@
 #include <QAbstractTableModel>
 #include <QWidget>
 #include <QTableView>
-#include "Parameters/OutParametersStorage.h"
-#include "Parameters/OutParameterWidgetCreator.h"
+#include "Model/Parameters/OutParametersStorage.h"
+#include "Model/Parameters/OutParameterWidgetCreator.h"
 class OutParametersModel : public QAbstractTableModel
 {
     Q_OBJECT

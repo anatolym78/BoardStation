@@ -1,6 +1,6 @@
 #include "QmlMainWindow.h"
 #include "BoardStationApp.h"
-#include "Model/Parameter.h"
+#include "Model/Parameters/BoardParameter.h"
 
 #include <QDebug>
 #include <QQmlContext>
@@ -40,7 +40,7 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         
         // Connect parameter update signals
         if (m_app->getParametersStorage()) {
-            connect(m_app->getParametersStorage(), &ParametersStorage::parameterUpdated,
+            connect(m_app->getParametersStorage(), &BoardParametersStorage::parameterUpdated,
                     this, &QmlMainWindow::onParameterUpdated);
         }
         
@@ -96,6 +96,9 @@ void QmlMainWindow::setupOutParametersModel()
         // Create empty model to avoid errors
         m_context->setContextProperty("outParametersModel", nullptr);
     }
+    
+    // Добавляем объект QmlMainWindow в QML контекст для вызова методов
+    m_context->setContextProperty("qmlMainWindow", this);
 }
 
 void QmlMainWindow::setupConnections()
@@ -112,5 +115,17 @@ void QmlMainWindow::onParameterUpdated(const QString &label)
     // Can send signal to QML to update interface
     if (m_context) {
         m_context->setContextProperty("lastUpdatedParameter", label);
+    }
+}
+
+void QmlMainWindow::sendParametersToBoard()
+{
+    qDebug() << "QmlMainWindow: Send parameters to board requested from QML";
+    
+    if (m_app) {
+        m_app->sendParametersToBoard();
+        qDebug() << "QmlMainWindow: Parameters sent to board successfully";
+    } else {
+        qWarning() << "QmlMainWindow: Application instance is not available";
     }
 }

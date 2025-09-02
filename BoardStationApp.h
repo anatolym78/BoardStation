@@ -3,16 +3,17 @@
 
 #include <QApplication>
 #include <QObject>
-#include "ViewModel/ParametersListModel.h"
+#include "ViewModel/BoardParametersModel.h"
 #include "ViewModel/OutParametersModel.h"
 #include "Model/IDriver.h"
-#include "Model/ParametersStorage.h"
-#include "ViewModel/Parameters/Parameters.h"
-#include "ViewModel/Parameters/OutParametersStorage.h"
+#include "Model/Parameters/BoardParametersStorage.h"
+#include "Model/Parameters/Parameters.h"
+#include "Model/Parameters/OutParametersStorage.h"
+#include "Model/Parameters/BoardMessagesJsonWriter.h"
 #include "Interface/Charts/ChartBuilder.h"
 
 class MainWindow;
-class JsonReader;
+class BoardParametersJsonParser;
 
 class BoardStationApp : public QApplication
 {
@@ -27,8 +28,8 @@ public:
     MainWindow* getMainWindow() const;
 
     // Методы для работы с моделью параметров
-    ParametersListModel* getParametersModel() const;
-    ParametersStorage* getParametersStorage() const;
+    BoardParametersModel* getParametersModel() const;
+    BoardParametersStorage* getParametersStorage() const;
     
     // Методы для работы с моделью исходящих параметров
     OutParametersModel* getOutParametersModel() const;
@@ -36,6 +37,12 @@ public:
     // Методы для работы с исходящими параметрами
     void loadOutParameters();
     OutParametersStorage* getOutParametersStorage() const;
+    
+    // Методы для работы с записью сообщений от борта
+    BoardMessagesJsonWriter* getBoardMessagesWriter() const;
+    
+    // Отправка параметров на борт
+    void sendParametersToBoard();
 
 private slots:
     void onDataAvailable();
@@ -46,12 +53,13 @@ private:
 
 private:
     MainWindow *m_mainWindow;
-    ParametersStorage *m_parametersStorage;
-    ParametersListModel *m_parametersModel;
+    BoardParametersStorage *m_parametersStorage;
+    BoardParametersModel *m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
     drv::IDriver *m_driver;
-    JsonReader *m_jsonReader;
+    BoardParametersJsonParser *m_jsonReader;
+    BoardMessagesJsonWriter *m_boardMessagesWriter;
 };
 
 #endif // BOARDSTATIONAPP_H

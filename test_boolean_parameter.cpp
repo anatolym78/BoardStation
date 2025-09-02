@@ -3,9 +3,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
-#include "ViewModel/Parameters/BooleanOutParameter.h"
-#include "ViewModel/Parameters/OutParametersStorage.h"
-#include "ViewModel/Parameters/ParametersParser.h"
+#include "Model/Parameters/BooleanOutParameter.h"
+#include "Model/Parameters/OutParametersStorage.h"
+#include "Model/Parameters/OutParametersParser.h"
 
 int main(int argc, char *argv[])
 {
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     paramsArray.append(paramObj);
     
     // Парсим параметры
-    ParametersParser parser;
+    OutParametersParser parser;
     QList<OutParameter*> parsedParams = parser.parseParameters(paramsArray);
     
     qDebug() << "Распарсено параметров:" << parsedParams.size();

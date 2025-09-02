@@ -6,7 +6,7 @@
 #include <QChartView>
 #include <QLineSeries>
 #include <QValueAxis>
-#include "./../../Model/Parameter.h"
+#include "./../../Model/Parameters/BoardParameter.h"
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -18,29 +18,29 @@ public:
     explicit ChartBuilder(QObject *parent = nullptr);
     
     // Создание нового графика по параметру
-    QChartView* createChart(const Parameter &parameter);
+    QChartView* createChart(const BoardParameter &parameter);
     
     // Обновление существующего графика по параметру
-    void updateChart(QChartView *chartView, const Parameter &parameter);
+    void updateChart(QChartView *chartView, const BoardParameter &parameter);
     
     // Проверка, можно ли создать график для параметра
-    static bool canCreateChart(const Parameter &parameter);
+    static bool canCreateChart(const BoardParameter &parameter);
     
     // Добавление новых точек к существующему графику
-    void appendNewPoints(QChartView *chartView, const Parameter &parameter);
+    void appendNewPoints(QChartView *chartView, const BoardParameter &parameter);
 
 private:
     // Единая функция создания графика (используется и для создания, и для обновления)
-    void buildChart(QChart *chart, const Parameter &parameter);
+    void buildChart(QChart *chart, const BoardParameter &parameter);
     
     // Создание серии данных для параметра
-    QLineSeries* createSeries(const Parameter &parameter);
+    QLineSeries* createSeries(const BoardParameter &parameter);
     
     // Настройка осей графика
-    void setupAxes(QChart *chart, QLineSeries *series, const Parameter &parameter);
+    void setupAxes(QChart *chart, QLineSeries *series, const BoardParameter &parameter);
     
     // Настройка внешнего вида графика
-    void setupChartAppearance(QChart *chart, const Parameter &parameter);
+    void setupChartAppearance(QChart *chart, const BoardParameter &parameter);
 };
 
 #endif // CHARTSBUILDER_H

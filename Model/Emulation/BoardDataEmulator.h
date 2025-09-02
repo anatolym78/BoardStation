@@ -3,7 +3,7 @@
 
 #include "../IDriver.h"
 #include "BoardDataGenerators/ParameterGenerator.h"
-#include "../JsonWriter.h"
+#include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QTimer>
 #include <QQueue>
 #include <QJsonDocument>
@@ -36,6 +36,7 @@ private slots:
 private:
     void setupGenerators();
     void generateParameters();
+    void saveSentParametersToFile(const QString &jsonString);
 
 private:
     QTimer *m_stateTimer;
@@ -46,7 +47,7 @@ private:
     QList<ParameterGenerator*> m_generators;
     
     // JSON writer для создания JSON строк
-    JsonWriter *m_jsonWriter;
+    BoardDataJsonGenerator *m_jsonWriter;
     
     // Время для генерации параметров
     double m_time;

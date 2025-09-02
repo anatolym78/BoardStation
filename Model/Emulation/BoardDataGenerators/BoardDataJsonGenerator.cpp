@@ -1,12 +1,12 @@
-#include "JsonWriter.h"
+#include "BoardDataJsonGenerator.h"
 #include <QDebug>
 
-JsonWriter::JsonWriter(QObject *parent)
+BoardDataJsonGenerator::BoardDataJsonGenerator(QObject *parent)
     : QObject(parent)
 {
 }
 
-QString JsonWriter::createJsonString(const QList<Parameter> &parameters)
+QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter> &parameters)
 {
     QJsonDocument doc = createJsonDocument(parameters);
     QString jsonString = doc.toJson(QJsonDocument::Compact);
@@ -20,17 +20,17 @@ QString JsonWriter::createJsonString(const QList<Parameter> &parameters)
     return jsonString;
 }
 
-QJsonDocument JsonWriter::createJsonDocument(const QList<Parameter> &parameters)
+QJsonDocument BoardDataJsonGenerator::createJsonDocument(const QList<BoardParameter> &parameters)
 {
     QJsonArray array = createJsonArray(parameters);
     return QJsonDocument(array);
 }
 
-QJsonArray JsonWriter::createJsonArray(const QList<Parameter> &parameters)
+QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter> &parameters)
 {
     QJsonArray array;
     
-    for (const Parameter &param : parameters) {
+    for (const BoardParameter &param : parameters) {
         QJsonObject obj = parameterToJsonObject(param);
         array.append(obj);
     }
@@ -38,7 +38,7 @@ QJsonArray JsonWriter::createJsonArray(const QList<Parameter> &parameters)
     return array;
 }
 
-QJsonObject JsonWriter::parameterToJsonObject(const Parameter &parameter)
+QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameter &parameter)
 {
     QJsonObject obj;
     obj["label"] = parameter.label;
@@ -53,7 +53,7 @@ QJsonObject JsonWriter::parameterToJsonObject(const Parameter &parameter)
     // Добавляем историю значений, если она есть
     if (parameter.valueCount() > 1) {
         QJsonArray valuesArray;
-        for (const ParameterValue &value : parameter.values) {
+        for (const BoardParameterValue &value : parameter.values) {
             QJsonObject valueObj;
             valueObj["value"] = QJsonValue::fromVariant(value.value);
             valueObj["timestamp"] = value.timestamp.toString(Qt::ISODate);

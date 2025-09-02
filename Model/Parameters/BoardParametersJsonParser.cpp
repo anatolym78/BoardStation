@@ -1,16 +1,16 @@
-#include "JsonReader.h"
+#include "BoardParametersJsonParser.h"
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
 
-JsonReader::JsonReader(QObject *parent)
+BoardParametersJsonParser::BoardParametersJsonParser(QObject *parent)
     : QObject(parent)
 {
 }
 
-QList<Parameter> JsonReader::parseParametersFromString(const QString &jsonString)
+QList<BoardParameter> BoardParametersJsonParser::parseParametersFromString(const QString &jsonString)
 {
-    QList<Parameter> parameters;
+    QList<BoardParameter> parameters;
     
     if (jsonString.isEmpty()) {
         m_lastError = "JSON строка пуста";
@@ -46,9 +46,9 @@ QList<Parameter> JsonReader::parseParametersFromString(const QString &jsonString
     return parameters;
 }
 
-QList<Parameter> JsonReader::parseParametersFromFile(const QString &filePath)
+QList<BoardParameter> BoardParametersJsonParser::parseParametersFromFile(const QString &filePath)
 {
-    QList<Parameter> parameters;
+    QList<BoardParameter> parameters;
     
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -64,9 +64,9 @@ QList<Parameter> JsonReader::parseParametersFromFile(const QString &filePath)
     return parseParametersFromString(jsonString);
 }
 
-QList<Parameter> JsonReader::parseParametersFromJsonArray(const QJsonArray &jsonArray)
+QList<BoardParameter> BoardParametersJsonParser::parseParametersFromJsonArray(const QJsonArray &jsonArray)
 {
-    QList<Parameter> parameters;
+    QList<BoardParameter> parameters;
     
     for (const QJsonValue &value : jsonArray) {
         if (!value.isObject()) {
@@ -89,7 +89,7 @@ QList<Parameter> JsonReader::parseParametersFromJsonArray(const QJsonArray &json
                 }
             }
             
-            Parameter param(label, unit);
+            BoardParameter param(label, unit);
             param.addValue(value, timestamp);
             parameters.append(param);
         } else {
@@ -100,19 +100,19 @@ QList<Parameter> JsonReader::parseParametersFromJsonArray(const QJsonArray &json
     return parameters;
 }
 
-bool JsonReader::isValidJson(const QString &jsonString)
+bool BoardParametersJsonParser::isValidJson(const QString &jsonString)
 {
     QJsonParseError parseError;
     QJsonDocument::fromJson(jsonString.toUtf8(), &parseError);
     return parseError.error == QJsonParseError::NoError;
 }
 
-QString JsonReader::getLastError() const
+QString BoardParametersJsonParser::getLastError() const
 {
     return m_lastError;
 }
 
-bool JsonReader::isValidParameterStructure(const QJsonObject &obj)
+bool BoardParametersJsonParser::isValidParameterStructure(const QJsonObject &obj)
 {
     // Проверяем наличие обязательных полей
     if (!obj.contains("label") || !obj.contains("value")) {

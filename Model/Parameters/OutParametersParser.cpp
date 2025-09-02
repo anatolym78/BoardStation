@@ -1,4 +1,4 @@
-#include "ParametersParser.h"
+#include "OutParametersParser.h"
 #include "StringOutParameter.h"
 #include "RangedRealOutParameter.h"
 #include "ListedRealOutParameter.h"
@@ -7,11 +7,11 @@
 #include <QJsonValue>
 #include <QDebug>
 
-ParametersParser::ParametersParser()
+OutParametersParser::OutParametersParser()
 {
 }
 
-QList<OutParameter*> ParametersParser::parseParameters(const QJsonArray &parametersArray)
+QList<OutParameter*> OutParametersParser::parseParameters(const QJsonArray &parametersArray)
 {
     QList<OutParameter*> parameters;
     
@@ -22,20 +22,20 @@ QList<OutParameter*> ParametersParser::parseParameters(const QJsonArray &paramet
             if (param && param->isValid()) {
                 parameters.append(param);
             } else {
-                qWarning() << "ParametersParser: Параметр не прошел валидацию:" << paramObj["label"].toString();
+                qWarning() << "OutParametersParser: Параметр не прошел валидацию:" << paramObj["label"].toString();
                 delete param;
             }
         }
     }
     
-    qDebug() << "ParametersParser: Успешно создано" << parameters.size() << "параметров";
+    qDebug() << "OutParametersParser: Успешно создано" << parameters.size() << "параметров";
     return parameters;
 }
 
-OutParameter* ParametersParser::parseParameter(const QJsonObject &parameterObj)
+OutParameter* OutParametersParser::parseParameter(const QJsonObject &parameterObj)
 {
     if (!parameterObj.contains("label") || !parameterObj.contains("valueType") || !parameterObj.contains("controlType")) {
-        qWarning() << "ParametersParser: Параметр не содержит обязательные поля";
+        qWarning() << "OutParametersParser: Параметр не содержит обязательные поля";
         return nullptr;
     }
     
@@ -46,7 +46,7 @@ OutParameter* ParametersParser::parseParameter(const QJsonObject &parameterObj)
     return createParameter(label, valueType, controlType, parameterObj);
 }
 
-void ParametersParser::clearParameters(QList<OutParameter*> &parameters)
+void OutParametersParser::clearParameters(QList<OutParameter*> &parameters)
 {
     for (OutParameter *param : parameters) {
         delete param;
@@ -54,7 +54,7 @@ void ParametersParser::clearParameters(QList<OutParameter*> &parameters)
     parameters.clear();
 }
 
-OutParameter* ParametersParser::createParameter(const QString &label, 
+OutParameter* OutParametersParser::createParameter(const QString &label, 
                                                const QString &valueType,
                                                const QString &controlType,
                                                const QJsonObject &parameterObj)
@@ -95,11 +95,11 @@ OutParameter* ParametersParser::createParameter(const QString &label,
         return new BooleanOutParameter(label, false, falseAlias, trueAlias, controlType);
     }
     
-    qWarning() << "ParametersParser: Неподдерживаемый тип значения:" << valueType;
+    qWarning() << "OutParametersParser: Неподдерживаемый тип значения:" << valueType;
     return nullptr;
 }
 
-bool ParametersParser::parseRange(const QJsonObject &parameterObj, 
+bool OutParametersParser::parseRange(const QJsonObject &parameterObj, 
                                  double &minimum, double &maximum, double &step)
 {
     if (!parameterObj.contains("range")) {
@@ -125,7 +125,7 @@ bool ParametersParser::parseRange(const QJsonObject &parameterObj,
     return false;
 }
 
-QList<double> ParametersParser::parseValuesList(const QJsonObject &parameterObj)
+QList<double> OutParametersParser::parseValuesList(const QJsonObject &parameterObj)
 {
     QList<double> values;
     
@@ -146,7 +146,7 @@ QList<double> ParametersParser::parseValuesList(const QJsonObject &parameterObj)
     return values;
 }
 
-QStringList ParametersParser::parseStringValuesList(const QJsonObject &parameterObj)
+QStringList OutParametersParser::parseStringValuesList(const QJsonObject &parameterObj)
 {
     QStringList values;
     

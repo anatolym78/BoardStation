@@ -9,13 +9,13 @@ AltitudeGenerator::AltitudeGenerator(QObject *parent)
 {
 }
 
-Parameter AltitudeGenerator::generate(double time)
+BoardParameter AltitudeGenerator::generate(double time)
 {
     // Генерируем высоту по синусоидальному закону
     double altitude = m_baseAltitude + m_amplitude * sin(2.0 * M_PI * time / m_period);
     
     // Создаем параметр с названием, значением и единицей измерения
-    Parameter param(tr("Altitude"), QString::number(altitude, 'f', 2), tr("m"));
+    BoardParameter param(tr("Altitude"), QString::number(altitude, 'f', 2), tr("m"));
     
     return param;
 }

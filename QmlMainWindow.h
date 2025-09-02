@@ -18,6 +18,9 @@ public:
     void setApp(BoardStationApp *app);
     BoardStationApp* getApp() const;
 
+public slots:
+    void sendParametersToBoard();
+
 private slots:
     void onParameterUpdated(const QString &label);
 

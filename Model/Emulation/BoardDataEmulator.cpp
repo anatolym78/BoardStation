@@ -3,14 +3,18 @@
 #include "BoardDataGenerators/LongitudeGenerator.h"
 #include "BoardDataGenerators/LatitudeGenerator.h"
 #include "BoardDataGenerators/SpeedGenerator.h"
+#include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QDebug>
+#include <QFile>
+#include <QTextStream>
+#include <QApplication>
 
 namespace drv {
 
 BoardDataEmulator::BoardDataEmulator(QObject *)
     : m_stateTimer(new QTimer(this))
     , m_dataTimer(new QTimer(this))
-    , m_jsonWriter(new JsonWriter(this))
+    , m_jsonWriter(new BoardDataJsonGenerator(this))
     , m_time(0.0)
     , m_currentState(State::k_Disconnected)
     , m_isRunning(false)
@@ -43,6 +47,10 @@ void BoardDataEmulator::write(const std::string &data)
 {
     // Добавляем входящее сообщение в очередь
     m_messageQueue.enqueue(data);
+    
+    // Сохраняем отправленные параметры в файл
+    QString jsonString = QString::fromStdString(data);
+    saveSentParametersToFile(jsonString);
 }
 
 const std::string &BoardDataEmulator::read()
@@ -163,11 +171,11 @@ void BoardDataEmulator::setupGenerators()
 
 void BoardDataEmulator::generateParameters()
 {
-    QList<Parameter> parameters;
+    QList<BoardParameter> parameters;
     
     // Генерируем параметры от всех генераторов
     for (ParameterGenerator *generator : m_generators) {
-        Parameter param = generator->generate(m_time);
+        BoardParameter param = generator->generate(m_time);
         parameters.append(param);
     }
     
@@ -189,6 +197,37 @@ void BoardDataEmulator::generateParameters()
         
         qDebug() << "BoardDataEmulator: Сгенерированы параметры, JSON:" << jsonString;
     }
+}
+
+void BoardDataEmulator::saveSentParametersToFile(const QString &jsonString)
+{
+    QString filename = QApplication::applicationDirPath() + "/TestSendParameters.json";
+    
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "BoardDataEmulator: Cannot open file for writing:" << filename;
+        return;
+    }
+    
+    // Парсим JSON и переформатируем его для читаемости
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(jsonString.toUtf8(), &error);
+    
+    if (error.error != QJsonParseError::NoError) {
+        qWarning() << "BoardDataEmulator: JSON parse error:" << error.errorString();
+        // Если не удалось распарсить, сохраняем как есть
+        QTextStream stream(&file);
+        stream << jsonString;
+    } else {
+        // Сохраняем в читаемом формате
+        QByteArray formattedJson = doc.toJson(QJsonDocument::Indented);
+        file.write(formattedJson);
+    }
+    
+    file.close();
+    
+    qDebug() << "BoardDataEmulator: Sent parameters saved to" << filename;
+    qDebug() << "BoardDataEmulator: JSON content:" << jsonString;
 }
 
 } // namespace drv
