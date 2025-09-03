@@ -1,0 +1,211 @@
+#include "ChartSeriesModel.h"
+#include <QDebug>
+
+ChartSeriesModel::ChartSeriesModel(QObject *parent)
+    : QAbstractListModel(parent)
+    , m_parametersStorage(nullptr)
+{
+    qDebug() << "ChartSeriesModel: Created empty model";
+}
+
+ChartSeriesModel::ChartSeriesModel(const QStringList &parameterLabels, QObject *parent)
+    : QAbstractListModel(parent)
+    , m_parametersStorage(nullptr)
+{
+    addSeries(parameterLabels);
+    qDebug() << "ChartSeriesModel: Created with" << parameterLabels.size() << "series";
+}
+
+void ChartSeriesModel::setParametersStorage(BoardParametersStorage *storage)
+{
+    m_parametersStorage = storage;
+    if (m_parametersStorage) {
+        connect(m_parametersStorage, &BoardParametersStorage::parameterAdded, 
+                this, &ChartSeriesModel::onParameterAdded);
+    }
+}
+
+int ChartSeriesModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return m_seriesModels.size();
+}
+
+QVariant ChartSeriesModel::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid() || index.row() >= m_seriesModels.size())
+        return QVariant();
+
+    ChartPointsModel *pointsModel = m_seriesModels.at(index.row());
+    if (!pointsModel)
+        return QVariant();
+
+    switch (role) {
+    case ParameterLabelRole:
+        return pointsModel->parameterLabel();
+    case PointsModelRole:
+        return QVariant::fromValue(pointsModel);
+    case PointCountRole:
+        return pointsModel->pointCount();
+    case HasPointsRole:
+        return pointsModel->hasPoints();
+    default:
+        return QVariant();
+    }
+}
+
+QHash<int, QByteArray> ChartSeriesModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[ParameterLabelRole] = "parameterLabel";
+    roles[PointsModelRole] = "pointsModel";
+    roles[PointCountRole] = "pointCount";
+    roles[HasPointsRole] = "hasPoints";
+    return roles;
+}
+
+void ChartSeriesModel::addSeries(const QString &parameterLabel)
+{
+    if (hasSeries(parameterLabel)) {
+        qDebug() << "ChartSeriesModel: Series for parameter" << parameterLabel << "already exists";
+        return;
+    }
+
+    beginInsertRows(QModelIndex(), m_seriesModels.size(), m_seriesModels.size());
+    ChartPointsModel *pointsModel = new ChartPointsModel(parameterLabel, this);
+    m_seriesModels.append(pointsModel);
+    m_parameterLabels.append(parameterLabel);
+    endInsertRows();
+    
+    qDebug() << "ChartSeriesModel: Added series for parameter" << parameterLabel;
+}
+
+void ChartSeriesModel::addSeries(const QStringList &parameterLabels)
+{
+    for (const QString &label : parameterLabels) {
+        addSeries(label);
+    }
+}
+
+void ChartSeriesModel::removeSeries(const QString &parameterLabel)
+{
+    int index = m_parameterLabels.indexOf(parameterLabel);
+    if (index >= 0) {
+        removeSeries(index);
+    } else {
+        qDebug() << "ChartSeriesModel: Series for parameter" << parameterLabel << "not found";
+    }
+}
+
+void ChartSeriesModel::removeSeries(int index)
+{
+    if (index < 0 || index >= m_seriesModels.size()) {
+        qWarning() << "ChartSeriesModel: Invalid index" << index;
+        return;
+    }
+    
+    beginRemoveRows(QModelIndex(), index, index);
+    ChartPointsModel *pointsModel = m_seriesModels.takeAt(index);
+    QString removedLabel = m_parameterLabels.takeAt(index);
+    if (pointsModel) {
+        pointsModel->deleteLater();
+    }
+    endRemoveRows();
+    
+    qDebug() << "ChartSeriesModel: Removed series for parameter" << removedLabel;
+}
+
+void ChartSeriesModel::clearSeries()
+{
+    if (m_seriesModels.isEmpty())
+        return;
+        
+    beginResetModel();
+    qDeleteAll(m_seriesModels);
+    m_seriesModels.clear();
+    m_parameterLabels.clear();
+    endResetModel();
+    
+    qDebug() << "ChartSeriesModel: Cleared all series";
+}
+
+void ChartSeriesModel::addPoint(const QString &parameterLabel, const QPointF &point)
+{
+    ChartPointsModel *pointsModel = getPointsModel(parameterLabel);
+    if (pointsModel) {
+        pointsModel->addPoint(point);
+    } else {
+        qWarning() << "ChartSeriesModel: Points model not found for parameter" << parameterLabel;
+    }
+}
+
+void ChartSeriesModel::addPoint(const QString &parameterLabel, double x, double y)
+{
+    addPoint(parameterLabel, QPointF(x, y));
+}
+
+void ChartSeriesModel::addPoint(const QString &parameterLabel, double x, double y, const QDateTime &timestamp, const QVariant &value)
+{
+    ChartPointsModel *pointsModel = getPointsModel(parameterLabel);
+    if (pointsModel) {
+        pointsModel->addPoint(x, y, timestamp, value);
+    } else {
+        qWarning() << "ChartSeriesModel: Points model not found for parameter" << parameterLabel;
+    }
+}
+
+ChartPointsModel* ChartSeriesModel::getPointsModel(const QString &parameterLabel) const
+{
+    int index = m_parameterLabels.indexOf(parameterLabel);
+    if (index >= 0 && index < m_seriesModels.size()) {
+        return m_seriesModels.at(index);
+    }
+    return nullptr;
+}
+
+ChartPointsModel* ChartSeriesModel::getPointsModel(int index) const
+{
+    if (index >= 0 && index < m_seriesModels.size()) {
+        return m_seriesModels.at(index);
+    }
+    return nullptr;
+}
+
+QStringList ChartSeriesModel::parameterLabels() const
+{
+    return m_parameterLabels;
+}
+
+bool ChartSeriesModel::hasSeries(const QString &parameterLabel) const
+{
+    return m_parameterLabels.contains(parameterLabel);
+}
+
+bool ChartSeriesModel::hasSeries(int index) const
+{
+    return index >= 0 && index < m_seriesModels.size();
+}
+
+void ChartSeriesModel::handleParameterAdded(const QString &label)
+{
+    // Если у нас есть серия для этого параметра, добавляем новую точку
+    if (hasSeries(label) && m_parametersStorage) {
+        BoardParameter *param = m_parametersStorage->getParameter(label);
+        if (param && param->hasValues()) {
+            BoardParameterValue *lastValue = param->lastValue();
+            if (lastValue) {
+                double timeValue = lastValue->timestamp().toMSecsSinceEpoch() / 1000.0;
+                double dataValue = lastValue->value().toDouble();
+                addPoint(label, timeValue, dataValue, lastValue->timestamp(), lastValue->value());
+            }
+        }
+    }
+    
+    qDebug() << "ChartSeriesModel: Parameter added:" << label;
+}
+
+void ChartSeriesModel::onParameterAdded(const QString &label)
+{
+    handleParameterAdded(label);
+}

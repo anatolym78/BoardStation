@@ -13,7 +13,7 @@ public:
     virtual ~ParameterGenerator() = default;
 
     // Абстрактная функция генерации параметра
-    virtual BoardParameter generate(double time) = 0;
+    virtual BoardParameter* generate(double time) = 0;
 
     // Получение названия генератора
     virtual QString getName() const = 0;

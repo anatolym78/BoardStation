@@ -8,9 +8,9 @@ BoardParametersJsonParser::BoardParametersJsonParser(QObject *parent)
 {
 }
 
-QList<BoardParameter> BoardParametersJsonParser::parseParametersFromString(const QString &jsonString)
+QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromString(const QString &jsonString)
 {
-    QList<BoardParameter> parameters;
+    QList<BoardParameter*> parameters;
     
     if (jsonString.isEmpty()) {
         m_lastError = "JSON строка пуста";
@@ -46,9 +46,9 @@ QList<BoardParameter> BoardParametersJsonParser::parseParametersFromString(const
     return parameters;
 }
 
-QList<BoardParameter> BoardParametersJsonParser::parseParametersFromFile(const QString &filePath)
+QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromFile(const QString &filePath)
 {
-    QList<BoardParameter> parameters;
+    QList<BoardParameter*> parameters;
     
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -64,9 +64,9 @@ QList<BoardParameter> BoardParametersJsonParser::parseParametersFromFile(const Q
     return parseParametersFromString(jsonString);
 }
 
-QList<BoardParameter> BoardParametersJsonParser::parseParametersFromJsonArray(const QJsonArray &jsonArray)
+QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromJsonArray(const QJsonArray &jsonArray)
 {
-    QList<BoardParameter> parameters;
+    QList<BoardParameter*> parameters;
     
     for (const QJsonValue &value : jsonArray) {
         if (!value.isObject()) {
@@ -89,8 +89,8 @@ QList<BoardParameter> BoardParametersJsonParser::parseParametersFromJsonArray(co
                 }
             }
             
-            BoardParameter param(label, unit);
-            param.addValue(value, timestamp);
+            BoardParameter *param = new BoardParameter(label, unit);
+            param->addValue(value, timestamp);
             parameters.append(param);
         } else {
             qWarning() << "Пропускаем невалидный параметр в JSON";

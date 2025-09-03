@@ -5,74 +5,65 @@
 #include <QVariant>
 #include <QDateTime>
 #include <QList>
+#include <QObject>
 #include "BoardParameterValue.h"
 
-struct BoardParameter
+class BoardParameter : public QObject
 {
-    QString label;           // Название параметра
-    QString unit;            // Единица измерения
-    QList<BoardParameterValue> values;  // Список значений и времени их получения
+    Q_OBJECT
+    Q_PROPERTY(QString label READ label WRITE setLabel NOTIFY labelChanged)
+    Q_PROPERTY(QString unit READ unit WRITE setUnit NOTIFY unitChanged)
+    Q_PROPERTY(QList<BoardParameterValue*> values READ values NOTIFY valuesChanged)
+    Q_PROPERTY(QVariant lastValueData READ lastValueData NOTIFY lastValueDataChanged)
+    Q_PROPERTY(QDateTime lastTimestamp READ lastTimestamp NOTIFY lastTimestampChanged)
+    Q_PROPERTY(bool hasValues READ hasValues NOTIFY hasValuesChanged)
+    Q_PROPERTY(int valueCount READ valueCount NOTIFY valueCountChanged)
+
+public:
+    explicit BoardParameter(QObject *parent = nullptr);
+    BoardParameter(const QString &label, const QString &unit = QString(), QObject *parent = nullptr);
+    BoardParameter(const QString &label, const QVariant &value, const QString &unit = QString(), QObject *parent = nullptr);
+    BoardParameter(const QString &label, const QVariant &value, const QDateTime &timestamp, const QString &unit = QString(), QObject *parent = nullptr);
     
-    BoardParameter() = default;
-    BoardParameter(const QString &label, const QString &unit = QString())
-        : label(label), unit(unit) {}
+    // Деструктор для очистки памяти
+    ~BoardParameter();
     
-    BoardParameter(const QString &label, const QVariant &value, const QString &unit = QString())
-        : label(label), unit(unit) {
-        values.append(BoardParameterValue(value));
-    }
+    // Геттеры
+    QString label() const { return m_label; }
+    QString unit() const { return m_unit; }
+    QList<BoardParameterValue*> values() const { return m_values; }
+    QVariant lastValueData() const;
+    QDateTime lastTimestamp() const;
+    bool hasValues() const { return !m_values.isEmpty(); }
+    int valueCount() const { return m_values.size(); }
     
-    BoardParameter(const QString &label, const QVariant &value, const QDateTime &timestamp, const QString &unit = QString())
-        : label(label), unit(unit) {
-        values.append(BoardParameterValue(value, timestamp));
-    }
+    // Сеттеры
+    void setLabel(const QString &label);
+    void setUnit(const QString &unit);
     
     // Добавление нового значения
-    void addValue(const QVariant &value, const QDateTime &timestamp = QDateTime::currentDateTime()) {
-        values.append(BoardParameterValue(value, timestamp));
-    }
+    void addValue(const QVariant &value, const QDateTime &timestamp = QDateTime::currentDateTime());
     
     // Получение последнего значения
-    BoardParameterValue lastValue() const {
-        if (values.isEmpty()) {
-            return BoardParameterValue();
-        }
-        return values.last();
-    }
+    BoardParameterValue* lastValue() const;
     
-    // Получение последнего значения как QVariant
-    QVariant lastValueData() const {
-        if (values.isEmpty()) {
-            return QVariant();
-        }
-        return values.last().value;
-    }
-    
-    // Получение времени последнего значения
-    QDateTime lastTimestamp() const {
-        if (values.isEmpty()) {
-            return QDateTime();
-        }
-        return values.last().timestamp;
-    }
-    
-    // Проверка наличия значений
-    bool hasValues() const {
-        return !values.isEmpty();
-    }
-    
-    // Количество значений
-    int valueCount() const {
-        return values.size();
-    }
-    
-    bool operator==(const BoardParameter &other) const {
-        return label == other.label && unit == other.unit && values == other.values;
-    }
-    
-    bool operator!=(const BoardParameter &other) const {
-        return !(*this == other);
-    }
+    // Операторы сравнения
+    bool operator==(const BoardParameter &other) const;
+    bool operator!=(const BoardParameter &other) const;
+
+signals:
+    void labelChanged();
+    void unitChanged();
+    void valuesChanged();
+    void lastValueDataChanged();
+    void lastTimestampChanged();
+    void hasValuesChanged();
+    void valueCountChanged();
+
+private:
+    QString m_label;           // Название параметра
+    QString m_unit;            // Единица измерения
+    QList<BoardParameterValue*> m_values;  // Список значений и времени их получения
 };
 
 #endif // BOARDPARAMETER_H

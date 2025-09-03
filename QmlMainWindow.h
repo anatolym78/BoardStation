@@ -27,6 +27,7 @@ private slots:
 private:
     void setupModel();
     void setupOutParametersModel();
+    void setupChartSeriesModel();
     void setupConnections();
 
 private:

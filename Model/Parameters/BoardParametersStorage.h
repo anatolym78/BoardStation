@@ -14,16 +14,16 @@ public:
     explicit BoardParametersStorage(QObject *parent = nullptr);
     
     // Добавление параметров - раскидывает по словарю по метке
-    void addParameters(const QList<BoardParameter> &parameters);
+    void addParameters(const QList<BoardParameter*> &parameters);
     
     // Добавление одного параметра
-    void addParameter(const BoardParameter &parameter);
+    void addParameter(BoardParameter *parameter);
     
     // Получение последнего значения параметра по метке
-    BoardParameter lastValue(const QString &label) const;
+    BoardParameter* lastValue(const QString &label) const;
     
     // Получение параметра по метке
-    BoardParameter getParameter(const QString &label) const;
+    BoardParameter* getParameter(const QString &label) const;
     
     // Получение всех меток параметров
     QStringList getParameterLabels() const;
@@ -38,7 +38,7 @@ public:
     void clear();
     
     // Получение всех параметров как список
-    QList<BoardParameter> getAllParameters() const;
+    QList<BoardParameter*> getAllParameters() const;
 
 signals:
     void parameterAdded(const QString &label);
@@ -46,7 +46,7 @@ signals:
     void parametersCleared();
 
 private:
-    QMap<QString, BoardParameter> m_parameters;
+    QMap<QString, BoardParameter*> m_parameters;
 };
 
 #endif // BOARDPARAMETERSSTORAGE_H

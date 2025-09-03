@@ -3,6 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Window 2.12
 import QtCharts 2.12
+import BoardStation 1.0
 
 Item
 {
@@ -20,6 +21,7 @@ Item
         console.log("QML: Application loaded")
         console.log("QML: parametersModel available:", parametersModel !== null)
         console.log("QML: outParametersModel available:", outParametersModel !== null)
+        console.log("QML: chartSeriesModel available:", chartSeriesModel !== null)
         if (parametersModel)
         {
             console.log("QML: Number of parameters in model:", parametersModel.rowCount())
@@ -30,11 +32,16 @@ Item
             console.log("QML: Number of out parameters in model:", outParametersModel.rowCount())
             console.log("QML: Number of out parameter columns in model:", outParametersModel.columnCount())
         }
+        if (chartSeriesModel)
+        {
+            console.log("QML: Number of chart series in model:", chartSeriesModel.rowCount())
+        }
         
         // Явно присваиваем модели компонентам для избежания циклических привязок
         droneDataPanel.parametersModel = parametersModel
         droneControlPanel.outParametersModel = outParametersModel
         chartsPanel.parametersModel = parametersModel
+        chartsPanel.chartSeriesModel = chartSeriesModel
         chartsPanel.chartBuilder = chartBuilder
     }
     

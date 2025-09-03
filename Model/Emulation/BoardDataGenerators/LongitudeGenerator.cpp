@@ -8,13 +8,13 @@ LongitudeGenerator::LongitudeGenerator(QObject *parent)
 {
 }
 
-BoardParameter LongitudeGenerator::generate(double time)
+BoardParameter* LongitudeGenerator::generate(double time)
 {
     // Генерируем долготу по линейному закону
     double longitude = m_startLongitude + m_speed * time;
     
     // Создаем параметр с названием, значением и единицей измерения
-    BoardParameter param(tr("Longitude"), QString::number(longitude, 'f', 6), tr("°"));
+    BoardParameter *param = new BoardParameter(tr("Longitude"), QString::number(longitude, 'f', 6), tr("°"));
     
     return param;
 }

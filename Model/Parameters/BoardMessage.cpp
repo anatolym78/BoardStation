@@ -3,7 +3,7 @@
 #include <QJsonArray>
 #include <QDebug>
 
-BoardMessage::BoardMessage(const QList<BoardParameter> &parameters, 
+BoardMessage::BoardMessage(const QList<BoardParameter*> &parameters, 
                            const QDateTime &timestamp,
                            QObject *parent)
     : QObject(parent)
@@ -21,16 +21,18 @@ QJsonObject BoardMessage::toJsonObject() const
     
     // Добавляем параметры
     QJsonArray parametersArray;
-    for (const BoardParameter &param : m_parameters) {
-        QJsonObject paramObj;
-        paramObj["label"] = param.label;
-        
-        // Добавляем последнее значение параметра
-        if (param.hasValues()) {
-            paramObj["value"] = QJsonValue::fromVariant(param.lastValueData());
+    for (BoardParameter *param : m_parameters) {
+        if (param) {
+            QJsonObject paramObj;
+            paramObj["label"] = param->label();
+            
+            // Добавляем последнее значение параметра
+            if (param->hasValues()) {
+                paramObj["value"] = QJsonValue::fromVariant(param->lastValueData());
+            }
+            
+            parametersArray.append(paramObj);
         }
-        
-        parametersArray.append(paramObj);
     }
     
     obj["Parameters"] = parametersArray;

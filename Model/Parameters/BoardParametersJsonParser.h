@@ -17,13 +17,13 @@ public:
     explicit BoardParametersJsonParser(QObject *parent = nullptr);
     
     // Чтение JSON из строки
-    QList<BoardParameter> parseParametersFromString(const QString &jsonString);
+    QList<BoardParameter*> parseParametersFromString(const QString &jsonString);
     
     // Чтение JSON из файла
-    QList<BoardParameter> parseParametersFromFile(const QString &filePath);
+    QList<BoardParameter*> parseParametersFromFile(const QString &filePath);
     
     // Чтение JSON из QJsonArray
-    QList<BoardParameter> parseParametersFromJsonArray(const QJsonArray &jsonArray);
+    QList<BoardParameter*> parseParametersFromJsonArray(const QJsonArray &jsonArray);
     
     // Проверка валидности JSON
     bool isValidJson(const QString &jsonString);
@@ -33,7 +33,7 @@ public:
 
 signals:
     void parsingError(const QString &error);
-    void parsingSuccess(const QList<BoardParameter> &parameters);
+    void parsingSuccess(const QList<BoardParameter*> &parameters);
 
 private:
     QJsonParseError m_lastParseError;

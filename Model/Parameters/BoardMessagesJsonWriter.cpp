@@ -30,7 +30,7 @@ BoardMessagesJsonWriter::~BoardMessagesJsonWriter()
     }
 }
 
-void BoardMessagesJsonWriter::addMessage(const QList<BoardParameter> &parameters, 
+void BoardMessagesJsonWriter::addMessage(const QList<BoardParameter*> &parameters, 
                                          const QDateTime &timestamp)
 {
     if (parameters.isEmpty()) {

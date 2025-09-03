@@ -6,7 +6,7 @@ BoardDataJsonGenerator::BoardDataJsonGenerator(QObject *parent)
 {
 }
 
-QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter> &parameters)
+QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter*> &parameters)
 {
     QJsonDocument doc = createJsonDocument(parameters);
     QString jsonString = doc.toJson(QJsonDocument::Compact);
@@ -20,19 +20,21 @@ QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter> &pa
     return jsonString;
 }
 
-QJsonDocument BoardDataJsonGenerator::createJsonDocument(const QList<BoardParameter> &parameters)
+QJsonDocument BoardDataJsonGenerator::createJsonDocument(const QList<BoardParameter*> &parameters)
 {
     QJsonArray array = createJsonArray(parameters);
     return QJsonDocument(array);
 }
 
-QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter> &parameters)
+QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter*> &parameters)
 {
     QJsonArray array;
     
-    for (const BoardParameter &param : parameters) {
-        QJsonObject obj = parameterToJsonObject(param);
-        array.append(obj);
+    for (BoardParameter *param : parameters) {
+        if (param) {
+            QJsonObject obj = parameterToJsonObject(*param);
+            array.append(obj);
+        }
     }
     
     return array;
@@ -41,8 +43,8 @@ QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter> &
 QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameter &parameter)
 {
     QJsonObject obj;
-    obj["label"] = parameter.label;
-    obj["unit"] = parameter.unit;
+    obj["label"] = parameter.label();
+    obj["unit"] = parameter.unit();
     
     // Добавляем последнее значение и время
     if (parameter.hasValues()) {
@@ -53,11 +55,13 @@ QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameter &
     // Добавляем историю значений, если она есть
     if (parameter.valueCount() > 1) {
         QJsonArray valuesArray;
-        for (const BoardParameterValue &value : parameter.values) {
-            QJsonObject valueObj;
-            valueObj["value"] = QJsonValue::fromVariant(value.value);
-            valueObj["timestamp"] = value.timestamp.toString(Qt::ISODate);
-            valuesArray.append(valueObj);
+        for (BoardParameterValue *value : parameter.values()) {
+            if (value) {
+                QJsonObject valueObj;
+                valueObj["value"] = QJsonValue::fromVariant(value->value());
+                valueObj["timestamp"] = value->timestamp().toString(Qt::ISODate);
+                valuesArray.append(valueObj);
+            }
         }
         obj["values"] = valuesArray;
     }

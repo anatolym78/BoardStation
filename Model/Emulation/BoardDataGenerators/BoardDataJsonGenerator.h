@@ -16,13 +16,13 @@ public:
     explicit BoardDataJsonGenerator(QObject *parent = nullptr);
     
     // Создание JSON строки из списка параметров
-    QString createJsonString(const QList<BoardParameter> &parameters);
+    QString createJsonString(const QList<BoardParameter*> &parameters);
     
     // Создание JSON документа из списка параметров
-    QJsonDocument createJsonDocument(const QList<BoardParameter> &parameters);
+    QJsonDocument createJsonDocument(const QList<BoardParameter*> &parameters);
     
     // Создание JSON массива из списка параметров
-    QJsonArray createJsonArray(const QList<BoardParameter> &parameters);
+    QJsonArray createJsonArray(const QList<BoardParameter*> &parameters);
 
 signals:
     void writingError(const QString &error);

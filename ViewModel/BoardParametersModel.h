@@ -35,14 +35,14 @@ public:
     void refreshModel();
     
     // Получение параметров
-    BoardParameter getParameter(int index) const;
-    BoardParameter getParameter(const QString &label) const;
+    BoardParameter* getParameter(int index) const;
+    BoardParameter* getParameter(const QString &label) const;
     
     // Методы для работы с историей значений
-    BoardParameterValue getLastValue(int index) const;
-    BoardParameterValue getLastValue(const QString &label) const;
-    QList<BoardParameterValue> getValueHistory(int index) const;
-    QList<BoardParameterValue> getValueHistory(const QString &label) const;
+    BoardParameterValue* getLastValue(int index) const;
+    BoardParameterValue* getLastValue(const QString &label) const;
+    QList<BoardParameterValue*> getValueHistory(int index) const;
+    QList<BoardParameterValue*> getValueHistory(const QString &label) const;
 
 private slots:
     void onParameterAdded(const QString &label);

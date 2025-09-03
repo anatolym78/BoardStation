@@ -12,7 +12,7 @@ QChartView* ChartBuilder::createChart(const BoardParameter &parameter)
 {
     if (!canCreateChart(parameter))
     {
-        qWarning() << "ChartBuilder: Не удается создать график для параметра" << parameter.label;
+        qWarning() << "ChartBuilder: Не удается создать график для параметра" << parameter.label();
         return nullptr;
     }
     
@@ -24,7 +24,7 @@ QChartView* ChartBuilder::createChart(const BoardParameter &parameter)
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     
-    qDebug() << "ChartBuilder: Создан график для параметра" << parameter.label;
+    qDebug() << "ChartBuilder: Создан график для параметра" << parameter.label();
     return chartView;
 }
 
@@ -32,7 +32,7 @@ void ChartBuilder::updateChart(QChartView *chartView, const BoardParameter &para
 {
     if (!chartView || !canCreateChart(parameter))
     {
-        qWarning() << "ChartBuilder: Не удается обновить график для параметра" << parameter.label;
+        qWarning() << "ChartBuilder: Не удается обновить график для параметра" << parameter.label();
         return;
     }
     
@@ -44,17 +44,17 @@ void ChartBuilder::updateChart(QChartView *chartView, const BoardParameter &para
     }
     
     // Дополнительная проверка: график все еще валиден
-    if (chart->series().isEmpty() && !parameter.values.isEmpty())
+    if (chart->series().isEmpty() && !parameter.values().isEmpty())
     {
         // Если серии нет, создаем график с нуля
         buildChart(chart, parameter);
-        qDebug() << "ChartBuilder: Создан график для параметра" << parameter.label;
+        qDebug() << "ChartBuilder: Создан график для параметра" << parameter.label();
     }
     else if (!chart->series().isEmpty())
     {
         // Если серия есть, добавляем новые точки
         appendNewPoints(chartView, parameter);
-        qDebug() << "ChartBuilder: Добавлены новые точки для параметра" << parameter.label;
+        qDebug() << "ChartBuilder: Добавлены новые точки для параметра" << parameter.label();
     }
 }
 
@@ -66,9 +66,9 @@ bool ChartBuilder::canCreateChart(const BoardParameter &parameter)
     }
     
     // Проверяем, что все значения имеют числовой тип
-    for (const BoardParameterValue &value : parameter.values)
+    for (BoardParameterValue *value : parameter.values())
     {
-        if (!value.value.canConvert<double>())
+        if (value && !value->value().canConvert<double>())
         {
             return false;
         }
@@ -133,12 +133,14 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &
     int existingPoints = series->count();
     
     // Добавляем только новые точки
-    for (int i = existingPoints; i < parameter.values.size(); ++i)
+    for (int i = existingPoints; i < parameter.values().size(); ++i)
     {
-        const BoardParameterValue &value = parameter.values[i];
-        double timeValue = value.timestamp.toMSecsSinceEpoch() / 1000.0;
-        double dataValue = value.value.toDouble();
-        series->append(timeValue, dataValue);
+        BoardParameterValue *value = parameter.values()[i];
+        if (value) {
+            double timeValue = value->timestamp().toMSecsSinceEpoch() / 1000.0;
+            double dataValue = value->value().toDouble();
+            series->append(timeValue, dataValue);
+        }
     }
     
     // Обновляем диапазон осей для отображения новых данных
@@ -159,21 +161,23 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &
         }
     }
     
-    if (axisX && axisY && !parameter.values.isEmpty())
+    if (axisX && axisY && !parameter.values().isEmpty())
     {
         // Находим минимальные и максимальные значения времени
-        double minTime = parameter.values.first().timestamp.toMSecsSinceEpoch() / 1000.0;
-        double maxTime = parameter.values.last().timestamp.toMSecsSinceEpoch() / 1000.0;
+        double minTime = parameter.values().first()->timestamp().toMSecsSinceEpoch() / 1000.0;
+        double maxTime = parameter.values().last()->timestamp().toMSecsSinceEpoch() / 1000.0;
 
         // Находим минимальные и максимальные значения данных
-        double minValue = parameter.values.first().value.toDouble();
+        double minValue = parameter.values().first()->value().toDouble();
         double maxValue = minValue;
 
-        for (const BoardParameterValue &value : parameter.values)
+        for (BoardParameterValue *value : parameter.values())
         {
-            double val = value.value.toDouble();
-            if (val < minValue) minValue = val;
-            if (val > maxValue) maxValue = val;
+            if (value) {
+                double val = value->value().toDouble();
+                if (val < minValue) minValue = val;
+                if (val > maxValue) maxValue = val;
+            }
         }
 
         // Добавляем небольшой отступ для лучшего отображения
@@ -200,14 +204,16 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &
 QLineSeries* ChartBuilder::createSeries(const BoardParameter &parameter)
 {
     QLineSeries *series = new QLineSeries();
-    series->setName(parameter.label);
+    series->setName(parameter.label());
     
     // Добавляем точки на график
-    for (const BoardParameterValue &value : parameter.values)
+    for (BoardParameterValue *value : parameter.values())
     {
-        double timeValue = value.timestamp.toMSecsSinceEpoch() / 1000.0; // Время в секундах
-        double dataValue = value.value.toDouble();
-        series->append(timeValue, dataValue);
+        if (value) {
+            double timeValue = value->timestamp().toMSecsSinceEpoch() / 1000.0; // Время в секундах
+            double dataValue = value->value().toDouble();
+            series->append(timeValue, dataValue);
+        }
     }
     
     // Устанавливаем красный цвет для линии
@@ -225,7 +231,7 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardPara
     QValueAxis *axisY = new QValueAxis();
     
     axisX->setTitleText(tr("Time (seconds)"));
-    axisY->setTitleText(tr("%1 (%2)").arg(parameter.label, parameter.unit));
+    axisY->setTitleText(tr("%1 (%2)").arg(parameter.label(), parameter.unit()));
     
     // Привязываем оси к серии
     series->attachAxis(axisX);
@@ -236,19 +242,21 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardPara
     chart->addAxis(axisY, Qt::AlignLeft);
     
     // Устанавливаем начальный диапазон осей, если есть данные
-    if (!parameter.values.isEmpty())
+    if (!parameter.values().isEmpty())
     {
-        double minTime = parameter.values.first().timestamp.toMSecsSinceEpoch() / 1000.0;
-        double maxTime = parameter.values.last().timestamp.toMSecsSinceEpoch() / 1000.0;
+        double minTime = parameter.values().first()->timestamp().toMSecsSinceEpoch() / 1000.0;
+        double maxTime = parameter.values().last()->timestamp().toMSecsSinceEpoch() / 1000.0;
         
-        double minValue = parameter.values.first().value.toDouble();
+        double minValue = parameter.values().first()->value().toDouble();
         double maxValue = minValue;
         
-        for (const BoardParameterValue &value : parameter.values)
+        for (BoardParameterValue *value : parameter.values())
         {
-            double val = value.value.toDouble();
-            if (val < minValue) minValue = val;
-            if (val > maxValue) maxValue = val;
+            if (value) {
+                double val = value->value().toDouble();
+                if (val < minValue) minValue = val;
+                if (val > maxValue) maxValue = val;
+            }
         }
         
         // Добавляем небольшой отступ для лучшего отображения
@@ -278,7 +286,7 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardPara
 void ChartBuilder::setupChartAppearance(QChart *chart, const BoardParameter &parameter)
 {
     // Устанавливаем заголовок графика
-    chart->setTitle(tr("Chart for %1").arg(parameter.label));
+    chart->setTitle(tr("Chart for %1").arg(parameter.label()));
     
     // Включаем анимацию
     chart->setAnimationOptions(QChart::SeriesAnimations);

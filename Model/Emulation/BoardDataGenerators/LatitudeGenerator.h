@@ -12,7 +12,7 @@ public:
     ~LatitudeGenerator() override = default;
 
     // ParameterGenerator interface
-    BoardParameter generate(double time) override;
+    BoardParameter* generate(double time) override;
     QString getName() const override;
 
     // Настройка параметров генерации

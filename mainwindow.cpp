@@ -204,20 +204,20 @@ void MainWindow::createChartWindow(const QString &parameterName)
         return;
     }
     
-    BoardParameter param = m_app->getParametersStorage()->getParameter(parameterName);
-    if (!param.hasValues()) {
+    BoardParameter *param = m_app->getParametersStorage()->getParameter(parameterName);
+    if (!param || !param->hasValues()) {
         qWarning() << "MainWindow: Параметр" << parameterName << "не содержит значений";
         return;
     }
     
     // Проверяем, можно ли создать график для этого параметра
-    if (!ChartBuilder::canCreateChart(param)) {
+    if (!ChartBuilder::canCreateChart(*param)) {
         qWarning() << "MainWindow: Параметр" << parameterName << "не подходит для создания графика";
         return;
     }
     
     // Создаем график с помощью ChartBuilder
-    QChartView *chartView = m_chartBuilder->createChart(param);
+    QChartView *chartView = m_chartBuilder->createChart(*param);
     if (!chartView) {
         qWarning() << "MainWindow: Не удалось создать график для параметра" << parameterName;
         return;
@@ -274,13 +274,13 @@ void MainWindow::updateChart(const QString &parameterName)
     }
     
     // Получаем актуальные данные параметра
-    BoardParameter param = m_app->getParametersStorage()->getParameter(parameterName);
-    if (!param.hasValues()) {
+    BoardParameter *param = m_app->getParametersStorage()->getParameter(parameterName);
+    if (!param || !param->hasValues()) {
         return;
     }
     
     // Обновляем график с помощью ChartBuilder
-    m_chartBuilder->updateChart(chartView, param);
+    m_chartBuilder->updateChart(chartView, *param);
 }
 
 void MainWindow::onChartWindowClosed(const QString &parameterName)

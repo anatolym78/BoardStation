@@ -6,50 +6,58 @@ BoardParametersStorage::BoardParametersStorage(QObject *parent)
 {
 }
 
-void BoardParametersStorage::addParameters(const QList<BoardParameter> &parameters)
+void BoardParametersStorage::addParameters(const QList<BoardParameter*> &parameters)
 {
-    for (const BoardParameter &param : parameters) {
-        addParameter(param);
+    for (BoardParameter *param : parameters)
+    {
+        if (param) {
+            addParameter(param);
+        }
     }
 }
 
-void BoardParametersStorage::addParameter(const BoardParameter &parameter)
+void BoardParametersStorage::addParameter(BoardParameter *parameter)
 {
-    if (parameter.label.isEmpty()) {
-        qWarning() << "BoardParametersStorage: Попытка добавить параметр с пустой меткой";
+    if (!parameter || parameter->label().isEmpty()) 
+    {
+        qWarning() << "BoardParametersStorage: Попытка добавить параметр с пустой меткой или nullptr";
         return;
     }
     
-    if (m_parameters.contains(parameter.label)) {
+    if (m_parameters.contains(parameter->label())) 
+    {
         // Параметр уже существует - добавляем новое значение
-        BoardParameter &existingParam = m_parameters[parameter.label];
-        if (parameter.hasValues()) {
-            existingParam.addValue(parameter.lastValueData(), parameter.lastTimestamp());
+        BoardParameter *existingParam = m_parameters[parameter->label()];
+        if (parameter->hasValues()) 
+        {
+            existingParam->addValue(parameter->lastValueData(), parameter->lastTimestamp());
         }
-        emit parameterUpdated(parameter.label);
-        qDebug() << "BoardParametersStorage: Обновлен параметр:" << parameter.label;
-    } else {
+        emit parameterUpdated(parameter->label());
+        qDebug() << "BoardParametersStorage: Обновлен параметр:" << parameter->label();
+    } 
+    else 
+    {
         // Новый параметр
-        m_parameters.insert(parameter.label, parameter);
-        emit parameterAdded(parameter.label);
-        qDebug() << "BoardParametersStorage: Добавлен новый параметр:" << parameter.label;
+        m_parameters.insert(parameter->label(), parameter);
+        emit parameterAdded(parameter->label());
+        qDebug() << "BoardParametersStorage: Добавлен новый параметр:" << parameter->label();
     }
 }
 
-BoardParameter BoardParametersStorage::lastValue(const QString &label) const
+BoardParameter* BoardParametersStorage::lastValue(const QString &label) const
 {
     if (m_parameters.contains(label)) {
         return m_parameters[label];
     }
-    return BoardParameter();
+    return nullptr;
 }
 
-BoardParameter BoardParametersStorage::getParameter(const QString &label) const
+BoardParameter* BoardParametersStorage::getParameter(const QString &label) const
 {
     if (m_parameters.contains(label)) {
         return m_parameters[label];
     }
-    return BoardParameter();
+    return nullptr;
 }
 
 QStringList BoardParametersStorage::getParameterLabels() const
@@ -70,13 +78,15 @@ bool BoardParametersStorage::hasParameter(const QString &label) const
 void BoardParametersStorage::clear()
 {
     if (!m_parameters.isEmpty()) {
+        // Удаляем все объекты перед очисткой
+        qDeleteAll(m_parameters);
         m_parameters.clear();
         emit parametersCleared();
         qDebug() << "BoardParametersStorage: Все параметры очищены";
     }
 }
 
-QList<BoardParameter> BoardParametersStorage::getAllParameters() const
+QList<BoardParameter*> BoardParametersStorage::getAllParameters() const
 {
     return m_parameters.values();
 }

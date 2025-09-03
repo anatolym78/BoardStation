@@ -5,6 +5,7 @@
 #include <QObject>
 #include "ViewModel/BoardParametersModel.h"
 #include "ViewModel/OutParametersModel.h"
+#include "ViewModel/ChartSeriesModel.h"
 #include "Model/IDriver.h"
 #include "Model/Parameters/BoardParametersStorage.h"
 #include "Model/Parameters/Parameters.h"
@@ -34,6 +35,9 @@ public:
     // Методы для работы с моделью исходящих параметров
     OutParametersModel* getOutParametersModel() const;
     
+    // Методы для работы с моделью серий графиков
+    ChartSeriesModel* getChartSeriesModel() const;
+    
     // Методы для работы с исходящими параметрами
     void loadOutParameters();
     OutParametersStorage* getOutParametersStorage() const;
@@ -45,7 +49,7 @@ public:
     void sendParametersToBoard();
 
 private slots:
-    void onDataAvailable();
+    void onDataAvailable() const;
 
 private:
     void setupDriver();
@@ -57,6 +61,7 @@ private:
     BoardParametersModel *m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
+    ChartSeriesModel *m_chartSeriesModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParser *m_jsonReader;
     BoardMessagesJsonWriter *m_boardMessagesWriter;

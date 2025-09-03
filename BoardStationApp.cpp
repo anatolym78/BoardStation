@@ -35,6 +35,10 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Устанавливаем хранилище в модель
     m_outParametersModel->setStorage(m_outParametersStorage);
     
+    // Создаем модель серий графиков
+    m_chartSeriesModel = new ChartSeriesModel(this);
+    m_chartSeriesModel->setParametersStorage(m_parametersStorage);
+    
     // Загружаем исходящие параметры
     loadOutParameters();
     
@@ -84,6 +88,11 @@ OutParametersModel* BoardStationApp::getOutParametersModel() const
     return m_outParametersModel;
 }
 
+ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
+{
+    return m_chartSeriesModel;
+}
+
 BoardParametersStorage* BoardStationApp::getParametersStorage() const
 {
     return m_parametersStorage;
@@ -107,7 +116,7 @@ void BoardStationApp::connectSignals()
     }
 }
 
-void BoardStationApp::onDataAvailable()
+void BoardStationApp::onDataAvailable() const
 {
     qDebug() << "BoardStationApp: Received new data from driver";
     
@@ -127,7 +136,7 @@ void BoardStationApp::onDataAvailable()
     }
     
     // Парсим JSON и обновляем модель
-    QList<BoardParameter> newParameters = m_jsonReader->parseParametersFromString(data);
+    QList<BoardParameter*> newParameters = m_jsonReader->parseParametersFromString(data);
     
     if (newParameters.isEmpty())
     {

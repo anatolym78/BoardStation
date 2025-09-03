@@ -20,9 +20,14 @@ SOURCES += \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
     Model/Parameters/BoardParametersJsonParser.cpp \
+    Model/Parameters/BoardParameterValue.cpp \
+    Model/Parameters/BoardParameter.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
     Interface/Charts/ChartBuilder.cpp \
     ViewModel/BoardParametersModel.cpp \
+    ViewModel/ChartPointsModel.cpp \
+    ViewModel/ChartSeriesModel.cpp \
+    ViewModel/ChartsListModel.cpp \
     ViewModel/OutParametersModel.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
@@ -56,6 +61,9 @@ HEADERS += \
     Model/Parameters/BoardParametersStorage.h \
     Interface/Charts/ChartBuilder.h \
     ViewModel/BoardParametersModel.h \
+    ViewModel/ChartPointsModel.h \
+    ViewModel/ChartSeriesModel.h \
+    ViewModel/ChartsListModel.h \
     ViewModel/OutParametersModel.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \
@@ -79,9 +87,9 @@ FORMS += \
 RESOURCES += \
     qml.qrc
 
-TRANSLATIONS += \
-    BoardStation_ru_RU.ts
-CONFIG += lrelease
+# TRANSLATIONS += \
+#     BoardStation_ru_RU.ts
+CONFIG -= lrelease
 CONFIG += embed_translations
 
 # Default rules for deployment.
