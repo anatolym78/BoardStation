@@ -14,7 +14,8 @@ Rectangle
     signal toggleChart(int parameterIndex)
     
     // Таймер для принудительного обновления таблицы
-    Timer {
+    Timer 
+    {
         id: refreshTimer
         interval: 1000 // Обновляем каждую секунду
         repeat: true
@@ -33,7 +34,8 @@ Rectangle
         anchors.margins: 10
         spacing: 10
         
-        Text {
+        Text
+        {
             text: "Drone Data"
             font.pointSize: 14
             font.bold: true
@@ -41,7 +43,8 @@ Rectangle
         }
         
         // Dynamic headers from model
-        Row {
+        Row 
+        {
             Layout.fillWidth: true
             spacing: 0
             
@@ -65,7 +68,8 @@ Rectangle
  //            }
         }
         
-        TableView {
+        TableView
+        {
             id: parametersTableView
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -74,18 +78,22 @@ Rectangle
             model: parametersModel
             
             // Data delegate
-            delegate: Rectangle {
-                implicitWidth: 120
+            delegate: Rectangle 
+            {
+                implicitWidth: 80
                 implicitHeight: 40
                 border.width: 1
                 border.color: "#e0e0e0"
                 color: row % 2 === 0 ? "#ffffff" : "#f8f8f8"
                 
-                Text {
+                Text 
+                {
                     anchors.centerIn: parent
-                    text: {
+                    text: 
+                    {
                         // Принудительно обновляем текст при изменении данных модели
-                        if (parametersModel) {
+                        if (parametersModel) 
+                        {
                             return parametersModel.data(parametersModel.index(row, column), Qt.DisplayRole) || ""
                         }
                         return ""
@@ -93,15 +101,14 @@ Rectangle
                     elide: Text.ElideRight
                 }
                 
-                MouseArea {
+                MouseArea 
+                {
                     anchors.fill: parent
-                    onClicked: {
-                        var value = parametersModel ? parametersModel.data(parametersModel.index(row, column), Qt.DisplayRole) : ""
-                        console.log("Cell clicked:", row, column, "Value:", value)
-                        
+                    onClicked: 
+                    {
                         // Переключаем график для этого параметра
-                        if (column === 0) { // Клик по названию параметра
-                            console.log("Toggling chart for parameter row:", row)
+                        if (column === 0) 
+                        { // Клик по названию параметра
                             toggleChart(row)
                         }
                     }

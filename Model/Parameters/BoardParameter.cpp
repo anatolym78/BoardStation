@@ -78,7 +78,7 @@ void BoardParameter::addValue(const QVariant &value, const QDateTime &timestamp)
     emit hasValuesChanged();
     emit valueCountChanged();
     
-    qDebug() << "BoardParameter: Added value" << value << "for parameter" << m_label;
+    //qDebug() << "BoardParameter: Added value" << value << "for parameter" << m_label;
 }
 
 BoardParameterValue* BoardParameter::lastValue() const

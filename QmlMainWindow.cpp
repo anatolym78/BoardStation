@@ -23,12 +23,12 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
     qmlRegisterType<ChartsListModel>("BoardStation", 1, 0, "ChartsListModel");
     
     // Configure QML engine
-    setResizeMode(QQuickView::SizeRootObjectToView);
+    setResizeMode(SizeRootObjectToView);
     
     // Create context
     m_context = rootContext();
     
-    qDebug() << "QmlMainWindow: QML interface loaded";
+    //qDebug() << "QmlMainWindow: QML interface loaded";
 }
 
 QmlMainWindow::~QmlMainWindow()
@@ -67,7 +67,7 @@ void QmlMainWindow::setApp(BoardStationApp *app)
             qWarning() << "QML errors:" << errors();
         }
         
-        qDebug() << "QmlMainWindow: Application set";
+        //qDebug() << "QmlMainWindow: Application set";
     }
 }
 
@@ -82,17 +82,21 @@ void QmlMainWindow::setupModel()
     
     // Get model from application
     auto parametersModel = m_app->getParametersModel();
-    if (parametersModel) {
+    if (parametersModel) 
+    {
         // Pass model to QML context
-        m_context->setContextProperty("parametersModel", parametersModel);
-        qDebug() << "QmlMainWindow: Parameters model passed to QML";
-        qDebug() << "QmlMainWindow: Number of rows in model:" << parametersModel->rowCount();
+        m_context->setContextProperty(QString("parametersModel"), parametersModel);
+        //qDebug() << "QmlMainWindow: Parameters model passed to QML";
+        //qDebug() << "QmlMainWindow: Number of rows in model:" << parametersModel->rowCount();
+        
+        // Добавляем тестовые данные для проверки
+        addTestDataToModel();
     } 
     else 
     {
-        qDebug() << "QmlMainWindow: Parameters model not found, will use default data";
+        //qDebug() << "QmlMainWindow: Parameters model not found, will use default data";
         // Create empty model to avoid errors
-        m_context->setContextProperty("parametersModel", nullptr);
+        m_context->setContextProperty(QString("parametersModel"), nullptr);
     }
    
 }
@@ -107,10 +111,11 @@ void QmlMainWindow::setupOutParametersModel()
     {
         // Pass model to QML context
         m_context->setContextProperty("outParametersModel", outParametersModel);
-        qDebug() << "QmlMainWindow: Out parameters model passed to QML";
-    } else 
+        //qDebug() << "QmlMainWindow: Out parameters model passed to QML";
+    }
+	else 
     {
-        qDebug() << "QmlMainWindow: Out parameters model not found, will use default data";
+        //qDebug() << "QmlMainWindow: Out parameters model not found, will use default data";
         // Create empty model to avoid errors
         m_context->setContextProperty("outParametersModel", nullptr);
     }
@@ -126,15 +131,21 @@ void QmlMainWindow::setupChartSeriesModel()
     // Create charts list model
     auto chartsListModel = new ChartsListModel(this);
     chartsListModel->setParametersStorage(m_app->getParametersStorage());
-    
+
+    // auto speedSeries = chartsListModel->addChart("Speed");
+    // auto altitudeSeries = chartsListModel->addChart("Altitude");
+
+    //seriesModel->addPoint("speed", 0, 0);
+    //seriesModel->addPoint("speed", 1, 1);
+
     // Add some default charts
-    chartsListModel->addChart("Основной график", QStringList() << "Altitude" << "Speed");
-    chartsListModel->addChart("Координаты", QStringList() << "Latitude" << "Longitude");
+    //chartsListModel->addChart("Основной график", QStringList() << "Altitude" << "Speed");
+    //chartsListModel->addChart("Координаты", QStringList() << "Latitude" << "Longitude");
     
-    // Pass model to QML context
+    // Pass model to QML context as chartSeriesModel (for compatibility with existing QML)
     m_context->setContextProperty("chartsListModel", chartsListModel);
-    qDebug() << "QmlMainWindow: Charts list model passed to QML";
-    qDebug() << "QmlMainWindow: Number of charts:" << chartsListModel->chartCount();
+    //qDebug() << "QmlMainWindow: Charts list model passed to QML as chartSeriesModel";
+    //qDebug() << "QmlMainWindow: Number of charts:" << chartsListModel->chartCount();
 }
 
 void QmlMainWindow::setupConnections()
@@ -144,7 +155,7 @@ void QmlMainWindow::setupConnections()
 void QmlMainWindow::onParameterUpdated(const QString &label)
 {
     // Update QML interface when parameter changes
-    qDebug() << "QmlMainWindow: Parameter updated:" << label;
+    //qDebug() << "QmlMainWindow: Parameter updated:" << label;
     
     // Can send signal to QML to update interface
     if (m_context) 
@@ -157,14 +168,19 @@ void QmlMainWindow::onParameterUpdated(const QString &label)
     }
 }
 
+void QmlMainWindow::addTestDataToModel()
+{
+    return;
+}
+
 void QmlMainWindow::sendParametersToBoard()
 {
-    qDebug() << "QmlMainWindow: Send parameters to board requested from QML";
+    //qDebug() << "QmlMainWindow: Send parameters to board requested from QML";
     
     if (m_app)
     {
         m_app->sendParametersToBoard();
-        qDebug() << "QmlMainWindow: Parameters sent to board successfully";
+        //qDebug() << "QmlMainWindow: Parameters sent to board successfully";
     } else 
     {
         qWarning() << "QmlMainWindow: Application instance is not available";

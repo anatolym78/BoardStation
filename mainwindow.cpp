@@ -50,7 +50,8 @@ void MainWindow::setApp(BoardStationApp *app)
         }
         
         // Подключаем сигналы обновления параметров для обновления графиков
-        if (m_app->getParametersStorage()) {
+        if (m_app->getParametersStorage())
+        {
             connect(m_app->getParametersStorage(), &BoardParametersStorage::parameterUpdated,
                     this, &MainWindow::onParameterUpdated);
         }

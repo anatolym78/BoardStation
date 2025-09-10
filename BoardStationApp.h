@@ -39,7 +39,7 @@ public:
     ChartSeriesModel* getChartSeriesModel() const;
     
     // Методы для работы с исходящими параметрами
-    void loadOutParameters();
+    void loadOutParameters() const;
     OutParametersStorage* getOutParametersStorage() const;
     
     // Методы для работы с записью сообщений от борта

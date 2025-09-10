@@ -82,17 +82,25 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 5
                     
-                    sourceComponent: {
-                        if (column === 0) {
+                    sourceComponent: 
+                    {
+                        if (column === 0) 
+                        {
                             // Label column - just text
                             return labelComponent
-                        } else if (column === 1) {
+                        } 
+                        else if (column === 1) 
+                        {
                             // Value column - text
                             return valueComponent
-                        } else if (column === 2) {
+                        } 
+                        else if (column === 2) 
+                        {
                             // Control column - dynamic control based on parameter type
                             return dynamicControlComponent
-                        } else {
+                        } 
+                        else 
+                        {
                             // Other columns - text
                             return textComponent
                         }
@@ -113,13 +121,15 @@ Rectangle {
                     id: valueComponent
                     Text {
                         anchors.centerIn: parent
-                        text: {
-                            // Принудительно обновляем текст при изменении данных модели
-                            if (outParametersModel) {
-                                return outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole)
-                            }
-                            return ""
+                    text: 
+                    {
+                        // Принудительно обновляем текст при изменении данных модели
+                        if (outParametersModel) 
+                        {
+                            return outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole)
                         }
+                        return ""
+                    }
                         elide: Text.ElideRight
                     }
                 }
@@ -140,21 +150,33 @@ Rectangle {
                         
                         Loader {
                             anchors.fill: parent
-                            sourceComponent: {
-                                if (paramData && paramData.controlType) {
-                                    console.log("Creating control for type:", paramData.controlType)
-                                    if (paramData.controlType === "QComboBox") {
+                            sourceComponent: 
+                            {
+                                if (paramData && paramData.controlType) 
+                                {
+                                    if (paramData.controlType === "QComboBox") 
+                                    {
                                         return comboBoxComponent
-                                    } else if (paramData.controlType === "QSlider") {
+                                    } 
+                                    else if (paramData.controlType === "QSlider") 
+                                    {
                                         return sliderComponent
-                                    } else if (paramData.controlType === "QSpinBox") {
+                                    } 
+                                    else if (paramData.controlType === "QSpinBox") 
+                                    {
                                         return spinBoxComponent
-                                    } else if (paramData.controlType === "QCheckBox") {
+                                    } 
+                                    else if (paramData.controlType === "QCheckBox") 
+                                    {
                                         return checkBoxComponent
-                                    } else {
+                                    } 
+                                    else 
+                                    {
                                         return textEditComponent
                                     }
-                                } else {
+                                } 
+                                else 
+                                {
                                     return defaultComponent
                                 }
                             }
@@ -165,21 +187,26 @@ Rectangle {
                             ComboBox {
                                 anchors.fill: parent
                                 model: paramData ? paramData.values : []
-                                currentIndex: {
-                                    if (paramData && paramData.values) {
+                                currentIndex: 
+                                {
+                                    if (paramData && paramData.values) 
+                                    {
                                         var currentValue = paramData.currentValue
-                                        for (var i = 0; i < paramData.values.length; i++) {
-                                            if (paramData.values[i] === currentValue) {
+                                        for (var i = 0; i < paramData.values.length; i++) 
+                                        {
+                                            if (paramData.values[i] === currentValue) 
+                                            {
                                                 return i
                                             }
                                         }
                                     }
                                     return 0
                                 }
-                                onCurrentIndexChanged: {
-                                    if (paramData && paramData.values && currentIndex >= 0) {
+                                onCurrentIndexChanged: 
+                                {
+                                    if (paramData && paramData.values && currentIndex >= 0) 
+                                    {
                                         var newValue = paramData.values[currentIndex]
-                                        console.log("ComboBox value changed to:", newValue)
                                         outParametersModel.setData(outParametersModel.index(row, column), newValue, Qt.EditRole)
                                         // Принудительно обновляем отображение
                                         outParametersTableView.forceLayout()
@@ -195,8 +222,8 @@ Rectangle {
                                 from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
                                 to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
                                 value: paramData ? paramData.currentValue : 0
-                                onValueChanged: {
-                                    console.log("Slider value changed to:", value)
+                                onValueChanged: 
+                                {
                                     outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
                                     // Принудительно обновляем отображение
                                     outParametersTableView.forceLayout()
@@ -212,8 +239,8 @@ Rectangle {
                                 to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
                                 stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
                                 value: paramData ? paramData.currentValue : 0
-                                onValueChanged: {
-                                    console.log("SpinBox value changed to:", value)
+                                onValueChanged: 
+                                {
                                     outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
                                     // Принудительно обновляем отображение
                                     outParametersTableView.forceLayout()
@@ -226,8 +253,8 @@ Rectangle {
                             CheckBox {
                                 anchors.centerIn: parent
                                 checked: paramData ? paramData.currentValue : false
-                                onCheckedChanged: {
-                                    console.log("CheckBox value changed to:", checked)
+                                onCheckedChanged: 
+                                {
                                     outParametersModel.setData(outParametersModel.index(row, column), checked, Qt.EditRole)
                                     // Принудительно обновляем отображение
                                     outParametersTableView.forceLayout()
@@ -240,8 +267,8 @@ Rectangle {
                             TextField {
                                 anchors.fill: parent
                                 text: paramData ? paramData.currentValue : ""
-                                onTextChanged: {
-                                    console.log("TextField value changed to:", text)
+                                onTextChanged: 
+                                {
                                     outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
                                     // Принудительно обновляем отображение
                                     outParametersTableView.forceLayout()
@@ -270,13 +297,12 @@ Rectangle {
             Button {
                 text: "Send to drone"
                 Layout.preferredWidth: 120
-                onClicked: {
-                    console.log("Send to drone button clicked")
+                onClicked: 
+                {
                     // Вызываем C++ метод через объект QmlMainWindow
-                    if (qmlMainWindow) {
+                    if (qmlMainWindow) 
+                    {
                         qmlMainWindow.sendParametersToBoard()
-                    } else {
-                        console.log("qmlMainWindow object not available")
                     }
                 }
             }
@@ -284,8 +310,8 @@ Rectangle {
             CheckBox {
                 text: "Send immediately"
                 checked: false
-                onCheckedChanged: {
-                    console.log("Send immediately changed to:", checked)
+                onCheckedChanged: 
+                {
                     // Здесь будет логика автоматической отправки
                 }
             }

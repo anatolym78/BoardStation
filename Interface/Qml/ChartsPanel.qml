@@ -6,91 +6,100 @@ import QtCharts 2.15
 Item
 {
     id: chartsPanel
-    width: parent.width
 
-    // Список активных графиков
-    property var activeCharts: []
-    property var parametersModel: null
-    property var chartSeriesModel: null
-    property var chartBuilder: null
-    
-    // Функция для переключения графика параметра
-    function toggleChart(parameterIndex) {
-        if (!parametersModel || !chartSeriesModel) {
-            console.log("ChartsPanel: Models not available")
-            return
-        }
-        
-        var parameterLabel = parametersModel.data(parametersModel.index(parameterIndex, 0), Qt.DisplayRole)
-        console.log("ChartsPanel: Toggling chart for parameter:", parameterLabel)
-        
-        if (chartSeriesModel.hasSeries(parameterLabel)) {
-            // Удаляем серию
-            chartSeriesModel.removeChartSeries(parameterLabel)
-            console.log("ChartsPanel: Removed chart series for:", parameterLabel)
-        } else {
-            // Добавляем серию
-            chartSeriesModel.addChartSeries(parameterLabel)
-            console.log("ChartsPanel: Added chart series for:", parameterLabel)
-        }
-    }
-    
-    ColumnLayout
+    // ScrollView
+    // {
+    //     Layout.fillWidth: true
+    //     Layout.fillHeight: true
+    //     //clip: true
+    //     anchors.fill: parent
+
+    Flow
     {
+        id: chartsColumn
+        //width: parent.width
         anchors.fill: parent
-        spacing: 10
-        
-        Text
-        {
-            text: "Charts"
-            font.pointSize: 14
-            font.bold: true
-            Layout.alignment: Qt.AlignHCenter
-        }
-        
-        ScrollView
-        {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            clip: true
-            
+        spacing: 25
 
-            Flow
+        Repeater
+        {
+            model: chartsListModel
+
+            // График для серии
+            delegate: ChartView
             {
-                id: chartsColumn
-                width: parent.width
-                spacing: 10
-
-                Repeater
+                width: 360
+                height: 240
+                theme: ChartView.ChartThemeBlueIcy
+                ValueAxis
                 {
-                    model : chartSeriesModel
-                    ChartView
-                    {
-                        width: 400
-                        height: 300
-                        antialiasing: true
-                        theme: ChartView.ChartThemeQt
+                    id: parameterValueAxis
+                    min: -750
+                    max: 700
+                }
 
-                        LineSeries 
+                ValueAxis
+                {
+                    id: timeAxis
+                    min: 0
+                    max: 100
+                }
+
+                axes: [parameterValueAxis, timeAxis]
+
+                antialiasing: true
+
+                Connections
+                {
+                    target: seriesModel
+
+                    function onParameterValueAdded(label)
+                    {
+                        var chartSeries
+                        var pointsModel = seriesModel.getPointsModel(label)
+                        if(count == 0)
                         {
-                            name: "Speed"
-                            color: "red"
-                            width: 2
-                            XYPoint { x: 0; y: 0 }
-                            XYPoint { x: 1; y: 1 }
+                            chartSeries = createSeries(ChartView.SeriesTypeLine, label, timeAxis, parameterValueAxis)
+                            chartSeries.color = pointsModel.color2()
+
+                            console.log(pointsModel.color2())
                         }
-                                                
-                        LineSeries 
+                        else
                         {
-                            name: "Altitude"
-                            color: "blue"
-                            width: 2
-                            XYPoint { x: 0; y: 0.7 }
-                            XYPoint { x: 1; y: 1 }
+                            chartSeries = series(0)
+                            chartSeries.append(pointsModel.elapsedTime(), pointsModel.lastY())
                         }
+                    }
+                }
+
+                DragHandler
+                {
+                    onActiveChanged:
+                    {
+                        if(active)
+                        {
+
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                }
+
+                Drag.hotSpot.x: parent.width/2
+                Drag.hotSpot.y: parent.height/2
+                Drag.active: DragHandler.active
+
+                DropArea
+                {
+                    onDropped:
+                    {
+
                     }
                 }
             }
         }
     }
+    //}
 }

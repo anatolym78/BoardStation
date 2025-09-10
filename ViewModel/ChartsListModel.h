@@ -13,9 +13,7 @@ class ChartsListModel : public QAbstractListModel
 
 public:
     enum ChartsListRoles {
-        ChartNameRole = Qt::UserRole + 1,
-        SeriesModelRole,
-        SeriesCountRole,
+        SeriesModelRole = Qt::UserRole + 1,
         HasSeriesRole
     };
 
@@ -27,37 +25,42 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
-    // Методы для работы с графиками
-    void addChart(const QString &chartName);
-    void addChart(const QString &chartName, const QStringList &parameterLabels);
-    void removeChart(const QString &chartName);
-    void removeChart(int index);
-    void clearCharts();
-    
     // Методы для работы с сериями
-    void addSeriesToChart(const QString &chartName, const QString &parameterLabel);
-    void addSeriesToChart(const QString &chartName, const QStringList &parameterLabels);
-    void removeSeriesFromChart(const QString &chartName, const QString &parameterLabel);
+    Q_INVOKABLE ChartSeriesModel* addSeries(const QString &parameterLabel);
+    Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
+    Q_INVOKABLE void removeSeries(const QString &parameterLabel);
+    Q_INVOKABLE void removeSeries(int index);
+    Q_INVOKABLE void clearSeries();
     
     // Геттеры
-    ChartSeriesModel* getSeriesModel(const QString &chartName) const;
-    ChartSeriesModel* getSeriesModel(int index) const;
-    QStringList chartNames() const;
+    Q_INVOKABLE ChartSeriesModel* getSeriesModel(const QString &parameterLabel) const;
+    Q_INVOKABLE ChartSeriesModel* getSeriesModel(int index) const;
+    Q_INVOKABLE QStringList parameterLabels() const;
     
     // Проверки
-    bool hasChart(const QString &chartName) const;
-    bool hasChart(int index) const;
-    int chartCount() const { return m_chartsModels.size(); }
+    Q_INVOKABLE bool hasSeries(const QString &parameterLabel) const;
+    Q_INVOKABLE bool hasSeries(int index) const;
+    Q_INVOKABLE int seriesCount() const { return m_chartsModels.size(); }
     
     // Установка хранилища параметров
-    void setParametersStorage(BoardParametersStorage *storage);
+    Q_INVOKABLE void setParametersStorage(BoardParametersStorage *storage);
+    
+    // Получение данных серии для QML (возвращает QVariantList)
+    Q_INVOKABLE QVariantList getSeriesData(const QString &parameterLabel) const;
+
+
+signals:
+    void seriesDataChanged(const QString &parameterLabel);
+    void parameterAdded(const QString &parameterLabel);
+    void parameterUpdate(const QString& parameterLabel);
+    void parameterValueAdded(const QString& parameterLabel);
 
 private slots:
-    void onParameterAdded(const QString &label);
+	void onParameterAdded(const QString& label);
+	void onParameterUpdated(const QString& label);
 
 private:
     QList<ChartSeriesModel*> m_chartsModels;
-    QStringList m_chartNames;
     BoardParametersStorage *m_parametersStorage;
 };
 

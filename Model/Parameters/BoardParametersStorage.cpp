@@ -10,7 +10,8 @@ void BoardParametersStorage::addParameters(const QList<BoardParameter*> &paramet
 {
     for (BoardParameter *param : parameters)
     {
-        if (param) {
+        if (param) 
+        {
             addParameter(param);
         }
     }
@@ -20,7 +21,7 @@ void BoardParametersStorage::addParameter(BoardParameter *parameter)
 {
     if (!parameter || parameter->label().isEmpty()) 
     {
-        qWarning() << "BoardParametersStorage: Попытка добавить параметр с пустой меткой или nullptr";
+        //qWarning() << "BoardParametersStorage: Попытка добавить параметр с пустой меткой или nullptr";
         return;
     }
     
@@ -33,20 +34,21 @@ void BoardParametersStorage::addParameter(BoardParameter *parameter)
             existingParam->addValue(parameter->lastValueData(), parameter->lastTimestamp());
         }
         emit parameterUpdated(parameter->label());
-        qDebug() << "BoardParametersStorage: Обновлен параметр:" << parameter->label();
+        //qDebug() << "BoardParametersStorage: Обновлен параметр:" << parameter->label();
     } 
     else 
     {
         // Новый параметр
         m_parameters.insert(parameter->label(), parameter);
         emit parameterAdded(parameter->label());
-        qDebug() << "BoardParametersStorage: Добавлен новый параметр:" << parameter->label();
+        //qDebug() << "BoardParametersStorage: Добавлен новый параметр:" << parameter->label();
     }
 }
 
 BoardParameter* BoardParametersStorage::lastValue(const QString &label) const
 {
-    if (m_parameters.contains(label)) {
+    if (m_parameters.contains(label)) 
+    {
         return m_parameters[label];
     }
     return nullptr;
@@ -54,7 +56,8 @@ BoardParameter* BoardParametersStorage::lastValue(const QString &label) const
 
 BoardParameter* BoardParametersStorage::getParameter(const QString &label) const
 {
-    if (m_parameters.contains(label)) {
+    if (m_parameters.contains(label)) 
+    {
         return m_parameters[label];
     }
     return nullptr;

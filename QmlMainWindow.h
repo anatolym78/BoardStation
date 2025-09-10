@@ -29,6 +29,7 @@ private:
     void setupOutParametersModel();
     void setupChartSeriesModel();
     void setupConnections();
+    void addTestDataToModel();
 
 private:
     BoardStationApp *m_app;

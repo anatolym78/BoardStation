@@ -19,7 +19,8 @@ int OutParametersModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid())
         return 0;
     
-    if (m_storage) {
+    if (m_storage)
+    {
         // Возвращаем количество всех типов параметров
         int listedCount = m_storage->getParametersOfType<ListedRealOutParameter>().size();
         int rangedCount = m_storage->getParametersOfType<RangedRealOutParameter>().size();
@@ -140,9 +141,9 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
             
             paramData["currentValue"] = param->getValue();
             
-            qDebug() << "OutParametersModel::data - UserRole для ListedRealOutParameter row:" << index.row() 
-                     << "param:" << param->getLabel()
-                     << "controlType:" << param->getControlType();
+            //qDebug() << "OutParametersModel::data - UserRole для ListedRealOutParameter row:" << index.row() 
+            //         << "param:" << param->getLabel()
+            //         << "controlType:" << param->getControlType();
             
             return paramData;
         } else if (index.row() >= listedCount && index.row() < listedCount + rangedCount) {
@@ -162,9 +163,9 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
             paramData["step"] = param->getStep();
             paramData["currentValue"] = param->getValue();
             
-            qDebug() << "OutParametersModel::data - UserRole для RangedRealOutParameter row:" << index.row() 
-                     << "param:" << param->getLabel()
-                     << "controlType:" << param->getControlType();
+            //qDebug() << "OutParametersModel::data - UserRole для RangedRealOutParameter row:" << index.row() 
+            //         << "param:" << param->getLabel()
+            //         << "controlType:" << param->getControlType();
             
             return paramData;
         } else if (index.row() >= listedCount + rangedCount && index.row() < listedCount + rangedCount + stringCount) {
@@ -175,9 +176,9 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
             paramData["controlType"] = param->getControlType();
             paramData["currentValue"] = param->getValue();
             
-            qDebug() << "OutParametersModel::data - UserRole для StringOutParameter row:" << index.row() 
-                     << "param:" << param->getLabel()
-                     << "controlType:" << param->getControlType();
+            //qDebug() << "OutParametersModel::data - UserRole для StringOutParameter row:" << index.row() 
+            //         << "param:" << param->getLabel()
+            //         << "controlType:" << param->getControlType();
             
             return paramData;
         } else if (index.row() >= listedCount + rangedCount + stringCount && index.row() < listedCount + rangedCount + stringCount + booleanParams.size()) {
@@ -188,9 +189,9 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
             paramData["controlType"] = param->getControlType();
             paramData["currentValue"] = param->getValue();
             
-            qDebug() << "OutParametersModel::data - UserRole для BooleanOutParameter row:" << index.row() 
-                     << "param:" << param->getLabel()
-                     << "controlType:" << param->getControlType();
+            //qDebug() << "OutParametersModel::data - UserRole для BooleanOutParameter row:" << index.row() 
+            //         << "param:" << param->getLabel()
+            //         << "controlType:" << param->getControlType();
             
             return paramData;
         }
@@ -204,9 +205,12 @@ bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value
     if (!index.isValid() || !m_storage || role != Qt::EditRole) {
         return false;
     }
+
+    return false;
     
     // Обрабатываем изменения только для третьей колонки (управление)
-    if (index.column() == 2) {
+    if (index.column() == 2) 
+    {
         QList<ListedRealOutParameter*> listedParams = m_storage->getParametersOfType<ListedRealOutParameter>();
         QList<RangedRealOutParameter*> rangedParams = m_storage->getParametersOfType<RangedRealOutParameter>();
         QList<StringOutParameter*> stringParams = m_storage->getParametersOfType<StringOutParameter>();
@@ -220,26 +224,29 @@ bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value
             // ListedRealOutParameter
             ListedRealOutParameter *param = listedParams[index.row()];
             
-            qDebug() << "OutParametersModel::setData - обновляем ListedRealOutParameter:" << param->getLabel() 
-                     << "старое значение:" << param->getValue() 
-                     << "новое значение:" << value.toString();
+            //qDebug() << "OutParametersModel::setData - обновляем ListedRealOutParameter:" << param->getLabel() 
+            //         << "старое значение:" << param->getValue() 
+            //         << "новое значение:" << value.toString();
             
             // Обновляем значение параметра
             param->setValueFromString(value.toString());
             
-            qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
+            //qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
             
             // Уведомляем модель об изменении данных в колонке значения (колонка 1)
             emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 1));
             
             return true;
-        } else if (index.row() >= listedCount && index.row() < listedCount + rangedCount) {
+        }
+    	else 
+            if (index.row() >= listedCount && index.row() < listedCount + rangedCount) 
+            {
             // RangedRealOutParameter
             RangedRealOutParameter *param = rangedParams[index.row() - listedCount];
             
-            qDebug() << "OutParametersModel::setData - обновляем RangedRealOutParameter:" << param->getLabel() 
-                     << "старое значение:" << param->getValue() 
-                     << "новое значение:" << value.toString();
+            //qDebug() << "OutParametersModel::setData - обновляем RangedRealOutParameter:" << param->getLabel() 
+            //         << "старое значение:" << param->getValue() 
+            //         << "новое значение:" << value.toString();
             
             // Обновляем значение параметра
             param->setValueFromString(value.toString());
@@ -248,35 +255,37 @@ bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value
             emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 1));
             
             return true;
-        } else if (index.row() >= listedCount + rangedCount && index.row() < listedCount + rangedCount + stringCount) {
+        }
+    	else if (index.row() >= listedCount + rangedCount && index.row() < listedCount + rangedCount + stringCount) {
             // StringOutParameter
             StringOutParameter *param = stringParams[index.row() - listedCount - rangedCount];
             
-            qDebug() << "OutParametersModel::setData - обновляем StringOutParameter:" << param->getLabel() 
-                     << "старое значение:" << param->getValue() 
-                     << "новое значение:" << value.toString();
+            //qDebug() << "OutParametersModel::setData - обновляем StringOutParameter:" << param->getLabel() 
+            //         << "старое значение:" << param->getValue() 
+            //         << "новое значение:" << value.toString();
             
             // Обновляем значение параметра
             param->setValueFromString(value.toString());
             
-            qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
+            //qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
             
             // Уведомляем модель об изменении данных в колонке значения (колонка 1)
             emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 1));
             
             return true;
-        } else if (index.row() >= listedCount + rangedCount + stringCount && index.row() < listedCount + rangedCount + stringCount + booleanParams.size()) {
+        }
+    	else if (index.row() >= listedCount + rangedCount + stringCount && index.row() < listedCount + rangedCount + stringCount + booleanParams.size()) {
             // BooleanOutParameter
             BooleanOutParameter *param = booleanParams[index.row() - listedCount - rangedCount - stringCount];
             
-            qDebug() << "OutParametersModel::setData - обновляем BooleanOutParameter:" << param->getLabel() 
-                     << "старое значение:" << param->getValue() 
-                     << "новое значение:" << value.toString();
+            //qDebug() << "OutParametersModel::setData - обновляем BooleanOutParameter:" << param->getLabel() 
+            //         << "старое значение:" << param->getValue() 
+            //         << "новое значение:" << value.toString();
             
             // Обновляем значение параметра
             param->setValueFromString(value.toString());
             
-            qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
+            //qDebug() << "OutParametersModel::setData - параметр обновлен, новое значение:" << param->getValue();
             
             // Уведомляем модель об изменении данных в колонке значения (колонка 1)
             emit dataChanged(this->index(index.row(), 1), this->index(index.row(), 1));
@@ -369,8 +378,8 @@ void OutParametersModel::createControlWidgets(QTableView *tableView)
                 emit dataChanged(this->index(rowIndex, 1), this->index(rowIndex, 1));
             });
             
-            qDebug() << "OutParametersModel::createControlWidgets - создан виджет для ListedRealOutParameter, строка" << rowIndex 
-                     << "параметр:" << param->getLabel();
+            //qDebug() << "OutParametersModel::createControlWidgets - создан виджет для ListedRealOutParameter, строка" << rowIndex 
+            //         << "параметр:" << param->getLabel();
         }
         rowIndex++;
     }
@@ -390,8 +399,8 @@ void OutParametersModel::createControlWidgets(QTableView *tableView)
                 emit dataChanged(this->index(rowIndex, 1), this->index(rowIndex, 1));
             });
             
-            qDebug() << "OutParametersModel::createControlWidgets - создан виджет для RangedRealOutParameter, строка" << rowIndex 
-                     << "параметр:" << param->getLabel();
+            //qDebug() << "OutParametersModel::createControlWidgets - создан виджет для RangedRealOutParameter, строка" << rowIndex 
+            //         << "параметр:" << param->getLabel();
         }
         rowIndex++;
     }
@@ -411,8 +420,8 @@ void OutParametersModel::createControlWidgets(QTableView *tableView)
                 emit dataChanged(this->index(rowIndex, 1), this->index(rowIndex, 1));
             });
             
-            qDebug() << "OutParametersModel::createControlWidgets - создан виджет для StringOutParameter, строка" << rowIndex 
-                     << "параметр:" << param->getLabel();
+            //qDebug() << "OutParametersModel::createControlWidgets - создан виджет для StringOutParameter, строка" << rowIndex 
+            //         << "параметр:" << param->getLabel();
         }
         rowIndex++;
     }
@@ -432,8 +441,8 @@ void OutParametersModel::createControlWidgets(QTableView *tableView)
                 emit dataChanged(this->index(rowIndex, 1), this->index(rowIndex, 1));
             });
             
-            qDebug() << "OutParametersModel::createControlWidgets - создан виджет для BooleanOutParameter, строка" << rowIndex 
-                     << "параметр:" << param->getLabel();
+            //qDebug() << "OutParametersModel::createControlWidgets - создан виджет для BooleanOutParameter, строка" << rowIndex 
+            //         << "параметр:" << param->getLabel();
         }
         rowIndex++;
     }

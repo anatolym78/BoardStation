@@ -34,16 +34,20 @@ public:
     void removeSeries(const QString &parameterLabel);
     void removeSeries(int index);
     void clearSeries();
+
+    Q_INVOKABLE int countSeries() { return rowCount(); }
     
     // Методы для работы с точками
     void addPoint(const QString &parameterLabel, const QPointF &point);
     void addPoint(const QString &parameterLabel, double x, double y);
     void addPoint(const QString &parameterLabel, double x, double y, const QDateTime &timestamp, const QVariant &value);
-    
+
+	void createColorMap();
+
     // Геттеры
-    ChartPointsModel* getPointsModel(const QString &parameterLabel) const;
-    ChartPointsModel* getPointsModel(int index) const;
-    QStringList parameterLabels() const;
+    Q_INVOKABLE ChartPointsModel* getPointsModel(const QString &parameterLabel) const;
+    Q_INVOKABLE ChartPointsModel* getPointsModel(int index) const;
+    Q_INVOKABLE QStringList parameterLabels() const;
     
     // Проверки
     bool hasSeries(const QString &parameterLabel) const;
@@ -56,6 +60,9 @@ public:
     // Публичный метод для обработки добавления параметра
     void handleParameterAdded(const QString &label);
 
+signals:
+    void parameterValueAdded(const QString& label);
+
 private slots:
     void onParameterAdded(const QString &label);
 
@@ -63,6 +70,7 @@ private:
     QList<ChartPointsModel*> m_seriesModels;
     QStringList m_parameterLabels;
     BoardParametersStorage *m_parametersStorage;
+    QMap<QString, QColor> m_colorMap;
 };
 
 #endif // CHARTSERIESMODEL_H

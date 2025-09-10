@@ -6,8 +6,8 @@
 
 AltitudeGenerator::AltitudeGenerator(QObject *parent)
     : ParameterGenerator(parent)
-    , m_baseAltitude(500.0)
-    , m_amplitude(2.0)
+    , m_baseAltitude(0)
+    , m_amplitude(500)
     , m_period(5.0)
 {
 }

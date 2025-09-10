@@ -87,7 +87,7 @@ void BoardDataEmulator::start()
     m_currentState = State::k_Connected;
     emitStateChanged(m_currentState);
     
-    qDebug() << "BoardDataEmulator started";
+    //qDebug() << "BoardDataEmulator started";
 }
 
 void BoardDataEmulator::stop()
@@ -105,7 +105,7 @@ void BoardDataEmulator::stop()
     // Очищаем очередь
     flushData();
     
-    qDebug() << "BoardDataEmulator stopped";
+    //qDebug() << "BoardDataEmulator stopped";
 }
 
 void BoardDataEmulator::onStateTimerTimeout()
@@ -120,7 +120,7 @@ void BoardDataEmulator::onStateTimerTimeout()
     
     emitStateChanged(m_currentState);
     
-    qDebug() << "BoardDataEmulator state changed to:" << (m_currentState == State::k_Connected ? "Connected" : "Disconnected");
+    //qDebug() << "BoardDataEmulator state changed to:" << (m_currentState == State::k_Connected ? "Connected" : "Disconnected");
 }
 
 void BoardDataEmulator::onDataTimerTimeout()
@@ -140,33 +140,37 @@ void BoardDataEmulator::setupGenerators()
 {
     // Создаем и настраиваем генератор высоты
     AltitudeGenerator *altitudeGen = new AltitudeGenerator(this);
-    altitudeGen->setBaseAltitude(500.0);
-    altitudeGen->setAmplitude(2.0);
-    altitudeGen->setPeriod(5.0);
-    
+    altitudeGen->setBaseAltitude(0);
+    altitudeGen->setAmplitude(350);
+    altitudeGen->setPeriod(100);
+    m_generators.append(altitudeGen);
+
+
+    // Создаем и настраиваем генератор скорости
+    SpeedGenerator *speedGen = new SpeedGenerator(this);
+    speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
+    speedGen->setAmplitude(20.0);               // Колебания ±5 м/с
+    speedGen->setPeriod(10.0);                  // Период 3 секунды
+	m_generators.append(speedGen);
+
+	return;
+
     // Создаем и настраиваем генератор долготы
     LongitudeGenerator *longitudeGen = new LongitudeGenerator(this);
     longitudeGen->setStartLongitude(37.6173);  // Москва
     longitudeGen->setSpeed(0.001);             // Медленное движение
+    m_generators.append(longitudeGen);
+
     
     // Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
     latitudeGen->setStartLatitude(55.7558);    // Москва
     latitudeGen->setSpeed(0.0005);             // Медленное движение
-    
-    // Создаем и настраиваем генератор скорости
-    SpeedGenerator *speedGen = new SpeedGenerator(this);
-    speedGen->setBaseSpeed(50.0);              // Базовая скорость 50 м/с
-    speedGen->setAmplitude(5.0);               // Колебания ±5 м/с
-    speedGen->setPeriod(3.0);                  // Период 3 секунды
-    
-    // Добавляем все генераторы в список
-    m_generators.append(altitudeGen);
-    m_generators.append(longitudeGen);
     m_generators.append(latitudeGen);
-    m_generators.append(speedGen);
     
-    qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
+
+    
+    //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
 }
 
 void BoardDataEmulator::generateParameters()
@@ -182,7 +186,7 @@ void BoardDataEmulator::generateParameters()
     }
     
     if (parameters.isEmpty()) {
-        qDebug() << "BoardDataEmulator: Не удалось сгенерировать параметры";
+        //qDebug() << "BoardDataEmulator: Не удалось сгенерировать параметры";
         return;
     }
     
@@ -197,7 +201,7 @@ void BoardDataEmulator::generateParameters()
         // Генерируем сигнал о доступности данных
         emitDataAvailable();
         
-        qDebug() << "BoardDataEmulator: Сгенерированы параметры, JSON:" << jsonString;
+        //qDebug() << "BoardDataEmulator: Сгенерированы параметры, JSON:" << jsonString;
     }
 }
 
@@ -228,8 +232,8 @@ void BoardDataEmulator::saveSentParametersToFile(const QString &jsonString)
     
     file.close();
     
-    qDebug() << "BoardDataEmulator: Sent parameters saved to" << filename;
-    qDebug() << "BoardDataEmulator: JSON content:" << jsonString;
+    //qDebug() << "BoardDataEmulator: Sent parameters saved to" << filename;
+    //qDebug() << "BoardDataEmulator: JSON content:" << jsonString;
 }
 
 } // namespace drv

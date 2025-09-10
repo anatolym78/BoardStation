@@ -42,16 +42,16 @@ QVariant BoardParametersModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole && param) {
         switch (index.column()) {
         case LabelColumn:
-            qDebug() << "BoardParametersModel: Returning label for row" << index.row() << ":" << param->label();
+            //qDebug() << "BoardParametersModel: Returning label for row" << index.row() << ":" << param->label();
             return param->label();
         case ValueColumn:
-            qDebug() << "BoardParametersModel: Returning value for row" << index.row() << ":" << param->lastValueData();
+            //qDebug() << "BoardParametersModel: Returning value for row" << index.row() << ":" << param->lastValueData();
             return param->lastValueData();
         case UnitColumn:
-            qDebug() << "BoardParametersModel: Returning unit for row" << index.row() << ":" << param->unit();
+            //qDebug() << "BoardParametersModel: Returning unit for row" << index.row() << ":" << param->unit();
             return param->unit();
         case TimestampColumn:
-            qDebug() << "BoardParametersModel: Returning timestamp for row" << index.row() << ":" << param->lastTimestamp().toString("hh:mm:ss");
+            //qDebug() << "BoardParametersModel: Returning timestamp for row" << index.row() << ":" << param->lastTimestamp().toString("hh:mm:ss");
             return param->lastTimestamp().toString("hh:mm:ss");
         default:
             return QVariant();

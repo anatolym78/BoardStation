@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 #ifdef QML_GUI
     QmlMainWindow w;
     w.setApp(&app);
-    w.showMaximized();
+    w.show();
 #else
     MainWindow w;
     w.setApp(&app);

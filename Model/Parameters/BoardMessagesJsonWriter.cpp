@@ -44,21 +44,27 @@ void BoardMessagesJsonWriter::addMessage(const QList<BoardParameter*> &parameter
 
     m_blockCounter++;
     
-    qDebug() << "BoardMessagesJsonWriter: Added message with" << parameters.size() << "parameters";
+    //qDebug() << "BoardMessagesJsonWriter: Added message with" << parameters.size() << "parameters";
 }
 
 void BoardMessagesJsonWriter::clearFile()
 {
     QFile file(m_filename);
-    if (file.exists()) {
-        if (file.remove()) {
+    if (file.exists()) 
+    {
+        if (file.remove())
+        {
             qDebug() << "BoardMessagesJsonWriter: File cleared successfully";
             emit fileCleared();
-        } else {
+        }
+    	else
+        {
             qWarning() << "BoardMessagesJsonWriter: Failed to clear file";
             emit writeError("Не удалось очистить файл");
         }
-    } else {
+    }
+	else
+    {
         qDebug() << "BoardMessagesJsonWriter: File does not exist, nothing to clear";
     }
 
@@ -73,7 +79,8 @@ void BoardMessagesJsonWriter::flushQueue()
 void BoardMessagesJsonWriter::setWriteInterval(int intervalMs)
 {
     m_writeInterval = intervalMs;
-    if (m_writeTimer) {
+    if (m_writeTimer)
+    {
         m_writeTimer->setInterval(intervalMs);
     }
 }
@@ -88,7 +95,7 @@ void BoardMessagesJsonWriter::writeMessagesToFile()
     }
     
     int messageCount = m_messageQueue.size();
-    qDebug() << "BoardMessagesJsonWriter: Writing" << messageCount << "messages to file";
+    //qDebug() << "BoardMessagesJsonWriter: Writing" << messageCount << "messages to file";
     
     // Читаем существующий файл
     QJsonObject existingData = readExistingFile();

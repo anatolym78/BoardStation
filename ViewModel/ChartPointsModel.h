@@ -7,17 +7,19 @@
 #include <QList>
 #include <QDateTime>
 #include <QVariant>
+#include <QColor>
 
 class ChartPointsModel : public QAbstractListModel
 {
     Q_OBJECT
-
+	Q_ENUMS(ChartPointsRoles)
 public:
     enum ChartPointsRoles {
         XRole = Qt::UserRole + 1,
         YRole,
         TimestampRole,
-        ValueRole
+        ValueRole,
+        ColorRole,
     };
 
     explicit ChartPointsModel(const QString &parameterLabel, QObject *parent = nullptr);
@@ -36,10 +38,24 @@ public:
     
     // Геттеры
     QString parameterLabel() const { return m_parameterLabel; }
-    QList<QPointF> points() const { return m_points; }
+    Q_INVOKABLE QList<QPointF> points() const { return m_points; }
     QList<QDateTime> timestamps() const { return m_timestamps; }
     QList<QVariant> values() const { return m_values; }
-    
+
+	Q_INVOKABLE qreal lastX() const;
+
+    Q_INVOKABLE qreal firstX() const;
+	Q_INVOKABLE qreal lastY() const;
+    Q_INVOKABLE QVariant lastPoint() const;
+	Q_INVOKABLE QVariant lastTimeStamp() const;
+    Q_INVOKABLE qreal elapsedTime() const;
+
+    Q_INVOKABLE QVariant color2() const;
+    void setColor(QColor rgb);
+
+    //Q_INVOKABLE
+
+
     // Проверки
     bool hasPoints() const { return !m_points.isEmpty(); }
     int pointCount() const { return m_points.size(); }
@@ -49,6 +65,8 @@ private:
     QList<QPointF> m_points;      // Точки графика
     QList<QDateTime> m_timestamps; // Временные метки
     QList<QVariant> m_values;    // Значения параметра
+    QDateTime m_startTime;
+    QColor m_color = Qt::darkRed;
 };
 
 #endif // CHARTPOINTSMODEL_H
