@@ -8,8 +8,8 @@ import BoardStation 1.0
 Item
 {
     id: mainWindow
-    width: 800
-    height: 600
+    width: 1200
+    height: 800
     
     // // Chart Builder для создания графиков
     // ChartBuilder
@@ -53,7 +53,7 @@ Item
              ChartsPanel
              {
                  id: chartsPanel
-                 anchors.fill: parent
+                 //anchors.fill: parent
                  Layout.fillWidth: true
                  Layout.fillHeight: true
 

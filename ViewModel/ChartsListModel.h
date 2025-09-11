@@ -48,13 +48,6 @@ public:
     // Получение данных серии для QML (возвращает QVariantList)
     Q_INVOKABLE QVariantList getSeriesData(const QString &parameterLabel) const;
 
-
-signals:
-    void seriesDataChanged(const QString &parameterLabel);
-    void parameterAdded(const QString &parameterLabel);
-    void parameterUpdate(const QString& parameterLabel);
-    void parameterValueAdded(const QString& parameterLabel);
-
 private slots:
 	void onParameterAdded(const QString& label);
 	void onParameterUpdated(const QString& label);

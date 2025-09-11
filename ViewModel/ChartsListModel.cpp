@@ -17,64 +17,61 @@ ChartsListModel::ChartsListModel(BoardParametersStorage *parametersStorage, QObj
 	//qDebug() << "ChartsListModel: Created with parameters storage";
 }
 
-
-
 void ChartsListModel::setParametersStorage(BoardParametersStorage* storage)
 {
 	m_parametersStorage = storage;
 	if (m_parametersStorage)
 	{
-		connect(m_parametersStorage, &BoardParametersStorage::parameterAdded,
+		connect(m_parametersStorage, 
+            &BoardParametersStorage::parameterAdded,
 			this, &ChartsListModel::onParameterAdded);
 
-		connect(m_parametersStorage, &BoardParametersStorage::parameterUpdated,
+		connect(m_parametersStorage, 
+            &BoardParametersStorage::parameterUpdated,
 			this, &ChartsListModel::onParameterUpdated);
 	}
-
-	//qDebug() << "ChartsListModel: Parameters storage set";
 }
 
-int ChartsListModel::rowCount(const QModelIndex &parent) const
+void ChartsListModel::onParameterAdded(const QString& label)
 {
-    if (parent.isValid())
-        return 0;
+	// Создаем серию для нового параметра
+	addSeries(label);
 
-    return m_chartsModels.size();
-}
-
-QVariant ChartsListModel::data(const QModelIndex &index, int role) const
-{
-    if (!index.isValid() || index.row() >= m_chartsModels.size())
-        return QVariant();
-
-    ChartSeriesModel *seriesModel = m_chartsModels.at(index.row());
-    if (!seriesModel)
-        return QVariant();
-
-    switch (role)
+	// Передаем сигнал всем моделям серий
+	for (ChartSeriesModel* seriesModel : m_chartsModels)
 	{
-    case SeriesModelRole:
-        return QVariant::fromValue(seriesModel);
-    case HasSeriesRole:
-        return seriesModel->seriesCount() > 0;
-    default:
-        return QVariant();
-    }
+		if (seriesModel)
+		{
+			seriesModel->handleParameterAdded(label);
+		}
+	}
 }
 
-QHash<int, QByteArray> ChartsListModel::roleNames() const
+void ChartsListModel::onParameterUpdated(const QString& label)
 {
-    QHash<int, QByteArray> roles;
-    roles[SeriesModelRole] = "seriesModel";
-    roles[HasSeriesRole] = "hasSeries";
-    return roles;
+	// Получаем серию для обновленного параметра
+	ChartSeriesModel* seriesModel = getSeriesModel(label);
+	if (seriesModel && m_parametersStorage)
+	{
+		BoardParameter* param = m_parametersStorage->getParameter(label);
+		if (param && param->hasValues())
+		{
+			BoardParameterValue* lastValue = param->lastValue();
+			if (lastValue)
+			{
+				auto timeValue = (qreal)lastValue->timestamp().toMSecsSinceEpoch() / 1000.0;
+                auto dataValue = lastValue->value().toDouble();
+				seriesModel->addPoint(label, timeValue, dataValue, lastValue->timestamp(), lastValue->value());
+			}
+		}
+	}
 }
 
 ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
 {
     if (hasSeries(parameterLabel))
     {
-        //qDebug() << "ChartsListModel: Series for parameter" << parameterLabel << "already exists";
+        qDebug() << "[CHART DEBUG] ChartsListModel::addSeries - Series for parameter" << parameterLabel << "already exists";
         return getSeriesModel(parameterLabel);
     }
 
@@ -85,7 +82,7 @@ ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
     m_chartsModels.append(seriesModel);
     endInsertRows();
     
-    //qDebug() << "ChartsListModel: Added series for parameter" << parameterLabel;
+    qDebug() << "[CHART DEBUG] ChartsListModel::addSeries - Added NEW ChartSeriesModel for parameter" << parameterLabel << "Total charts:" << m_chartsModels.size();
 
     return seriesModel;
 }
@@ -226,47 +223,39 @@ QVariantList ChartsListModel::getSeriesData(const QString &parameterLabel) const
     return result;
 }
 
-void ChartsListModel::onParameterAdded(const QString &label)
-{
-    // Создаем серию для нового параметра
-    addSeries(label);
 
-    // Передаем сигнал всем моделям серий
-    for (ChartSeriesModel *seriesModel : m_chartsModels) 
-    {
-        if (seriesModel) 
-        {
-            seriesModel->handleParameterAdded(label);
-        }
-    }
-    
-    // Испускаем сигнал для QML
-    emit parameterAdded(label);
-    
-    //qDebug() << "ChartsListModel: Parameter added:" << label << "forwarded to all series";
+int ChartsListModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return m_chartsModels.size();
 }
 
-void ChartsListModel::onParameterUpdated(const QString& label)
+QVariant ChartsListModel::data(const QModelIndex &index, int role) const
 {
-    // Получаем серию для обновленного параметра
-    ChartSeriesModel *seriesModel = getSeriesModel(label);
-    if (seriesModel && m_parametersStorage)
-    {
-        BoardParameter *param = m_parametersStorage->getParameter(label);
-        if (param && param->hasValues())
-        {
-            BoardParameterValue *lastValue = param->lastValue();
-            if (lastValue)
-            {
-                double timeValue = lastValue->timestamp().toMSecsSinceEpoch() / 1000.0;
-                double dataValue = lastValue->value().toDouble();
-                seriesModel->addPoint(label, timeValue, dataValue, lastValue->timestamp(), lastValue->value());
-            }
-        }
-    }
+    if (!index.isValid() || index.row() >= m_chartsModels.size())
+        return QVariant();
 
-    emit parameterValueAdded(label);
-    
-    //qDebug() << "ChartsListModel: Parameter updated:" << label;
+    ChartSeriesModel *seriesModel = m_chartsModels.at(index.row());
+    if (!seriesModel)
+        return QVariant();
+
+    switch (role)
+	{
+    case SeriesModelRole:
+        return QVariant::fromValue(seriesModel);
+    case HasSeriesRole:
+        return seriesModel->seriesCount() > 0;
+    default:
+        return QVariant();
+    }
 }
 
+QHash<int, QByteArray> ChartsListModel::roleNames() const
+{
+    QHash<int, QByteArray> roles;
+    roles[SeriesModelRole] = "seriesModel";
+    roles[HasSeriesRole] = "hasSeries";
+    return roles;
+}

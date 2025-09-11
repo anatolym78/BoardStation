@@ -20,8 +20,10 @@ ChartSeriesModel::ChartSeriesModel(const QStringList &parameterLabels, QObject *
 
 void ChartSeriesModel::createColorMap()
 {
-	m_colorMap["Altitude"] = Qt::darkRed;
-	m_colorMap["Speed"] = Qt::darkRed;
+	m_colorMap["Altitude"] = Qt::red;
+	m_colorMap["Longitude"] = Qt::lightGray;
+    m_colorMap["Latitude"] = Qt::yellow;
+    m_colorMap["Speed"] = Qt::black;
 }
 
 void ChartSeriesModel::setParametersStorage(BoardParametersStorage *storage)
@@ -32,7 +34,7 @@ void ChartSeriesModel::setParametersStorage(BoardParametersStorage *storage)
         connect(m_parametersStorage, &BoardParametersStorage::parameterAdded, 
                 this, &ChartSeriesModel::onParameterAdded);
 		connect(m_parametersStorage, &BoardParametersStorage::parameterUpdated,
-			this, &ChartSeriesModel::parameterValueAdded);
+			this, &ChartSeriesModel::onParameterUpdated);
     }
 }
 
@@ -54,8 +56,9 @@ QVariant ChartSeriesModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case ParameterLabelRole:
-        return QString("tralala");
-        //return pointsModel->parameterLabel();
+        qDebug() << "[CHART DEBUG] ChartSeriesModel::data() ParameterLabelRole for index" << index.row() << "returning:" << pointsModel->parameterLabel();
+        return pointsModel->parameterLabel();
+        //return QString("tralala");
     case PointsModelRole:
         return QVariant::fromValue(pointsModel);
     case PointCountRole:
@@ -90,12 +93,17 @@ void ChartSeriesModel::addSeries(const QString &parameterLabel)
     if(m_colorMap.contains(parameterLabel))
     {
         pointsModel->setColor(m_colorMap[parameterLabel]);
+        qDebug() << "[CHART DEBUG] ChartSeriesModel::addSeries - Set color for" << parameterLabel << "to" << m_colorMap[parameterLabel];
+    }
+    else
+    {
+        qDebug() << "[CHART DEBUG] ChartSeriesModel::addSeries - NO COLOR SET for" << parameterLabel << "Available colors:" << m_colorMap.keys();
     }
     m_seriesModels.append(pointsModel);
     m_parameterLabels.append(parameterLabel);
     endInsertRows();
     
-    //qDebug() << "ChartSeriesModel: Added series for parameter" << parameterLabel;
+    qDebug() << "[CHART DEBUG] ChartSeriesModel::addSeries - Added series for parameter" << parameterLabel << "Total series:" << m_seriesModels.size();
 }
 
 void ChartSeriesModel::addSeries(const QStringList &parameterLabels)
@@ -181,10 +189,20 @@ void ChartSeriesModel::addPoint(const QString &parameterLabel, double x, double 
 
 ChartPointsModel* ChartSeriesModel::getPointsModel(const QString &parameterLabel) const
 {
+    qDebug() << "[CHART DEBUG] ChartSeriesModel::getPointsModel() called for:" << parameterLabel;
+    qDebug() << "[CHART DEBUG] Available labels:" << m_parameterLabels;
+    qDebug() << "[CHART DEBUG] Series models count:" << m_seriesModels.size();
+    
     int index = m_parameterLabels.indexOf(parameterLabel);
+    qDebug() << "[CHART DEBUG] Found index:" << index;
+    
     if (index >= 0 && index < m_seriesModels.size()) {
-        return m_seriesModels.at(index);
+        ChartPointsModel* result = m_seriesModels.at(index);
+        qDebug() << "[CHART DEBUG] Returning pointsModel:" << result << "for" << parameterLabel;
+        return result;
     }
+    
+    qDebug() << "[CHART DEBUG] Returning NULL for" << parameterLabel;
     return nullptr;
 }
 
@@ -236,5 +254,10 @@ void ChartSeriesModel::onParameterAdded(const QString &label)
 {
     handleParameterAdded(label);
 
+    //emit parameterValueAdded(label);
+}
+
+void ChartSeriesModel::onParameterUpdated(const QString& label)
+{
     emit parameterValueAdded(label);
 }

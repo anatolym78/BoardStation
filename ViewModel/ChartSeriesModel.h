@@ -65,6 +65,7 @@ signals:
 
 private slots:
     void onParameterAdded(const QString &label);
+    void onParameterUpdated(const QString& label);
 
 private:
     QList<ChartPointsModel*> m_seriesModels;

@@ -152,8 +152,9 @@ Q_INVOKABLE qreal ChartPointsModel::elapsedTime() const
     return (qreal)m_startTime.secsTo(m_timestamps.last());
 }
 
-Q_INVOKABLE QVariant ChartPointsModel::color2() const
+Q_INVOKABLE QVariant ChartPointsModel::pointsColor() const
 {
+    qDebug() << "[CHART DEBUG] ChartPointsModel::pointsColor() for" << m_parameterLabel << "returning color:" << m_color;
     return QVariant::fromValue(m_color);
 }
 

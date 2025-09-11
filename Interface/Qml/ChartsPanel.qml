@@ -19,7 +19,7 @@ Item
         id: chartsColumn
         //width: parent.width
         anchors.fill: parent
-        spacing: 25
+        spacing: 10
 
         Repeater
         {
@@ -28,14 +28,14 @@ Item
             // График для серии
             delegate: ChartView
             {
-                width: 360
+                width: 240
                 height: 240
                 theme: ChartView.ChartThemeBlueIcy
                 ValueAxis
                 {
                     id: parameterValueAxis
                     min: -750
-                    max: 700
+                    max: 750
                 }
 
                 ValueAxis
@@ -54,26 +54,33 @@ Item
                     target: seriesModel
 
                     function onParameterValueAdded(label)
-                    {
+                    {                
                         var chartSeries
                         var pointsModel = seriesModel.getPointsModel(label)
+                        
                         if(count == 0)
                         {
                             chartSeries = createSeries(ChartView.SeriesTypeLine, label, timeAxis, parameterValueAxis)
-                            chartSeries.color = pointsModel.color2()
-
-                            console.log(pointsModel.color2())
+                            if (pointsModel)
+                            {
+                                var color = pointsModel.pointsColor()
+                                chartSeries.color = color
+                            }
                         }
                         else
                         {
                             chartSeries = series(0)
-                            chartSeries.append(pointsModel.elapsedTime(), pointsModel.lastY())
+                            if (pointsModel)
+                            {
+                                chartSeries.append(pointsModel.elapsedTime(), pointsModel.lastY())
+                            }
                         }
                     }
                 }
 
                 DragHandler
                 {
+                    id: dragHandler
                     onActiveChanged:
                     {
                         if(active)
@@ -89,7 +96,7 @@ Item
 
                 Drag.hotSpot.x: parent.width/2
                 Drag.hotSpot.y: parent.height/2
-                Drag.active: DragHandler.active
+                Drag.active: dragHandler.active
 
                 DropArea
                 {

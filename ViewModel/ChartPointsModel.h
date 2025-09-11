@@ -50,7 +50,7 @@ public:
 	Q_INVOKABLE QVariant lastTimeStamp() const;
     Q_INVOKABLE qreal elapsedTime() const;
 
-    Q_INVOKABLE QVariant color2() const;
+    Q_INVOKABLE QVariant pointsColor() const;
     void setColor(QColor rgb);
 
     //Q_INVOKABLE
@@ -66,7 +66,7 @@ private:
     QList<QDateTime> m_timestamps; // Временные метки
     QList<QVariant> m_values;    // Значения параметра
     QDateTime m_startTime;
-    QColor m_color = Qt::darkRed;
+    QColor m_color = Qt::white;
 };
 
 #endif // CHARTPOINTSMODEL_H
