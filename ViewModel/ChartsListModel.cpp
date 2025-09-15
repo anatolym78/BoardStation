@@ -71,7 +71,6 @@ ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
 {
     if (hasSeries(parameterLabel))
     {
-        qDebug() << "[CHART DEBUG] ChartsListModel::addSeries - Series for parameter" << parameterLabel << "already exists";
         return getSeriesModel(parameterLabel);
     }
 
@@ -81,8 +80,6 @@ ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
     seriesModel->addSeries(parameterLabel);
     m_chartsModels.append(seriesModel);
     endInsertRows();
-    
-    qDebug() << "[CHART DEBUG] ChartsListModel::addSeries - Added NEW ChartSeriesModel for parameter" << parameterLabel << "Total charts:" << m_chartsModels.size();
 
     return seriesModel;
 }
@@ -247,6 +244,8 @@ QVariant ChartsListModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(seriesModel);
     case HasSeriesRole:
         return seriesModel->seriesCount() > 0;
+    case Name:
+        return "Chart";
     default:
         return QVariant();
     }
@@ -257,5 +256,6 @@ QHash<int, QByteArray> ChartsListModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[SeriesModelRole] = "seriesModel";
     roles[HasSeriesRole] = "hasSeries";
+    roles[Name] = "name";
     return roles;
 }

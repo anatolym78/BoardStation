@@ -35,9 +35,10 @@ public:
     void addPoint(double x, double y);
     void addPoint(double x, double y, const QDateTime &timestamp, const QVariant &value);
     void clearPoints();
+    Q_INVOKABLE int countPoints() const { return m_points.count(); }
     
     // Геттеры
-    QString parameterLabel() const { return m_parameterLabel; }
+    Q_INVOKABLE QString parameterLabel() const { return m_parameterLabel; }
     Q_INVOKABLE QList<QPointF> points() const { return m_points; }
     QList<QDateTime> timestamps() const { return m_timestamps; }
     QList<QVariant> values() const { return m_values; }

@@ -145,7 +145,7 @@ void BoardDataEmulator::setupGenerators()
     altitudeGen->setPeriod(100);
     m_generators.append(altitudeGen);
 
-    // Создаем и настраиваем генератор широты
+	// Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
     latitudeGen->setStartLatitude(55.7558);    // Москва
     latitudeGen->setSpeed(0.0005);             // Медленное движение

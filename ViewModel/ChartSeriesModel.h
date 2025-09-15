@@ -29,11 +29,11 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с сериями
-    void addSeries(const QString &parameterLabel);
-    void addSeries(const QStringList &parameterLabels);
-    void removeSeries(const QString &parameterLabel);
-    void removeSeries(int index);
-    void clearSeries();
+    Q_INVOKABLE void addSeries(const QString &parameterLabel);
+    Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
+    Q_INVOKABLE void removeSeries(const QString &parameterLabel);
+    Q_INVOKABLE void removeSeries(int index);
+    Q_INVOKABLE void clearSeries();
 
     Q_INVOKABLE int countSeries() { return rowCount(); }
     

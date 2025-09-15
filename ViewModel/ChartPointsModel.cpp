@@ -154,7 +154,6 @@ Q_INVOKABLE qreal ChartPointsModel::elapsedTime() const
 
 Q_INVOKABLE QVariant ChartPointsModel::pointsColor() const
 {
-    qDebug() << "[CHART DEBUG] ChartPointsModel::pointsColor() for" << m_parameterLabel << "returning color:" << m_color;
     return QVariant::fromValue(m_color);
 }
 

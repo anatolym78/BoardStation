@@ -35,6 +35,6 @@ int main(int argc, char *argv[])
     w.setApp(&app);
     w.showMaximized();
 #endif
-    
+
     return app.exec();
 }

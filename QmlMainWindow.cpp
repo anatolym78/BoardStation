@@ -131,7 +131,6 @@ void QmlMainWindow::setupChartSeriesModel()
     // Create charts list model
     auto chartsListModel = new ChartsListModel(this);
     chartsListModel->setParametersStorage(m_app->getParametersStorage());
-    qDebug() << "[CHART DEBUG] QmlMainWindow::setupChartSeriesModel - Created ChartsListModel";
 
     // auto speedSeries = chartsListModel->addChart("Speed");
     // auto altitudeSeries = chartsListModel->addChart("Altitude");
@@ -145,11 +144,6 @@ void QmlMainWindow::setupChartSeriesModel()
     
     // Pass model to QML context as chartSeriesModel (for compatibility with existing QML)
     m_context->setContextProperty("chartsListModel", chartsListModel);
-    qDebug() << "[CHART DEBUG] QmlMainWindow::setupChartSeriesModel - ChartsListModel passed to QML as 'chartsListModel'";
-    qDebug() << "[CHART DEBUG] QmlMainWindow::setupChartSeriesModel - Number of charts:" << chartsListModel->seriesCount();
-    
-    // ВАЖНО: Нужно также передать seriesModel для Connections в QML!
-    // Но пока что seriesModel не определен в контексте QML
 }
 
 void QmlMainWindow::setupConnections()

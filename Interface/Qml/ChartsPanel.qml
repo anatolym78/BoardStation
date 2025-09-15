@@ -24,13 +24,20 @@ Item
         Repeater
         {
             model: chartsListModel
+            id: repeater
 
             // График для серии
             delegate: ChartView
             {
-                width: 240
+                id: chartView
+                property var seriesModel: model.seriesModel
+                property var chartIndex: model.index
+                width: 320
                 height: 240
                 theme: ChartView.ChartThemeBlueIcy
+                title: name
+                property bool highlight: false
+                opacity: highlight ? 0.8 : 1.0
                 ValueAxis
                 {
                     id: parameterValueAxis
@@ -78,6 +85,11 @@ Item
                     }
                 }
 
+                function mergeSeries(targetSeries, draggedSeries)
+                {
+
+                }
+
                 DragHandler
                 {
                     id: dragHandler
@@ -85,24 +97,73 @@ Item
                     {
                         if(active)
                         {
-
+                            // Начало перетаскивания
+                            chartView.Drag.start()
                         }
                         else
                         {
-
+                            // Завершение перетаскивания
+                            chartView.Drag.drop()
                         }
                     }
                 }
 
-                Drag.hotSpot.x: parent.width/2
-                Drag.hotSpot.y: parent.height/2
                 Drag.active: dragHandler.active
+                Drag.hotSpot.x: width / 2
+                Drag.hotSpot.y: height / 2
+                Drag.mimeData:
+                {
+                    "text/plain": "dragged-object",  // Указываем тип данных
+                    "application/x-series-model": seriesModel, // Передаем модель
+                    "model-index": index // Передаем индекс в repeater
+                }
+                Drag.dragType: Drag.Automatic
 
                 DropArea
                 {
+                    id: dropArea
+                    anchors.fill: parent
+                    enabled: true
+
+                    onEntered:
+                    {
+                        //console.log(dropArea.parent)
+                    }
+
+                    onExited:
+                    {
+                        //console.log("Exited")
+                    }
+
                     onDropped:
                     {
+                        if(chartsListModel.rowCount() < 2) return
 
+                        console.log("dropped chart index: ", drop.source.chartIndex)
+                        console.log("target chart index: ", chartView.chartIndex)
+
+                        var targetSeries = chartView.seriesModel
+
+                        var droppedSeries = drop.source.seriesModel
+
+                        for(var i=0;i<droppedSeries.countSeries();i++)
+                        {
+                            var pointsModel = droppedSeries.getPointsModel(i)
+                            console.log(pointsModel.parameterLabel())
+
+                            var chartSeries = chartView.series(0)
+
+                            for(var j=0;j<pointsModel.countPoints();j++)
+                            {
+
+                            }
+
+                            console.log(chartSeries)
+                        }
+
+                        //mergeSeries()
+
+                        chartsListModel.removeSeries(drop.source.chartIndex)
                     }
                 }
             }

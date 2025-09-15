@@ -14,7 +14,8 @@ class ChartsListModel : public QAbstractListModel
 public:
     enum ChartsListRoles {
         SeriesModelRole = Qt::UserRole + 1,
-        HasSeriesRole
+        HasSeriesRole,
+        Name,
     };
 
     explicit ChartsListModel(BoardParametersStorage *parametersStorage, QObject *parent = nullptr);

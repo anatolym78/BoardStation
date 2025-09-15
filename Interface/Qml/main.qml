@@ -8,8 +8,8 @@ import BoardStation 1.0
 Item
 {
     id: mainWindow
-    width: 1200
-    height: 800
+    width: 1600
+    height: 600
     
     // // Chart Builder для создания графиков
     // ChartBuilder
@@ -35,20 +35,20 @@ Item
          RowLayout
          {
              anchors.fill: parent
-             spacing: 0
+                spacing: 0
 
-             // // Drone data panel - отображает данные, полученные от дрона
-             // DroneDataPanel
-             // {
-             //     id: droneDataPanel
-             //     Layout.preferredWidth: 1
-             //     Layout.fillWidth: true
-             //     Layout.fillHeight: true
-             //     onToggleChart:
-             //     {
-             //         chartsPanel.toggleChart(parameterIndex)
-             //     }
-             // }
+             // Drone data panel - отображает данные, полученные от дрона
+             DroneDataPanel
+             {
+                 id: droneDataPanel
+                 Layout.preferredWidth: 1
+                 Layout.fillWidth: true
+                 Layout.fillHeight: true
+                 onToggleChart:
+                 {
+                     chartsPanel.toggleChart(parameterIndex)
+                 }
+             }
 
              ChartsPanel
              {
@@ -72,14 +72,14 @@ Item
     }
 
     
-    // // Альтернативные привязки с использованием Binding (если нужно)
-    // Binding
-    // {
-    //     target: droneDataPanel
-    //     property: "parametersModel"
-    //     value: parametersModel
-    //     when: parametersModel !== null
-    // }
+    // Альтернативные привязки с использованием Binding (если нужно)
+    Binding
+    {
+        target: droneDataPanel
+        property: "parametersModel"
+        value: parametersModel
+        when: parametersModel !== null
+    }
     
     // Binding
     // {
