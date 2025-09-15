@@ -20,9 +20,13 @@ SOURCES += \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
     Model/Parameters/BoardParametersJsonParser.cpp \
+    Model/Parameters/BoardParametersJsonParserNew.cpp \
     Model/Parameters/BoardParameterValue.cpp \
+    Model/Parameters/BoardParameterSingle.cpp \
     Model/Parameters/BoardParameter.cpp \
+    Model/Parameters/BoardParameterHistory.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
+    Model/Parameters/BoardParameterHistoryStorage.cpp \
     Interface/Charts/ChartBuilder.cpp \
     ViewModel/BoardParametersModel.cpp \
     ViewModel/ChartPointsModel.cpp \
@@ -40,6 +44,7 @@ SOURCES += \
     Model/Parameters/OutParametersParser.cpp \
     Model/Parameters/BoardMessage.cpp \
     Model/Parameters/BoardMessagesJsonWriter.cpp \
+    Model/Parameters/BoardMessagesJsonWriterNew.cpp \
     Model/Parameters/OutParameterWidgetCreator.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -56,9 +61,13 @@ HEADERS += \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.h \
     Model/IDriver.h \
     Model/Parameters/BoardParametersJsonParser.h \
+    Model/Parameters/BoardParametersJsonParserNew.h \
     Model/Parameters/BoardParameter.h \
+    Model/Parameters/BoardParameterSingle.h \
+    Model/Parameters/BoardParameterHistory.h \
     Model/Parameters/BoardParameterValue.h \
     Model/Parameters/BoardParametersStorage.h \
+    Model/Parameters/BoardParameterHistoryStorage.h \
     Interface/Charts/ChartBuilder.h \
     ViewModel/BoardParametersModel.h \
     ViewModel/ChartPointsModel.h \
@@ -76,6 +85,7 @@ HEADERS += \
     Model/Parameters/OutParametersParser.h \
     Model/Parameters/BoardMessage.h \
     Model/Parameters/BoardMessagesJsonWriter.h \
+    Model/Parameters/BoardMessagesJsonWriterNew.h \
     Model/Parameters/Parameters.h \
     Model/Parameters/OutParameterWidgetCreator.h \
     mainwindow.h \

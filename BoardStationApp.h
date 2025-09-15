@@ -7,14 +7,14 @@
 #include "ViewModel/OutParametersModel.h"
 #include "ViewModel/ChartSeriesModel.h"
 #include "Model/IDriver.h"
-#include "Model/Parameters/BoardParametersStorage.h"
+#include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include "Model/Parameters/Parameters.h"
 #include "Model/Parameters/OutParametersStorage.h"
-#include "Model/Parameters/BoardMessagesJsonWriter.h"
+#include "Model/Parameters/BoardMessagesJsonWriterNew.h"
 #include "Interface/Charts/ChartBuilder.h"
 
 class MainWindow;
-class BoardParametersJsonParser;
+class BoardParametersJsonParserNew;
 
 class BoardStationApp : public QApplication
 {
@@ -30,7 +30,7 @@ public:
 
     // Методы для работы с моделью параметров
     BoardParametersModel* getParametersModel() const;
-    BoardParametersStorage* getParametersStorage() const;
+    BoardParameterHistoryStorage* getParametersStorage() const;
     
     // Методы для работы с моделью исходящих параметров
     OutParametersModel* getOutParametersModel() const;
@@ -43,7 +43,7 @@ public:
     OutParametersStorage* getOutParametersStorage() const;
     
     // Методы для работы с записью сообщений от борта
-    BoardMessagesJsonWriter* getBoardMessagesWriter() const;
+    BoardMessagesJsonWriterNew* getBoardMessagesWriter() const;
     
     // Отправка параметров на борт
     void sendParametersToBoard();
@@ -57,14 +57,14 @@ private:
 
 private:
     MainWindow *m_mainWindow;
-    BoardParametersStorage *m_parametersStorage;
+    BoardParameterHistoryStorage *m_parametersStorage;
     BoardParametersModel *m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
     ChartSeriesModel *m_chartSeriesModel;
     drv::IDriver *m_driver;
-    BoardParametersJsonParser *m_jsonReader;
-    BoardMessagesJsonWriter *m_boardMessagesWriter;
+    BoardParametersJsonParserNew *m_jsonReader;
+    BoardMessagesJsonWriterNew *m_boardMessagesWriter;
 };
 
 #endif // BOARDSTATIONAPP_H

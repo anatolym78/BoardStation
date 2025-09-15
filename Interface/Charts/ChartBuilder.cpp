@@ -8,7 +8,7 @@ ChartBuilder::ChartBuilder(QObject *parent)
 {
 }
 
-QChartView* ChartBuilder::createChart(const BoardParameter &parameter)
+QChartView* ChartBuilder::createChart(const BoardParameterHistory &parameter)
 {
     if (!canCreateChart(parameter))
     {
@@ -28,7 +28,7 @@ QChartView* ChartBuilder::createChart(const BoardParameter &parameter)
     return chartView;
 }
 
-void ChartBuilder::updateChart(QChartView *chartView, const BoardParameter &parameter)
+void ChartBuilder::updateChart(QChartView *chartView, const BoardParameterHistory &parameter)
 {
     if (!chartView || !canCreateChart(parameter))
     {
@@ -58,7 +58,7 @@ void ChartBuilder::updateChart(QChartView *chartView, const BoardParameter &para
     }
 }
 
-bool ChartBuilder::canCreateChart(const BoardParameter &parameter)
+bool ChartBuilder::canCreateChart(const BoardParameterHistory &parameter)
 {
     if (!parameter.hasValues())
     {
@@ -77,7 +77,7 @@ bool ChartBuilder::canCreateChart(const BoardParameter &parameter)
     return true;
 }
 
-void ChartBuilder::buildChart(QChart *chart, const BoardParameter &parameter)
+void ChartBuilder::buildChart(QChart *chart, const BoardParameterHistory &parameter)
 {
     // Очищаем график от старых данных и осей
     chart->removeAllSeries();
@@ -107,7 +107,7 @@ void ChartBuilder::buildChart(QChart *chart, const BoardParameter &parameter)
     setupChartAppearance(chart, parameter);
 }
 
-void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &parameter)
+void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameterHistory &parameter)
 {
     QChart *chart = chartView->chart();
     if (!chart || chart->series().isEmpty())
@@ -201,7 +201,7 @@ void ChartBuilder::appendNewPoints(QChartView *chartView, const BoardParameter &
     }
 }
 
-QLineSeries* ChartBuilder::createSeries(const BoardParameter &parameter)
+QLineSeries* ChartBuilder::createSeries(const BoardParameterHistory &parameter)
 {
     QLineSeries *series = new QLineSeries();
     series->setName(parameter.label());
@@ -224,7 +224,7 @@ QLineSeries* ChartBuilder::createSeries(const BoardParameter &parameter)
     return series;
 }
 
-void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardParameter &parameter)
+void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardParameterHistory &parameter)
 {
     // Создаем оси
     QValueAxis *axisX = new QValueAxis();
@@ -283,7 +283,7 @@ void ChartBuilder::setupAxes(QChart *chart, QLineSeries *series, const BoardPara
     }
 }
 
-void ChartBuilder::setupChartAppearance(QChart *chart, const BoardParameter &parameter)
+void ChartBuilder::setupChartAppearance(QChart *chart, const BoardParameterHistory &parameter)
 {
     // Устанавливаем заголовок графика
     chart->setTitle(tr("Chart for %1").arg(parameter.label()));

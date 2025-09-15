@@ -6,8 +6,8 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QList>
-#include "../Model/Parameters/BoardParameter.h"
-#include "../Model/Parameters/BoardParametersStorage.h"
+#include "../Model/Parameters/BoardParameterHistory.h"
+#include "../Model/Parameters/BoardParameterHistoryStorage.h"
 
 class BoardParametersModel : public QAbstractTableModel
 {
@@ -21,7 +21,7 @@ public:
         TimestampColumn = 3
     };
 
-    explicit BoardParametersModel(BoardParametersStorage *storage, QObject *parent = nullptr);
+    explicit BoardParametersModel(BoardParameterHistoryStorage *storage, QObject *parent = nullptr);
 
     // QAbstractTableModel interface
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -31,12 +31,12 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с данными
-    void setParametersStorage(BoardParametersStorage *storage);
+    void setParametersStorage(BoardParameterHistoryStorage *storage);
     void refreshModel();
     
     // Получение параметров
-    BoardParameter* getParameter(int index) const;
-    BoardParameter* getParameter(const QString &label) const;
+    BoardParameterHistory* getParameter(int index) const;
+    BoardParameterHistory* getParameter(const QString &label) const;
     
     // Методы для работы с историей значений
     BoardParameterValue* getLastValue(int index) const;
@@ -50,7 +50,7 @@ private slots:
     void onParametersCleared();
 
 private:
-    BoardParametersStorage *m_storage;
+    BoardParameterHistoryStorage *m_storage;
     QStringList m_parameterLabels; // Кэш меток для индексации строк
 };
 

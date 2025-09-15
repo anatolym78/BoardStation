@@ -26,14 +26,14 @@ void ChartSeriesModel::createColorMap()
     m_colorMap["Speed"] = Qt::black;
 }
 
-void ChartSeriesModel::setParametersStorage(BoardParametersStorage *storage)
+void ChartSeriesModel::setParametersStorage(BoardParameterHistoryStorage *storage)
 {
     m_parametersStorage = storage;
     if (m_parametersStorage)
     {
-        connect(m_parametersStorage, &BoardParametersStorage::parameterAdded, 
+        connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterAdded, 
                 this, &ChartSeriesModel::onParameterAdded);
-		connect(m_parametersStorage, &BoardParametersStorage::parameterUpdated,
+		connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterUpdated,
 			this, &ChartSeriesModel::onParameterUpdated);
     }
 }
@@ -215,7 +215,7 @@ void ChartSeriesModel::handleParameterAdded(const QString &label)
     // Если у нас есть серия для этого параметра, добавляем новую точку
     if (hasSeries(label) && m_parametersStorage) 
     {
-        BoardParameter *param = m_parametersStorage->getParameter(label);
+        BoardParameterHistory *param = m_parametersStorage->getParameterHistory(label);
         if (param && param->hasValues())
         {
             BoardParameterValue *lastValue = param->lastValue();
@@ -241,4 +241,48 @@ void ChartSeriesModel::onParameterAdded(const QString &label)
 void ChartSeriesModel::onParameterUpdated(const QString& label)
 {
     emit parameterValueAdded(label);
+}
+
+void ChartSeriesModel::copySeriesFrom(ChartSeriesModel* sourceModel)
+{
+    if (!sourceModel) 
+    {
+        qWarning() << "ChartSeriesModel: Source model is null";
+        return;
+    }
+    
+    // Получаем все метки параметров из исходной модели
+    QStringList sourceLabels = sourceModel->parameterLabels();
+    
+    for (const QString &label : sourceLabels) 
+    {
+        // Добавляем серию если её ещё нет
+        if (!hasSeries(label)) 
+        {
+            addSeries(label);
+        }
+        
+        // Получаем модели точек
+        ChartPointsModel *sourcePointsModel = sourceModel->getPointsModel(label);
+        ChartPointsModel *targetPointsModel = getPointsModel(label);
+        
+        if (sourcePointsModel && targetPointsModel) 
+        {
+            // Копируем все точки из исходной модели
+            QList<QPointF> sourcePoints = sourcePointsModel->points();
+            QList<QDateTime> sourceTimestamps = sourcePointsModel->timestamps();
+            QList<QVariant> sourceValues = sourcePointsModel->values();
+            
+            for (int i = 0; i < sourcePoints.size(); ++i) 
+            {
+                QPointF point = sourcePoints.at(i);
+                QDateTime timestamp = (i < sourceTimestamps.size()) ? sourceTimestamps.at(i) : QDateTime::currentDateTime();
+                QVariant value = (i < sourceValues.size()) ? sourceValues.at(i) : QVariant();
+                
+                targetPointsModel->addPoint(point.x(), point.y(), timestamp, value);
+            }
+        }
+    }
+    
+    //qDebug() << "ChartSeriesModel: Copied" << sourceLabels.size() << "series from source model";
 }

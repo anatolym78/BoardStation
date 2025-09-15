@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "BoardStationApp.h"
-#include "Model/Parameters/BoardParameter.h"
+#include "Model/Parameters/BoardParameterHistory.h"
 #include "Interface/Charts/ChartBuilder.h"
 
 #include <QDebug>
@@ -52,7 +52,7 @@ void MainWindow::setApp(BoardStationApp *app)
         // Подключаем сигналы обновления параметров для обновления графиков
         if (m_app->getParametersStorage())
         {
-            connect(m_app->getParametersStorage(), &BoardParametersStorage::parameterUpdated,
+            connect(m_app->getParametersStorage(), &BoardParameterHistoryStorage::parameterUpdated,
                     this, &MainWindow::onParameterUpdated);
         }
         
@@ -205,7 +205,7 @@ void MainWindow::createChartWindow(const QString &parameterName)
         return;
     }
     
-    BoardParameter *param = m_app->getParametersStorage()->getParameter(parameterName);
+    BoardParameterHistory *param = m_app->getParametersStorage()->getParameterHistory(parameterName);
     if (!param || !param->hasValues()) {
         qWarning() << "MainWindow: Параметр" << parameterName << "не содержит значений";
         return;
@@ -275,7 +275,7 @@ void MainWindow::updateChart(const QString &parameterName)
     }
     
     // Получаем актуальные данные параметра
-    BoardParameter *param = m_app->getParametersStorage()->getParameter(parameterName);
+    BoardParameterHistory *param = m_app->getParametersStorage()->getParameterHistory(parameterName);
     if (!param || !param->hasValues()) {
         return;
     }

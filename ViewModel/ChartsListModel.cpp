@@ -8,7 +8,7 @@ ChartsListModel::ChartsListModel(QObject *parent)
     //qDebug() << "ChartsListModel: Created empty model";
 }
 
-ChartsListModel::ChartsListModel(BoardParametersStorage *parametersStorage, QObject *parent)
+ChartsListModel::ChartsListModel(BoardParameterHistoryStorage *parametersStorage, QObject *parent)
     : QAbstractListModel(parent)
     , m_parametersStorage(parametersStorage)
 {
@@ -17,18 +17,22 @@ ChartsListModel::ChartsListModel(BoardParametersStorage *parametersStorage, QObj
 	//qDebug() << "ChartsListModel: Created with parameters storage";
 }
 
-void ChartsListModel::setParametersStorage(BoardParametersStorage* storage)
+void ChartsListModel::setParametersStorage(BoardParameterHistoryStorage* storage)
 {
 	m_parametersStorage = storage;
 	if (m_parametersStorage)
 	{
-		connect(m_parametersStorage, 
-            &BoardParametersStorage::parameterAdded,
-			this, &ChartsListModel::onParameterAdded);
+		//connect(m_parametersStorage, 
+  //          &BoardParameterHistoryStorage::parameterAdded,
+		//	this, &ChartsListModel::onParameterAdded);
 
-		connect(m_parametersStorage, 
-            &BoardParametersStorage::parameterUpdated,
-			this, &ChartsListModel::onParameterUpdated);
+		//connect(m_parametersStorage, 
+  //          &BoardParameterHistoryStorage::parameterUpdated,
+		//	this, &ChartsListModel::onParameterUpdated);
+
+		connect(m_parametersStorage,
+			&BoardParameterHistoryStorage::newParameterAdded,
+			this, &ChartsListModel::onNewParameterAdded);
 	}
 }
 
@@ -53,7 +57,7 @@ void ChartsListModel::onParameterUpdated(const QString& label)
 	ChartSeriesModel* seriesModel = getSeriesModel(label);
 	if (seriesModel && m_parametersStorage)
 	{
-		BoardParameter* param = m_parametersStorage->getParameter(label);
+		BoardParameterHistory* param = m_parametersStorage->getParameterHistory(label);
 		if (param && param->hasValues())
 		{
 			BoardParameterValue* lastValue = param->lastValue();
@@ -65,6 +69,35 @@ void ChartsListModel::onParameterUpdated(const QString& label)
 			}
 		}
 	}
+}
+
+void ChartsListModel::onNewParameterAdded(BoardParameterSingle* parameter)
+{
+    auto label = parameter->label();
+
+    if(label.isEmpty())
+    {
+
+        return;
+    }
+
+    auto hasSeries = false;
+    for(auto& seriesModel : m_chartsModels)
+    {
+	    if(seriesModel->hasSeries(label))
+	    {
+			auto timeValue = (qreal)parameter->timestamp().toMSecsSinceEpoch() / 1000.0;
+			auto dataValue = parameter->value().toDouble();
+			seriesModel->addPoint(label, timeValue, dataValue, parameter->timestamp(), parameter->value());
+
+            hasSeries = true;
+	    }
+    }
+
+    if(!hasSeries)
+    {
+        addSeries(label);
+    }
 }
 
 ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
@@ -258,4 +291,37 @@ QHash<int, QByteArray> ChartsListModel::roleNames() const
     roles[HasSeriesRole] = "hasSeries";
     roles[Name] = "name";
     return roles;
+}
+
+void ChartsListModel::mergeSeries(int targetIndex, int sourceIndex)
+{
+    if (targetIndex < 0 || targetIndex >= m_chartsModels.size() ||
+        sourceIndex < 0 || sourceIndex >= m_chartsModels.size()) 
+    {
+        qWarning() << "ChartsListModel: Invalid indices for merge operation. Target:" << targetIndex << "Source:" << sourceIndex;
+        return;
+    }
+    
+    if (targetIndex == sourceIndex) 
+    {
+        qWarning() << "ChartsListModel: Cannot merge series with itself";
+        return;
+    }
+    
+    ChartSeriesModel *targetModel = m_chartsModels.at(targetIndex);
+    ChartSeriesModel *sourceModel = m_chartsModels.at(sourceIndex);
+    
+    if (!targetModel || !sourceModel) 
+    {
+        qWarning() << "ChartsListModel: One of the models is null";
+        return;
+    }
+    
+    // Копируем все серии из исходной модели в целевую
+    targetModel->copySeriesFrom(sourceModel);
+    
+    // Удаляем исходную модель
+    removeSeries(sourceIndex);
+    
+    //qDebug() << "ChartsListModel: Successfully merged series from index" << sourceIndex << "to index" << targetIndex;
 }

@@ -1,6 +1,7 @@
 #include "QmlMainWindow.h"
 #include "BoardStationApp.h"
-#include "Model/Parameters/BoardParameter.h"
+#include "Model/Parameters/BoardParameterHistory.h"
+#include "Model/Parameters/BoardParameterSingle.h"
 #include "Model/Parameters/BoardParameterValue.h"
 #include "ViewModel/ChartPointsModel.h"
 #include "ViewModel/ChartSeriesModel.h"
@@ -17,7 +18,8 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
 {
     // Регистрируем типы для QML
     qmlRegisterType<BoardParameterValue>("BoardStation", 1, 0, "BoardParameterValue");
-    qmlRegisterType<BoardParameter>("BoardStation", 1, 0, "BoardParameter");
+    qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
+    qmlRegisterType<BoardParameterHistory>("BoardStation", 1, 0, "BoardParameterHistory");
     qmlRegisterType<ChartPointsModel>("BoardStation", 1, 0, "ChartPointsModel");
     qmlRegisterType<ChartSeriesModel>("BoardStation", 1, 0, "ChartSeriesModel");
     qmlRegisterType<ChartsListModel>("BoardStation", 1, 0, "ChartsListModel");
@@ -56,7 +58,7 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         // Connect parameter update signals
         if (m_app->getParametersStorage())
         {
-            connect(m_app->getParametersStorage(), &BoardParametersStorage::parameterUpdated,
+            connect(m_app->getParametersStorage(), &BoardParameterHistoryStorage::parameterUpdated,
                     this, &QmlMainWindow::onParameterUpdated);
         }
         
@@ -161,7 +163,7 @@ void QmlMainWindow::onParameterUpdated(const QString &label)
 
         auto boardParametersStorage = getApp()->getParametersStorage();
 
-        auto boardParameter = boardParametersStorage->getParameter(label);
+        auto boardParameter = boardParametersStorage->getParameterHistory(label);
         Q_UNUSED(boardParameter); // Подавляем предупреждение о неиспользуемой переменной
     }
 }

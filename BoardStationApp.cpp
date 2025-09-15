@@ -1,8 +1,8 @@
 #include "BoardStationApp.h"
 #include "mainwindow.h"
-#include "Model/Parameters/BoardParametersJsonParser.h"
+#include "Model/Parameters/BoardParametersJsonParserNew.h"
 #include "Model/Emulation/BoardDataEmulator.h"
-#include "Model/Parameters/BoardParametersStorage.h"
+#include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/AppConfigurationReader.h"
 #include "Model/Parameters/OutParametersParser.h"
@@ -15,13 +15,13 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_mainWindow(nullptr)
     , m_parametersModel(nullptr)
     , m_driver(nullptr)
-    , m_jsonReader(new BoardParametersJsonParser(this))
-    , m_boardMessagesWriter(new BoardMessagesJsonWriter("CaptureBoardData.json", this))
+    , m_jsonReader(new BoardParametersJsonParserNew(this))
+    , m_boardMessagesWriter(new BoardMessagesJsonWriterNew("CaptureBoardData.json", this))
 {
     //qDebug() << "BoardStationApp: Application initialization";
     
     // Создаем хранилище параметров
-    m_parametersStorage = new BoardParametersStorage(this);
+    m_parametersStorage = new BoardParameterHistoryStorage(this);
     
     // Создаем модель параметров
     m_parametersModel = new BoardParametersModel(m_parametersStorage, this);
@@ -93,7 +93,7 @@ ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
     return m_chartSeriesModel;
 }
 
-BoardParametersStorage* BoardStationApp::getParametersStorage() const
+BoardParameterHistoryStorage* BoardStationApp::getParametersStorage() const
 {
     return m_parametersStorage;
 }
@@ -135,17 +135,16 @@ void BoardStationApp::onDataAvailable() const
         return;
     }
     
-    // Парсим JSON и обновляем модель
-    QList<BoardParameter*> newParameters = m_jsonReader->parseParametersFromString(data);
+    // Парсим JSON и получаем отдельные параметры
+    QList<BoardParameterSingle*> newParameters = m_jsonReader->parseParametersFromString(data);
     
     if (newParameters.isEmpty())
     {
         //qDebug() << "BoardStationApp: Failed to extract parameters from driver data";
-
         return;
     }
     
-    // Обновляем или добавляем параметры в хранилище
+    // Добавляем параметры в хранилище (создаёт или дополняет истории)
     m_parametersStorage->addParameters(newParameters);
     
     // Добавляем сообщение в очередь для записи в файл
@@ -195,7 +194,7 @@ OutParametersStorage* BoardStationApp::getOutParametersStorage() const
     return m_outParametersStorage;
 }
 
-BoardMessagesJsonWriter* BoardStationApp::getBoardMessagesWriter() const
+BoardMessagesJsonWriterNew* BoardStationApp::getBoardMessagesWriter() const
 {
     return m_boardMessagesWriter;
 }
@@ -204,7 +203,8 @@ void BoardStationApp::sendParametersToBoard()
 {
     //qDebug() << "BoardStationApp: Sending parameters to board";
     
-    if (!m_outParametersStorage) {
+    if (!m_outParametersStorage) 
+    {
         qWarning() << "BoardStationApp: OutParametersStorage is not available";
         return;
     }
@@ -212,21 +212,25 @@ void BoardStationApp::sendParametersToBoard()
     // Получаем все исходящие параметры
     QList<OutParameter*> outParameters = m_outParametersStorage->getAllParameters();
     
-    if (outParameters.isEmpty()) {
+    if (outParameters.isEmpty()) 
+    {
         //qDebug() << "BoardStationApp: No out parameters to send";
         return;
     }
     
     // Создаем JSON массив из параметров
     QJsonArray parametersArray;
-    for (OutParameter *param : outParameters) {
-        if (param && param->isValid()) {
+    for (OutParameter *param : outParameters) 
+    {
+        if (param && param->isValid())
+        {
             QJsonObject paramObj = param->toJsonObject();
             parametersArray.append(paramObj);
         }
     }
     
-    if (parametersArray.isEmpty()) {
+    if (parametersArray.isEmpty())
+    {
         //qDebug() << "BoardStationApp: No valid parameters to send";
         return;
     }
@@ -238,11 +242,14 @@ void BoardStationApp::sendParametersToBoard()
     //qDebug() << "BoardStationApp: Sending JSON to board:" << jsonString;
     
     // Отправляем данные через драйвер
-    if (m_driver) {
+    if (m_driver) 
+    {
         std::string data = jsonString.toStdString();
         m_driver->write(data);
         //qDebug() << "BoardStationApp: Parameters sent to board successfully";
-    } else {
+    }
+	else 
+    {
         qWarning() << "BoardStationApp: Driver is not available";
     }
 }

@@ -5,7 +5,7 @@
 #include <QString>
 #include <QList>
 #include "ChartSeriesModel.h"
-#include "../Model/Parameters/BoardParametersStorage.h"
+#include "../Model/Parameters/BoardParameterHistoryStorage.h"
 
 class ChartsListModel : public QAbstractListModel
 {
@@ -18,7 +18,7 @@ public:
         Name,
     };
 
-    explicit ChartsListModel(BoardParametersStorage *parametersStorage, QObject *parent = nullptr);
+    explicit ChartsListModel(BoardParameterHistoryStorage *parametersStorage, QObject *parent = nullptr);
     explicit ChartsListModel(QObject *parent = nullptr);
 
     // QAbstractListModel interface
@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE void removeSeries(const QString &parameterLabel);
     Q_INVOKABLE void removeSeries(int index);
     Q_INVOKABLE void clearSeries();
+    Q_INVOKABLE void mergeSeries(int targetIndex, int sourceIndex);
     
     // Геттеры
     Q_INVOKABLE ChartSeriesModel* getSeriesModel(const QString &parameterLabel) const;
@@ -44,7 +45,7 @@ public:
     Q_INVOKABLE int seriesCount() const { return m_chartsModels.size(); }
     
     // Установка хранилища параметров
-    Q_INVOKABLE void setParametersStorage(BoardParametersStorage *storage);
+    Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
     
     // Получение данных серии для QML (возвращает QVariantList)
     Q_INVOKABLE QVariantList getSeriesData(const QString &parameterLabel) const;
@@ -52,10 +53,11 @@ public:
 private slots:
 	void onParameterAdded(const QString& label);
 	void onParameterUpdated(const QString& label);
+    void onNewParameterAdded(BoardParameterSingle* parameter);
 
 private:
     QList<ChartSeriesModel*> m_chartsModels;
-    BoardParametersStorage *m_parametersStorage;
+    BoardParameterHistoryStorage *m_parametersStorage;
 };
 
 #endif // CHARTSLISTMODEL_H

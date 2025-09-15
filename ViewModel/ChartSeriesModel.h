@@ -6,7 +6,7 @@
 #include <QStringList>
 #include <QList>
 #include "ChartPointsModel.h"
-#include "../Model/Parameters/BoardParametersStorage.h"
+#include "../Model/Parameters/BoardParameterHistoryStorage.h"
 
 class ChartSeriesModel : public QAbstractListModel
 {
@@ -34,6 +34,7 @@ public:
     Q_INVOKABLE void removeSeries(const QString &parameterLabel);
     Q_INVOKABLE void removeSeries(int index);
     Q_INVOKABLE void clearSeries();
+    Q_INVOKABLE void copySeriesFrom(ChartSeriesModel* sourceModel);
 
     Q_INVOKABLE int countSeries() { return rowCount(); }
     
@@ -55,7 +56,7 @@ public:
     int seriesCount() const { return m_seriesModels.size(); }
     
     // Установка хранилища параметров
-    void setParametersStorage(BoardParametersStorage *storage);
+    void setParametersStorage(BoardParameterHistoryStorage *storage);
     
     // Публичный метод для обработки добавления параметра
     void handleParameterAdded(const QString &label);
@@ -70,7 +71,7 @@ private slots:
 private:
     QList<ChartPointsModel*> m_seriesModels;
     QStringList m_parameterLabels;
-    BoardParametersStorage *m_parametersStorage;
+    BoardParameterHistoryStorage *m_parametersStorage;
     QMap<QString, QColor> m_colorMap;
 };
 

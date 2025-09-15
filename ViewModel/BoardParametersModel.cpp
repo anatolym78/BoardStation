@@ -1,16 +1,16 @@
 #include "BoardParametersModel.h"
 #include <QDebug>
 
-BoardParametersModel::BoardParametersModel(BoardParametersStorage *storage, QObject *parent)
+BoardParametersModel::BoardParametersModel(BoardParameterHistoryStorage *storage, QObject *parent)
     : QAbstractTableModel(parent)
     , m_storage(storage)
 {
     if (m_storage) {
-        connect(m_storage, &BoardParametersStorage::parameterAdded, 
+        connect(m_storage, &BoardParameterHistoryStorage::parameterAdded, 
                 this, &BoardParametersModel::onParameterAdded);
-        connect(m_storage, &BoardParametersStorage::parameterUpdated, 
+        connect(m_storage, &BoardParameterHistoryStorage::parameterUpdated, 
                 this, &BoardParametersModel::onParameterUpdated);
-        connect(m_storage, &BoardParametersStorage::parametersCleared, 
+        connect(m_storage, &BoardParameterHistoryStorage::parametersCleared, 
                 this, &BoardParametersModel::onParametersCleared);
         
         refreshModel();
@@ -37,7 +37,7 @@ QVariant BoardParametersModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const QString &label = m_parameterLabels.at(index.row());
-    BoardParameter *param = m_storage->getParameter(label);
+    BoardParameterHistory *param = m_storage->getParameterHistory(label);
 
     if (role == Qt::DisplayRole && param) {
         switch (index.column()) {
@@ -94,7 +94,7 @@ QHash<int, QByteArray> BoardParametersModel::roleNames() const
     return roles;
 }
 
-void BoardParametersModel::setParametersStorage(BoardParametersStorage *storage)
+void BoardParametersModel::setParametersStorage(BoardParameterHistoryStorage *storage)
 {
     if (m_storage) {
         disconnect(m_storage, nullptr, this, nullptr);
@@ -103,11 +103,11 @@ void BoardParametersModel::setParametersStorage(BoardParametersStorage *storage)
     m_storage = storage;
     
     if (m_storage) {
-        connect(m_storage, &BoardParametersStorage::parameterAdded, 
+        connect(m_storage, &BoardParameterHistoryStorage::parameterAdded, 
                 this, &BoardParametersModel::onParameterAdded);
-        connect(m_storage, &BoardParametersStorage::parameterUpdated, 
+        connect(m_storage, &BoardParameterHistoryStorage::parameterUpdated, 
                 this, &BoardParametersModel::onParameterUpdated);
-        connect(m_storage, &BoardParametersStorage::parametersCleared, 
+        connect(m_storage, &BoardParameterHistoryStorage::parametersCleared, 
                 this, &BoardParametersModel::onParametersCleared);
         
         refreshModel();
@@ -128,18 +128,18 @@ void BoardParametersModel::refreshModel()
     endResetModel();
 }
 
-BoardParameter* BoardParametersModel::getParameter(int index) const
+BoardParameterHistory* BoardParametersModel::getParameter(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
-        return m_storage->getParameter(m_parameterLabels.at(index));
+        return m_storage->getParameterHistory(m_parameterLabels.at(index));
     }
     return nullptr;
 }
 
-BoardParameter* BoardParametersModel::getParameter(const QString &label) const
+BoardParameterHistory* BoardParametersModel::getParameter(const QString &label) const
 {
     if (m_storage) {
-        return m_storage->getParameter(label);
+        return m_storage->getParameterHistory(label);
     }
     return nullptr;
 }
@@ -147,7 +147,7 @@ BoardParameter* BoardParametersModel::getParameter(const QString &label) const
 BoardParameterValue* BoardParametersModel::getLastValue(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
-        BoardParameter *param = m_storage->getParameter(m_parameterLabels.at(index));
+        BoardParameterHistory *param = m_storage->getParameterHistory(m_parameterLabels.at(index));
         if (param) {
             return param->lastValue();
         }
@@ -158,7 +158,7 @@ BoardParameterValue* BoardParametersModel::getLastValue(int index) const
 BoardParameterValue* BoardParametersModel::getLastValue(const QString &label) const
 {
     if (m_storage) {
-        BoardParameter *param = m_storage->getParameter(label);
+        BoardParameterHistory *param = m_storage->getParameterHistory(label);
         if (param) {
             return param->lastValue();
         }
@@ -169,7 +169,7 @@ BoardParameterValue* BoardParametersModel::getLastValue(const QString &label) co
 QList<BoardParameterValue*> BoardParametersModel::getValueHistory(int index) const
 {
     if (index >= 0 && index < m_parameterLabels.size() && m_storage) {
-        BoardParameter *param = m_storage->getParameter(m_parameterLabels.at(index));
+        BoardParameterHistory *param = m_storage->getParameterHistory(m_parameterLabels.at(index));
         if (param) {
             return param->values();
         }
@@ -180,7 +180,7 @@ QList<BoardParameterValue*> BoardParametersModel::getValueHistory(int index) con
 QList<BoardParameterValue*> BoardParametersModel::getValueHistory(const QString &label) const
 {
     if (m_storage) {
-        BoardParameter *param = m_storage->getParameter(label);
+        BoardParameterHistory *param = m_storage->getParameterHistory(label);
         if (param) {
             return param->values();
         }

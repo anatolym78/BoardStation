@@ -142,7 +142,7 @@ void BoardDataEmulator::setupGenerators()
     AltitudeGenerator *altitudeGen = new AltitudeGenerator(this);
     altitudeGen->setBaseAltitude(0);
     altitudeGen->setAmplitude(350);
-    altitudeGen->setPeriod(100);
+    altitudeGen->setPeriod(50);
     m_generators.append(altitudeGen);
 
 	// Создаем и настраиваем генератор широты

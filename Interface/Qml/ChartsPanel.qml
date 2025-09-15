@@ -49,12 +49,15 @@ Item
                 {
                     id: timeAxis
                     min: 0
-                    max: 100
+                    max: 50
                 }
 
                 axes: [parameterValueAxis, timeAxis]
 
                 antialiasing: true
+
+                // Карта для хранения серий по меткам параметров
+                property var seriesMap: ({})
 
                 Connections
                 {
@@ -65,9 +68,13 @@ Item
                         var chartSeries
                         var pointsModel = seriesModel.getPointsModel(label)
                         
-                        if(count == 0)
+                        // Проверяем, есть ли уже серия для данной метки
+                        if (!seriesMap.hasOwnProperty(label))
                         {
+                            // Создаем новую серию для этой метки
                             chartSeries = createSeries(ChartView.SeriesTypeLine, label, timeAxis, parameterValueAxis)
+                            seriesMap[label] = chartSeries
+                            
                             if (pointsModel)
                             {
                                 var color = pointsModel.pointsColor()
@@ -76,19 +83,18 @@ Item
                         }
                         else
                         {
-                            chartSeries = series(0)
-                            if (pointsModel)
-                            {
-                                chartSeries.append(pointsModel.elapsedTime(), pointsModel.lastY())
-                            }
+                            // Используем существующую серию для этой метки
+                            chartSeries = seriesMap[label]
+                        }
+                        
+                        // Добавляем точку в соответствующую серию
+                        if (pointsModel && chartSeries)
+                        {
+                            chartSeries.append(pointsModel.elapsedTime(), pointsModel.lastY())
                         }
                     }
                 }
 
-                function mergeSeries(targetSeries, draggedSeries)
-                {
-
-                }
 
                 DragHandler
                 {
@@ -142,28 +148,16 @@ Item
                         console.log("dropped chart index: ", drop.source.chartIndex)
                         console.log("target chart index: ", chartView.chartIndex)
 
-                        var targetSeries = chartView.seriesModel
+                        var sourceIndex = drop.source.chartIndex
+                        var targetIndex = chartView.chartIndex
 
-                        var droppedSeries = drop.source.seriesModel
-
-                        for(var i=0;i<droppedSeries.countSeries();i++)
-                        {
-                            var pointsModel = droppedSeries.getPointsModel(i)
-                            console.log(pointsModel.parameterLabel())
-
-                            var chartSeries = chartView.series(0)
-
-                            for(var j=0;j<pointsModel.countPoints();j++)
-                            {
-
-                            }
-
-                            console.log(chartSeries)
-                        }
-
-                        //mergeSeries()
-
-                        chartsListModel.removeSeries(drop.source.chartIndex)
+                        // Используем новый метод mergeSeries из ChartsListModel
+                        chartsListModel.mergeSeries(targetIndex, sourceIndex)
+                        
+                        // Очищаем карту серий для пересоздания после слияния
+                        chartView.seriesMap = ({})
+                        
+                        console.log("Series merged successfully")
                     }
                 }
             }
