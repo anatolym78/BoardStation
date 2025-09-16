@@ -14,11 +14,12 @@ class BoardParametersModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    enum Column {
-        LabelColumn = 0,
-        ValueColumn = 1,
-        UnitColumn = 2,
-        TimestampColumn = 3
+    enum Column
+	{
+        LabelColumn = Qt::UserRole + 1,
+        ValueColumn,
+        UnitColumn,
+        TimestampColumn
     };
 
     explicit BoardParametersModel(BoardParameterHistoryStorage *storage, QObject *parent = nullptr);

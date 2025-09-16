@@ -94,10 +94,12 @@ void ChartsListModel::onNewParameterAdded(BoardParameterSingle* parameter)
 	    }
     }
 
-    if(!hasSeries)
-    {
-        addSeries(label);
-    }
+    // Убираем автоматическое создание графиков
+    // Теперь графики создаются только по клику на элементы в DroneControlPanel
+    // if(!hasSeries)
+    // {
+    //     addSeries(label);
+    // }
 }
 
 ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)

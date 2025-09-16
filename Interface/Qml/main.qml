@@ -15,10 +15,7 @@ Item
     {
         // Явно присваиваем модели компонентам для избежания циклических привязок
         droneDataPanel.parametersModel = parametersModel
-        //droneControlPanel.outParametersModel = outParametersModel
-        chartsPanel.parametersModel = parametersModel
-        chartsPanel.chartSeriesModel = chartSeriesModel
-        chartsPanel.chartBuilder = chartBuilder
+        droneControlPanel.outParametersModel = outParametersModel
     }
     
     // Main frame
@@ -38,10 +35,11 @@ Item
                  Layout.preferredWidth: 3
                  Layout.fillWidth: true
                  Layout.fillHeight: true
-                 // onToggleChart:
-                 // {
-                 //     chartsPanel.toggleChart(parameterIndex)
-                 // }
+
+                 onParameterSelected:
+                 {
+                     chartsListModel.addSeries(label)
+                 }
              }
 
              ChartsPanel
@@ -54,15 +52,15 @@ Item
 
              }
 
-             // // Drone control panel - управляющие параметры, отправляемые дрону
-             // DroneControlPanel
-             // {
-             //     id: droneControlPanel
-             //     Layout.preferredWidth: 4
-             //     Layout.fillWidth: true
-             //     Layout.fillHeight: true
-             //     //Layout.minimumWidth: 250
-             // }
+             // Drone control panel - управляющие параметры, отправляемые дрону
+             DroneControlPanel
+             {
+                 id: droneControlPanel
+                 Layout.preferredWidth: 4
+                 Layout.fillWidth: true
+                 Layout.fillHeight: true
+                 
+             }
          }
     }
 

@@ -9,59 +9,25 @@ Rectangle {
     
     property var outParametersModel: null
     
-    // Таймер для принудительного обновления таблицы
-    Timer {
-        id: refreshTimer
-        interval: 5000 // Обновляем каждую секунду
-        repeat: true
-        running: true
-        onTriggered: {
-            if (outParametersTableView && outParametersModel) {
-                // Принудительно обновляем модель
-                outParametersTableView.model = null
-                outParametersTableView.model = outParametersModel
-            }
-        }
-    }
-    
-    ColumnLayout {
+    // Сигнал для добавления графика
+    signal addChart(string parameterLabel)
+     
+    ColumnLayout
+    {
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
         
-        Text {
+        Text
+        {
             text: "Drone Control"
             font.pointSize: 14
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
         }
         
-        // Dynamic headers for out parameters
-        Row {
-            Layout.fillWidth: true
-            spacing: 0
-            
- //            Repeater
- //            {
- //                model: outParametersModel ? outParametersModel.columnCount() : 0
-                
- //                Rectangle {
- //                    width: 150
- //                    height: 30
- //                    color: "#e0e0e0"
- //                    border.width: 1
- //                    border.color: "#cccccc"
- 
- //                    Text {
- //                        anchors.centerIn: parent
- //                        text: outParametersModel ? outParametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
- //                        font.bold: true
- //                    }
- //                }
- //            }
-        }
-        
-        TableView {
+        TableView
+        {
             id: outParametersTableView
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -70,15 +36,17 @@ Rectangle {
             model: outParametersModel
             
             // Data delegate with custom controls
-            delegate: Rectangle {
+            delegate: Rectangle
+            {
                 implicitWidth: 150
                 implicitHeight: 50
                 border.width: 1
                 border.color: "#e0e0e0"
                 color: row % 2 === 0 ? "#ffffff" : "#f8f8f8"
-                
+                    
                 // Different controls based on column
-                Loader {
+                Loader
+                {
                     anchors.fill: parent
                     anchors.margins: 5
                     
@@ -107,9 +75,11 @@ Rectangle {
                     }
                 }
                 
-                Component {
+                Component
+                {
                     id: labelComponent
-                    Text {
+                    Text
+                    {
                         anchors.centerIn: parent
                         text: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole) : ""
                         font.bold: true
@@ -117,38 +87,45 @@ Rectangle {
                     }
                 }
                 
-                Component {
+                Component
+                {
                     id: valueComponent
-                    Text {
-                        anchors.centerIn: parent
-                    text: 
+                    Text
                     {
-                        // Принудительно обновляем текст при изменении данных модели
-                        if (outParametersModel) 
+                        anchors.centerIn: parent
+                        text:
                         {
-                            return outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole)
+                            // Принудительно обновляем текст при изменении данных модели
+                            if (outParametersModel)
+                            {
+                                return outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole)
+                            }
+                            return ""
                         }
-                        return ""
-                    }
                         elide: Text.ElideRight
                     }
                 }
                 
-                Component {
+                Component
+                {
                     id: textComponent
-                    Text {
+                    Text
+                    {
                         anchors.centerIn: parent
                         text: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole) : ""
                         elide: Text.ElideRight
                     }
                 }
                 
-                Component {
+                Component
+                {
                     id: dynamicControlComponent
-                    Item {
+                    Item
+                    {
                         property var paramData: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.UserRole) : null
                         
-                        Loader {
+                        Loader
+                        {
                             anchors.fill: parent
                             sourceComponent: 
                             {
@@ -182,9 +159,11 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: comboBoxComponent
-                            ComboBox {
+                            ComboBox
+                            {
                                 anchors.fill: parent
                                 model: paramData ? paramData.values : []
                                 currentIndex: 
@@ -215,7 +194,8 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: sliderComponent
                             Slider {
                                 anchors.fill: parent
@@ -231,9 +211,11 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: spinBoxComponent
-                            SpinBox {
+                            SpinBox
+                            {
                                 anchors.fill: parent
                                 from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
                                 to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
@@ -248,9 +230,11 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: checkBoxComponent
-                            CheckBox {
+                            CheckBox
+                            {
                                 anchors.centerIn: parent
                                 checked: paramData ? paramData.currentValue : false
                                 onCheckedChanged: 
@@ -262,7 +246,8 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: textEditComponent
                             TextField {
                                 anchors.fill: parent
@@ -276,7 +261,8 @@ Rectangle {
                             }
                         }
                         
-                        Component {
+                        Component
+                        {
                             id: defaultComponent
                             Text {
                                 anchors.centerIn: parent
@@ -290,11 +276,13 @@ Rectangle {
         }
         
         // Кнопки управления (перемещены под таблицу)
-        RowLayout {
+        RowLayout
+        {
             Layout.fillWidth: true
             spacing: 10
             
-            Button {
+            Button
+            {
                 text: "Send to drone"
                 Layout.preferredWidth: 120
                 onClicked: 
@@ -307,7 +295,8 @@ Rectangle {
                 }
             }
             
-            CheckBox {
+            CheckBox
+            {
                 text: "Send immediately"
                 checked: false
                 onCheckedChanged: 
@@ -316,7 +305,8 @@ Rectangle {
                 }
             }
             
-            Item {
+            Item
+            {
                 Layout.fillWidth: true
             }
         }

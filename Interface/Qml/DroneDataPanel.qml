@@ -6,12 +6,11 @@ Rectangle
 {
     id: droneDataPanel
 
-    color: "#f4f4f0"
+    color: "#f0f0f0"
 
     property var parametersModel: null
-    
-    // Сигнал для переключения графика
-    signal toggleChart(int parameterIndex)
+
+    signal parameterSelected(string label)
     
     ColumnLayout
     {
@@ -37,10 +36,10 @@ Rectangle
             
             model: parametersModel
 
-            // Component.onCompleted:
-            // {
-            //     console.log(parametersModel)
-            // }
+            Component.onCompleted:
+            {
+                console.log(parametersModel)
+            }
             
             // Data delegate
             delegate: Rectangle 
@@ -56,26 +55,17 @@ Rectangle
                 {
                     anchors.centerIn: parent
                     font.pointSize: 11
-                    text: 
-                    {
-                        // Принудительно обновляем текст при изменении данных модели
-                        if (parametersModel) 
-                        {
-                            return parametersModel.data(parametersModel.index(row, column), Qt.DisplayRole) || ""
-                        }
-                        return ""
-                    }
+                    text: parametersModel.data(parametersModel.index(row, column), Qt.DisplayRole)
                     elide: Text.ElideRight
                 }
 
                 Connections
                 {
                     target: parametersModel
-                    // function onParameterUpdated(label)
-                    // {
-                    //     parametersTableView.model = null
-                    //     parametersTableView.model = parametersModel
-                    // }
+                    function onParameterUpdated(label)
+                    {
+
+                    }
                 }
 
                 Component.onCompleted:
@@ -90,7 +80,7 @@ Rectangle
                         PropertyChanges
                         {
                             target: parameterCell;
-                            color: "#55ccff"
+                            color: "#77ddff"
                         }
                     }
                 ]
@@ -112,10 +102,7 @@ Rectangle
 
                     onClicked: 
                     {
-                        // Переключаем график для этого параметра
-                        toggleChart(row)
-
-                        console.log(row)
+                        parameterSelected(label)
                     }
 
                     onEntered:

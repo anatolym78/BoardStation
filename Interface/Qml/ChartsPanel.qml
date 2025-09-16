@@ -6,6 +6,21 @@ import QtCharts 2.15
 Item
 {
     id: chartsPanel
+    
+    // Функция для добавления нового графика
+    function addChart(parameterLabel) 
+    {
+        console.log("ChartsPanel: Adding chart for parameter:", parameterLabel)
+        if (chartsListModel) 
+        {
+            chartsListModel.addSeries(parameterLabel)
+            console.log("ChartsPanel: Chart added successfully for", parameterLabel)
+        }
+        else 
+        {
+            console.warn("ChartsPanel: chartsListModel is not available")
+        }
+    }
 
     // ScrollView
     // {
