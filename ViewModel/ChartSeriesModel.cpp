@@ -1,9 +1,8 @@
 #include "ChartSeriesModel.h"
 #include <QDebug>
 
-ChartSeriesModel::ChartSeriesModel(QObject *parent)
-    : QAbstractListModel(parent)
-    , m_parametersStorage(nullptr)
+ChartSeriesModel::ChartSeriesModel(QObject *parent, int depth)
+    : QAbstractListModel(parent), m_parametersStorage(nullptr),m_depth(depth)
 {
     //qDebug() << "ChartSeriesModel: Created empty model";
     createColorMap();
@@ -26,16 +25,26 @@ void ChartSeriesModel::createColorMap()
     m_colorMap["Speed"] = Qt::black;
 }
 
+void ChartSeriesModel::setDepth(int depth)
+{
+	m_depth = depth;
+}
+
+int ChartSeriesModel::depth() const
+{
+	return m_depth;
+}
+
 void ChartSeriesModel::setParametersStorage(BoardParameterHistoryStorage *storage)
 {
     m_parametersStorage = storage;
-    if (m_parametersStorage)
-    {
-        connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterAdded, 
-                this, &ChartSeriesModel::onParameterAdded);
-		connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterUpdated,
-			this, &ChartSeriesModel::onParameterUpdated);
-    }
+  //  if (m_parametersStorage)
+  //  {
+  //      connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterAdded, 
+  //              this, &ChartSeriesModel::onParameterAdded);
+		//connect(m_parametersStorage, &BoardParameterHistoryStorage::parameterUpdated,
+		//	this, &ChartSeriesModel::onParameterUpdated);
+  //  }
 }
 
 int ChartSeriesModel::rowCount(const QModelIndex &parent) const
@@ -171,6 +180,8 @@ void ChartSeriesModel::addPoint(const QString &parameterLabel, double x, double 
     if (pointsModel) 
     {
         pointsModel->addPoint(x, y, timestamp, value);
+
+        emit parameterValueAdded(parameterLabel);
     }
 	else 
     {

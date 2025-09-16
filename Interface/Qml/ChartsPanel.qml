@@ -29,15 +29,22 @@ Item
             // График для серии
             delegate: ChartView
             {
+                Component.onCompleted:
+                {
+
+                    //console.log(z)
+                }
+
                 id: chartView
                 property var seriesModel: model.seriesModel
                 property var chartIndex: model.index
                 width: 320
                 height: 240
                 theme: ChartView.ChartThemeBlueIcy
-                title: name
+                //title: name
                 property bool highlight: false
                 opacity: highlight ? 0.8 : 1.0
+                z: depth
                 ValueAxis
                 {
                     id: parameterValueAxis
@@ -56,6 +63,8 @@ Item
 
                 antialiasing: true
 
+
+
                 // Карта для хранения серий по меткам параметров
                 property var seriesMap: ({})
 
@@ -64,10 +73,10 @@ Item
                     target: seriesModel
 
                     function onParameterValueAdded(label)
-                    {                
+                    {
                         var chartSeries
                         var pointsModel = seriesModel.getPointsModel(label)
-                        
+
                         // Проверяем, есть ли уже серия для данной метки
                         if (!seriesMap.hasOwnProperty(label))
                         {
@@ -151,13 +160,16 @@ Item
                         var sourceIndex = drop.source.chartIndex
                         var targetIndex = chartView.chartIndex
 
+                        console.log(sourceIndex)
+                        console.log(targetIndex)
+
                         // Используем новый метод mergeSeries из ChartsListModel
                         chartsListModel.mergeSeries(targetIndex, sourceIndex)
                         
                         // Очищаем карту серий для пересоздания после слияния
                         chartView.seriesMap = ({})
                         
-                        console.log("Series merged successfully")
+                        // console.log("Series merged successfully")
                     }
                 }
             }

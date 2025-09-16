@@ -6,33 +6,19 @@ Rectangle
 {
     id: droneDataPanel
 
-    color: "#f0f0f0"
-    
+    color: "#f4f4f0"
+
     property var parametersModel: null
     
     // Сигнал для переключения графика
     signal toggleChart(int parameterIndex)
     
-    // Таймер для принудительного обновления таблицы
-    Timer 
+    ColumnLayout
     {
-        id: refreshTimer
-        interval: 1000 // Обновляем каждую секунду
-        repeat: true
-        running: true
-        onTriggered: {
-            if (parametersTableView && parametersModel) {
-                // Принудительно обновляем модель
-                parametersTableView.model = null
-                parametersTableView.model = parametersModel
-            }
-        }
-    }
-    
-    ColumnLayout {
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
+
         
         Text
         {
@@ -41,54 +27,35 @@ Rectangle
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
         }
-        
-        // Dynamic headers from model
-        Row 
-        {
-            Layout.fillWidth: true
-            spacing: 0
-            
- //            Repeater
- //            {
- //                model: parametersModel ? parametersModel.columnCount() : 0
-                
- //                Rectangle {
- //                    width: 120
- //                    height: 30
- //                    color: "#e0e0e0"
- //                    border.width: 1
- //                    border.color: "#cccccc"
- 
- //                    Text {
- //                        anchors.centerIn: parent
- //                        text: parametersModel ? parametersModel.headerData(index, Qt.Horizontal, Qt.DisplayRole) : ""
- //                        font.bold: true
- //                    }
- //                }
- //            }
-        }
-        
+           
         TableView
         {
             id: parametersTableView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            clip: true
+            clip: false
             
             model: parametersModel
+
+            // Component.onCompleted:
+            // {
+            //     console.log(parametersModel)
+            // }
             
             // Data delegate
             delegate: Rectangle 
             {
-                implicitWidth: 80
+                id: parameterCell
+                implicitWidth: 85
                 implicitHeight: 40
-                border.width: 1
-                border.color: "#e0e0e0"
-                color: row % 2 === 0 ? "#ffffff" : "#f8f8f8"
+                border.width: 2
+                border.color: "#f4f4f0"
+                //color: row % 2 === 0 ? "#ffffff" : "#f8f8f8"
                 
                 Text 
                 {
                     anchors.centerIn: parent
+                    font.pointSize: 11
                     text: 
                     {
                         // Принудительно обновляем текст при изменении данных модели
@@ -100,16 +67,70 @@ Rectangle
                     }
                     elide: Text.ElideRight
                 }
+
+                Connections
+                {
+                    target: parametersModel
+                    // function onParameterUpdated(label)
+                    // {
+                    //     parametersTableView.model = null
+                    //     parametersTableView.model = parametersModel
+                    // }
+                }
+
+                Component.onCompleted:
+                {
+                }
                 
+                states:
+                [
+                    State
+                    {
+                        name: "hovered"
+                        PropertyChanges
+                        {
+                            target: parameterCell;
+                            color: "#55ccff"
+                        }
+                    }
+                ]
+
+                transitions: Transition
+                {
+                    from: ""
+                    to: "hovered"
+                    ColorAnimation
+                    {
+                        duration: 250
+                    }
+                }
+
                 MouseArea 
                 {
                     anchors.fill: parent
+                    hoverEnabled: true
+
                     onClicked: 
                     {
                         // Переключаем график для этого параметра
-                        if (column === 0) 
-                        { // Клик по названию параметра
-                            toggleChart(row)
+                        toggleChart(row)
+
+                        console.log(row)
+                    }
+
+                    onEntered:
+                    {
+                        if(column == 0)
+                        {
+                            parameterCell.state = "hovered"
+                        }
+                    }
+
+                    onExited:
+                    {
+                        if(column == 0)
+                        {
+                            parameterCell.state = ""
                         }
                     }
                 }

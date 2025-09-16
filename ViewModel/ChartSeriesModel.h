@@ -20,7 +20,7 @@ public:
         HasPointsRole
     };
 
-    explicit ChartSeriesModel(QObject *parent = nullptr);
+    explicit ChartSeriesModel(QObject *parent = nullptr, int depth = 0);
     explicit ChartSeriesModel(const QStringList &parameterLabels, QObject *parent = nullptr);
 
     // QAbstractListModel interface
@@ -44,6 +44,10 @@ public:
     void addPoint(const QString &parameterLabel, double x, double y, const QDateTime &timestamp, const QVariant &value);
 
 	void createColorMap();
+
+    void setDepth(int depth);
+
+    int depth() const;
 
     // Геттеры
     Q_INVOKABLE ChartPointsModel* getPointsModel(const QString &parameterLabel) const;
@@ -73,6 +77,7 @@ private:
     QStringList m_parameterLabels;
     BoardParameterHistoryStorage *m_parametersStorage;
     QMap<QString, QColor> m_colorMap;
+    int m_depth = 0;
 };
 
 #endif // CHARTSERIESMODEL_H

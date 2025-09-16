@@ -10,21 +10,15 @@ Item
     id: mainWindow
     width: 1600
     height: 600
-    
-    // // Chart Builder для создания графиков
-    // ChartBuilder
-    // {
-    //     id: chartBuilder
-    // }
-    
+      
     Component.onCompleted:
     {
-        // // Явно присваиваем модели компонентам для избежания циклических привязок
-        // droneDataPanel.parametersModel = parametersModel
-        // droneControlPanel.outParametersModel = outParametersModel
-        // chartsPanel.parametersModel = parametersModel
-        // chartsPanel.chartSeriesModel = chartSeriesModel
-        // chartsPanel.chartBuilder = chartBuilder
+        // Явно присваиваем модели компонентам для избежания циклических привязок
+        droneDataPanel.parametersModel = parametersModel
+        //droneControlPanel.outParametersModel = outParametersModel
+        chartsPanel.parametersModel = parametersModel
+        chartsPanel.chartSeriesModel = chartSeriesModel
+        chartsPanel.chartBuilder = chartBuilder
     }
     
     // Main frame
@@ -41,19 +35,20 @@ Item
              DroneDataPanel
              {
                  id: droneDataPanel
-                 Layout.preferredWidth: 1
+                 Layout.preferredWidth: 3
                  Layout.fillWidth: true
                  Layout.fillHeight: true
-                 onToggleChart:
-                 {
-                     chartsPanel.toggleChart(parameterIndex)
-                 }
+                 // onToggleChart:
+                 // {
+                 //     chartsPanel.toggleChart(parameterIndex)
+                 // }
              }
 
              ChartsPanel
              {
                  id: chartsPanel
                  //anchors.fill: parent
+                 Layout.preferredWidth: 6
                  Layout.fillWidth: true
                  Layout.fillHeight: true
 
@@ -63,7 +58,7 @@ Item
              // DroneControlPanel
              // {
              //     id: droneControlPanel
-             //     Layout.preferredWidth: 1
+             //     Layout.preferredWidth: 4
              //     Layout.fillWidth: true
              //     Layout.fillHeight: true
              //     //Layout.minimumWidth: 250
@@ -72,14 +67,14 @@ Item
     }
 
     
-    // Альтернативные привязки с использованием Binding (если нужно)
-    Binding
-    {
-        target: droneDataPanel
-        property: "parametersModel"
-        value: parametersModel
-        when: parametersModel !== null
-    }
+    // // Альтернативные привязки с использованием Binding (если нужно)
+    // Binding
+    // {
+    //     target: droneDataPanel
+    //     property: "parametersModel"
+    //     value: parametersModel
+    //     when: parametersModel !== null
+    // }
     
     // Binding
     // {

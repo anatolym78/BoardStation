@@ -5,15 +5,9 @@ BoardParametersModel::BoardParametersModel(BoardParameterHistoryStorage *storage
     : QAbstractTableModel(parent)
     , m_storage(storage)
 {
-    if (m_storage) {
-        connect(m_storage, &BoardParameterHistoryStorage::parameterAdded, 
-                this, &BoardParametersModel::onParameterAdded);
-        connect(m_storage, &BoardParameterHistoryStorage::parameterUpdated, 
-                this, &BoardParametersModel::onParameterUpdated);
-        connect(m_storage, &BoardParameterHistoryStorage::parametersCleared, 
-                this, &BoardParametersModel::onParametersCleared);
-        
-        refreshModel();
+    if (m_storage) 
+    {
+        setParametersStorage(m_storage);
     }
 }
 
@@ -102,11 +96,17 @@ void BoardParametersModel::setParametersStorage(BoardParameterHistoryStorage *st
     
     m_storage = storage;
     
-    if (m_storage) {
-        connect(m_storage, &BoardParameterHistoryStorage::parameterAdded, 
-                this, &BoardParametersModel::onParameterAdded);
-        connect(m_storage, &BoardParameterHistoryStorage::parameterUpdated, 
-                this, &BoardParametersModel::onParameterUpdated);
+    if (m_storage) 
+    {
+        //connect(m_storage, &BoardParameterHistoryStorage::parameterAdded, 
+        //        this, &BoardParametersModel::onParameterAdded);
+
+        //connect(m_storage, &BoardParameterHistoryStorage::parameterUpdated, 
+        //        this, &BoardParametersModel::onParameterUpdated);
+
+		connect(m_storage, &BoardParameterHistoryStorage::newParameterAdded,
+			this, &BoardParametersModel::onNewParameterAdded);
+
         connect(m_storage, &BoardParameterHistoryStorage::parametersCleared, 
                 this, &BoardParametersModel::onParametersCleared);
         
@@ -188,6 +188,21 @@ QList<BoardParameterValue*> BoardParametersModel::getValueHistory(const QString 
     return QList<BoardParameterValue*>();
 }
 
+void BoardParametersModel::onNewParameterAdded(BoardParameterSingle* parameter)
+{
+    if (parameter == nullptr) return;
+
+    auto label = parameter->label();
+    if (m_parameterLabels.contains(label))
+    {
+        onParameterUpdated(label);
+    }
+    else
+    {
+        onParameterAdded(label);
+    }
+}
+
 void BoardParametersModel::onParameterAdded(const QString &label)
 {
     // Добавляем новую строку
@@ -200,10 +215,13 @@ void BoardParametersModel::onParameterUpdated(const QString &label)
 {
     // Находим индекс строки и обновляем данные
     int row = m_parameterLabels.indexOf(label);
-    if (row >= 0) {
+    if (row >= 0) 
+    {
         QModelIndex topLeft = this->index(row, 0);
         QModelIndex bottomRight = this->index(row, columnCount() - 1);
         emit dataChanged(topLeft, bottomRight);
+
+        emit parameterUpdated(label);
     }
 }
 

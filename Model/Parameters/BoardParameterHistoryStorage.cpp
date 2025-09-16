@@ -33,13 +33,13 @@ void BoardParameterHistoryStorage::addParameter(BoardParameterSingle *parameter)
         // История ещё не существует, создаём новую
         existingHistory = new BoardParameterHistory(parameter->label(), parameter->unit(), this);
         m_parameterHistories.append(existingHistory);
-        emit parameterAdded(parameter->label());
+        //emit parameterAdded(parameter->label());
     }
 
     // Добавляем параметр в историю
     if (existingHistory->addParameter(parameter)) 
     {
-        emit parameterUpdated(parameter->label());
+        //emit parameterUpdated(parameter->label());
     }
 
     emit newParameterAdded(parameter);

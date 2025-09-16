@@ -107,12 +107,16 @@ ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
         return getSeriesModel(parameterLabel);
     }
 
+    m_initialDepth--;
+
     beginInsertRows(QModelIndex(), m_chartsModels.size(), m_chartsModels.size());
-    auto seriesModel = new ChartSeriesModel(this);
+    auto seriesModel = new ChartSeriesModel(this, m_initialDepth--);
     seriesModel->setParametersStorage(m_parametersStorage);
     seriesModel->addSeries(parameterLabel);
     m_chartsModels.append(seriesModel);
     endInsertRows();
+
+
 
     return seriesModel;
 }
@@ -279,6 +283,8 @@ QVariant ChartsListModel::data(const QModelIndex &index, int role) const
         return seriesModel->seriesCount() > 0;
     case Name:
         return "Chart";
+    case Depth:
+        return seriesModel->depth();
     default:
         return QVariant();
     }
@@ -290,6 +296,7 @@ QHash<int, QByteArray> ChartsListModel::roleNames() const
     roles[SeriesModelRole] = "seriesModel";
     roles[HasSeriesRole] = "hasSeries";
     roles[Name] = "name";
+    roles[Depth] = "depth";
     return roles;
 }
 

@@ -45,9 +45,13 @@ public:
     QList<BoardParameterValue*> getValueHistory(const QString &label) const;
 
 private slots:
+    void onNewParameterAdded(BoardParameterSingle* parameter);
     void onParameterAdded(const QString &label);
     void onParameterUpdated(const QString &label);
     void onParametersCleared();
+
+signals:
+	void parameterUpdated(const QString& label);
 
 private:
     BoardParameterHistoryStorage *m_storage;

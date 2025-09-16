@@ -145,6 +145,13 @@ void BoardDataEmulator::setupGenerators()
     altitudeGen->setPeriod(50);
     m_generators.append(altitudeGen);
 
+    // Создаем и настраиваем генератор скорости
+    SpeedGenerator *speedGen = new SpeedGenerator(this);
+    speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
+    speedGen->setAmplitude(50.0);               // Колебания ±5 м/с
+    speedGen->setPeriod(10.0);                  // Период 3 секунды
+	m_generators.append(speedGen);
+
 	// Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
     latitudeGen->setStartLatitude(55.7558);    // Москва
@@ -157,12 +164,7 @@ void BoardDataEmulator::setupGenerators()
     longitudeGen->setSpeed(0.001);             // Медленное движение
     m_generators.append(longitudeGen);
 
-    // Создаем и настраиваем генератор скорости
-    SpeedGenerator *speedGen = new SpeedGenerator(this);
-    speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
-    speedGen->setAmplitude(20.0);               // Колебания ±5 м/с
-    speedGen->setPeriod(10.0);                  // Период 3 секунды
-	m_generators.append(speedGen);
+
     
     //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
 }

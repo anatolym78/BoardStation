@@ -16,6 +16,7 @@ public:
         SeriesModelRole = Qt::UserRole + 1,
         HasSeriesRole,
         Name,
+        Depth,
     };
 
     explicit ChartsListModel(BoardParameterHistoryStorage *parametersStorage, QObject *parent = nullptr);
@@ -58,6 +59,7 @@ private slots:
 private:
     QList<ChartSeriesModel*> m_chartsModels;
     BoardParameterHistoryStorage *m_parametersStorage;
+    int m_initialDepth = 1000;
 };
 
 #endif // CHARTSLISTMODEL_H
