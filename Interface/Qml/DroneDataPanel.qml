@@ -38,7 +38,7 @@ Rectangle
 
             Component.onCompleted:
             {
-                console.log(parametersModel)
+                //console.log(parametersModel)
             }
             
             // Data delegate
@@ -55,7 +55,24 @@ Rectangle
                 {
                     anchors.centerIn: parent
                     font.pointSize: 11
-                    text: parametersModel.data(parametersModel.index(row, column), Qt.DisplayRole)
+                    text:
+                    {
+                        switch (column)
+                        {
+                            case 0:
+                                return label
+                            case 1:
+                                return value
+                            case 2:
+                                return unit
+                            case 3:
+                                return timestamp
+                            default:
+                                return ""
+                        }
+
+                    }
+                    //data(parametersModel.index(row, column))
                     elide: Text.ElideRight
                 }
 

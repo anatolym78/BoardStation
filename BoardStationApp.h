@@ -12,6 +12,7 @@
 #include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/BoardMessagesJsonWriterNew.h"
 #include "Interface/Charts/ChartBuilder.h"
+#include "ViewModel/boardparameterslistmodel.h"
 
 class MainWindow;
 class BoardParametersJsonParserNew;
@@ -29,7 +30,7 @@ public:
     MainWindow* getMainWindow() const;
 
     // Методы для работы с моделью параметров
-    BoardParametersModel* getParametersModel() const;
+    BoardParametersListModel* getParametersModel() const;
     BoardParameterHistoryStorage* getParametersStorage() const;
     
     // Методы для работы с моделью исходящих параметров
@@ -58,7 +59,8 @@ private:
 private:
     MainWindow *m_mainWindow;
     BoardParameterHistoryStorage *m_parametersStorage;
-    BoardParametersModel *m_parametersModel;
+    //BoardParametersModel *m_parametersModel;
+    BoardParametersListModel* m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
     ChartSeriesModel *m_chartSeriesModel;

@@ -9,57 +9,57 @@
 
 class ChartsListModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    enum ChartsListRoles {
-        SeriesModelRole = Qt::UserRole + 1,
-        HasSeriesRole,
-        Name,
-        Depth,
-    };
+	enum ChartsListRoles {
+		SeriesModelRole = Qt::UserRole + 1,
+		HasSeriesRole,
+		Name,
+		Depth,
+	};
 
-    explicit ChartsListModel(BoardParameterHistoryStorage *parametersStorage, QObject *parent = nullptr);
-    explicit ChartsListModel(QObject *parent = nullptr);
+	explicit ChartsListModel(BoardParameterHistoryStorage *parametersStorage, QObject *parent = nullptr);
+	explicit ChartsListModel(QObject *parent = nullptr);
 
-    // QAbstractListModel interface
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
+	// QAbstractListModel interface
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+	QHash<int, QByteArray> roleNames() const override;
 
-    // Методы для работы с сериями
-    Q_INVOKABLE ChartSeriesModel* addSeries(const QString &parameterLabel);
-    Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
-    Q_INVOKABLE void removeSeries(const QString &parameterLabel);
-    Q_INVOKABLE void removeSeries(int index);
-    Q_INVOKABLE void clearSeries();
-    Q_INVOKABLE void mergeSeries(int targetIndex, int sourceIndex);
-    
-    // Геттеры
-    Q_INVOKABLE ChartSeriesModel* getSeriesModel(const QString &parameterLabel) const;
-    Q_INVOKABLE ChartSeriesModel* getSeriesModel(int index) const;
-    Q_INVOKABLE QStringList parameterLabels() const;
-    
-    // Проверки
-    Q_INVOKABLE bool hasSeries(const QString &parameterLabel) const;
-    Q_INVOKABLE bool hasSeries(int index) const;
-    Q_INVOKABLE int seriesCount() const { return m_chartsModels.size(); }
-    
-    // Установка хранилища параметров
-    Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
-    
-    // Получение данных серии для QML (возвращает QVariantList)
-    Q_INVOKABLE QVariantList getSeriesData(const QString &parameterLabel) const;
+	// Методы для работы с сериями
+	Q_INVOKABLE ChartSeriesModel* addSeries(const QString &parameterLabel);
+	Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
+	Q_INVOKABLE void removeSeries(const QString &parameterLabel);
+	Q_INVOKABLE void removeSeries(int index);
+	Q_INVOKABLE void clearSeries();
+	Q_INVOKABLE void mergeSeries(int targetIndex, int sourceIndex);
+	
+	// Геттеры
+	Q_INVOKABLE ChartSeriesModel* getSeriesModel(const QString &parameterLabel) const;
+	Q_INVOKABLE ChartSeriesModel* getSeriesModel(int index) const;
+	Q_INVOKABLE QStringList parameterLabels() const;
+	
+	// Проверки
+	Q_INVOKABLE bool hasSeries(const QString &parameterLabel) const;
+	Q_INVOKABLE bool hasSeries(int index) const;
+	Q_INVOKABLE int seriesCount() const { return m_chartsModels.size(); }
+	
+	// Установка хранилища параметров
+	Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
+	
+	// Получение данных серии для QML (возвращает QVariantList)
+	Q_INVOKABLE QVariantList getSeriesData(const QString &parameterLabel) const;
 
 private slots:
 	void onParameterAdded(const QString& label);
 	void onParameterUpdated(const QString& label);
-    void onNewParameterAdded(BoardParameterSingle* parameter);
+	void onNewParameterAdded(BoardParameterSingle* parameter);
 
 private:
-    QList<ChartSeriesModel*> m_chartsModels;
-    BoardParameterHistoryStorage *m_parametersStorage;
-    int m_initialDepth = 1000;
+	QList<ChartSeriesModel*> m_chartsModels;
+	BoardParameterHistoryStorage *m_parametersStorage;
+	int m_initialDepth = 1000;
 };
 
 #endif // CHARTSLISTMODEL_H

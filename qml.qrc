@@ -6,5 +6,6 @@
         <file>Interface/Qml/ChartsPanel.qml</file>
         <file>Interface/Qml/ChartBuilder.qml</file>
         <file>Interface/Qml/SimpleChart.qml</file>
+        <file>Interface/Qml/BoardParametersList.qml</file>
     </qresource>
 </RCC>

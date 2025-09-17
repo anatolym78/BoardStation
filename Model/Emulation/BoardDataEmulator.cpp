@@ -24,7 +24,7 @@ BoardDataEmulator::BoardDataEmulator(QObject *)
     connect(m_stateTimer, &QTimer::timeout, this, &BoardDataEmulator::onStateTimerTimeout);
     
     // Настройка таймера данных (каждую секунду)
-    m_dataTimer->setInterval(1000);
+    m_dataTimer->setInterval(2500);
     connect(m_dataTimer, &QTimer::timeout, this, &BoardDataEmulator::onDataTimerTimeout);
     
     // Настраиваем генераторы параметров
@@ -150,9 +150,9 @@ void BoardDataEmulator::setupGenerators()
  //   speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
  //   speedGen->setAmplitude(50.0);               // Колебания ±5 м/с
  //   speedGen->setPeriod(10.0);                  // Период 3 секунды
-	//m_generators.append(speedGen);
+    //m_generators.append(speedGen);
 
-	// Создаем и настраиваем генератор широты
+    // Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
     latitudeGen->setStartLatitude(55.7558);    // Москва
     latitudeGen->setSpeed(2.5);             // Медленное движение

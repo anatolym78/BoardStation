@@ -35,7 +35,7 @@ QVariant BoardParametersModel::data(const QModelIndex &index, int role) const
 	const QString& label = m_parameterLabels.at(index.row());
 	BoardParameterHistory* param = m_storage->getParameterHistory(label);
 
-	if (!param)
+ 	if (!param)
 		return QVariant();
 
 	if (role == Qt::DisplayRole) {
@@ -44,10 +44,14 @@ QVariant BoardParametersModel::data(const QModelIndex &index, int role) const
 	}
 	switch (role)
 	{
-	case LabelColumn: return param->label();
-	case ValueColumn: return param->lastValueData();
-	case UnitColumn: return param->unit();
-	case TimestampColumn: return param->lastTimestamp().toString("hh:mm:ss");
+	case LabelColumn: 
+		return param->label();
+	case ValueColumn: 
+		return param->lastValueData();
+	case UnitColumn:
+		return param->unit();
+	case TimestampColumn:
+		return param->lastTimestamp().toString("hh:mm:ss");
 	}
 	return QVariant();
 }
@@ -229,7 +233,7 @@ void BoardParametersModel::onParameterUpdated(const QString &label)
 		QModelIndex topLeft = this->index(row, 0);
 		QModelIndex bottomRight = this->index(row, columnCount() - 1);
 		//emit dataChanged(topLeft, bottomRight);
-		emit dataChanged(topLeft, bottomRight, { LabelColumn, ValueColumn, UnitColumn, TimestampColumn });
+		emit dataChanged(topLeft, bottomRight);// , { LabelColumn, ValueColumn, UnitColumn, TimestampColumn });
         //emit dataChanged(index(0, 0), index(0, 1), { Qt::DisplayRole });
 
 		//refreshModel();

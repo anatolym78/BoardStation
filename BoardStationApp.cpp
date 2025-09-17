@@ -24,7 +24,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     m_parametersStorage = new BoardParameterHistoryStorage(this);
     
     // Создаем модель параметров
-    m_parametersModel = new BoardParametersModel(m_parametersStorage, this);
+    m_parametersModel = new BoardParametersListModel(m_parametersStorage, this);
     
     // Создаем хранилище исходящих параметров
     m_outParametersStorage = new OutParametersStorage(this);
@@ -64,10 +64,12 @@ void BoardStationApp::setMainWindow(MainWindow *mainWindow)
     if (m_mainWindow)
     {
         // Устанавливаем родителя для моделей - главное окно
-        if (m_parametersModel) {
+        if (m_parametersModel) 
+        {
             m_parametersModel->setParent(m_mainWindow);
         }
-        if (m_outParametersModel) {
+        if (m_outParametersModel) 
+        {
             m_outParametersModel->setParent(m_mainWindow);
         }
     }
@@ -78,7 +80,7 @@ MainWindow* BoardStationApp::getMainWindow() const
     return m_mainWindow;
 }
 
-BoardParametersModel* BoardStationApp::getParametersModel() const
+BoardParametersListModel* BoardStationApp::getParametersModel() const
 {
     return m_parametersModel;
 }
