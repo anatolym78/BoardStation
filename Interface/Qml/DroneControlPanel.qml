@@ -2,7 +2,8 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 
-Rectangle {
+Rectangle
+{
     id: droneControlPanel
 
     color: "#f0f0f0"  // Тот же фон, что и у левой панели
@@ -21,7 +22,7 @@ Rectangle {
         Text
         {
             text: "Drone Control"
-            font.pointSize: 14
+            font.pointSize: 12
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
         }
@@ -52,26 +53,22 @@ Rectangle {
                     
                     sourceComponent: 
                     {
-                        if (column === 0) 
+                        sourceComponent: switch(column)
                         {
-                            // Label column - just text
-                            return labelComponent
-                        } 
-                        else if (column === 1) 
-                        {
-                            // Value column - text
-                            return valueComponent
-                        } 
-                        else if (column === 2) 
-                        {
-                            // Control column - dynamic control based on parameter type
-                            return dynamicControlComponent
-                        } 
-                        else 
-                        {
-                            // Other columns - text
-                            return textComponent
+                            case 0:
+                                // Label column - just text
+                                return labelComponent
+                            case 1:
+                                // Value column - text
+                                return valueComponent
+                            case 2:
+                                // Control column - dynamic control based on parameter type
+                                return dynamicControlComponent
+                            default:
+                                // Other columns - text
+                                return textComponent
                         }
+
                     }
                 }
                 
@@ -81,8 +78,8 @@ Rectangle {
                     Text
                     {
                         anchors.centerIn: parent
-                        text: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole) : ""
-                        font.bold: true
+                        text: label
+                        font.pointSize: 10
                         elide: Text.ElideRight
                     }
                 }
@@ -93,15 +90,8 @@ Rectangle {
                     Text
                     {
                         anchors.centerIn: parent
-                        text:
-                        {
-                            // Принудительно обновляем текст при изменении данных модели
-                            if (outParametersModel)
-                            {
-                                return outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole)
-                            }
-                            return ""
-                        }
+                        text: value
+                        font.pointSize: 10
                         elide: Text.ElideRight
                     }
                 }
@@ -112,7 +102,8 @@ Rectangle {
                     Text
                     {
                         anchors.centerIn: parent
-                        text: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.DisplayRole) : ""
+                        text: controlType
+                        font.pointSize: 10
                         elide: Text.ElideRight
                     }
                 }
@@ -122,154 +113,192 @@ Rectangle {
                     id: dynamicControlComponent
                     Item
                     {
-                        property var paramData: outParametersModel ? outParametersModel.data(outParametersModel.index(row, column), Qt.UserRole) : null
+                        //property var paramData: controlType
                         
                         Loader
                         {
                             anchors.fill: parent
                             sourceComponent: 
                             {
-                                if (paramData && paramData.controlType) 
-                                {
-                                    if (paramData.controlType === "QComboBox") 
-                                    {
-                                        return comboBoxComponent
-                                    } 
-                                    else if (paramData.controlType === "QSlider") 
-                                    {
-                                        return sliderComponent
-                                    } 
-                                    else if (paramData.controlType === "QSpinBox") 
-                                    {
-                                        return spinBoxComponent
-                                    } 
-                                    else if (paramData.controlType === "QCheckBox") 
-                                    {
-                                        return checkBoxComponent
-                                    } 
-                                    else 
-                                    {
-                                        return textEditComponent
-                                    }
-                                } 
-                                else 
-                                {
-                                    return defaultComponent
-                                }
+                                console.log(controlType)
+
+                                return spinBoxComponent
+                                // if (paramData && paramData.controlType)
+                                // {
+                                //     if (paramData.controlType === "QComboBox")
+                                //     {
+                                //         return comboBoxComponent
+                                //     }
+                                //     else if (paramData.controlType === "QSlider")
+                                //     {
+                                //         return sliderComponent
+                                //     }
+                                //     else if (paramData.controlType === "QSpinBox")
+                                //     {
+                                //         console.log("Spin box")
+
+                                //         return spinBoxComponent
+                                //     }
+                                //     else if (paramData.controlType === "QCheckBox")
+                                //     {
+                                //         return checkBoxComponent
+                                //     }
+                                //     else
+                                //     {
+                                //         return textEditComponent
+                                //     }
+                                // }
+                                // else
+                                // {
+                                //     return defaultComponent
+                                // }
                             }
                         }
-                        
-                        Component
-                        {
-                            id: comboBoxComponent
-                            ComboBox
-                            {
-                                anchors.fill: parent
-                                model: paramData ? paramData.values : []
-                                currentIndex: 
-                                {
-                                    if (paramData && paramData.values) 
-                                    {
-                                        var currentValue = paramData.currentValue
-                                        for (var i = 0; i < paramData.values.length; i++) 
-                                        {
-                                            if (paramData.values[i] === currentValue) 
-                                            {
-                                                return i
-                                            }
-                                        }
-                                    }
-                                    return 0
-                                }
-                                onCurrentIndexChanged: 
-                                {
-                                    if (paramData && paramData.values && currentIndex >= 0) 
-                                    {
-                                        var newValue = paramData.values[currentIndex]
-                                        outParametersModel.setData(outParametersModel.index(row, column), newValue, Qt.EditRole)
-                                        // Принудительно обновляем отображение
-                                        outParametersTableView.forceLayout()
-                                    }
-                                }
-                            }
-                        }
-                        
-                        Component
-                        {
-                            id: sliderComponent
-                            Slider {
-                                anchors.fill: parent
-                                from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
-                                to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
-                                value: paramData ? paramData.currentValue : 0
-                                onValueChanged: 
-                                {
-                                    outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
-                                    // Принудительно обновляем отображение
-                                    outParametersTableView.forceLayout()
-                                }
-                            }
-                        }
-                        
                         Component
                         {
                             id: spinBoxComponent
                             SpinBox
                             {
                                 anchors.fill: parent
-                                from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
-                                to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
-                                stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
-                                value: paramData ? paramData.currentValue : 0
-                                onValueChanged: 
+                                // from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
+                                // to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
+                                // stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
+                                // value: paramData ? paramData.currentValue : 0
+                                onValueChanged:
                                 {
-                                    outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
+                                    //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
+                                    //outParametersModel.setData(outParametersModel.index(row, 1), value, Qt.EditRole)
+
                                     // Принудительно обновляем отображение
-                                    outParametersTableView.forceLayout()
+                                    //outParametersTableView.forceLayout()
+
+                                    //console.log("spinbox value changed ", value)
                                 }
                             }
                         }
+
+                        // Component
+                        // {
+                        //     id: comboBoxComponent
+                        //     ComboBox
+                        //     {
+                        //         anchors.fill: parent
+                        //         model: paramData ? paramData.values : []
+                        //         currentIndex:
+                        //         {
+                        //             if (paramData && paramData.values)
+                        //             {
+                        //                 var currentValue = paramData.currentValue
+                        //                 for (var i = 0; i < paramData.values.length; i++)
+                        //                 {
+                        //                     if (paramData.values[i] === currentValue)
+                        //                     {
+                        //                         return i
+                        //                     }
+                        //                 }
+                        //             }
+                        //             return 0
+                        //         }
+                        //         onCurrentIndexChanged:
+                        //         {
+                        //             if (paramData && paramData.values && currentIndex >= 0)
+                        //             {
+                        //                 var newValue = paramData.values[currentIndex]
+                        //                 outParametersModel.setData(outParametersModel.index(row, column), newValue, Qt.EditRole)
+                        //                 // Принудительно обновляем отображение
+                        //                 //outParametersTableView.forceLayout()
+                        //             }
+                        //         }
+                        //     }
+                        // }
                         
-                        Component
-                        {
-                            id: checkBoxComponent
-                            CheckBox
-                            {
-                                anchors.centerIn: parent
-                                checked: paramData ? paramData.currentValue : false
-                                onCheckedChanged: 
-                                {
-                                    outParametersModel.setData(outParametersModel.index(row, column), checked, Qt.EditRole)
-                                    // Принудительно обновляем отображение
-                                    outParametersTableView.forceLayout()
-                                }
-                            }
-                        }
+                        // Component
+                        // {
+                        //     id: sliderComponent
+                        //     Slider
+                        //     {
+                        //         anchors.fill: parent
+                        //         from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
+                        //         to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
+                        //         value: paramData ? paramData.currentValue : 0
+                        //         onValueChanged:
+                        //         {
+                        //             outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
+                        //             console.log("slider value changed")
+                        //             // Принудительно обновляем отображение
+                        //             //outParametersTableView.forceLayout()
+                        //         }
+                        //     }
+                        // }
                         
-                        Component
-                        {
-                            id: textEditComponent
-                            TextField {
-                                anchors.fill: parent
-                                text: paramData ? paramData.currentValue : ""
-                                onTextChanged: 
-                                {
-                                    outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
-                                    // Принудительно обновляем отображение
-                                    outParametersTableView.forceLayout()
-                                }
-                            }
-                        }
+                        // Component
+                        // {
+                        //     id: spinBoxComponent
+                        //     SpinBox
+                        //     {
+                        //         anchors.fill: parent
+                        //         from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
+                        //         to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
+                        //         stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
+                        //         value: paramData ? paramData.currentValue : 0
+                        //         onValueChanged:
+                        //         {
+                        //             //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
+                        //             //outParametersModel.setData(outParametersModel.index(row, 1), value, Qt.EditRole)
+
+                        //             // Принудительно обновляем отображение
+                        //             //outParametersTableView.forceLayout()
+
+                        //             console.log("spinbox value changed ", value)
+                        //         }
+                        //     }
+                        // }
                         
-                        Component
-                        {
-                            id: defaultComponent
-                            Text {
-                                anchors.centerIn: parent
-                                text: "No control"
-                                color: "#666666"
-                            }
-                        }
+                        // Component
+                        // {
+                        //     id: checkBoxComponent
+                        //     CheckBox
+                        //     {
+                        //         anchors.centerIn: parent
+                        //         checked: paramData ? paramData.currentValue : false
+                        //         onCheckedChanged:
+                        //         {
+                        //             outParametersModel.setData(outParametersModel.index(row, column), checked, Qt.EditRole)
+                        //             outParametersModel.setData(outParametersModel.index(row, 1), checked, Qt.EditRole)
+                        //             console.log("checkbox value changed")
+                        //             console.log(checked)
+                        //             console.log(row)
+                        //             console.log(column)
+                        //             // Принудительно обновляем отображение
+                        //             //outParametersTableView.forceLayout()
+                        //         }
+                        //     }
+                        // }
+                        
+                        // Component
+                        // {
+                        //     id: textEditComponent
+                        //     TextField {
+                        //         anchors.fill: parent
+                        //         text: paramData ? paramData.currentValue : ""
+                        //         onTextChanged:
+                        //         {
+                        //             outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
+                        //             // Принудительно обновляем отображение
+                        //             //outParametersTableView.forceLayout()
+                        //         }
+                        //     }
+                        // }
+                        
+                        // Component
+                        // {
+                        //     id: defaultComponent
+                        //     Text {
+                        //         anchors.centerIn: parent
+                        //         text: "No control"
+                        //         color: "#666666"
+                        //     }
+                        // }
                     }
                 }
             }

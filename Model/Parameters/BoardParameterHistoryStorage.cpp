@@ -85,6 +85,18 @@ void BoardParameterHistoryStorage::clear()
     }
 }
 
+int BoardParameterHistoryStorage::indexOf(const QString& label) const
+{
+    for (auto i = 0; i < m_parameterHistories.count(); i++)
+	{
+        if(m_parameterHistories[i] == nullptr) continue;
+
+        if (m_parameterHistories[i]->label() == label) return i;
+	}
+
+    return -1;
+}
+
 QList<BoardParameterHistory*> BoardParameterHistoryStorage::getAllParameterHistories() const
 {
     return m_parameterHistories;

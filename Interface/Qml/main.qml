@@ -14,7 +14,7 @@ Item
     Component.onCompleted:
     {
         // Явно присваиваем модели компонентам для избежания циклических привязок
-        droneDataPanel.parametersModel = parametersModel
+        droneDataPanel.parametersListModel = parametersListModel
         droneControlPanel.outParametersModel = outParametersModel
     }
     
@@ -25,22 +25,36 @@ Item
 
          RowLayout
          {
-             anchors.fill: parent
-                spacing: 0
+             anchors.fill: parent 
+             spacing: 0
 
-             // Drone data panel - отображает данные, полученные от дрона
-             DroneDataPanel
-             {
-                 id: droneDataPanel
-                 Layout.preferredWidth: 3
-                 Layout.fillWidth: true
-                 Layout.fillHeight: true
+            // Drone data panel - отображает данные, полученные от дрона
+            BoardParametersList
+            {
+                id: droneDataPanel
+                Layout.preferredWidth: 1.5
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-                 onParameterSelected:
-                 {
-                     chartsListModel.addSeries(label)
-                 }
-             }
+                onParameterSelected:
+                {
+                    chartsListModel.addSeries(label)
+                }
+            }
+
+             // // Drone data panel - отображает данные, полученные от дрона
+             // DroneDataPanel
+             // {
+             //     id: droneDataPanel
+             //     Layout.preferredWidth: 3
+             //     Layout.fillWidth: true
+             //     Layout.fillHeight: true
+
+             //     onParameterSelected:
+             //     {
+             //         chartsListModel.addSeries(label)
+             //     }
+             // }
 
              ChartsPanel
              {
@@ -69,7 +83,7 @@ Item
     // Binding
     // {
     //     target: droneDataPanel
-    //     property: "parametersModel"
+    //     property: "parametersListModel"
     //     value: parametersModel
     //     when: parametersModel !== null
     // }

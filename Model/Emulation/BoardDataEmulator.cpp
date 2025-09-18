@@ -24,7 +24,7 @@ BoardDataEmulator::BoardDataEmulator(QObject *)
     connect(m_stateTimer, &QTimer::timeout, this, &BoardDataEmulator::onStateTimerTimeout);
     
     // Настройка таймера данных (каждую секунду)
-    m_dataTimer->setInterval(2500);
+    m_dataTimer->setInterval(1000);
     connect(m_dataTimer, &QTimer::timeout, this, &BoardDataEmulator::onDataTimerTimeout);
     
     // Настраиваем генераторы параметров
@@ -145,12 +145,12 @@ void BoardDataEmulator::setupGenerators()
     altitudeGen->setPeriod(50);
     m_generators.append(altitudeGen);
 
- //   // Создаем и настраиваем генератор скорости
- //   SpeedGenerator *speedGen = new SpeedGenerator(this);
- //   speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
- //   speedGen->setAmplitude(50.0);               // Колебания ±5 м/с
- //   speedGen->setPeriod(10.0);                  // Период 3 секунды
-    //m_generators.append(speedGen);
+    // Создаем и настраиваем генератор скорости
+    SpeedGenerator *speedGen = new SpeedGenerator(this);
+    speedGen->setBaseSpeed(100.0);              // Базовая скорость 50 м/с
+    speedGen->setAmplitude(50.0);               // Колебания ±5 м/с
+    speedGen->setPeriod(10.0);                  // Период 3 секунды
+    m_generators.append(speedGen);
 
     // Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
@@ -158,11 +158,11 @@ void BoardDataEmulator::setupGenerators()
     latitudeGen->setSpeed(2.5);             // Медленное движение
     m_generators.append(latitudeGen);
 
- //   // Создаем и настраиваем генератор долготы
- //   LongitudeGenerator *longitudeGen = new LongitudeGenerator(this);
- //   longitudeGen->setStartLongitude(37.6173);  // Москва
- //   longitudeGen->setSpeed(0.001);             // Медленное движение
- //   m_generators.append(longitudeGen);
+    // Создаем и настраиваем генератор долготы
+    LongitudeGenerator *longitudeGen = new LongitudeGenerator(this);
+    longitudeGen->setStartLongitude(37.6173);  // Москва
+    longitudeGen->setSpeed(0.001);             // Медленное движение
+    m_generators.append(longitudeGen);
 
 
     

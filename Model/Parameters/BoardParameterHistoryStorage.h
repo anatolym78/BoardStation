@@ -34,6 +34,8 @@ public:
     
     // Очистка всех историй параметров
     void clear();
+
+    int indexOf(const QString& label) const;
     
     // Получение всех историй параметров как список
     QList<BoardParameterHistory*> getAllParameterHistories() const;

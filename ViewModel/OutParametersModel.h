@@ -11,6 +11,13 @@ class OutParametersModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
+    enum class OutParameterRole : int
+    {
+        LabelRole = Qt::UserRole + 1,
+        ValueRole,
+        ControlTypeRole,
+    };
+public:
     explicit OutParametersModel(QObject *parent = nullptr);
     ~OutParametersModel() override = default;
 
@@ -21,6 +28,8 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    QHash<int, QByteArray> roleNames() const override;
     
     // Методы для работы с хранилищем
     void setStorage(OutParametersStorage *storage);
@@ -29,6 +38,9 @@ public:
     
     // Метод для создания виджетов управления
     void createControlWidgets(QTableView *tableView);
+
+private:
+    QVariantMap createParameterData(OutParameter* parameter) const;
 
 private:
     void setupParameters();

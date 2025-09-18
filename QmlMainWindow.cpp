@@ -83,11 +83,11 @@ void QmlMainWindow::setupModel()
     if (!m_app || !m_context) return;
     
     // Get model from application
-    auto parametersModelList = m_app->getParametersModel();
-    if (parametersModelList)
+    auto parametersListModel = m_app->getParametersModel();
+    if (parametersListModel)
     {
         // Pass model to QML context
-        m_context->setContextProperty(QString("parametersModelList"), parametersModelList);
+        m_context->setContextProperty(QString("parametersListModel"), parametersListModel);
         //qDebug() << "QmlMainWindow: Parameters model passed to QML";
         //qDebug() << "QmlMainWindow: Number of rows in model:" << parametersModel->rowCount();
         
@@ -98,7 +98,7 @@ void QmlMainWindow::setupModel()
     {
         //qDebug() << "QmlMainWindow: Parameters model not found, will use default data";
         // Create empty model to avoid errors
-        m_context->setContextProperty(QString("parametersModelList"), nullptr);
+        m_context->setContextProperty(QString("parametersListModel"), nullptr);
     }
    
 }

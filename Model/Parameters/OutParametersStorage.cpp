@@ -8,8 +8,10 @@ OutParametersStorage::OutParametersStorage(QObject *parent)
 
 void OutParametersStorage::addParameters(const QList<OutParameter*> &parameters)
 {
-    for (OutParameter *param : parameters) {
-        if (param && param->isValid()) {
+    for (OutParameter *param : parameters) 
+    {
+        if (param && param->isValid()) 
+        {
             addParameter(param);
         }
     }
@@ -17,7 +19,8 @@ void OutParametersStorage::addParameters(const QList<OutParameter*> &parameters)
 
 void OutParametersStorage::addParameter(OutParameter *parameter)
 {
-    if (!parameter || !parameter->isValid()) {
+    if (!parameter || !parameter->isValid())
+    {
         qWarning() << "OutParametersStorage: Попытка добавить невалидный параметр";
         return;
     }
@@ -25,7 +28,8 @@ void OutParametersStorage::addParameter(OutParameter *parameter)
     QString label = parameter->getLabel();
     
     // Если параметр уже существует, удаляем старый
-    if (m_parameters.contains(label)) {
+    if (m_parameters.contains(label))
+    {
         delete m_parameters[label];
         m_parameters.remove(label);
     }
