@@ -53,7 +53,7 @@ Rectangle
                     
                     sourceComponent: 
                     {
-                        sourceComponent: switch(column)
+                        switch(column)
                         {
                             case 0:
                                 // Label column - just text
@@ -68,7 +68,6 @@ Rectangle
                                 // Other columns - text
                                 return textComponent
                         }
-
                     }
                 }
                 
@@ -78,7 +77,7 @@ Rectangle
                     Text
                     {
                         anchors.centerIn: parent
-                        text: label
+                        text: parameterLabel
                         font.pointSize: 10
                         elide: Text.ElideRight
                     }
@@ -90,7 +89,7 @@ Rectangle
                     Text
                     {
                         anchors.centerIn: parent
-                        text: value
+                        text: parameterValue
                         font.pointSize: 10
                         elide: Text.ElideRight
                     }
@@ -102,7 +101,7 @@ Rectangle
                     Text
                     {
                         anchors.centerIn: parent
-                        text: controlType
+                        text: parameterLabel
                         font.pointSize: 10
                         elide: Text.ElideRight
                     }
@@ -113,16 +112,23 @@ Rectangle
                     id: dynamicControlComponent
                     Item
                     {
-                        //property var paramData: controlType
+                        //property var dataControl: dataControl
                         
                         Loader
                         {
                             anchors.fill: parent
                             sourceComponent: 
                             {
-                                console.log(controlType)
+                                if(dataControl == null) return defaultComponent
 
-                                return spinBoxComponent
+                                switch(dataControl.controlType)
+                                {
+                                    case "QSpinBox": return spinBoxComponent
+                                    case "QSlider": return sliderComponent
+                                }
+
+                                return defaultComponent
+
                                 // if (paramData && paramData.controlType)
                                 // {
                                 //     if (paramData.controlType === "QComboBox")
@@ -160,21 +166,50 @@ Rectangle
                             SpinBox
                             {
                                 anchors.fill: parent
-                                // from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
-                                // to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
-                                // stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
-                                // value: paramData ? paramData.currentValue : 0
+                                from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
+                                to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
+                                stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
+                                value: dataControl ? dataControl.currentValue : 0
                                 onValueChanged:
                                 {
+                                    console.log("spinbox value changed ", value)
+                                    console.log("parameter value ", parameterValue)
+                                    parameterValue = value
+                                    //value
+
                                     //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
                                     //outParametersModel.setData(outParametersModel.index(row, 1), value, Qt.EditRole)
 
                                     // Принудительно обновляем отображение
                                     //outParametersTableView.forceLayout()
-
-                                    //console.log("spinbox value changed ", value)
                                 }
                             }
+                        }
+
+                        Component
+                        {
+                            id: sliderComponent
+                            Slider
+                            {
+                                anchors.fill: parent
+                                from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
+                                to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
+                                stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
+                                value: dataControl ? dataControl.currentValue : 0
+                                onValueChanged:
+                                {
+                                    console.log("slider value changed ", value)
+                                    //console.log("slider step", )
+
+                                    //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
+                                    // Принудительно обновляем отображение
+                                    //outParametersTableView.forceLayout()
+                                }
+                            }
+                            // onCompleted:
+                            // {
+                            //     console.log("slider step ", dataControl.step)
+                            // }
                         }
 
                         // Component
@@ -212,24 +247,7 @@ Rectangle
                         //     }
                         // }
                         
-                        // Component
-                        // {
-                        //     id: sliderComponent
-                        //     Slider
-                        //     {
-                        //         anchors.fill: parent
-                        //         from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
-                        //         to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
-                        //         value: paramData ? paramData.currentValue : 0
-                        //         onValueChanged:
-                        //         {
-                        //             outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
-                        //             console.log("slider value changed")
-                        //             // Принудительно обновляем отображение
-                        //             //outParametersTableView.forceLayout()
-                        //         }
-                        //     }
-                        // }
+
                         
                         // Component
                         // {
@@ -290,15 +308,15 @@ Rectangle
                         //     }
                         // }
                         
-                        // Component
-                        // {
-                        //     id: defaultComponent
-                        //     Text {
-                        //         anchors.centerIn: parent
-                        //         text: "No control"
-                        //         color: "#666666"
-                        //     }
-                        // }
+                        Component
+                        {
+                            id: defaultComponent
+                            Text {
+                                anchors.centerIn: parent
+                                text: "No control"
+                                color: "#666666"
+                            }
+                        }
                     }
                 }
             }

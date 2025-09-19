@@ -38,11 +38,12 @@ int OutParametersModel::columnCount(const QModelIndex &parent) const
 QHash<int, QByteArray> OutParametersModel::roleNames() const
 {
 	QHash<int, QByteArray> roles;
-    roles[(int)OutParameterRole::LabelRole] = "label";
-	roles[(int)OutParameterRole::ValueRole] = "value";
-    roles[(int)OutParameterRole::ControlTypeRole] = "controlType";
+    roles[(int)OutParameterRole::LabelRole] = "parameterLabel";
+    roles[(int)OutParameterRole::ValueRole] = "parameterValue";
+    roles[(int)OutParameterRole::DataControlRole] = "dataControl";
 	return roles;
 }
+
 QVariantMap OutParametersModel::createParameterData(OutParameter* parameter) const
 {
     QVariantMap paramData;
@@ -53,10 +54,10 @@ QVariantMap OutParametersModel::createParameterData(OutParameter* parameter) con
 
     paramData["controlType"] = rangedParameter->getControlType();
 
-    QVariantList variantValues;
-    variantValues.append(QVariant(rangedParameter->getMinValue()));
-    variantValues.append(QVariant(rangedParameter->getMaxValue()));
-    paramData["values"] = variantValues;
+    QVariantList variantRange;
+    variantRange.append(QVariant(rangedParameter->getMinValue()));
+    variantRange.append(QVariant(rangedParameter->getMaxValue()));
+    paramData["range"] = variantRange;
 
     // Добавляем шаг для SpinBox
     paramData["step"] = rangedParameter->getStep();
@@ -74,7 +75,6 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
     auto parameters = m_storage->getAllParameters();
     auto parameter = parameters[row];
 
-    if (role > (int)OutParameterRole::ValueRole) return {};
     auto outParameterRole = (OutParameterRole)role;
 
     switch (outParameterRole)
@@ -83,9 +83,7 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
         return parameter->getLabel();
     case OutParameterRole::ValueRole:
         return parameter->getValueAsString();
-    case OutParameterRole::ControlTypeRole:
-        return parameter->getLabel();
-        return QString("control");
+    case OutParameterRole::DataControlRole:
         return createParameterData(parameter);
     }
 
@@ -283,9 +281,14 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
 
 bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!index.isValid() || !m_storage || role != Qt::EditRole)
+    if (!index.isValid() || !m_storage)
     {
         return false;
+    }
+
+    if(role == (int)OutParameterRole::ValueRole)
+    {
+
     }
 
     return true;

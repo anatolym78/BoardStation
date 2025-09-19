@@ -15,7 +15,7 @@ public:
     {
         LabelRole = Qt::UserRole + 1,
         ValueRole,
-        ControlTypeRole,
+        DataControlRole,
     };
 public:
     explicit OutParametersModel(QObject *parent = nullptr);
