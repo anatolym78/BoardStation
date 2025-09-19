@@ -20,30 +20,31 @@ bool ListedRealOutParameter::isValid() const
            !m_values.isEmpty();
 }
 
-void ListedRealOutParameter::setValue(double value)
+bool ListedRealOutParameter::setValue(const QVariant& value)
 {
-    // Если список значений пуст, устанавливаем любое значение
-    if (m_values.isEmpty())
-    {
-        RealOutParameter::setValue(value);
-        return;
-    }
-    
-    // Ищем ближайшее значение из списка
-    double closestValue = m_values.first();
-    double minDistance = std::abs(value - closestValue);
-    
-    for (double listValue : m_values) 
-    {
-        double distance = std::abs(value - listValue);
-        if (distance < minDistance)
-        {
-            minDistance = distance;
-            closestValue = listValue;
-        }
-    }
-    
-    RealOutParameter::setValue(closestValue);
+    return false;
+    //// Если список значений пуст, устанавливаем любое значение
+    //if (m_values.isEmpty())
+    //{
+    //    RealOutParameter::setValue(value);
+    //    return;
+    //}
+    //
+    //// Ищем ближайшее значение из списка
+    //double closestValue = m_values.first();
+    //double minDistance = std::abs(value - closestValue);
+    //
+    //for (double listValue : m_values) 
+    //{
+    //    double distance = std::abs(value - listValue);
+    //    if (distance < minDistance)
+    //    {
+    //        minDistance = distance;
+    //        closestValue = listValue;
+    //    }
+    //}
+    //
+    //RealOutParameter::setValue(closestValue);
 }
 
 

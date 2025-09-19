@@ -20,7 +20,7 @@ public:
     
     // Переопределенные методы
     bool isValid() const override;
-    void setValue(double value) override;
+    bool setValue(const QVariant& value) override;
     
     // Метод для получения виджета управления
     QWidget* getControlWidget() const { return nullptr; } // Убрано, теперь создается через OutParameterWidgetCreator

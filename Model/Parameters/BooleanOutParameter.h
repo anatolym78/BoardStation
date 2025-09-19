@@ -21,7 +21,7 @@ public:
     QString getValueAlias() const { return m_aliases.value(m_value); }
     
     // Сеттеры
-    void setValue(bool value) { m_value = value; }
+    bool setValue(const QVariant& value) override { return false; }
     void setFalseAlias(const QString &alias) { m_aliases[false] = alias; }
     void setTrueAlias(const QString &alias) { m_aliases[true] = alias; }
     

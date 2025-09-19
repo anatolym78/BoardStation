@@ -25,7 +25,6 @@ bool RealOutParameter::setValue(const QVariant& value)
 
 bool RealOutParameter::isValid() const
 {
-    return m_controlType == "QSlider" ||
-        ;
+    return m_controlType == "QSlider";
 }
 

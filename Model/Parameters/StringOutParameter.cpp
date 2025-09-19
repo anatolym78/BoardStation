@@ -18,6 +18,11 @@ QVariant StringOutParameter::getValue() const
     return {};
 }
 
+bool StringOutParameter::setValue(const QVariant& value)
+{
+    return false;
+}
+
 void StringOutParameter::setValueIndex(int valueIndex)
 {
 	if (valueIndex >= 0 && valueIndex < m_valuesList.count()) return;

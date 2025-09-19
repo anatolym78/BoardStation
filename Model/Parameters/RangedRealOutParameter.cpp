@@ -23,26 +23,18 @@ bool RangedRealOutParameter::isValid() const
            m_step > 0.0;
 }
 
-void RangedRealOutParameter::setValue(double value)
+bool RangedRealOutParameter::setValue(const QVariant& value)
 {
-    // Ограничиваем значение диапазоном
-    if (value < m_minimum) 
-    {
-        value = m_minimum;
-    }
-    else
-    {
-		if (value > m_maximum)
-		{
-			value = m_maximum;
-		}
-    }
+    auto realValue = value.toDouble();
+
+    if (realValue < m_minimum || realValue > m_maximum) return false;
     
     // Округляем до ближайшего шага
-    double steps = (value - m_minimum) / m_step;
-    value = m_minimum + (qRound(steps) * m_step);
+    double steps = (realValue - m_minimum) / m_step;
+    realValue = m_minimum + (qRound(steps) * m_step);
     
-    RealOutParameter::setValue(value);
+
+    return RealOutParameter::setValue(value);
 }
 
 

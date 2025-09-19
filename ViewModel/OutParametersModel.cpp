@@ -103,7 +103,7 @@ bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value
         auto parameter = parameters[row];
         if(auto rangeParameter = dynamic_cast<RangedRealOutParameter*>(parameter) != nullptr)
         {
-            rangeParameter->setValue(value.toDouble());
+            //rangeParameter->setValue(value.toDouble());
         }
     }
 

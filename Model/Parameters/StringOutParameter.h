@@ -15,7 +15,8 @@ public:
     // Геттеры
     QVariant getValue() const override;
     QStringList getValuesList() const { return m_valuesList; }
-    
+
+    bool setValue(const QVariant& value) override;
     // Сеттеры
     void setValueIndex(int valueIndex);
     void setValuesList(const QStringList &valuesList);
