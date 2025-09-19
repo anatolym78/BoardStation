@@ -23,7 +23,8 @@ bool ListedRealOutParameter::isValid() const
 void ListedRealOutParameter::setValue(double value)
 {
     // Если список значений пуст, устанавливаем любое значение
-    if (m_values.isEmpty()) {
+    if (m_values.isEmpty())
+    {
         RealOutParameter::setValue(value);
         return;
     }
@@ -32,9 +33,11 @@ void ListedRealOutParameter::setValue(double value)
     double closestValue = m_values.first();
     double minDistance = std::abs(value - closestValue);
     
-    for (double listValue : m_values) {
+    for (double listValue : m_values) 
+    {
         double distance = std::abs(value - listValue);
-        if (distance < minDistance) {
+        if (distance < minDistance)
+        {
             minDistance = distance;
             closestValue = listValue;
         }

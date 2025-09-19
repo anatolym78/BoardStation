@@ -23,30 +23,6 @@ bool BooleanOutParameter::isValid() const
            m_aliases.contains(true);
 }
 
-QString BooleanOutParameter::getValueAsString() const
-{
-    return m_aliases.value(m_value, m_value ? "true" : "false");
-}
-
-void BooleanOutParameter::setValueFromString(const QString &value)
-{
-    // Пытаемся найти значение по алиасу
-    if (value == m_aliases.value(true)) {
-        m_value = true;
-    } else if (value == m_aliases.value(false)) {
-        m_value = false;
-    } else {
-        // Если алиас не найден, пытаемся распарсить как bool
-        QString lowerValue = value.toLower();
-        if (lowerValue == "true" || lowerValue == "1" || lowerValue == "да") {
-            m_value = true;
-        } else if (lowerValue == "false" || lowerValue == "0" || lowerValue == "нет") {
-            m_value = false;
-        }
-    }
-}
-
-
 
 
 

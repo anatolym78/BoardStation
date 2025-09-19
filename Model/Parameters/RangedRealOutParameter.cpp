@@ -12,6 +12,7 @@ RangedRealOutParameter::RangedRealOutParameter(const QString &label,
     , m_maximum(maximum)
     , m_step(step)
 {
+
 }
 
 bool RangedRealOutParameter::isValid() const
@@ -25,10 +26,16 @@ bool RangedRealOutParameter::isValid() const
 void RangedRealOutParameter::setValue(double value)
 {
     // Ограничиваем значение диапазоном
-    if (value < m_minimum) {
+    if (value < m_minimum) 
+    {
         value = m_minimum;
-    } else if (value > m_maximum) {
-        value = m_maximum;
+    }
+    else
+    {
+		if (value > m_maximum)
+		{
+			value = m_maximum;
+		}
     }
     
     // Округляем до ближайшего шага

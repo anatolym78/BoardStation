@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QObject>
+#include <QVariant>
 
 class OutParameter : public QObject
 {
@@ -12,24 +13,17 @@ public:
     explicit OutParameter(const QString &label, const QString &controlType = "QLineEdit");
     virtual ~OutParameter() = default;
 
-    // Геттеры
     QString getLabel() const { return m_label; }
+
+    virtual QVariant getValue() const = 0;
+    virtual bool setValue(const QVariant& value) = 0;
     
-    // Виртуальные методы
     virtual bool isValid() const = 0;
-    virtual QString getValueAsString() const = 0;
-    virtual void setValueFromString(const QString &value) = 0;
     virtual QString getControlType() const { return m_controlType; }
     
     // Создание JSON блока параметра
     QJsonObject toJsonObject() const;
-    
-    // Сеттеры
-    void setControlType(const QString &controlType) { m_controlType = controlType; }
-
-signals:
-    void valueChanged();
-
+   
 protected:
     QString m_label;
     QString m_controlType;

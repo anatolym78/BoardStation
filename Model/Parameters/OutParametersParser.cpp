@@ -59,9 +59,10 @@ OutParameter* OutParametersParser::createParameter(const QString &label,
                                                const QString &controlType,
                                                const QJsonObject &parameterObj)
 {
-    if (valueType == "string") {
+    if (valueType == "string") 
+    {
         QStringList valuesList = parseStringValuesList(parameterObj);
-        return new StringOutParameter(label, QString(), valuesList, controlType);
+        return new StringOutParameter(label, 0, valuesList, controlType);
     }
     else if (valueType == "double" || valueType == "int") {
         // Проверяем, есть ли диапазон

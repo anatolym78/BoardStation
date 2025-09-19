@@ -10,18 +10,14 @@ public:
                              double value = 0.0,
                              const QString &controlType = "QSpinBox");
     
-    // Геттеры
-    double getValue() const { return m_value; }
-    
-    // Сеттеры
-    virtual void setValue(double value) { m_value = value; }
-    
-    // Переопределенные методы
-    QString getValueAsString() const override;
-    void setValueFromString(const QString &value) override;
+    QVariant getValue() const override;
+    bool setValue(const QVariant& value) override;
+
+
+    bool isValid() const override;
 
 protected:
-    double m_value;
+	double m_value;
 };
 
 #endif // REALOUTPARAMETER_H

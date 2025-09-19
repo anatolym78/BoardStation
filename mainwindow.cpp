@@ -43,11 +43,7 @@ void MainWindow::setApp(BoardStationApp *app)
         
         // Настраиваем модель исходящих параметров
         setupOutParametersModel();
-        
-        // Создаем виджеты управления после установки модели
-        if (m_app->getOutParametersModel()) {
-            m_app->getOutParametersModel()->createControlWidgets(ui->enginesTableView);
-        }
+       
         
         // Подключаем сигналы обновления параметров для обновления графиков
         if (m_app->getParametersStorage())

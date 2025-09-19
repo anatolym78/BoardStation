@@ -8,34 +8,26 @@ class StringOutParameter : public OutParameter
 {
 public:
     explicit StringOutParameter(const QString &label, 
-                              const QString &value = QString(),
+                              const int &valueIndex = 0,
                               const QStringList &valuesList = QStringList(),
                               const QString &controlType = "QTextEdit");
     
     // Геттеры
-    QString getValue() const { return m_value; }
+    QVariant getValue() const override;
     QStringList getValuesList() const { return m_valuesList; }
     
     // Сеттеры
-    void setValue(const QString &value) { m_value = value; }
-    void setValuesList(const QStringList &valuesList) { m_valuesList = valuesList; }
+    void setValueIndex(int valueIndex);
+    void setValuesList(const QStringList &valuesList);
     
     // Переопределенные методы
     bool isValid() const override;
-    QString getValueAsString() const override;
-    void setValueFromString(const QString &value) override;
-    
-    // Метод для получения виджета управления
-    QWidget* getControlWidget() const { return nullptr; } // Убрано, теперь создается через OutParameterWidgetCreator
-    
-    // Метод для установки родителя виджета (убрано, больше не нужно)
-    void setWidgetParent(QWidget *parent) { Q_UNUSED(parent); }
     
     // Геттер для значений (используется в OutParameterWidgetCreator)
     QStringList getValues() const { return m_valuesList; }
 
 private:
-    QString m_value;
+    int m_valueIndex = 0;
     QStringList m_valuesList;
 };
 

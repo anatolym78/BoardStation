@@ -12,7 +12,9 @@ OutParameter::OutParameter(const QString &label, const QString &controlType)
 QJsonObject OutParameter::toJsonObject() const
 {
     QJsonObject obj;
+
     obj["label"] = m_label;
-    obj["value"] = QJsonValue::fromVariant(getValueAsString());
+    obj["value"] = QJsonValue::fromVariant(getValue());// QJsonValue::fromVariant(getValueAsString());
+    
     return obj;
 }

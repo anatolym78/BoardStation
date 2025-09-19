@@ -9,18 +9,23 @@ RealOutParameter::RealOutParameter(const QString &label,
 {
 }
 
-QString RealOutParameter::getValueAsString() const
+QVariant RealOutParameter::getValue() const
 {
-    return QString::number(m_value, 'f', 6);
+	return QVariant::fromValue(m_value);
 }
 
-void RealOutParameter::setValueFromString(const QString &value)
+bool RealOutParameter::setValue(const QVariant& value)
 {
-    bool ok;
-    double newValue = value.toDouble(&ok);
-    if (ok) {
-        m_value = newValue;
-    }
+    bool ok = false;
+
+    m_value = value.toDouble(&ok);
+
+    return ok;
 }
 
+bool RealOutParameter::isValid() const
+{
+    return m_controlType == "QSlider" ||
+        ;
+}
 

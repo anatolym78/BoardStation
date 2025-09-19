@@ -5,7 +5,7 @@
 #include <QWidget>
 #include <QTableView>
 #include "Model/Parameters/OutParametersStorage.h"
-#include "Model/Parameters/OutParameterWidgetCreator.h"
+
 class OutParametersModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -35,17 +35,13 @@ public:
     void setStorage(OutParametersStorage *storage);
     OutParametersStorage* getStorage() const { return m_storage; }
     void refreshModel();
-    
-    // Метод для создания виджетов управления
-    void createControlWidgets(QTableView *tableView);
-
+   
 private:
     QVariantMap createParameterData(OutParameter* parameter) const;
 
 private:
     void setupParameters();
     OutParametersStorage *m_storage;
-    OutParameterWidgetCreator *m_widgetCreator;
 };
 
 #endif // OUTPARAMETERMODEL_H

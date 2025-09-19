@@ -45,7 +45,6 @@ SOURCES += \
     Model/Parameters/BoardMessage.cpp \
     Model/Parameters/BoardMessagesJsonWriter.cpp \
     Model/Parameters/BoardMessagesJsonWriterNew.cpp \
-    Model/Parameters/OutParameterWidgetCreator.cpp \
     ViewModel/boardparameterslistmodel.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -88,7 +87,6 @@ HEADERS += \
     Model/Parameters/BoardMessagesJsonWriter.h \
     Model/Parameters/BoardMessagesJsonWriterNew.h \
     Model/Parameters/Parameters.h \
-    Model/Parameters/OutParameterWidgetCreator.h \
     ViewModel/boardparameterslistmodel.h \
     mainwindow.h \
     QmlMainWindow.h
