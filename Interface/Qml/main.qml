@@ -9,13 +9,13 @@ Item
 {
     id: mainWindow
     width: 1440
-    height: 720
+    height: 360
       
     Component.onCompleted:
     {
         // Явно присваиваем модели компонентам для избежания циклических привязок
         droneDataPanel.parametersListModel = parametersListModel
-        droneControlPanel.outParametersModel = outParametersModel
+        //droneControlPanel.outParametersModel = outParametersModel
     }
     
     // Main frame
@@ -52,15 +52,15 @@ Item
 
              }
 
-             // Drone control panel - управляющие параметры, отправляемые дрону
-             DroneControlPanel
-             {
-                 id: droneControlPanel
-                 Layout.preferredWidth: 3.5
-                 Layout.fillWidth: true
-                 Layout.fillHeight: true
+             // // Drone control panel - управляющие параметры, отправляемые дрону
+             // DroneControlPanel
+             // {
+             //     id: droneControlPanel
+             //     Layout.preferredWidth: 3.5
+             //     Layout.fillWidth: true
+             //     Layout.fillHeight: true
                  
-             }
+             // }
          }
     }
 

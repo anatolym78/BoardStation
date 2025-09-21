@@ -46,8 +46,11 @@ Item
             {
                 Component.onCompleted:
                 {
-
-                    //console.log(z)
+                    console.log("=== CHART CREATED ===")
+                    console.log("Chart index:", index)
+                    console.log("Chart z:", z)
+                    console.log("Chart depth:", depth)
+                    console.log("Chart chartIndex:", chartIndex)
                 }
 
                 id: chartView
@@ -60,6 +63,13 @@ Item
                 property bool highlight: false
                 opacity: highlight ? 0.8 : 1.0
                 z: depth
+                
+                onZChanged: {
+                    console.log("=== Z-CHANGE ===")
+                    console.log("Chart index:", chartIndex)
+                    console.log("New z value:", z)
+                    console.log("Depth:", depth)
+                }
                 ValueAxis
                 {
                     id: parameterValueAxis
@@ -128,11 +138,16 @@ Item
                         if(active)
                         {
                             // Начало перетаскивания
+                            console.log("=== DRAG START ===")
+                            console.log("Dragging chart index:", chartView.chartIndex)
+                            console.log("Dragging chart z:", chartView.z)
+                            console.log("Dragging chart depth:", depth)
                             chartView.Drag.start()
                         }
                         else
                         {
                             // Завершение перетаскивания
+                            console.log("=== DRAG END ===")
                             chartView.Drag.drop()
                         }
                     }
@@ -157,26 +172,102 @@ Item
 
                     onEntered:
                     {
-                        //console.log(dropArea.parent)
+                        console.log("=== DROP ENTERED ===")
+                        console.log("Target chart index:", index)
+                        console.log("Target chart chartIndex:", chartView.chartIndex)
+                        console.log("Target chart z:", chartView.z)
+                        console.log("Target chart depth:", depth)
+                        console.log("Drop source:", drop.source)
+                        if (drop.source) {
+                            console.log("Source chart index:", drop.source.chartIndex)
+                            console.log("Source chart z:", drop.source.z)
+                        }
+                        console.log("Drop keys:", Object.keys(drop))
+                        console.log("Drop mimeData:", drop.mimeData)
+                        
+                        // Проверяем, не является ли цель самим источником
+                        if (drop.source && drop.source.chartIndex === chartView.chartIndex) {
+                            console.log("*** SELF-DROP DETECTED - IGNORING ***")
+                            return
+                        }
                     }
 
                     onExited:
                     {
-                        //console.log("Exited")
+                        console.log("=== DROP EXITED ===")
+                        console.log("Exited index:", index)
                     }
 
                     onDropped:
                     {
-                        if(chartsListModel.rowCount() < 2) return
+                        console.log("=== DROP COMPLETED ===")
+                        console.log("Target chart index:", index)
+                        console.log("Target chart chartIndex:", chartView.chartIndex)
+                        console.log("Target chart z:", chartView.z)
+                        console.log("Target chart depth:", depth)
+                        
+                        // Проверяем, не является ли цель самим источником
+                        if (drop.source && drop.source.chartIndex === chartView.chartIndex) {
+                            console.log("*** SELF-DROP DETECTED IN DROP - IGNORING ***")
+                            return
+                        }
+                        
+                        if(chartsListModel.rowCount() < 2) {
+                            console.log("Not enough charts to merge")
+                            return
+                        }
 
-                        console.log("dropped chart index: ", drop.source.chartIndex)
-                        console.log("target chart index: ", chartView.chartIndex)
-
+                        console.log("Drop source:", drop.source)
+                        if (drop.source) {
+                            console.log("Source chart index:", drop.source.chartIndex)
+                            console.log("Source chart z:", drop.source.z)
+                        }
+                        
+                        console.log("Drop mimeData keys:", Object.keys(drop.mimeData))
+                        console.log("Drop mimeData model-index:", drop.mimeData["model-index"])
+                        console.log("Drop mimeData text:", drop.mimeData["text/plain"])
+                        
+                        // Альтернативный способ определения цели через координаты
+                        var mousePos = drop.position
+                        console.log("Drop position (local):", mousePos)
+                        
+                        // Глобальные координаты мыши
+                        var globalMousePos = Qt.point(mousePos.x + chartView.x, mousePos.y + chartView.y)
+                        console.log("Drop position (global):", globalMousePos)
+                        
+                        // Находим элемент под курсором мыши
+                        var targetChart = chartsColumn.childAt(mousePos.x, mousePos.y)
+                        console.log("Chart under mouse:", targetChart)
+                        
+                        // Альтернативный способ - поиск через все дочерние элементы
+                        var chartsUnderMouse = []
+                        for (var i = 0; i < chartsColumn.children.length; i++) {
+                            var child = chartsColumn.children[i]
+                            if (child.chartIndex !== undefined) {
+                                var childRect = Qt.rect(child.x, child.y, child.width, child.height)
+                                if (childRect.contains(mousePos)) {
+                                    chartsUnderMouse.push(child)
+                                    console.log("Chart", child.chartIndex, "contains mouse position")
+                                }
+                            }
+                        }
+                        console.log("All charts under mouse:", chartsUnderMouse.length)
+                        
+                        // Определяем индексы
                         var sourceIndex = drop.source.chartIndex
                         var targetIndex = chartView.chartIndex
+                        
+                        // Если есть альтернативный способ определения цели, используем его
+                        if (targetChart && targetChart.chartIndex !== undefined) {
+                            console.log("Using alternative target detection")
+                            console.log("Alternative target index:", targetChart.chartIndex)
+                            // Можно использовать targetChart.chartIndex вместо chartView.chartIndex
+                        }
 
-                        console.log(sourceIndex)
-                        console.log(targetIndex)
+                        console.log("Final source index:", sourceIndex)
+                        console.log("Final target index:", targetIndex)
+
+                        return
 
                         // Используем новый метод mergeSeries из ChartsListModel
                         chartsListModel.mergeSeries(targetIndex, sourceIndex)
