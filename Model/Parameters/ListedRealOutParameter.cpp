@@ -9,6 +9,16 @@ ListedRealOutParameter::ListedRealOutParameter(const QString &label,
     : RealOutParameter(label, value, controlType)
     , m_values(values)
 {
+    m_index = 0;
+}
+
+QVariant ListedRealOutParameter::getValue() const
+{
+    return m_value;
+
+    if (m_index == -1) return { };
+
+    return m_values[m_index];
 }
 
 bool ListedRealOutParameter::isValid() const
@@ -22,31 +32,47 @@ bool ListedRealOutParameter::isValid() const
 
 bool ListedRealOutParameter::setValue(const QVariant& value)
 {
-    return false;
-    //// Если список значений пуст, устанавливаем любое значение
-    //if (m_values.isEmpty())
-    //{
-    //    RealOutParameter::setValue(value);
-    //    return;
-    //}
-    //
-    //// Ищем ближайшее значение из списка
-    //double closestValue = m_values.first();
-    //double minDistance = std::abs(value - closestValue);
-    //
-    //for (double listValue : m_values) 
-    //{
-    //    double distance = std::abs(value - listValue);
-    //    if (distance < minDistance)
-    //    {
-    //        minDistance = distance;
-    //        closestValue = listValue;
-    //    }
-    //}
-    //
-    //RealOutParameter::setValue(closestValue);
+    if (!value.canConvert<double>()) return false;
+
+    auto doubleValue = value.toDouble();
+
+    // Если список значений пуст, устанавливаем любое значение
+    if (m_values.isEmpty())
+    {
+        RealOutParameter::setValue(value);
+        return false;
+    }
+    
+    // Ищем ближайшее значение из списка
+    double closestValue = m_values.first();
+    double minDistance = std::abs(doubleValue - closestValue);
+    
+    for (double listValue : m_values) 
+    {
+        double distance = std::abs(doubleValue - listValue);
+        if (distance < minDistance)
+        {
+            minDistance = distance;
+            closestValue = listValue;
+        }
+    }
+    
+    return RealOutParameter::setValue(closestValue);
 }
 
+bool ListedRealOutParameter::selectIndex(int index)
+{
+    if (index >= 0 && index < m_values.count())
+    {
+        m_index = index;
+
+        m_value = m_values[index];
+
+        return true;
+    }
+
+    return false;
+}
 
 
 

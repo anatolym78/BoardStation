@@ -14,13 +14,15 @@ public:
     
     // Геттеры
     QList<double> getValues() const { return m_values; }
-    
+    QVariant getValue() const override;
+    int getIndex() { return m_index; }
     // Сеттеры
     void setValues(const QList<double> &values) { m_values = values; }
     
     // Переопределенные методы
     bool isValid() const override;
     bool setValue(const QVariant& value) override;
+    bool selectIndex(int index);
     
     // Метод для получения виджета управления
     QWidget* getControlWidget() const { return nullptr; } // Убрано, теперь создается через OutParameterWidgetCreator
@@ -29,6 +31,7 @@ public:
     void setWidgetParent(QWidget *parent) { Q_UNUSED(parent); }
 
 private:
+    int m_index = 0;
     QList<double> m_values;
 };
 

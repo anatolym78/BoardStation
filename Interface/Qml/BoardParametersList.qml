@@ -45,8 +45,8 @@ Rectangle
             delegate: Rectangle
             {
                 id: parameterCell
-                implicitWidth: 150
-                implicitHeight: 40
+                implicitWidth: 165
+                implicitHeight: 45
                 border.width: 2
                 border.color: "transparent"
                 //border.color: "#f4f4f0"
@@ -59,10 +59,13 @@ Rectangle
 
                     Rectangle
                     {
-                        width: 75
+                        width: 85
                         height: 28
-                        color: "midnightblue"
-                        anchors.margins: 4
+                        color: "gray"
+                        anchors.leftMargin: 4
+                        anchors.rightMargin: 4
+                        anchors.topMargin: 2
+                        anchors.bottomMargin: 2
                         Text
                         {
                             anchors.centerIn: parent
@@ -75,9 +78,9 @@ Rectangle
 
                     Rectangle
                     {
-                        width: 65
+                        width: 70
                         height: 28
-                        color: "gold"
+                        color: "white"
                         anchors.margins: 4
                         Text
                         {
@@ -112,7 +115,7 @@ Rectangle
                         PropertyChanges
                         {
                             target: parameterCell;
-                            color: "#77ddff"
+                            color: "#88bbff"
                         }
                     }
                 ]

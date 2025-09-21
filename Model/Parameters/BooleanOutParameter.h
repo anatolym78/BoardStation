@@ -10,18 +10,17 @@ class BooleanOutParameter : public OutParameter
 public:
     explicit BooleanOutParameter(const QString &label, 
                                 bool value = false,
-                                const QString &falseAlias = "Выключено",
-                                const QString &trueAlias = "Включено",
+                                const QString &falseAlias = "checked",
+                                const QString &trueAlias = "unchecked",
                                 const QString &controlType = "QCheckBox");
     
-    // Геттеры
     QVariant getValue() const override { return QVariant::fromValue(m_value); }
+	bool setValue(const QVariant& value) override;
+
     QString getFalseAlias() const { return m_aliases.value(false); }
     QString getTrueAlias() const { return m_aliases.value(true); }
-    QString getValueAlias() const { return m_aliases.value(m_value); }
+    QVariant getValueAlias() const { return m_aliases.value(m_value); }
     
-    // Сеттеры
-    bool setValue(const QVariant& value) override { return false; }
     void setFalseAlias(const QString &alias) { m_aliases[false] = alias; }
     void setTrueAlias(const QString &alias) { m_aliases[true] = alias; }
     

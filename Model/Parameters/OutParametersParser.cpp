@@ -64,32 +64,38 @@ OutParameter* OutParametersParser::createParameter(const QString &label,
         QStringList valuesList = parseStringValuesList(parameterObj);
         return new StringOutParameter(label, 0, valuesList, controlType);
     }
-    else if (valueType == "double" || valueType == "int") {
+    else if (valueType == "double" || valueType == "int") 
+    {
         // Проверяем, есть ли диапазон
         double min, max, step;
-        if (parseRange(parameterObj, min, max, step)) {
+        if (parseRange(parameterObj, min, max, step)) 
+        {
             return new RangedRealOutParameter(label, min, min, max, step, controlType);
         }
         
         // Проверяем, есть ли список значений
         QList<double> valuesList = parseValuesList(parameterObj);
-        if (!valuesList.isEmpty()) {
+        if (!valuesList.isEmpty())
+        {
             return new ListedRealOutParameter(label, valuesList.first(), valuesList, controlType);
         }
         
         // Простой вещественный параметр
         return new RangedRealOutParameter(label, 0.0, -1000.0, 1000.0, 1.0, controlType);
     }
-    else if (valueType == "bool") {
+    else if (valueType == "bool") 
+    {
         // Для булевых параметров используем BooleanOutParameter
         QString falseAlias = QObject::tr("Off");
         QString trueAlias = QObject::tr("On");
         
         // Пытаемся получить алиасы из конфигурации
-        if (parameterObj.contains("falseAlias")) {
+        if (parameterObj.contains("falseAlias")) 
+        {
             falseAlias = parameterObj["falseAlias"].toString();
         }
-        if (parameterObj.contains("trueAlias")) {
+        if (parameterObj.contains("trueAlias")) 
+        {
             trueAlias = parameterObj["trueAlias"].toString();
         }
         

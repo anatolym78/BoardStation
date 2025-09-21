@@ -17,6 +17,8 @@ public:
 
     virtual QVariant getValue() const = 0;
     virtual bool setValue(const QVariant& value) = 0;
+
+    virtual QVariant getValueAlias() const { return getValue();}
     
     virtual bool isValid() const = 0;
     virtual QString getControlType() const { return m_controlType; }

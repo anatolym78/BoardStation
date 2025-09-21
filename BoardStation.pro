@@ -28,6 +28,7 @@ SOURCES += \
     Model/Parameters/BoardParametersStorage.cpp \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
     Interface/Charts/ChartBuilder.cpp \
+    ViewModel/BoardParametersListModel.cpp \
     ViewModel/BoardParametersModel.cpp \
     ViewModel/ChartPointsModel.cpp \
     ViewModel/ChartSeriesModel.cpp \
@@ -45,7 +46,6 @@ SOURCES += \
     Model/Parameters/BoardMessage.cpp \
     Model/Parameters/BoardMessagesJsonWriter.cpp \
     Model/Parameters/BoardMessagesJsonWriterNew.cpp \
-    ViewModel/boardparameterslistmodel.cpp \
     main.cpp \
     mainwindow.cpp \
     QmlMainWindow.cpp
@@ -69,6 +69,7 @@ HEADERS += \
     Model/Parameters/BoardParametersStorage.h \
     Model/Parameters/BoardParameterHistoryStorage.h \
     Interface/Charts/ChartBuilder.h \
+    ViewModel/BoardParametersListModel.h \
     ViewModel/BoardParametersModel.h \
     ViewModel/ChartPointsModel.h \
     ViewModel/ChartSeriesModel.h \
@@ -87,7 +88,6 @@ HEADERS += \
     Model/Parameters/BoardMessagesJsonWriter.h \
     Model/Parameters/BoardMessagesJsonWriterNew.h \
     Model/Parameters/Parameters.h \
-    ViewModel/boardparameterslistmodel.h \
     mainwindow.h \
     QmlMainWindow.h
 

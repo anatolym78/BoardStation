@@ -12,7 +12,7 @@
 #include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/BoardMessagesJsonWriterNew.h"
 #include "Interface/Charts/ChartBuilder.h"
-#include "ViewModel/boardparameterslistmodel.h"
+#include "ViewModel/BoardParametersListModel.h"
 
 class MainWindow;
 class BoardParametersJsonParserNew;

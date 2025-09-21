@@ -8,8 +8,8 @@ import BoardStation 1.0
 Item
 {
     id: mainWindow
-    width: 1600
-    height: 600
+    width: 1440
+    height: 720
       
     Component.onCompleted:
     {
@@ -42,25 +42,11 @@ Item
                 }
             }
 
-             // // Drone data panel - отображает данные, полученные от дрона
-             // DroneDataPanel
-             // {
-             //     id: droneDataPanel
-             //     Layout.preferredWidth: 3
-             //     Layout.fillWidth: true
-             //     Layout.fillHeight: true
-
-             //     onParameterSelected:
-             //     {
-             //         chartsListModel.addSeries(label)
-             //     }
-             // }
-
              ChartsPanel
              {
                  id: chartsPanel
                  //anchors.fill: parent
-                 Layout.preferredWidth: 6
+                 Layout.preferredWidth: 5
                  Layout.fillWidth: true
                  Layout.fillHeight: true
 
@@ -70,7 +56,7 @@ Item
              DroneControlPanel
              {
                  id: droneControlPanel
-                 Layout.preferredWidth: 4
+                 Layout.preferredWidth: 3.5
                  Layout.fillWidth: true
                  Layout.fillHeight: true
                  

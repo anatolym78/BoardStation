@@ -47,22 +47,46 @@ QVariantMap OutParametersModel::createParameterData(OutParameter* parameter) con
 {
     QVariantMap paramData;
 
-    auto rangedParameter = dynamic_cast<RangedRealOutParameter*>(parameter);
+    if(auto rangedParameter = dynamic_cast<RangedRealOutParameter*>(parameter))
+    {
+        paramData["controlType"] = rangedParameter->getControlType();
 
-    if(rangedParameter == nullptr) return {};
+        QVariantList variantRange;
+        variantRange.append(QVariant(rangedParameter->getMinValue()));
+        variantRange.append(QVariant(rangedParameter->getMaxValue()));
+        paramData["range"] = variantRange;
 
-    paramData["controlType"] = rangedParameter->getControlType();
+        // Добавляем шаг для SpinBox
+        paramData["step"] = rangedParameter->getStep();
+        paramData["currentValue"] = rangedParameter->getValue();
 
-    QVariantList variantRange;
-    variantRange.append(QVariant(rangedParameter->getMinValue()));
-    variantRange.append(QVariant(rangedParameter->getMaxValue()));
-    paramData["range"] = variantRange;
+        return paramData;
+    }
 
-    // Добавляем шаг для SpinBox
-    paramData["step"] = rangedParameter->getStep();
-    paramData["currentValue"] = rangedParameter->getValue();
+    if(auto listedParameter = dynamic_cast<ListedRealOutParameter*>(parameter))
+    {
+        auto variantList = QVariantList();
+        for (auto value : listedParameter->getValues())
+        {
+            variantList << value;
+        }
+        paramData["values"] = variantList;
+        paramData["controlType"] = "QComboBox";
+        paramData["index"] = listedParameter->getIndex();
+        paramData["value"] = listedParameter->getValue();
 
-    return paramData;
+        return paramData;
+    }
+
+    if(auto booleanParameter = dynamic_cast<BooleanOutParameter*>(parameter))
+    {
+        paramData["controlType"] = "QCheckBox";
+        paramData["value"] = booleanParameter->getValue();
+
+        return paramData;
+    }
+
+    return {};
 }
 
 QVariant OutParametersModel::data(const QModelIndex &index, int role) const
@@ -81,7 +105,7 @@ QVariant OutParametersModel::data(const QModelIndex &index, int role) const
     case OutParameterRole::LabelRole:
         return parameter->getLabel();
     case OutParameterRole::ValueRole:
-        return parameter->getValue();
+        return parameter->getValueAlias();
     case OutParameterRole::DataControlRole:
         return createParameterData(parameter);
     }
@@ -101,10 +125,12 @@ bool OutParametersModel::setData(const QModelIndex &index, const QVariant &value
     {
         auto parameters = m_storage->getAllParameters();
         auto parameter = parameters[row];
-        if(auto rangeParameter = dynamic_cast<RangedRealOutParameter*>(parameter) != nullptr)
-        {
-            //rangeParameter->setValue(value.toDouble());
-        }
+        parameter->setValue(value);
+
+		QModelIndex topLeft = this->index(row, 0);
+		QModelIndex bottomRight = this->index(row, columnCount() - 1);
+
+        emit dataChanged(topLeft, bottomRight);
     }
 
     return true;

@@ -39,11 +39,21 @@ Rectangle
             // Data delegate with custom controls
             delegate: Rectangle
             {
-                implicitWidth: 150
-                implicitHeight: 50
-                border.width: 1
-                border.color: "#e0e0e0"
-                color: row % 2 === 0 ? "#ffffff" : "#f8f8f8"
+                //anchors.margins: 4
+                implicitWidth: 140
+                implicitHeight: 45
+                border.width: 2
+                border.color: "transparent"
+                color:
+                {
+                    switch(column)
+                    {
+                        case 0:
+                            return "gray"
+                    }
+
+                    return "white"
+                }
                     
                 // Different controls based on column
                 Loader
@@ -79,6 +89,17 @@ Rectangle
                         anchors.centerIn: parent
                         text: parameterLabel
                         font.pointSize: 10
+                        color:
+                        {
+                            switch(column)
+                            {
+                            case 0:
+                                return "white";
+                            }
+
+                            return "dimgray";
+                        }
+
                         elide: Text.ElideRight
                     }
                 }
@@ -112,8 +133,6 @@ Rectangle
                     id: dynamicControlComponent
                     Item
                     {
-                        //property var dataControl: dataControl
-                        
                         Loader
                         {
                             anchors.fill: parent
@@ -125,39 +144,11 @@ Rectangle
                                 {
                                     case "QSpinBox": return spinBoxComponent
                                     case "QSlider": return sliderComponent
+                                    case "QComboBox": return comboBoxComponent
+                                    case "QCheckBox": return checkBoxComponent
                                 }
 
                                 return defaultComponent
-
-                                // if (paramData && paramData.controlType)
-                                // {
-                                //     if (paramData.controlType === "QComboBox")
-                                //     {
-                                //         return comboBoxComponent
-                                //     }
-                                //     else if (paramData.controlType === "QSlider")
-                                //     {
-                                //         return sliderComponent
-                                //     }
-                                //     else if (paramData.controlType === "QSpinBox")
-                                //     {
-                                //         console.log("Spin box")
-
-                                //         return spinBoxComponent
-                                //     }
-                                //     else if (paramData.controlType === "QCheckBox")
-                                //     {
-                                //         return checkBoxComponent
-                                //     }
-                                //     else
-                                //     {
-                                //         return textEditComponent
-                                //     }
-                                // }
-                                // else
-                                // {
-                                //     return defaultComponent
-                                // }
                             }
                         }
                         Component
@@ -172,16 +163,7 @@ Rectangle
                                 value: dataControl ? dataControl.currentValue : 0
                                 onValueChanged:
                                 {
-                                    console.log("spinbox value changed ", value)
-                                    console.log("parameter value ", parameterValue)
                                     parameterValue = value
-                                    //value
-
-                                    //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
-                                    //outParametersModel.setData(outParametersModel.index(row, 1), value, Qt.EditRole)
-
-                                    // Принудительно обновляем отображение
-                                    //outParametersTableView.forceLayout()
                                 }
                             }
                         }
@@ -198,100 +180,37 @@ Rectangle
                                 value: dataControl ? dataControl.currentValue : 0
                                 onValueChanged:
                                 {
-                                    console.log("slider value changed ", value)
-                                    //console.log("slider step", )
-
-                                    //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
-                                    // Принудительно обновляем отображение
-                                    //outParametersTableView.forceLayout()
+                                    parameterValue = value
                                 }
                             }
-                            // onCompleted:
-                            // {
-                            //     console.log("slider step ", dataControl.step)
-                            // }
                         }
 
-                        // Component
-                        // {
-                        //     id: comboBoxComponent
-                        //     ComboBox
-                        //     {
-                        //         anchors.fill: parent
-                        //         model: paramData ? paramData.values : []
-                        //         currentIndex:
-                        //         {
-                        //             if (paramData && paramData.values)
-                        //             {
-                        //                 var currentValue = paramData.currentValue
-                        //                 for (var i = 0; i < paramData.values.length; i++)
-                        //                 {
-                        //                     if (paramData.values[i] === currentValue)
-                        //                     {
-                        //                         return i
-                        //                     }
-                        //                 }
-                        //             }
-                        //             return 0
-                        //         }
-                        //         onCurrentIndexChanged:
-                        //         {
-                        //             if (paramData && paramData.values && currentIndex >= 0)
-                        //             {
-                        //                 var newValue = paramData.values[currentIndex]
-                        //                 outParametersModel.setData(outParametersModel.index(row, column), newValue, Qt.EditRole)
-                        //                 // Принудительно обновляем отображение
-                        //                 //outParametersTableView.forceLayout()
-                        //             }
-                        //         }
-                        //     }
-                        // }
-                        
-
-                        
-                        // Component
-                        // {
-                        //     id: spinBoxComponent
-                        //     SpinBox
-                        //     {
-                        //         anchors.fill: parent
-                        //         from: paramData ? (paramData.values && paramData.values.length > 0 ? paramData.values[0] : 0) : 0
-                        //         to: paramData ? (paramData.values && paramData.values.length > 1 ? paramData.values[1] : 100) : 100
-                        //         stepSize: paramData ? (paramData.step ? paramData.step : 1) : 1  // Используем шаг из параметра
-                        //         value: paramData ? paramData.currentValue : 0
-                        //         onValueChanged:
-                        //         {
-                        //             //outParametersModel.setData(outParametersModel.index(row, column), value, Qt.EditRole)
-                        //             //outParametersModel.setData(outParametersModel.index(row, 1), value, Qt.EditRole)
-
-                        //             // Принудительно обновляем отображение
-                        //             //outParametersTableView.forceLayout()
-
-                        //             console.log("spinbox value changed ", value)
-                        //         }
-                        //     }
-                        // }
-                        
-                        // Component
-                        // {
-                        //     id: checkBoxComponent
-                        //     CheckBox
-                        //     {
-                        //         anchors.centerIn: parent
-                        //         checked: paramData ? paramData.currentValue : false
-                        //         onCheckedChanged:
-                        //         {
-                        //             outParametersModel.setData(outParametersModel.index(row, column), checked, Qt.EditRole)
-                        //             outParametersModel.setData(outParametersModel.index(row, 1), checked, Qt.EditRole)
-                        //             console.log("checkbox value changed")
-                        //             console.log(checked)
-                        //             console.log(row)
-                        //             console.log(column)
-                        //             // Принудительно обновляем отображение
-                        //             //outParametersTableView.forceLayout()
-                        //         }
-                        //     }
-                        // }
+                        Component
+                        {
+                            id: comboBoxComponent
+                            ComboBox
+                            {
+                                anchors.fill: parent
+                                model: dataControl ? dataControl.values : []
+                                onCurrentValueChanged:
+                                {
+                                    parameterValue = currentValue
+                                }
+                            }
+                        }
+                        Component
+                        {
+                            id: checkBoxComponent
+                            CheckBox
+                            {
+                                anchors.centerIn: parent
+                                checked: paramData.value// paramData ? paramData.currentValue : false
+                                onCheckedChanged:
+                                {
+                                    parameterValue = checkState
+                                }
+                            }
+                        }
                         
                         // Component
                         // {
