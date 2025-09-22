@@ -8,14 +8,14 @@ import BoardStation 1.0
 Item
 {
     id: mainWindow
-    width: 1440
-    height: 360
+    width: 1400
+    height: 800
       
     Component.onCompleted:
     {
         // Явно присваиваем модели компонентам для избежания циклических привязок
         droneDataPanel.parametersListModel = parametersListModel
-        //droneControlPanel.outParametersModel = outParametersModel
+        droneControlPanel.outParametersModel = outParametersModel
     }
     
     // Main frame
@@ -52,15 +52,15 @@ Item
 
              }
 
-             // // Drone control panel - управляющие параметры, отправляемые дрону
-             // DroneControlPanel
-             // {
-             //     id: droneControlPanel
-             //     Layout.preferredWidth: 3.5
-             //     Layout.fillWidth: true
-             //     Layout.fillHeight: true
+             // Drone control panel - управляющие параметры, отправляемые дрону
+             DroneControlPanel
+             {
+                 id: droneControlPanel
+                 Layout.preferredWidth: 3.5
+                 Layout.fillWidth: true
+                 Layout.fillHeight: true
                  
-             // }
+             }
          }
     }
 
@@ -74,12 +74,12 @@ Item
     //     when: parametersModel !== null
     // }
     
-    // Binding
-    // {
-    //     target: droneControlPanel
-    //     property: "outParametersModel"
-    //     value: outParametersModel
-    //     when: outParametersModel !== null
-    // }
+    Binding
+    {
+        target: droneControlPanel
+        property: "outParametersModel"
+        value: outParametersModel
+        when: outParametersModel !== null
+    }
 }
 

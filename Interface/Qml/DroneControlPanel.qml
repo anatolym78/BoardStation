@@ -36,209 +36,227 @@ Rectangle
             
             model: outParametersModel
             
-            // Data delegate with custom controls
             delegate: Rectangle
             {
-                //anchors.margins: 4
-                implicitWidth: 140
-                implicitHeight: 45
-                border.width: 2
-                border.color: "transparent"
-                color:
+                implicitWidth:
                 {
                     switch(column)
                     {
-                        case 0:
-                            return "gray"
+                        case 0: return 120
+                        case 1: return  80
+                        case 2: return 150
+                        default: return 100
                     }
-
-                    return "white"
                 }
-                    
-                // Different controls based on column
-                Loader
+                implicitHeight: 55
+                color: "transparent"
+                Rectangle
                 {
                     anchors.fill: parent
-                    anchors.margins: 5
-                    
-                    sourceComponent: 
+                    anchors.centerIn: parent
+                    anchors.margins: 4
+                    border.color: "transparent"
+                    border.width: 2
+
+                    color:
                     {
                         switch(column)
                         {
-                            case 0:
-                                // Label column - just text
-                                return labelComponent
-                            case 1:
-                                // Value column - text
-                                return valueComponent
-                            case 2:
-                                // Control column - dynamic control based on parameter type
-                                return dynamicControlComponent
-                            default:
-                                // Other columns - text
-                                return textComponent
+                            case 0: return "gray"
+                            case 1: return  "white"
+                            case 2: return "white"
+                            default: return "white"
                         }
                     }
-                }
-                
-                Component
-                {
-                    id: labelComponent
-                    Text
+
+                    // Different controls based on column
+                    Loader
                     {
-                        anchors.centerIn: parent
-                        text: parameterLabel
-                        font.pointSize: 10
-                        color:
+                        anchors.fill: parent
+                        anchors.margins: 5
+
+                        sourceComponent:
                         {
                             switch(column)
                             {
-                            case 0:
-                                return "white";
+                                case 0:
+                                    // Label column - just text
+                                    return labelComponent
+                                case 1:
+                                    // Value column - text
+                                    return valueComponent
+                                case 2:
+                                    // Control column - dynamic control based on parameter type
+                                    return dynamicControlComponent
+                                default:
+                                    // Other columns - text
+                                    return textComponent
                             }
-
-                            return "dimgray";
                         }
+                    }
 
-                        elide: Text.ElideRight
-                    }
-                }
-                
-                Component
-                {
-                    id: valueComponent
-                    Text
+                    Component
                     {
-                        anchors.centerIn: parent
-                        text: parameterValue
-                        font.pointSize: 10
-                        elide: Text.ElideRight
-                    }
-                }
-                
-                Component
-                {
-                    id: textComponent
-                    Text
-                    {
-                        anchors.centerIn: parent
-                        text: parameterLabel
-                        font.pointSize: 10
-                        elide: Text.ElideRight
-                    }
-                }
-                
-                Component
-                {
-                    id: dynamicControlComponent
-                    Item
-                    {
-                        Loader
+                        id: labelComponent
+                        Text
                         {
-                            anchors.fill: parent
-                            sourceComponent: 
+                            anchors.centerIn: parent
+                            text: parameterLabel
+                            font.pointSize: 11
+                            color:
                             {
-                                if(dataControl == null) return defaultComponent
-
-                                switch(dataControl.controlType)
+                                switch(column)
                                 {
-                                    case "QSpinBox": return spinBoxComponent
-                                    case "QSlider": return sliderComponent
-                                    case "QComboBox": return comboBoxComponent
-                                    case "QCheckBox": return checkBoxComponent
+                                case 0:
+                                    return "white";
                                 }
 
-                                return defaultComponent
+                                return "dimgray";
                             }
+
+                            elide: Text.ElideRight
                         }
-                        Component
+                    }
+
+                    Component
+                    {
+                        id: valueComponent
+                        Text
                         {
-                            id: spinBoxComponent
-                            SpinBox
+                            anchors.centerIn: parent
+                            text: parameterValue
+                            font.pointSize: 11
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    Component
+                    {
+                        id: textComponent
+                        Text
+                        {
+                            anchors.centerIn: parent
+                            text: parameterLabel
+                            font.pointSize: 11
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    Component
+                    {
+                        id: dynamicControlComponent
+                        Item
+                        {
+                            Loader
                             {
                                 anchors.fill: parent
-                                from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
-                                to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
-                                stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
-                                value: dataControl ? dataControl.currentValue : 0
-                                onValueChanged:
+                                sourceComponent:
                                 {
-                                    parameterValue = value
-                                }
-                            }
-                        }
+                                    if(dataControl == null) return defaultComponent
 
-                        Component
-                        {
-                            id: sliderComponent
-                            Slider
-                            {
-                                anchors.fill: parent
-                                from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
-                                to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
-                                stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
-                                value: dataControl ? dataControl.currentValue : 0
-                                onValueChanged:
-                                {
-                                    parameterValue = value
-                                }
-                            }
-                        }
+                                    switch(dataControl.controlType)
+                                    {
+                                        case "QSpinBox": return spinBoxComponent
+                                        case "QSlider": return sliderComponent
+                                        case "QComboBox": return comboBoxComponent
+                                        case "QCheckBox": return checkBoxComponent
+                                    }
 
-                        Component
-                        {
-                            id: comboBoxComponent
-                            ComboBox
-                            {
-                                anchors.fill: parent
-                                model: dataControl ? dataControl.values : []
-                                onCurrentValueChanged:
-                                {
-                                    parameterValue = currentValue
+                                    return defaultComponent
                                 }
                             }
-                        }
-                        Component
-                        {
-                            id: checkBoxComponent
-                            CheckBox
+                            Component
                             {
-                                anchors.centerIn: parent
-                                checked: paramData.value// paramData ? paramData.currentValue : false
-                                onCheckedChanged:
+                                id: spinBoxComponent
+                                SpinBox
                                 {
-                                    parameterValue = checkState
+                                    anchors.fill: parent
+                                    from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
+                                    to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
+                                    stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
+                                    value: dataControl ? dataControl.currentValue : 0
+                                    onValueChanged:
+                                    {
+                                        parameterValue = value
+                                    }
                                 }
                             }
-                        }
-                        
-                        // Component
-                        // {
-                        //     id: textEditComponent
-                        //     TextField {
-                        //         anchors.fill: parent
-                        //         text: paramData ? paramData.currentValue : ""
-                        //         onTextChanged:
-                        //         {
-                        //             outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
-                        //             // Принудительно обновляем отображение
-                        //             //outParametersTableView.forceLayout()
-                        //         }
-                        //     }
-                        // }
-                        
-                        Component
-                        {
-                            id: defaultComponent
-                            Text {
-                                anchors.centerIn: parent
-                                text: "No control"
-                                color: "#666666"
+
+                            Component
+                            {
+                                id: sliderComponent
+                                Slider
+                                {
+                                    anchors.fill: parent
+                                    from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
+                                    to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
+                                    stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
+                                    value: dataControl ? dataControl.currentValue : 0
+                                    onValueChanged:
+                                    {
+                                        parameterValue = value
+                                    }
+                                }
+                            }
+
+                            Component
+                            {
+                                id: comboBoxComponent
+                                ComboBox
+                                {
+                                    anchors.fill: parent
+                                    model: dataControl ? dataControl.values : []
+                                    onCurrentValueChanged:
+                                    {
+                                        parameterValue = currentValue
+                                    }
+                                }
+                            }
+                            Component
+                            {
+                                id: checkBoxComponent
+                                CheckBox
+                                {
+                                    anchors.centerIn: parent
+                                    checked: paramData.value// paramData ? paramData.currentValue : false
+                                    onCheckedChanged:
+                                    {
+                                        parameterValue = checkState
+                                    }
+                                }
+                            }
+
+                            // Component
+                            // {
+                            //     id: textEditComponent
+                            //     TextField {
+                            //         anchors.fill: parent
+                            //         text: paramData ? paramData.currentValue : ""
+                            //         onTextChanged:
+                            //         {
+                            //             outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
+                            //             // Принудительно обновляем отображение
+                            //             //outParametersTableView.forceLayout()
+                            //         }
+                            //     }
+                            // }
+
+                            Component
+                            {
+                                id: defaultComponent
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "No control"
+                                    color: "#666666"
+                                }
                             }
                         }
                     }
                 }
+
             }
+
+            // Data delegate with custom controls
         }
         
         // Кнопки управления (перемещены под таблицу)
