@@ -25,6 +25,7 @@ Rectangle
             font.pointSize: 12
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
+            color: "gray"
         }
         
         TableView
@@ -32,6 +33,7 @@ Rectangle
             id: outParametersTableView
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.alignment: Qt.AlignHCenter
             clip: true
             
             model: outParametersModel
@@ -43,26 +45,28 @@ Rectangle
                     switch(column)
                     {
                         case 0: return 120
-                        case 1: return  80
-                        case 2: return 150
+                        case 1: return  75
+                        case 2: return 160
                         default: return 100
                     }
                 }
-                implicitHeight: 55
+                implicitHeight: 45
                 color: "transparent"
                 Rectangle
                 {
+                    id: cell
                     anchors.fill: parent
                     anchors.centerIn: parent
-                    anchors.margins: 4
+                    anchors.margins: 2
                     border.color: "transparent"
                     border.width: 2
+                    radius: 2
 
                     color:
                     {
                         switch(column)
                         {
-                            case 0: return "gray"
+                            case 0: return Qt.hsva(0.90, 0.5, 0.5, 0.7)
                             case 1: return  "white"
                             case 2: return "white"
                             default: return "white"
@@ -100,8 +104,10 @@ Rectangle
                         id: labelComponent
                         Text
                         {
+
                             anchors.centerIn: parent
                             text: parameterLabel
+                            //anchors.verticalCenter: cell
                             font.pointSize: 11
                             color:
                             {
@@ -171,6 +177,7 @@ Rectangle
                                 SpinBox
                                 {
                                     anchors.fill: parent
+                                    font.pointSize: 11
                                     from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
                                     to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
                                     stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
@@ -188,6 +195,7 @@ Rectangle
                                 Slider
                                 {
                                     anchors.fill: parent
+                                    font.pointSize: 11
                                     from: dataControl ? (dataControl.range && dataControl.range.length > 0 ? dataControl.range[0] : 0) : 0
                                     to: dataControl ? (dataControl.range && dataControl.range.length > 1 ? dataControl.range[1] : 100) : 100
                                     stepSize: dataControl ? (dataControl.step ? dataControl.step : 1) : 1  // Используем шаг из параметра
@@ -205,6 +213,7 @@ Rectangle
                                 ComboBox
                                 {
                                     anchors.fill: parent
+                                    font.pointSize: 11
                                     model: dataControl ? dataControl.values : []
                                     onCurrentValueChanged:
                                     {
@@ -218,6 +227,7 @@ Rectangle
                                 CheckBox
                                 {
                                     anchors.centerIn: parent
+                                    font.pointSize: 11
                                     checked: paramData.value// paramData ? paramData.currentValue : false
                                     onCheckedChanged:
                                     {

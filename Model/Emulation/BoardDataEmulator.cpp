@@ -155,13 +155,13 @@ void BoardDataEmulator::setupGenerators()
     // Создаем и настраиваем генератор широты
     LatitudeGenerator *latitudeGen = new LatitudeGenerator(this);
     latitudeGen->setStartLatitude(55.7558);    // Москва
-    latitudeGen->setSpeed(2.5);             // Медленное движение
+    latitudeGen->setSpeed(0.05);             // Медленное движение
     m_generators.append(latitudeGen);
 
     // Создаем и настраиваем генератор долготы
     LongitudeGenerator *longitudeGen = new LongitudeGenerator(this);
     longitudeGen->setStartLongitude(37.6173);  // Москва
-    longitudeGen->setSpeed(0.001);             // Медленное движение
+    longitudeGen->setSpeed(0.05);             // Медленное движение
     m_generators.append(longitudeGen);
 
 

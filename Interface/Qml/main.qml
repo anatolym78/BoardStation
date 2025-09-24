@@ -13,8 +13,7 @@ Item
       
     Component.onCompleted:
     {
-        // Явно присваиваем модели компонентам для избежания циклических привязок
-        droneDataPanel.parametersListModel = parametersListModel
+        boardParametersList.parametersListModel = parametersListModel
         droneControlPanel.outParametersModel = outParametersModel
     }
     
@@ -28,10 +27,10 @@ Item
              anchors.fill: parent 
              spacing: 0
 
-            // Drone data panel - отображает данные, полученные от дрона
+            // Отображает список параметров, полученных от дрона
             BoardParametersList
             {
-                id: droneDataPanel
+                id: boardParametersList
                 Layout.preferredWidth: 1.5
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -42,21 +41,22 @@ Item
                 }
             }
 
-             ChartsPanel
-             {
+            // Панель с графиками
+            ChartsPanel
+            {
                  id: chartsPanel
                  //anchors.fill: parent
                  Layout.preferredWidth: 5
                  Layout.fillWidth: true
                  Layout.fillHeight: true
 
-             }
+            }
 
-             // Drone control panel - управляющие параметры, отправляемые дрону
+             // Панель управления параметрами дрона
              DroneControlPanel
              {
                  id: droneControlPanel
-                 Layout.preferredWidth: 3.5
+                 Layout.preferredWidth: 2.5
                  Layout.fillWidth: true
                  Layout.fillHeight: true
                  
@@ -65,14 +65,14 @@ Item
     }
 
     
-    // // Альтернативные привязки с использованием Binding (если нужно)
-    // Binding
-    // {
-    //     target: droneDataPanel
-    //     property: "parametersListModel"
-    //     value: parametersModel
-    //     when: parametersModel !== null
-    // }
+    // Альтернативные привязки с использованием Binding (если нужно)
+    Binding
+    {
+        target: boardParametersList
+        property: "parametersListModel"
+        value: boardParametersList
+        when: boardParametersList !== null
+    }
     
     Binding
     {

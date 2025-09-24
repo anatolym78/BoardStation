@@ -1,10 +1,21 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
+import BoardStation 1.0
 
 Rectangle
 {
+    // QtObject
+    // {
+    //     property var parameterLabelColor: Qt.hsva(0.6, 0.5, 0.5, 0.7)
+    //     property color parameterSelectionColor: Qt.hsva(0.6, 0.99, 0.99, 0.2)
+    //     property color parameterLabelSelectionColor: Qt.hsva(0.6, 0.99, 0.99, 1.0)
+    //     property color parameterValueSelectionColorText: "midnightblue"
+    // }
+
     id: boardParemetersList
+
+    radius: 4
 
     color: "#f0f0f0"
 
@@ -14,16 +25,16 @@ Rectangle
 
     ColumnLayout
     {
-
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
 
         Text
         {
-            text: "Drone Data"
+            text: "Drone Parameters"
             font.pointSize: 12
             font.bold: true
+            color: "gray"
             Layout.alignment: Qt.AlignHCenter
         }
 
@@ -37,39 +48,42 @@ Rectangle
 
             model: parametersListModel
 
-            Component.onCompleted:
-            {
-            }
-
             // Data delegate
             delegate: Rectangle
             {
                 id: parameterCell
-                implicitWidth: 165
-                implicitHeight: 45
-                border.width: 2
+                radius: 2
+                width: parent.width
+                //implicitWidth: 165
+                implicitHeight: 40
+                //border.width: 2
                 border.color: "transparent"
-                //border.color: "#f4f4f0"
                 color: "transparent"
+                z: 10
 
                 RowLayout
                 {
                     anchors.fill: parent
-                    spacing: 2
+
+                    spacing: 4
+                    z: 1
 
                     Rectangle
                     {
-                        width: 85
-                        height: 28
-                        color: "gray"
+                        id: labelCell
+                        radius: 2
+                        width: 100
+                        anchors.left: parent.left
                         anchors.leftMargin: 4
                         anchors.rightMargin: 4
-                        anchors.topMargin: 2
-                        anchors.bottomMargin: 2
+                        anchors.topMargin: 4
+                        anchors.bottomMargin: 4
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        color: Qt.hsva(0.6, 0.5, 0.5, 0.7)
                         Text
                         {
                             anchors.centerIn: parent
-                            //anchors.margins: 4
                             text: label
                             font.pointSize: 11
                             color: "white"
@@ -78,33 +92,26 @@ Rectangle
 
                     Rectangle
                     {
-                        width: 70
-                        height: 28
+                        id: valueCell
+                        radius: 2
+                        anchors.left: labelCell.right
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: 4
+                        anchors.topMargin: 4
+                        anchors.bottomMargin: 4
+                        anchors.rightMargin: 4
                         color: "white"
-                        anchors.margins: 4
                         Text
                         {
+                            id: valueText
                             anchors.centerIn: parent
-                            //anchors.margins: 4
+                            color: "dimgray"
                             text: value + " " + unit
                             font.pointSize: 11
                         }
                     }
-                }
-
-
-
-                // Connections
-                // {
-                //     target: parametersModel
-                //     function onParameterUpdated(label)
-                //     {
-
-                //     }
-                // }
-
-                Component.onCompleted:
-                {
                 }
 
                 states:
@@ -115,7 +122,17 @@ Rectangle
                         PropertyChanges
                         {
                             target: parameterCell;
-                            color: "#88bbff"
+                            color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
+                        }
+                        PropertyChanges
+                        {
+                            target: labelCell
+                            color: parameterLabelSelectionColor
+                        }
+                        PropertyChanges
+                        {
+                            target: valueText
+                            color: "midnightblue"
                         }
                     }
                 ]

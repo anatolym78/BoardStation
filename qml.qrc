@@ -1,11 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>Interface/Qml/main.qml</file>
-        <file>Interface/Qml/DroneDataPanel.qml</file>
         <file>Interface/Qml/DroneControlPanel.qml</file>
         <file>Interface/Qml/ChartsPanel.qml</file>
-        <file>Interface/Qml/ChartBuilder.qml</file>
-        <file>Interface/Qml/SimpleChart.qml</file>
         <file>Interface/Qml/BoardParametersList.qml</file>
+        <file>Interface/Qml/Colors.qml</file>
     </qresource>
 </RCC>
