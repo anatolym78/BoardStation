@@ -6,6 +6,7 @@
 #include "ViewModel/ChartPointsModel.h"
 #include "ViewModel/ChartSeriesModel.h"
 #include "ViewModel/ChartsListModel.h"
+#include "ViewModel/ChartViewModel.h"
 
 #include <QDebug>
 #include <QQmlContext>
@@ -23,6 +24,7 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
     qmlRegisterType<ChartPointsModel>("BoardStation", 1, 0, "ChartPointsModel");
     qmlRegisterType<ChartSeriesModel>("BoardStation", 1, 0, "ChartSeriesModel");
     qmlRegisterType<ChartsListModel>("BoardStation", 1, 0, "ChartsListModel");
+    qmlRegisterType<ChartViewModel>("BoardStation", 1, 0, "ChartViewModel");
     
     // Configure QML engine
     setResizeMode(SizeRootObjectToView);
@@ -130,22 +132,16 @@ void QmlMainWindow::setupChartSeriesModel()
 {
     if (!m_app || !m_context) return;
     
-    // Create charts list model
-    auto chartsListModel = new ChartsListModel(this);
-    chartsListModel->setParametersStorage(m_app->getParametersStorage());
+    // Create new simplified chart view model
+    auto chartViewModel = new ChartViewModel(this);
+    chartViewModel->setParametersStorage(m_app->getParametersStorage());
 
-    // auto speedSeries = chartsListModel->addChart("Speed");
-    // auto altitudeSeries = chartsListModel->addChart("Altitude");
-
-    //seriesModel->addPoint("speed", 0, 0);
-    //seriesModel->addPoint("speed", 1, 1);
-
-    // Add some default charts
-    //chartsListModel->addChart("Основной график", QStringList() << "Altitude" << "Speed");
-    //chartsListModel->addChart("Координаты", QStringList() << "Latitude" << "Longitude");
+    //// Add some default charts
+    //chartViewModel->addChart("Основной график");
+    //chartViewModel->addChart("Координаты");
     
-    // Pass model to QML context as chartSeriesModel (for compatibility with existing QML)
-    m_context->setContextProperty("chartsListModel", chartsListModel);
+    // Pass model to QML context
+    m_context->setContextProperty("chartViewModel", chartViewModel);
 }
 
 void QmlMainWindow::setupConnections()

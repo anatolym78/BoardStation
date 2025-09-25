@@ -33,6 +33,7 @@ SOURCES += \
     ViewModel/ChartPointsModel.cpp \
     ViewModel/ChartSeriesModel.cpp \
     ViewModel/ChartsListModel.cpp \
+    ViewModel/ChartViewModel.cpp \
     ViewModel/OutParametersModel.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
@@ -74,6 +75,7 @@ HEADERS += \
     ViewModel/ChartPointsModel.h \
     ViewModel/ChartSeriesModel.h \
     ViewModel/ChartsListModel.h \
+    ViewModel/ChartViewModel.h \
     ViewModel/OutParametersModel.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \

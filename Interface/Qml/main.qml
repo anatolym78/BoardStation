@@ -45,19 +45,30 @@ Item
 
                     onParameterSelected:
                     {
-                        chartsListModel.toggleSeries(label, color)
+                        // chartsListModel.toggleSeries(label, color)
+                        // Пока просто добавляем график с новым параметром
+                        simpleChartsPanel.addChart("График " + label)
                     }
                 }
 
                 // Панель с графиками
-                ChartsPanel
+                // ChartsPanel
+                // {
+                //      id: chartsPanel
+                //      //anchors.fill: parent
+                //      Layout.preferredWidth: 5
+                //      Layout.fillWidth: true
+                //      Layout.fillHeight: true
+
+                // }
+
+                // Упрощенная панель с графиками
+                SimpleChartsPanel
                 {
-                     id: chartsPanel
-                     //anchors.fill: parent
+                     id: simpleChartsPanel
                      Layout.preferredWidth: 5
                      Layout.fillWidth: true
                      Layout.fillHeight: true
-
                 }
 
                  // // Панель управления параметрами дрона
