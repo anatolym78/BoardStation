@@ -5,6 +5,20 @@ BoardParametersListModel::BoardParametersListModel(BoardParameterHistoryStorage*
 	m_pParametersStorage(nullptr)
 {
 	setParametersStorage(storage);
+
+    int hue = 0;
+    int hueStep = 60 + 5;
+    for(auto i=0;i<200;i++)
+    {
+        m_colors.append(QColor::fromHsv(hue, 225, 192, 255));
+
+        hue += hueStep;
+
+        if(hue > 360)
+        {
+            hue -= 360;
+        }
+    }
 }
 
 void BoardParametersListModel::setParametersStorage(BoardParameterHistoryStorage* boardParametersStorage)
@@ -49,7 +63,10 @@ QVariant BoardParametersListModel::data(const QModelIndex& index, int role) cons
 		return QVariant::fromValue(parameterHistory->unit());
 	case ParameterRole::TimeRole:
 		return QVariant::fromValue(parameterHistory->lastTimestamp());
-	}
+    case ParameterRole::ChartVisibilityRole:
+        return QVariant::fromValue(m_chartVisibilities[index.row()]);
+    case ParameterRole::ColorRole:
+        return QVariant::fromValue(m_colors[index.row()]);	}
 
 	return {};
 }
@@ -61,6 +78,8 @@ QHash<int, QByteArray> BoardParametersListModel::roleNames() const
 	rolesHash[(int)ParameterRole::ValueRole] = "value";
 	rolesHash[(int)ParameterRole::UntiRole] = "unit";
 	rolesHash[(int)ParameterRole::TimeRole] = "timestamp";
+    rolesHash[(int)ParameterRole::ChartVisibilityRole] = "chartVisibility";
+    rolesHash[(int)ParameterRole::ColorRole] = "parameterColor";
 
 	return rolesHash;
 }
@@ -87,9 +106,10 @@ void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* paramet
 
 void BoardParametersListModel::onParameterAdded(const QString& label)
 {
-	// Добавляем новую строку
+    //
 	beginInsertRows(QModelIndex(), m_parameterLabels.size(), m_parameterLabels.size());
 	m_parameterLabels.append(label);
+    m_chartVisibilities.append(false);
 	endInsertRows();
 }
 
@@ -106,8 +126,22 @@ void BoardParametersListModel::onParameterUpdated(const QString& label)
 
 void BoardParametersListModel::onParametersCleared()
 {
-	// Очищаем все строки
+    //
 	beginResetModel();
 	m_parameterLabels.clear();
+    m_chartVisibilities.clear();
+    //m_colors.clear();
 	endResetModel();
+}
+
+bool BoardParametersListModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if(!index.isValid()) return false;
+
+    if(role == (int)ParameterRole::ChartVisibilityRole)
+    {
+        m_chartVisibilities[index.row()] = value.toBool();
+    }
+
+    return false;
 }

@@ -21,7 +21,7 @@ Rectangle
 
     property var parametersListModel: null
 
-    signal parameterSelected(string label)
+    signal parameterSelected(string label, variant color)
 
     ColumnLayout
     {
@@ -111,6 +111,31 @@ Rectangle
                             text: value + " " + unit
                             font.pointSize: 11
                         }
+
+                        Rectangle
+                        {
+                            id: statusRect
+                            radius: 2
+                            width: 4
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.rightMargin: 4
+                            anchors.topMargin: 8
+                            anchors.bottomMargin: 8
+                            opacity: 0.75
+                            color:
+                            {
+                                if(chartVisibility)
+                                {
+                                    return parameterColor
+                                }
+                                else
+                                {
+                                    return "transparent"
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -127,7 +152,7 @@ Rectangle
                         PropertyChanges
                         {
                             target: labelCell
-                            color: parameterLabelSelectionColor
+                            color: Qt.hsva(0.6, 0.99, 0.99, 1.0)
                         }
                         PropertyChanges
                         {
@@ -135,6 +160,16 @@ Rectangle
                             color: "midnightblue"
                         }
                     }
+
+                    // State
+                    // {
+                    //     name: "charted"
+                    //     PropertyChanges
+                    //     {
+                    //         target: object
+                    //         color: "red"
+                    //     }
+                    // }
                 ]
 
                 transitions: Transition
@@ -143,7 +178,7 @@ Rectangle
                     to: "hovered"
                     ColorAnimation
                     {
-                        duration: 250
+                        duration: 300
                     }
                 }
 
@@ -154,7 +189,8 @@ Rectangle
 
                     onClicked:
                     {
-                        parameterSelected(label)
+                        parameterSelected(label, parameterColor)
+                        chartVisibility = !chartVisibility
                     }
 
                     onEntered:

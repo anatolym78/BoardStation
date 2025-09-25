@@ -2,6 +2,7 @@
 #define BOARDPARAMETERSLISTMODEL_H
 
 #include <QAbstractListModel>
+#include <QColor>
 
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
 
@@ -16,6 +17,8 @@ public:
 		ValueRole,
         UntiRole,
         TimeRole,
+        ChartVisibilityRole,
+        ColorRole,
 	};
 public:
     explicit BoardParametersListModel(BoardParameterHistoryStorage* storage, QObject *parent = nullptr);
@@ -38,7 +41,13 @@ protected slots:
 
 private:
     BoardParameterHistoryStorage* m_pParametersStorage;
-    QStringList m_parameterLabels; // Кэш меток для индексации строк
+    QStringList m_parameterLabels; //
+    QList<bool> m_chartVisibilities;
+    QList<QColor> m_colors;
+
+    // QAbstractItemModel interface
+public:
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 };
 
 #endif // BOARDPARAMETERSLISTMODEL_H

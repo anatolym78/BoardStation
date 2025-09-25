@@ -29,7 +29,7 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с сериями
-    Q_INVOKABLE void addSeries(const QString &parameterLabel);
+    Q_INVOKABLE void addSeries(const QString &parameterLabel, const QColor& color = Qt::red);
     Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
     Q_INVOKABLE void removeSeries(const QString &parameterLabel);
     Q_INVOKABLE void removeSeries(int index);
@@ -76,7 +76,6 @@ private:
     QList<ChartPointsModel*> m_seriesModels;
     QStringList m_parameterLabels;
     BoardParameterHistoryStorage *m_parametersStorage;
-    QMap<QString, QColor> m_colorMap;
     int m_depth = 0;
 };
 

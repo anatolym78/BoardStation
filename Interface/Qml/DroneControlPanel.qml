@@ -7,6 +7,7 @@ Rectangle
     id: droneControlPanel
 
     color: "#f0f0f0"  // Тот же фон, что и у левой панели
+    radius: 4
     
     property var outParametersModel: null
     
@@ -34,22 +35,26 @@ Rectangle
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignHCenter
+            anchors.left: parent.left
+            anchors.right: parent.right
             clip: true
             
             model: outParametersModel
-            
+
+            property int lastColumnWidth: width - 195
+
+            columnWidthProvider: function(column)
+            {
+                switch (column)
+                {
+                case 0: return 120
+                case 1: return 75
+                case 2: return outParametersTableView.width - 195
+                default: return 100
+                }
+            }
             delegate: Rectangle
             {
-                implicitWidth:
-                {
-                    switch(column)
-                    {
-                        case 0: return 120
-                        case 1: return  75
-                        case 2: return 160
-                        default: return 100
-                    }
-                }
                 implicitHeight: 45
                 color: "transparent"
                 Rectangle
@@ -57,7 +62,7 @@ Rectangle
                     id: cell
                     anchors.fill: parent
                     anchors.centerIn: parent
-                    anchors.margins: 2
+                    anchors.margins: 4
                     border.color: "transparent"
                     border.width: 2
                     radius: 2
@@ -66,10 +71,10 @@ Rectangle
                     {
                         switch(column)
                         {
-                            case 0: return Qt.hsva(0.90, 0.5, 0.5, 0.7)
-                            case 1: return  "white"
-                            case 2: return "white"
-                            default: return "white"
+                        case 0: return Qt.hsva(0.50, 0.5, 0.5, 0.7)
+                        case 1: return "white"
+                        case 2: return "white"
+                        default: return "white"
                         }
                     }
 
@@ -104,10 +109,10 @@ Rectangle
                         id: labelComponent
                         Text
                         {
-
                             anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                             text: parameterLabel
-                            //anchors.verticalCenter: cell
                             font.pointSize: 11
                             color:
                             {
@@ -130,6 +135,9 @@ Rectangle
                         Text
                         {
                             anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            color: "dimgray"
                             text: parameterValue
                             font.pointSize: 11
                             elide: Text.ElideRight
@@ -142,6 +150,9 @@ Rectangle
                         Text
                         {
                             anchors.centerIn: parent
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            color: "dimgray"
                             text: parameterLabel
                             font.pointSize: 11
                             elide: Text.ElideRight

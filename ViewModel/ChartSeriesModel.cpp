@@ -19,10 +19,7 @@ ChartSeriesModel::ChartSeriesModel(const QStringList &parameterLabels, QObject *
 
 void ChartSeriesModel::createColorMap()
 {
-	m_colorMap["Altitude"] = Qt::red;
-	m_colorMap["Longitude"] = Qt::green;
-	m_colorMap["Latitude"] = Qt::blue;
-	m_colorMap["Speed"] = Qt::black;
+
 }
 
 void ChartSeriesModel::setDepth(int depth)
@@ -87,7 +84,7 @@ QHash<int, QByteArray> ChartSeriesModel::roleNames() const
 	return roles;
 }
 
-void ChartSeriesModel::addSeries(const QString &parameterLabel)
+void ChartSeriesModel::addSeries(const QString &parameterLabel, const QColor& color)
 {
 	if (hasSeries(parameterLabel)) 
 	{
@@ -97,10 +94,7 @@ void ChartSeriesModel::addSeries(const QString &parameterLabel)
 
 	beginInsertRows(QModelIndex(), m_seriesModels.size(), m_seriesModels.size());
 	ChartPointsModel *pointsModel = new ChartPointsModel(parameterLabel, this);
-	if(m_colorMap.contains(parameterLabel))
-	{
-		pointsModel->setColor(m_colorMap[parameterLabel]);
-	}
+	pointsModel->setColor(color);
 	m_seriesModels.append(pointsModel);
 	m_parameterLabels.append(parameterLabel);
 	endInsertRows();

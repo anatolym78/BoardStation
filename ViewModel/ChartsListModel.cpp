@@ -102,7 +102,23 @@ void ChartsListModel::onNewParameterAdded(BoardParameterSingle* parameter)
     // }
 }
 
-ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
+void ChartsListModel::toggleSeries(const QString &label, const QColor& color)
+{
+    auto seriesModel = getSeriesModel(label);
+
+    if(seriesModel == nullptr)
+    {
+        addSeries(label, color);
+
+        //seriesModel->
+    }
+    else
+    {
+        removeSeries(label);
+    }
+}
+
+ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel, const QColor& color)
 {
     if (hasSeries(parameterLabel))
     {
@@ -114,7 +130,7 @@ ChartSeriesModel* ChartsListModel::addSeries(const QString &parameterLabel)
     beginInsertRows(QModelIndex(), m_chartsModels.size(), m_chartsModels.size());
     auto seriesModel = new ChartSeriesModel(this, m_initialDepth--);
     seriesModel->setParametersStorage(m_parametersStorage);
-    seriesModel->addSeries(parameterLabel);
+    seriesModel->addSeries(parameterLabel, color);
     m_chartsModels.append(seriesModel);
     endInsertRows();
 
@@ -334,3 +350,5 @@ void ChartsListModel::mergeSeries(int targetIndex, int sourceIndex)
     
     //qDebug() << "ChartsListModel: Successfully merged series from index" << sourceIndex << "to index" << targetIndex;
 }
+
+

@@ -28,12 +28,14 @@ public:
 	QHash<int, QByteArray> roleNames() const override;
 
 	// Методы для работы с сериями
-	Q_INVOKABLE ChartSeriesModel* addSeries(const QString &parameterLabel);
+	Q_INVOKABLE ChartSeriesModel* addSeries(const QString &parameterLabel, const QColor& color = Qt::red);
 	Q_INVOKABLE void addSeries(const QStringList &parameterLabels);
 	Q_INVOKABLE void removeSeries(const QString &parameterLabel);
 	Q_INVOKABLE void removeSeries(int index);
 	Q_INVOKABLE void clearSeries();
 	Q_INVOKABLE void mergeSeries(int targetIndex, int sourceIndex);
+
+    Q_INVOKABLE void toggleSeries(const QString& label, const QColor& color);
 	
 	// Геттеры
 	Q_INVOKABLE ChartSeriesModel* getSeriesModel(const QString &parameterLabel) const;

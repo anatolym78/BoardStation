@@ -9,12 +9,12 @@ Item
 {
     id: mainWindow
     width: 1400
-    height: 800
+    height: 480
       
     Component.onCompleted:
     {
         boardParametersList.parametersListModel = parametersListModel
-        droneControlPanel.outParametersModel = outParametersModel
+        //droneControlPanel.outParametersModel = outParametersModel
     }
     
     // Main frame
@@ -22,47 +22,58 @@ Item
     {
         anchors.fill: parent
 
-         RowLayout
-         {
-             anchors.fill: parent 
-             spacing: 0
 
-            // Отображает список параметров, полученных от дрона
-            BoardParametersList
-            {
-                id: boardParametersList
-                Layout.preferredWidth: 1.5
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+        Rectangle
+        {
 
-                onParameterSelected:
-                {
-                    chartsListModel.addSeries(label)
-                }
-            }
+            anchors.fill: parent
+            color:"#f7f7f7"
+            radius: 4
 
-            // Панель с графиками
-            ChartsPanel
-            {
-                 id: chartsPanel
-                 //anchors.fill: parent
-                 Layout.preferredWidth: 5
-                 Layout.fillWidth: true
-                 Layout.fillHeight: true
-
-            }
-
-             // Панель управления параметрами дрона
-             DroneControlPanel
+            RowLayout
              {
-                 id: droneControlPanel
-                 Layout.preferredWidth: 2.5
-                 Layout.fillWidth: true
-                 Layout.fillHeight: true
-                 
+                 anchors.fill: parent
+                 spacing: 0
+
+                // Отображает список параметров, полученных от дрона
+                BoardParametersList
+                {
+                    id: boardParametersList
+                    Layout.preferredWidth: 1.5
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                    onParameterSelected:
+                    {
+                        chartsListModel.toggleSeries(label, color)
+                    }
+                }
+
+                // Панель с графиками
+                ChartsPanel
+                {
+                     id: chartsPanel
+                     //anchors.fill: parent
+                     Layout.preferredWidth: 5
+                     Layout.fillWidth: true
+                     Layout.fillHeight: true
+
+                }
+
+                 // // Панель управления параметрами дрона
+                 // DroneControlPanel
+                 // {
+                 //     id: droneControlPanel
+                 //     Layout.preferredWidth: 2.5
+                 //     Layout.fillWidth: true
+                 //     Layout.fillHeight: true
+
+                 // }
              }
-         }
-    }
+
+        }
+
+ }
 
     
     // Альтернативные привязки с использованием Binding (если нужно)
@@ -74,12 +85,12 @@ Item
         when: boardParametersList !== null
     }
     
-    Binding
-    {
-        target: droneControlPanel
-        property: "outParametersModel"
-        value: outParametersModel
-        when: outParametersModel !== null
-    }
+    // Binding
+    // {
+    //     target: droneControlPanel
+    //     property: "outParametersModel"
+    //     value: outParametersModel
+    //     when: outParametersModel !== null
+    // }
 }
 
