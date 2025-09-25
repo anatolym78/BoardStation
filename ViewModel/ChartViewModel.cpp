@@ -50,8 +50,8 @@ QVariant ChartViewModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case ChartViewRole:
         return QVariant::fromValue(chartData.chartView);
-    case ChartTitleRole:
-        return chartData.title;
+    case ChartLabelRole:
+        return chartData.label;
     case ChartIndexRole:
         return index.row();
     case HasDataRole:
@@ -65,24 +65,47 @@ QHash<int, QByteArray> ChartViewModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[ChartViewRole] = "chartView";
-    roles[ChartTitleRole] = "chartTitle";
+    roles[ChartLabelRole] = "chartLabel";
     roles[ChartIndexRole] = "chartIndex";
     roles[HasDataRole] = "hasData";
     return roles;
 }
 
-QtCharts::QChartView* ChartViewModel::addChart(const QString &title)
+void ChartViewModel::toggleChart(const QString &label, const QColor &color)
 {
-    if (hasChart(title))
+    auto index = findChartIndex(label);
+
+    if(index == -1) return;
+
+    if(hasChart(label))
     {
-        //qDebug() << "ChartViewModel: Chart with title" << title << "already exists";
-        return getChartView(title);
+        removeChart(index);
+    }
+    else
+    {
+        addChart(label, color);
+    }
+}
+
+void ChartViewModel::addChart(const QString &label, const QColor& color)
+{
+    // Проверяем, существует ли параметр в истории
+    if (!parameterExistsInHistory(label))
+    {
+        qWarning() << "ChartViewModel: Parameter" << label << "does not exist in history";
+        return;
+    }
+    
+    if (hasChart(label))
+    {
+        //qDebug() << "ChartViewModel: Chart with label" << label << "already exists";
+        return;
     }
 
     beginInsertRows(QModelIndex(), m_chartViews.size(), m_chartViews.size());
     
     ChartData chartData;
-    chartData.title = title;
+    chartData.label = label;
     chartData.chartView = new QtCharts::QChartView();
     chartData.xAxis = new QtCharts::QValueAxis();
     chartData.yAxis = new QtCharts::QValueAxis();
@@ -92,8 +115,7 @@ QtCharts::QChartView* ChartViewModel::addChart(const QString &title)
     m_chartViews.append(chartData);
     endInsertRows();
     
-    //qDebug() << "ChartViewModel: Added chart" << title;
-    return chartData.chartView;
+    //qDebug() << "ChartViewModel: Added chart" << label;
 }
 
 void ChartViewModel::removeChart(int index)
@@ -138,13 +160,13 @@ void ChartViewModel::clearCharts()
     //qDebug() << "ChartViewModel: Cleared all charts";
 }
 
-void ChartViewModel::addDataPoint(const QString &chartTitle, const QString &parameterLabel, 
+void ChartViewModel::addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
                                   double x, double y, const QDateTime &timestamp, const QVariant &value)
 {
-    ChartData* chartData = findChartData(chartTitle);
+    ChartData* chartData = findChartData(chartLabel);
     if (!chartData)
     {
-        //qWarning() << "ChartViewModel: Chart not found:" << chartTitle;
+        //qWarning() << "ChartViewModel: Chart not found:" << chartLabel;
         return;
     }
     
@@ -174,15 +196,15 @@ void ChartViewModel::addDataPoint(const QString &chartTitle, const QString &para
     chartData->xAxis->setMin(x - 50);
     chartData->xAxis->setMax(x + 10);
     
-    emit chartDataAdded(chartTitle, parameterLabel);
+    emit chartDataAdded(chartLabel, parameterLabel);
     
-    //qDebug() << "ChartViewModel: Added point to chart" << chartTitle << "parameter" << parameterLabel;
+    //qDebug() << "ChartViewModel: Added point to chart" << chartLabel << "parameter" << parameterLabel;
 }
 
-void ChartViewModel::addDataPoint(const QString &chartTitle, const QString &parameterLabel, 
+void ChartViewModel::addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
                                   double x, double y)
 {
-    addDataPoint(chartTitle, parameterLabel, x, y, QDateTime::currentDateTime(), QVariant());
+    addDataPoint(chartLabel, parameterLabel, x, y, QDateTime::currentDateTime(), QVariant());
 }
 
 QtCharts::QChartView* ChartViewModel::getChartView(int index) const
@@ -194,11 +216,11 @@ QtCharts::QChartView* ChartViewModel::getChartView(int index) const
     return nullptr;
 }
 
-QtCharts::QChartView* ChartViewModel::getChartView(const QString &title) const
+QtCharts::QChartView* ChartViewModel::getChartView(const QString &label) const
 {
     for (const ChartData &chartData : m_chartViews)
     {
-        if (chartData.title == title)
+        if (chartData.label == label)
         {
             return chartData.chartView;
         }
@@ -206,19 +228,19 @@ QtCharts::QChartView* ChartViewModel::getChartView(const QString &title) const
     return nullptr;
 }
 
-QStringList ChartViewModel::chartTitles() const
+QStringList ChartViewModel::chartLabels() const
 {
-    QStringList titles;
+    QStringList labels;
     for (const ChartData &chartData : m_chartViews)
     {
-        titles.append(chartData.title);
+        labels.append(chartData.label);
     }
-    return titles;
+    return labels;
 }
 
-bool ChartViewModel::hasChart(const QString &title) const
+bool ChartViewModel::hasChart(const QString &label) const
 {
-    return getChartView(title) != nullptr;
+    return getChartView(label) != nullptr;
 }
 
 bool ChartViewModel::hasChart(int index) const
@@ -240,17 +262,30 @@ void ChartViewModel::onNewParameterAdded(BoardParameterSingle* parameter)
     {
         auto timeValue = (qreal)parameter->timestamp().toMSecsSinceEpoch() / 1000.0;
         auto dataValue = parameter->value().toDouble();
-        addDataPoint(chartData.title, label, timeValue, dataValue, parameter->timestamp(), parameter->value());
+        addDataPoint(chartData.label, label, timeValue, dataValue, parameter->timestamp(), parameter->value());
     }
     
     //qDebug() << "ChartViewModel: Parameter added:" << label;
 }
 
-ChartViewModel::ChartData* ChartViewModel::findChartData(const QString &title)
+int ChartViewModel::findChartIndex(const QString &label) const
+{
+    for (auto i=0;i<chartCount();i++)
+    {
+        if (m_chartViews[i].label == label)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+ChartViewModel::ChartData* ChartViewModel::findChartData(const QString &label)
 {
     for (ChartData &chartData : m_chartViews)
     {
-        if (chartData.title == title)
+        if (chartData.label == label)
         {
             return &chartData;
         }
@@ -305,7 +340,7 @@ void ChartViewModel::setupChart(ChartData* chartData)
         return;
     
     QtCharts::QChart* chart = new QtCharts::QChart();
-    chart->setTitle(chartData->title);
+    chart->setTitle(chartData->label);
     
     // Настраиваем оси
     chartData->xAxis->setTitleText("Время (сек)");
@@ -321,4 +356,75 @@ void ChartViewModel::setupChart(ChartData* chartData)
     
     chartData->chartView->setChart(chart);
     chartData->chartView->setRenderHint(QPainter::Antialiasing);
+}
+
+bool ChartViewModel::parameterExistsInHistory(const QString &label) const
+{
+    if (!m_parametersStorage)
+    {
+        return false;
+    }
+    
+    // Проверяем, есть ли параметр в хранилище истории
+    BoardParameterHistory* history = m_parametersStorage->getParameterHistory(label);
+    return history != nullptr;
+}
+
+QVariantList ChartViewModel::getSeriesData(const QString &chartLabel, const QString &parameterLabel) const
+{
+    QVariantList result;
+    
+    ChartData* chartData = const_cast<ChartViewModel*>(this)->findChartData(chartLabel);
+    if (!chartData)
+    {
+        return result;
+    }
+    
+    QtCharts::QLineSeries* series = chartData->seriesMap.value(parameterLabel);
+    if (!series)
+    {
+        return result;
+    }
+    
+    // Преобразуем точки серии в QVariantList
+    for (int i = 0; i < series->count(); ++i)
+    {
+        QPointF point = series->at(i);
+        QVariantMap pointData;
+        pointData["x"] = point.x();
+        pointData["y"] = point.y();
+        result.append(pointData);
+    }
+    
+    return result;
+}
+
+QStringList ChartViewModel::getParameterLabels(const QString &chartLabel) const
+{
+    QStringList result;
+    
+    ChartData* chartData = const_cast<ChartViewModel*>(this)->findChartData(chartLabel);
+    if (!chartData)
+    {
+        return result;
+    }
+    
+    return chartData->seriesMap.keys();
+}
+
+int ChartViewModel::getSeriesPointCount(const QString &chartLabel, const QString &parameterLabel) const
+{
+    ChartData* chartData = const_cast<ChartViewModel*>(this)->findChartData(chartLabel);
+    if (!chartData)
+    {
+        return 0;
+    }
+    
+    QtCharts::QLineSeries* series = chartData->seriesMap.value(parameterLabel);
+    if (!series)
+    {
+        return 0;
+    }
+    
+    return series->count();
 }

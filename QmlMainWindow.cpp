@@ -135,10 +135,6 @@ void QmlMainWindow::setupChartSeriesModel()
     // Create new simplified chart view model
     auto chartViewModel = new ChartViewModel(this);
     chartViewModel->setParametersStorage(m_app->getParametersStorage());
-
-    //// Add some default charts
-    //chartViewModel->addChart("Основной график");
-    //chartViewModel->addChart("Координаты");
     
     // Pass model to QML context
     m_context->setContextProperty("chartViewModel", chartViewModel);

@@ -20,7 +20,7 @@ class ChartViewModel : public QAbstractListModel
 public:
     enum ChartViewRoles {
         ChartViewRole = Qt::UserRole + 1,
-        ChartTitleRole,
+        ChartLabelRole,
         ChartIndexRole,
         HasDataRole
     };
@@ -34,23 +34,29 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с графиками
-    Q_INVOKABLE QtCharts::QChartView* addChart(const QString &title);
+    Q_INVOKABLE void toggleChart(const QString& label, const QColor& color = Qt::red);
+    Q_INVOKABLE void addChart(const QString &label, const QColor& color = Qt::red);
     Q_INVOKABLE void removeChart(int index);
     Q_INVOKABLE void clearCharts();
     
     // Методы для работы с данными
-    Q_INVOKABLE void addDataPoint(const QString &chartTitle, const QString &parameterLabel, 
+    Q_INVOKABLE void addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
                                   double x, double y, const QDateTime &timestamp, const QVariant &value);
-    Q_INVOKABLE void addDataPoint(const QString &chartTitle, const QString &parameterLabel, 
+    Q_INVOKABLE void addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
                                   double x, double y);
     
     // Геттеры
     Q_INVOKABLE QtCharts::QChartView* getChartView(int index) const;
-    Q_INVOKABLE QtCharts::QChartView* getChartView(const QString &title) const;
-    Q_INVOKABLE QStringList chartTitles() const;
+    Q_INVOKABLE QtCharts::QChartView* getChartView(const QString &label) const;
+    Q_INVOKABLE QStringList chartLabels() const;
+    
+    // Методы для получения данных серий
+    Q_INVOKABLE QVariantList getSeriesData(const QString &chartLabel, const QString &parameterLabel) const;
+    Q_INVOKABLE QStringList getParameterLabels(const QString &chartLabel) const;
+    Q_INVOKABLE int getSeriesPointCount(const QString &chartLabel, const QString &parameterLabel) const;
     
     // Проверки
-    Q_INVOKABLE bool hasChart(const QString &title) const;
+    Q_INVOKABLE bool hasChart(const QString &label) const;
     Q_INVOKABLE bool hasChart(int index) const;
     Q_INVOKABLE int chartCount() const { return m_chartViews.size(); }
     
@@ -58,7 +64,7 @@ public:
     Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
 
 signals:
-    void chartDataAdded(const QString &chartTitle, const QString &parameterLabel);
+    void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
 
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);
@@ -66,7 +72,7 @@ private slots:
 private:
     struct ChartData {
         QtCharts::QChartView* chartView;
-        QString title;
+        QString label;
         QHash<QString, QtCharts::QLineSeries*> seriesMap; // Карта серий по меткам параметров
         QtCharts::QValueAxis* xAxis;
         QtCharts::QValueAxis* yAxis;
@@ -77,10 +83,12 @@ private:
     BoardParameterHistoryStorage *m_parametersStorage;
     
     // Вспомогательные методы
-    ChartData* findChartData(const QString &title);
+    ChartData* findChartData(const QString &label);
+    int findChartIndex(const QString &label) const;
     ChartData* findChartData(int index);
     QtCharts::QLineSeries* getOrCreateSeries(ChartData* chartData, const QString &parameterLabel);
     void setupChart(ChartData* chartData);
+    bool parameterExistsInHistory(const QString &label) const;
 };
 
 #endif // CHARTVIEWMODEL_H

@@ -9,7 +9,7 @@ Item
 {
     id: mainWindow
     width: 1400
-    height: 480
+    height: 360
       
     Component.onCompleted:
     {
@@ -47,7 +47,7 @@ Item
                     {
                         // chartsListModel.toggleSeries(label, color)
                         // Пока просто добавляем график с новым параметром
-                        simpleChartsPanel.addChart("График " + label)
+                        simpleChartsPanel.addChart(label)
                     }
                 }
 
