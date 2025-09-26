@@ -42,9 +42,10 @@ Item
                 property var chartViewData: model.chartView
                 width: 320
                 height: 240
+                backgroundColor: "white"
                 theme: ChartView.ChartThemeLight
                 
-                title: chartLabel
+                //title: chartLabel
                 
                 // Простая настройка осей
                 ValueAxis
@@ -52,7 +53,7 @@ Item
                     id: xAxis
                     min: 0
                     max: 50
-                    tickCount: 2
+                    tickCount: 3
                     //titleText: "Время (сек)"
                 }
 
@@ -62,6 +63,7 @@ Item
                     min: -600
                     max: 600
                     tickCount: 3
+                    visible: true
                     //titleText: "Значение"
                 }
 
@@ -74,6 +76,8 @@ Item
                 // Создаем серии при инициализации
                 Component.onCompleted:
                 {
+                    return
+
                     // Получаем список параметров для этого графика
                     var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
                     seriesMap[chartLabel] = series
@@ -108,6 +112,11 @@ Item
                 {
                     target: chartViewModel
                     
+                    function onNewParameterValueAdded(label, value, time)
+                    {
+                        console.log(label)
+                    }
+
                     function onChartDataAdded(chartLabelParam, parameterLabel)
                     {
                         return
@@ -130,38 +139,58 @@ Item
                     }
                 }
 
-                // Drag.hotSpot.x: chartView.width/2
-                // Drag.hotSpot.y: chartView.height/2
-                // Drag.source: chartView
-                // Drag.active: dragHandler.active
+                Drag.active: dragHandler.active
+                Drag.hotSpot.x: width/2
+                Drag.hotSpot.y: height/2
+
                 DragHandler
                 {
                     id: dragHandler
                     onActiveChanged:
                     {
-                        console.log("drag active: ", chartView.chartLabel)
+                        if(active)
+                        {
+                            chartView.Drag.start()
+                        }
+                        else
+                        {
+                            chartView.Drag.drop()
+                        }
                     }
                 }
 
                 DropArea
                 {
+                    anchors.fill: parent
                     onDropped:
                     {
-                        console.log("dropped")
+                        if(drag.source !== chartView)
+                        {
+                            console.log("dropped chart ", drop.source.chartIndex, "target chart ", chartView.chartIndex)
+                            chartView.backgroundColor = "white"
+
+                            chartView.opacity = 1
+                        }
+
                     }
 
                     onEntered:
                     {
+                        if(drag.source !== chartView)
+                        {
+                            chartView.backgroundColor = "lightskyblue"
+                            chartView.opacity = 0.25
+                            chartView.axes[0] = chartView.axes[1] = false
+                        }
+
                         //console.log("entered ", drag.source)
                     }
 
                     onExited:
                     {
-                        console.log("exited")
+                        chartView.backgroundColor = "white"
+                        chartView.opacity = 1
                     }
-
-
-
                 }
             }
         }

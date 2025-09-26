@@ -19,7 +19,7 @@ class ChartViewModel : public QAbstractListModel
 
 public:
     enum ChartViewRoles {
-        ChartViewRole = Qt::UserRole + 1,
+        ChartRole = Qt::UserRole + 1,
         ChartLabelRole,
         ChartIndexRole,
         HasDataRole
@@ -46,8 +46,8 @@ public:
                                   double x, double y);
     
     // Геттеры
-    Q_INVOKABLE QtCharts::QChartView* getChartView(int index) const;
-    Q_INVOKABLE QtCharts::QChartView* getChartView(const QString &label) const;
+    Q_INVOKABLE QtCharts::QChart* getChart(int index) const;
+    Q_INVOKABLE QtCharts::QChart* getChart(const QString &label) const;
     Q_INVOKABLE QStringList chartLabels() const;
     
     // Методы для получения данных серий
@@ -58,36 +58,30 @@ public:
     // Проверки
     Q_INVOKABLE bool hasChart(const QString &label) const;
     Q_INVOKABLE bool hasChart(int index) const;
-    Q_INVOKABLE int chartCount() const { return m_chartViews.size(); }
+    Q_INVOKABLE int chartCount() const { return m_charts.size(); }
     
     // Установка хранилища параметров
     Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
 
+    bool hasLabel(const QString& label) const;
+
 signals:
     void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
+    void newParameterValueAdded(QString label, QVariant value, QVariant timeStamp);
 
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);
 
 private:
-    struct ChartData {
-        QtCharts::QChartView* chartView;
-        QString label;
-        QHash<QString, QtCharts::QLineSeries*> seriesMap; // Карта серий по меткам параметров
-        QtCharts::QValueAxis* xAxis;
-        QtCharts::QValueAxis* yAxis;
-        QDateTime startTime;
-    };
-
-    QList<ChartData> m_chartViews;
+    QList<QtCharts::QChart*> m_charts;
+    QList<QList<QString>> m_series;
     BoardParameterHistoryStorage *m_parametersStorage;
     
     // Вспомогательные методы
-    ChartData* findChartData(const QString &label);
+    QtCharts::QChart* findChart(const QString &label);
     int findChartIndex(const QString &label) const;
-    ChartData* findChartData(int index);
-    QtCharts::QLineSeries* getOrCreateSeries(ChartData* chartData, const QString &parameterLabel);
-    void setupChart(ChartData* chartData);
+    QtCharts::QLineSeries* getOrCreateSeries(QtCharts::QChart* chart, const QString &parameterLabel);
+    void setupChart(QtCharts::QChart* chart, const QString &label);
     bool parameterExistsInHistory(const QString &label) const;
 };
 
