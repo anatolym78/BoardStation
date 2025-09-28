@@ -18,11 +18,13 @@ class ChartViewModel : public QAbstractListModel
     Q_OBJECT
 
 public:
-    enum ChartViewRoles {
+    enum ChartViewRoles
+    {
         ChartRole = Qt::UserRole + 1,
         ChartLabelRole,
         ChartIndexRole,
-        HasDataRole
+        HasDataRole,
+        DepthRole,
     };
 
     explicit ChartViewModel(QObject *parent = nullptr);
@@ -34,10 +36,17 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     // Методы для работы с графиками
-    Q_INVOKABLE void toggleChart(const QString& label, const QColor& color = Qt::red);
+    Q_INVOKABLE bool toggleParameter(const QString& label, const QColor& color = Qt::red);
     Q_INVOKABLE void addChart(const QString &label, const QColor& color = Qt::red);
     Q_INVOKABLE void removeChart(int index);
+    Q_INVOKABLE void removeLabel(const QString& label);
     Q_INVOKABLE void clearCharts();
+    Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
+
+    Q_INVOKABLE void reorderChartsBeforeDrag(int dragIndex);
+    Q_INVOKABLE void resetDepths();
+
+    Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
     
     // Методы для работы с данными
     Q_INVOKABLE void addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
@@ -56,17 +65,15 @@ public:
     Q_INVOKABLE int getSeriesPointCount(const QString &chartLabel, const QString &parameterLabel) const;
     
     // Проверки
-    Q_INVOKABLE bool hasChart(const QString &label) const;
-    Q_INVOKABLE bool hasChart(int index) const;
-    Q_INVOKABLE int chartCount() const { return m_charts.size(); }
+    Q_INVOKABLE bool hasSeries(const QString &label) const;
+    Q_INVOKABLE int countSeries() const { return m_series.size(); }
     
     // Установка хранилища параметров
     Q_INVOKABLE void setParametersStorage(BoardParameterHistoryStorage *storage);
 
-    bool hasLabel(const QString& label) const;
-
 signals:
     void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
+    void parameterAdded(const QString& label, const QColor& color);
     void newParameterValueAdded(QString label, QVariant value, QVariant timeStamp);
 
 private slots:
@@ -75,6 +82,7 @@ private slots:
 private:
     QList<QtCharts::QChart*> m_charts;
     QList<QList<QString>> m_series;
+    QList<int> m_depths;
     BoardParameterHistoryStorage *m_parametersStorage;
     
     // Вспомогательные методы

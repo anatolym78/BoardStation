@@ -7,18 +7,26 @@ Item
 {
     id: simpleChartsPanel
     
-    // Функция для добавления нового графика
-    function addChart(chartLabel) 
+    function toggleParameter(label, color)
     {
-        console.log("SimpleChartsPanel: Adding chart:", chartLabel)
-        if (chartViewModel) 
+        if(chartViewModel)
         {
-            chartViewModel.addChart(chartLabel)
-            console.log("SimpleChartsPanel: Chart added successfully:", chartLabel)
-        }
-        else 
-        {
-            console.warn("SimpleChartsPanel: chartViewModel is not available")
+            if(!chartViewModel.toggleParameter(label, color))
+            {
+                for (let i = 0; i < repeater.count; i++)
+                {
+                    const chartView = repeater.itemAt(i);
+
+                    if(chartView.seriesMap.hasOwnProperty(label))
+                    {
+                        var series = chartView.seriesMap[label]
+
+                        chartView.removeSeries(series)
+
+                        delete chartView.seriesMap.label
+                    }
+                }
+            }
         }
     }
 
@@ -37,24 +45,20 @@ Item
             delegate: ChartView
             {
                 id: chartView
-                property string chartLabel: model.chartLabel
-                property int chartIndex: model.chartIndex
-                property var chartViewData: model.chartView
+                property int chartIndex: index
                 width: 320
                 height: 240
                 backgroundColor: "white"
+                z: depth
                 theme: ChartView.ChartThemeLight
-                
-                //title: chartLabel
                 
                 // Простая настройка осей
                 ValueAxis
                 {
                     id: xAxis
                     min: 0
-                    max: 50
+                    max: 30
                     tickCount: 3
-                    //titleText: "Время (сек)"
                 }
 
                 ValueAxis
@@ -64,7 +68,6 @@ Item
                     max: 600
                     tickCount: 3
                     visible: true
-                    //titleText: "Значение"
                 }
 
                 axes: [xAxis, yAxis]
@@ -76,66 +79,55 @@ Item
                 // Создаем серии при инициализации
                 Component.onCompleted:
                 {
-                    return
-
-                    // Получаем список параметров для этого графика
-                    var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
-                    seriesMap[chartLabel] = series
-
-                    // Загружаем существующие данные
-                    loadSeriesData(chartLabel)
 
                 }
                 
-                // Функция для загрузки данных серии
-                function loadSeriesData(parameterLabel)
-                {
-                    var seriesData = chartViewModel.getSeriesData(chartLabel, parameterLabel)
-                    var series = seriesMap[parameterLabel]
-                    
-                    if (series && seriesData.length > 0)
-                    {
-                        // Очищаем существующие точки
-                        series.clear()
-                        
-                        // Добавляем все точки
-                        for (var i = 0; i < seriesData.length; i++)
-                        {
-                            var point = seriesData[i]
-                            series.append(point.x, point.y)
-                        }
-                    }
-                }
+
+                property int timeX: 0
+                property bool isStarted: false
                 
-                // Обработка добавления новых данных
                 Connections
                 {
                     target: chartViewModel
                     
                     function onNewParameterValueAdded(label, value, time)
                     {
-                        console.log(label)
+                        if(label in seriesMap)
+                        {
+                            var series = seriesMap[label]
+
+                            series.append(time, value)
+
+                            if(!isStarted)
+                            {
+                                axes[0].min = time
+                                axes[0].max = time + 30
+                            }
+                            else
+                            {
+                                if(time - axes[0].min > 30)
+                                {
+                                    // console.log(series.at(1).x)
+                                    // console.log(axes[0].min)
+                                    // console.log(axes[0].max)
+
+                                    axes[0].min = series.at(1).x
+                                    axes[0].max = axes[0].min + 30
+                                    series.remove(0)
+                                }
+                            }
+
+                            isStarted = true
+                        }
                     }
 
-                    function onChartDataAdded(chartLabelParam, parameterLabel)
+                    function onParameterAdded(label, color)
                     {
-                        return
+                        if(label !== chartLabel) return
 
-                        if (chartLabelParam === chartLabel)
-                        {
-                            var series = seriesMap[parameterLabel]
-                            if (!series)
-                            {
-                                // Создаем новую серию для параметра
-                                series = createSeries(ChartView.SeriesTypeLine, parameterLabel, xAxis, yAxis)
-                                seriesMap[parameterLabel] = series
-                            }
-                            
-                            // Загружаем обновленные данные
-                            loadSeriesData(parameterLabel)
-                            
-                            console.log("Chart data updated for parameter:", parameterLabel, "in chart:", chartLabel)
-                        }
+                        var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
+                        series.color = color
+                        seriesMap[label] = series
                     }
                 }
 
@@ -151,6 +143,8 @@ Item
                         if(active)
                         {
                             chartView.Drag.start()
+
+                            chartViewModel.reorderChartsBeforeDrag(chartIndex)
                         }
                         else
                         {
@@ -166,12 +160,52 @@ Item
                     {
                         if(drag.source !== chartView)
                         {
-                            console.log("dropped chart ", drop.source.chartIndex, "target chart ", chartView.chartIndex)
-                            chartView.backgroundColor = "white"
+                            var droppedChartView = drop.source
+                            var targetChartView = chartView
 
-                            chartView.opacity = 1
+                            var droppedChartLabels = chartViewModel.getChartSeriesLabels(droppedChartView.chartIndex);
+                            var targetChartLabels = chartViewModel.getChartSeriesLabels(targetChartView.chartIndex)
+
+                            var droppedSeries = droppedChartView.seriesMap[droppedChartLabels[0]]
+                            var targetSeries = targetChartView.seriesMap[targetChartLabels[0]]
+
+                            moveSeries(droppedChartView, targetChartView)
+
+                            chartViewModel.mergeCharts(droppedChartView.chartIndex, targetChartView.chartIndex)
+
+                            targetChartView.backgroundColor = "white"
+                            targetChartView.opacity = 1
+
+                            for(let i=0;i<2;i++)
+                            {
+                                chartView.axes[i].visible = true
+                                chartView.axes[i].tickCount = 3
+                            }
                         }
+                    }
 
+                    function moveSeries(droppedChartView, targetChartView)
+                    {
+                        var droppedChartLabels = chartViewModel.getChartSeriesLabels(droppedChartView.chartIndex);
+
+                        for(const droppedLabel of droppedChartLabels)
+                        {
+                            var droppedSeries = droppedChartView.seriesMap[droppedLabel]
+
+                            var targetSeries = targetChartView.createSeries(ChartView.SeriesTypeLine, droppedLabel, xAxis, yAxis)
+                            targetSeries.color = droppedSeries.color
+
+                            for(var i = 0; i < droppedSeries.count; i++)
+                            {
+                                var point = droppedSeries.at(i);
+                                var x = point.x;
+                                var y = point.y;
+
+                                targetSeries.append(x, y)
+                            }
+
+                            targetChartView.seriesMap[droppedLabel] = targetSeries
+                        }
                     }
 
                     onEntered:
@@ -179,17 +213,26 @@ Item
                         if(drag.source !== chartView)
                         {
                             chartView.backgroundColor = "lightskyblue"
-                            chartView.opacity = 0.25
-                            chartView.axes[0] = chartView.axes[1] = false
+                            chartView.opacity = 0.5
+                            for(let i=0;i<2;i++)
+                            {
+                                chartView.axes[i].visible = false
+                                chartView.axes[i].tickCount = 0
+                            }
                         }
 
-                        //console.log("entered ", drag.source)
                     }
 
                     onExited:
                     {
                         chartView.backgroundColor = "white"
                         chartView.opacity = 1
+
+                        for(let i=0;i<2;i++)
+                        {
+                            chartView.axes[i].visible = true
+                            chartView.axes[i].tickCount = 3
+                        }
                     }
                 }
             }

@@ -41,6 +41,11 @@ SOURCES += \
     Model/Parameters/RangedRealOutParameter.cpp \
     Model/Parameters/ListedRealOutParameter.cpp \
     Model/Parameters/BooleanOutParameter.cpp \
+    Model/Parameters/BasicUplinkParameter.cpp \
+    Model/Parameters/IntUplinkParameter.cpp \
+    Model/Parameters/DoubleUplinkParameter.cpp \
+    Model/Parameters/StringUplinkParameter.cpp \
+    Model/Parameters/BoolUplinkParameter.cpp \
     Model/Parameters/OutParametersStorage.cpp \
     Model/Parameters/AppConfigurationReader.cpp \
     Model/Parameters/OutParametersParser.cpp \
@@ -83,6 +88,14 @@ HEADERS += \
     Model/Parameters/RangedRealOutParameter.h \
     Model/Parameters/ListedRealOutParameter.h \
     Model/Parameters/BooleanOutParameter.h \
+    Model/Parameters/BasicUplinkParameter.h \
+    Model/Parameters/TypedUplinkParameter.h \
+    Model/Parameters/Range.h \
+    Model/Parameters/Step.h \
+    Model/Parameters/IntUplinkParameter.h \
+    Model/Parameters/DoubleUplinkParameter.h \
+    Model/Parameters/StringUplinkParameter.h \
+    Model/Parameters/BoolUplinkParameter.h \
     Model/Parameters/OutParametersStorage.h \
     Model/Parameters/AppConfigurationReader.h \
     Model/Parameters/OutParametersParser.h \

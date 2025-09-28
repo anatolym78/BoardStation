@@ -174,7 +174,8 @@ void BoardDataEmulator::generateParameters()
     QList<BoardParameter*> parameters;
     
     // Генерируем параметры от всех генераторов
-    for (ParameterGenerator *generator : m_generators) {
+    for (ParameterGenerator *generator : m_generators)
+    {
         BoardParameter *param = generator->generate(m_time);
         if (param) {
             parameters.append(param);

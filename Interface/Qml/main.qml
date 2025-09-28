@@ -14,7 +14,7 @@ Item
     Component.onCompleted:
     {
         boardParametersList.parametersListModel = parametersListModel
-        //droneControlPanel.outParametersModel = outParametersModel
+        droneControlPanel.outParametersModel = outParametersModel
     }
     
     // Main frame
@@ -45,22 +45,9 @@ Item
 
                     onParameterSelected:
                     {
-                        // chartsListModel.toggleSeries(label, color)
-                        // Пока просто добавляем график с новым параметром
-                        simpleChartsPanel.addChart(label)
+                        simpleChartsPanel.toggleParameter(label, color)
                     }
                 }
-
-                // Панель с графиками
-                // ChartsPanel
-                // {
-                //      id: chartsPanel
-                //      //anchors.fill: parent
-                //      Layout.preferredWidth: 5
-                //      Layout.fillWidth: true
-                //      Layout.fillHeight: true
-
-                // }
 
                 // Упрощенная панель с графиками
                 SimpleChartsPanel
@@ -71,15 +58,15 @@ Item
                      Layout.fillHeight: true
                 }
 
-                 // // Панель управления параметрами дрона
-                 // DroneControlPanel
-                 // {
-                 //     id: droneControlPanel
-                 //     Layout.preferredWidth: 2.5
-                 //     Layout.fillWidth: true
-                 //     Layout.fillHeight: true
+                 // Панель управления параметрами дрона
+                 DroneControlPanel
+                 {
+                     id: droneControlPanel
+                     Layout.preferredWidth: 2.5
+                     Layout.fillWidth: true
+                     Layout.fillHeight: true
 
-                 // }
+                 }
              }
 
         }
@@ -96,12 +83,12 @@ Item
         when: boardParametersList !== null
     }
     
-    // Binding
-    // {
-    //     target: droneControlPanel
-    //     property: "outParametersModel"
-    //     value: outParametersModel
-    //     when: outParametersModel !== null
-    // }
+    Binding
+    {
+        target: droneControlPanel
+        property: "outParametersModel"
+        value: outParametersModel
+        when: outParametersModel !== null
+    }
 }
 
