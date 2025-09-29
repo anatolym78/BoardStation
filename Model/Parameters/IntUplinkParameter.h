@@ -12,6 +12,7 @@ public:
     }
 
     // Переопределенные методы
+    bool setValue(const QVariant &value) override;
     bool isValid() const override;
     bool isIntParameter() const override { return true; }
     bool isDoubleParameter() const override { return false; }

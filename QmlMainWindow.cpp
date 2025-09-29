@@ -54,6 +54,9 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         // Setup out parameters model
         setupOutParametersModel();
         
+        // Setup uplink parameters model
+        setupUplinkParametersModel();
+        
         // Setup chart series model
         setupChartSeriesModel();
         
@@ -126,6 +129,26 @@ void QmlMainWindow::setupOutParametersModel()
     
     // Добавляем объект QmlMainWindow в QML контекст для вызова методов
     m_context->setContextProperty("qmlMainWindow", this);
+}
+
+void QmlMainWindow::setupUplinkParametersModel()
+{
+    if (!m_app || !m_context) return;
+    
+    // Get uplink parameters model from application
+    auto uplinkParametersModel = m_app->getUplinkParametersModel();
+    if (uplinkParametersModel) 
+    {
+        // Pass model to QML context
+        m_context->setContextProperty("uplinkParametersModel", uplinkParametersModel);
+        //qDebug() << "QmlMainWindow: Uplink parameters model passed to QML";
+    }
+    else 
+    {
+        //qDebug() << "QmlMainWindow: Uplink parameters model not found, will use default data";
+        // Create empty model to avoid errors
+        m_context->setContextProperty("uplinkParametersModel", nullptr);
+    }
 }
 
 void QmlMainWindow::setupChartSeriesModel()

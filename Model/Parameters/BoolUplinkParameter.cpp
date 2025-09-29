@@ -1,5 +1,15 @@
 #include "BoolUplinkParameter.h"
 
+bool BoolUplinkParameter::setValue(const QVariant &value)
+{
+    if (value.canConvert<bool>())
+    {
+        TypedUplinkParameter<bool>::setValue(value.toBool());
+        return true;
+    }
+    return false;
+}
+
 bool BoolUplinkParameter::isValid() const
 {
     // Проверяем, что значение является булевым

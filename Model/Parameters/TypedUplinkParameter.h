@@ -24,6 +24,11 @@ public:
         m_value = QVariant::fromValue(value);
     }
 
+    T getTypedValue() const
+    {
+        return m_value.value<T>();
+    }
+
     void setValues(const QList<T> &values)
     {
         m_values.clear();

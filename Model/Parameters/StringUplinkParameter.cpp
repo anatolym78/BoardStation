@@ -1,5 +1,15 @@
 #include "StringUplinkParameter.h"
 
+bool StringUplinkParameter::setValue(const QVariant &value)
+{
+    if (value.canConvert<QString>())
+    {
+        TypedUplinkParameter<QString>::setValue(value.toString());
+        return true;
+    }
+    return false;
+}
+
 bool StringUplinkParameter::isValid() const
 {
     // Проверяем, что значение является строкой

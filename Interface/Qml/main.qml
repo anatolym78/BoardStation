@@ -9,12 +9,12 @@ Item
 {
     id: mainWindow
     width: 1400
-    height: 360
+    height: 960
       
     Component.onCompleted:
     {
         boardParametersList.parametersListModel = parametersListModel
-        droneControlPanel.outParametersModel = outParametersModel
+        droneControlPanel.uplinkParametersModel = uplinkParametersModel
     }
     
     // Main frame
@@ -25,15 +25,14 @@ Item
 
         Rectangle
         {
-
             anchors.fill: parent
-            color:"#f7f7f7"
+            //color:"#f7f7f7"
             radius: 4
 
             RowLayout
-             {
+            {
                  anchors.fill: parent
-                 spacing: 0
+                 spacing: 8
 
                 // Отображает список параметров, полученных от дрона
                 BoardParametersList
@@ -49,13 +48,47 @@ Item
                     }
                 }
 
-                // Упрощенная панель с графиками
-                SimpleChartsPanel
+                ColumnLayout
                 {
-                     id: simpleChartsPanel
-                     Layout.preferredWidth: 5
-                     Layout.fillWidth: true
-                     Layout.fillHeight: true
+                    Layout.preferredWidth: 5
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    spacing: 8
+
+                    // Панель с графиками
+                    Rectangle
+                    {
+                        Layout.preferredHeight: 3
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: "#fafbfc"
+                        //border.color: "gainsboro"
+                        radius: 4
+
+                        SimpleChartsPanel
+                        {
+                             id: simpleChartsPanel
+                             Layout.fillHeight: true
+                             Layout.fillWidth: true
+                        }
+                    }
+
+                    // Панель с отладкой/логами
+                    Rectangle
+                    {
+                        Layout.preferredHeight: 1.5
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        color: "white"
+                        radius: 4
+
+                        TextEdit
+                        {
+                            anchors.fill: parent
+                            font.pointSize: 10
+                            color: "dimgray"
+                        }
+                    }
                 }
 
                  // Панель управления параметрами дрона
@@ -86,9 +119,9 @@ Item
     Binding
     {
         target: droneControlPanel
-        property: "outParametersModel"
-        value: outParametersModel
-        when: outParametersModel !== null
+        property: "uplinkParametersModel"
+        value: uplinkParametersModel
+        when: uplinkParametersModel !== null
     }
 }
 

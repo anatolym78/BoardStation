@@ -9,10 +9,16 @@ Rectangle
     color: "#f0f0f0"  // Тот же фон, что и у левой панели
     radius: 4
     
-    property var outParametersModel: null
+    property var uplinkParametersModel: null
     
     // Сигнал для добавления графика
     signal addChart(string parameterLabel)
+
+    Component.onCompleted:
+    {
+        console.log("model: ", uplinkParametersModel)
+        console.log("count parameters: ", uplinkParametersModel.countParameters())
+    }
      
     ColumnLayout
     {
@@ -39,7 +45,7 @@ Rectangle
             anchors.right: parent.right
             clip: true
             
-            model: outParametersModel
+            model: uplinkParametersModel
 
             property int lastColumnWidth: width - 195
 
@@ -107,26 +113,47 @@ Rectangle
                     Component
                     {
                         id: labelComponent
-                        Text
+                        Item
                         {
-                            anchors.centerIn: parent
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                            text: parameterLabel
-                            font.pointSize: 11
-                            color:
+                            //anchors.fill: parent
+                            //color: "transparent"
+                            //border.color: "transparent"
+                            Text
                             {
-                                switch(column)
+                                anchors.centerIn: parent
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                text: parameterLabel
+                                font.pointSize: 11
+                                color:
                                 {
-                                case 0:
-                                    return "white";
+                                    switch(column)
+                                    {
+                                    case 0:
+                                        return "white";
+                                    }
+
+                                    return "dimgray";
                                 }
 
-                                return "dimgray";
+                                elide: Text.ElideRight
                             }
 
-                            elide: Text.ElideRight
+                            // Text
+                            // {
+                            //     anchors.right: parent.right
+                            //     anchors.bottom: parent.bottom
+                            //     // horizontalAlignment: Text.right
+                            //     // verticalAlignment: Text.bottom
+                            //     font.pointSize: 8
+                            //     color: "gainsboro"
+                            //     text: valueType
+
+                            //     elide: Text.ElideRight
+                            // }
                         }
+
+
                     }
 
                     Component
@@ -173,10 +200,11 @@ Rectangle
 
                                     switch(dataControl.controlType)
                                     {
-                                        case "QSpinBox": return spinBoxComponent
-                                        case "QSlider": return sliderComponent
-                                        case "QComboBox": return comboBoxComponent
-                                        case "QCheckBox": return checkBoxComponent
+                                        case "SpinBox": return spinBoxComponent
+                                        case "Slider": return sliderComponent
+                                        case "ComboBox": return comboBoxComponent
+                                        case "CheckBox": return checkBoxComponent
+                                        case "TextEdit": return textEditComponent
                                     }
 
                                     return defaultComponent
@@ -247,20 +275,20 @@ Rectangle
                                 }
                             }
 
-                            // Component
-                            // {
-                            //     id: textEditComponent
-                            //     TextField {
-                            //         anchors.fill: parent
-                            //         text: paramData ? paramData.currentValue : ""
-                            //         onTextChanged:
-                            //         {
-                            //             outParametersModel.setData(outParametersModel.index(row, column), text, Qt.EditRole)
-                            //             // Принудительно обновляем отображение
-                            //             //outParametersTableView.forceLayout()
-                            //         }
-                            //     }
-                            // }
+                            Component
+                            {
+                                id: textEditComponent
+                                TextField
+                                {
+                                    anchors.fill: parent
+                                    text: paramData ? paramData.currentValue : ""
+                                    font.pointSize: 11
+                                    onTextChanged:
+                                    {
+                                        parameterValue = text
+                                    }
+                                }
+                            }
 
                             Component
                             {

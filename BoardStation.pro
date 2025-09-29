@@ -35,6 +35,7 @@ SOURCES += \
     ViewModel/ChartsListModel.cpp \
     ViewModel/ChartViewModel.cpp \
     ViewModel/OutParametersModel.cpp \
+    ViewModel/UplinkParametersModel.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
     Model/Parameters/RealOutParameter.cpp \
@@ -46,6 +47,7 @@ SOURCES += \
     Model/Parameters/DoubleUplinkParameter.cpp \
     Model/Parameters/StringUplinkParameter.cpp \
     Model/Parameters/BoolUplinkParameter.cpp \
+    Model/Parameters/UplinkParametersParser.cpp \
     Model/Parameters/OutParametersStorage.cpp \
     Model/Parameters/AppConfigurationReader.cpp \
     Model/Parameters/OutParametersParser.cpp \
@@ -82,6 +84,7 @@ HEADERS += \
     ViewModel/ChartsListModel.h \
     ViewModel/ChartViewModel.h \
     ViewModel/OutParametersModel.h \
+    ViewModel/UplinkParametersModel.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \
     Model/Parameters/RealOutParameter.h \
@@ -96,6 +99,7 @@ HEADERS += \
     Model/Parameters/DoubleUplinkParameter.h \
     Model/Parameters/StringUplinkParameter.h \
     Model/Parameters/BoolUplinkParameter.h \
+    Model/Parameters/UplinkParametersParser.h \
     Model/Parameters/OutParametersStorage.h \
     Model/Parameters/AppConfigurationReader.h \
     Model/Parameters/OutParametersParser.h \

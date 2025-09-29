@@ -1,5 +1,15 @@
 #include "IntUplinkParameter.h"
 
+bool IntUplinkParameter::setValue(const QVariant &value)
+{
+    if (value.canConvert<int>())
+    {
+        TypedUplinkParameter<int>::setValue(value.toInt());
+        return true;
+    }
+    return false;
+}
+
 bool IntUplinkParameter::isValid() const
 {
     // Проверяем, что значение является целым числом

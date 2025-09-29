@@ -1,6 +1,16 @@
 #include "DoubleUplinkParameter.h"
 #include <cmath>
 
+bool DoubleUplinkParameter::setValue(const QVariant &value)
+{
+    if (value.canConvert<double>())
+    {
+        TypedUplinkParameter<double>::setValue(value.toDouble());
+        return true;
+    }
+    return false;
+}
+
 bool DoubleUplinkParameter::isValid() const
 {
     // Проверяем, что значение является вещественным числом

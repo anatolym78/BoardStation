@@ -24,6 +24,9 @@ public:
     virtual QVariant getMaximum() const;
     virtual QVariant getStep() const;
 
+    // Сеттеры
+    virtual bool setValue(const QVariant &value) = 0;
+
     // Проверки
     bool isListParameter() const { return !m_values.isEmpty(); }
     virtual bool hasRange() const = 0;

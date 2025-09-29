@@ -6,6 +6,7 @@
 #include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/AppConfigurationReader.h"
 #include "Model/Parameters/OutParametersParser.h"
+#include "Model/Parameters/UplinkParametersParser.h"
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -35,12 +36,18 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Устанавливаем хранилище в модель
     m_outParametersModel->setStorage(m_outParametersStorage);
     
+    // Создаем модель uplink параметров
+    m_uplinkParametersModel = new UplinkParametersModel(this);
+    
     // Создаем модель серий графиков
     m_chartSeriesModel = new ChartSeriesModel(this);
     m_chartSeriesModel->setParametersStorage(m_parametersStorage);
     
     // Загружаем исходящие параметры
     loadOutParameters();
+    
+    // Загружаем новые uplink параметры
+    loadUplinkParameters();
     
     // Очищаем файл записи сообщений от борта
     m_boardMessagesWriter->clearFile();
@@ -72,6 +79,10 @@ void BoardStationApp::setMainWindow(MainWindow *mainWindow)
         {
             m_outParametersModel->setParent(m_mainWindow);
         }
+        if (m_uplinkParametersModel) 
+        {
+            m_uplinkParametersModel->setParent(m_mainWindow);
+        }
     }
 }
 
@@ -88,6 +99,11 @@ BoardParametersListModel* BoardStationApp::getParametersModel() const
 OutParametersModel* BoardStationApp::getOutParametersModel() const
 {
     return m_outParametersModel;
+}
+
+UplinkParametersModel* BoardStationApp::getUplinkParametersModel() const
+{
+    return m_uplinkParametersModel;
 }
 
 ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
@@ -254,4 +270,71 @@ void BoardStationApp::sendParametersToBoard()
     {
         qWarning() << "BoardStationApp: Driver is not available";
     }
+}
+
+void BoardStationApp::loadUplinkParameters() const
+{
+    qDebug() << "BoardStationApp: Loading new uplink parameters from configuration.json";
+    
+    // Создаем читатель конфигурации
+    AppConfigurationReader reader;
+    
+    // Формируем полный путь к файлу конфигурации
+    QString configPath = QApplication::applicationDirPath() + "/configuration.json";
+    qDebug() << "BoardStationApp: Configuration path:" << configPath;
+    
+    // Загружаем конфигурацию
+    if (!reader.loadConfiguration(configPath))
+    {
+        qWarning() << "BoardStationApp: Failed to load configuration from" << configPath;
+        return;
+    }
+    
+    // Получаем узел с параметрами
+    QJsonArray parametersArray = reader.getParametersNode();
+    if (parametersArray.isEmpty())
+    {
+        qWarning() << "BoardStationApp: Parameters node is empty or not found";
+        return;
+    }
+    
+    // Создаем парсер новых параметров
+    UplinkParametersParser parser;
+    
+    // Парсим параметры
+    QList<BasicUplinkParameter*> parsedUplinkParameters = parser.parseParameters(parametersArray);
+    
+    // Сохраняем параметры в список
+    m_uplinkParameters = parsedUplinkParameters;
+    
+    // Заполняем модель uplink параметров
+    if (m_uplinkParametersModel)
+    {
+        m_uplinkParametersModel->setParameters(parsedUplinkParameters);
+    }
+    
+    qDebug() << "BoardStationApp: Successfully loaded" << parsedUplinkParameters.size() << "uplink parameters";
+    
+    // Выводим информацию о загруженных параметрах для отладки
+    for (BasicUplinkParameter *param : parsedUplinkParameters)
+    {
+        if (param)
+        {
+            qDebug() << "Uplink Parameter:" << param->getLabel() 
+                     << "Type:" << param->getControlType()
+                     << "Value:" << param->getValue()
+                     << "IsInt:" << param->isIntParameter()
+                     << "IsDouble:" << param->isDoubleParameter()
+                     << "IsString:" << param->isStringParameter()
+                     << "IsBool:" << param->isBoolParameter()
+                     << "HasRange:" << param->hasRange()
+                     << "HasStep:" << param->hasStep()
+                     << "IsList:" << param->isListParameter();
+        }
+    }
+}
+
+QList<BasicUplinkParameter*> BoardStationApp::getUplinkParameters() const
+{
+    return m_uplinkParameters;
 }
