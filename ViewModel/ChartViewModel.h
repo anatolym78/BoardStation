@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void resetDepths();
 
     Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
+    Q_INVOKABLE void splitSeries(int chartIndex);
     
     // Методы для работы с данными
     Q_INVOKABLE void addDataPoint(const QString &chartLabel, const QString &parameterLabel, 

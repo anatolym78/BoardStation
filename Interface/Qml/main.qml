@@ -61,7 +61,7 @@ Item
                         Layout.preferredHeight: 3
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "#fafbfc"
+                        color: "gainsboro"
                         //border.color: "gainsboro"
                         radius: 4
 

@@ -187,6 +187,24 @@ void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
     endRemoveRows();
 }
 
+void ChartViewModel::splitSeries(int chartIndex)
+{
+    if(chartIndex >= 0 && chartIndex < m_series.count())
+    {
+        auto series = m_series[chartIndex];
+
+        m_series.removeAt(chartIndex);
+        for(auto s : series)
+        {
+            m_series.append(QStringList()<<s);
+        }
+    }
+
+    beginInsertRows(QModelIndex(), m_series.size(), m_series.size());
+    resetDepths();
+    endInsertRows();
+}
+
 void ChartViewModel::clearCharts()
 {
     if (m_series.isEmpty())
@@ -195,8 +213,6 @@ void ChartViewModel::clearCharts()
     beginResetModel();
     m_series.clear();
     endResetModel();
-    
-    //qDebug() << "ChartViewModel: Cleared all charts";
 }
 
 QStringList ChartViewModel::getChartSeriesLabels(int chartIndex) const

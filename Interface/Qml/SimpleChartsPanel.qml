@@ -3,9 +3,11 @@ import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtCharts 2.15
 
-Item
+Rectangle
 {
     id: simpleChartsPanel
+    color: "transparent"
+    radius: 4
     
     function toggleParameter(label, color)
     {
@@ -30,17 +32,34 @@ Item
         }
     }
 
-    Flow
+    ColumnLayout
     {
-        id: chartsFlow
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
+
+        Text
+        {
+            text: "Charts"
+            font.pointSize: 12
+            font.bold: true
+            color: "dimgray"
+            Layout.alignment: Qt.AlignHCenter
+        }
+
+        Flow
+        {
+            id: chartsFlow
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 10
         
         // Принудительно обновляем layout при изменении размера
-        onWidthChanged: {
+        onWidthChanged:
+        {
             // Небольшая задержка для корректного пересчета
-            Qt.callLater(function() {
+            Qt.callLater(function()
+            {
                 chartsFlow.childrenChanged()
             })
         }
@@ -137,6 +156,32 @@ Item
                         var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
                         series.color = color
                         seriesMap[label] = series
+                    }
+                }
+
+                MouseArea
+                {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onPressed:
+                    {
+                        if(mouse.button == Qt.RightButton)
+                        {
+                            //chartViewModel.splitSeries(chartIndex)
+
+                            splitSeries(seriesMap)
+                        }
+                    }
+                }
+
+                function splitSeries(map)
+                {
+                    for(var key in map)
+                    {
+                         if(map.hasOwnProperty(key))
+                         {
+                             console.log(map[key])
+                         }
                     }
                 }
 
@@ -247,6 +292,7 @@ Item
                     }
                 }
             }
+        }
         }
     }
 }
