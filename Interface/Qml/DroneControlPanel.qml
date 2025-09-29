@@ -54,7 +54,7 @@ Rectangle
                 switch (column)
                 {
                 case 0: return 120
-                case 1: return 75
+                case 1: return 80
                 case 2: return outParametersTableView.width - 195
                 default: return 100
                 }
@@ -317,6 +317,7 @@ Rectangle
             Button
             {
                 text: "Send to drone"
+                font.pointSize: 10
                 Layout.preferredWidth: 120
                 onClicked: 
                 {
@@ -332,6 +333,7 @@ Rectangle
             {
                 text: "Send immediately"
                 checked: false
+                font.pointSize: 10
                 onCheckedChanged: 
                 {
                     // Здесь будет логика автоматической отправки

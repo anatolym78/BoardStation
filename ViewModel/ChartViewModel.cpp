@@ -212,14 +212,16 @@ void ChartViewModel::reorderChartsBeforeDrag(int dragIndex)
 
     m_depths[dragIndex] = 0;
 
-    auto topLeft = this->index(dragIndex, 0);
-    auto bottomRight = this->index(dragIndex, 0);
+    auto topLeft = this->index(0, 0);
+    auto bottomRight = this->index(rowCount() - 1, 0);
 
     emit dataChanged(topLeft, bottomRight);
 }
 
 void ChartViewModel::resetDepths()
 {
+    m_depths.clear();
+
     for(auto i=0;i<m_series.count();i++)
     {
         m_depths.append(i + 1);

@@ -36,6 +36,7 @@ SOURCES += \
     ViewModel/ChartViewModel.cpp \
     ViewModel/OutParametersModel.cpp \
     ViewModel/UplinkParametersModel.cpp \
+    ViewModel/DebugViewModel.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
     Model/Parameters/RealOutParameter.cpp \
@@ -85,6 +86,7 @@ HEADERS += \
     ViewModel/ChartViewModel.h \
     ViewModel/OutParametersModel.h \
     ViewModel/UplinkParametersModel.h \
+    ViewModel/DebugViewModel.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \
     Model/Parameters/RealOutParameter.h \

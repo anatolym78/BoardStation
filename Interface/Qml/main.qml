@@ -68,8 +68,8 @@ Item
                         SimpleChartsPanel
                         {
                              id: simpleChartsPanel
-                             Layout.fillHeight: true
-                             Layout.fillWidth: true
+                             anchors.fill: parent
+                             anchors.margins: 5
                         }
                     }
 
@@ -82,11 +82,10 @@ Item
                         color: "white"
                         radius: 4
 
-                        TextEdit
+                        DebugLogsView
                         {
                             anchors.fill: parent
-                            font.pointSize: 10
-                            color: "dimgray"
+                            model: debugViewModel
                         }
                     }
                 }

@@ -6,5 +6,6 @@
         <file>Interface/Qml/SimpleChartsPanel.qml</file>
         <file>Interface/Qml/BoardParametersList.qml</file>
         <file>Interface/Qml/Colors.qml</file>
+        <file>Interface/Qml/DebugLogsView.qml</file>
     </qresource>
 </RCC>

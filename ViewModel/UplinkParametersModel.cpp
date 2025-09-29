@@ -9,6 +9,12 @@
 UplinkParametersModel::UplinkParametersModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
+    // Создаем таймер для отслеживания завершения инициализации
+    m_initializationTimer = new QTimer(this);
+    m_initializationTimer->setSingleShot(true);
+    m_initializationTimer->setInterval(1000); // 1 секунда задержки
+    connect(m_initializationTimer, &QTimer::timeout, this, &UplinkParametersModel::onInitializationTimeout);
+    
     setupParameters();
 }
 
@@ -196,15 +202,61 @@ bool UplinkParametersModel::setData(const QModelIndex &index, const QVariant &va
     if (role == (int)UplinkParameterRole::ValueRole)
     {
         auto parameter = m_parameters[row];
+        
+        // Проверяем, изменилось ли значение
+        QVariant currentValue = parameter->getValue();
+        if (currentValue == value)
+        {
+            // Значение не изменилось, ничего не делаем
+            return true;
+        }
+        
         parameter->setValue(value);
 
         QModelIndex topLeft = this->index(row, 0);
         QModelIndex bottomRight = this->index(row, columnCount() - 1);
 
         emit dataChanged(topLeft, bottomRight);
+        
+        // Проверяем, нужно ли эмитировать сигнал для автоматической отправки
+        QString controlType = parameter->getControlType();
+        if (controlType == "CheckBox" || controlType == "SpinBox" ||
+            controlType == "Slider" || controlType == "ComboBox")
+        {
+            // Не отправляем сигнал во время инициализации
+            if (!m_isInitializing)
+            {
+                emit parameterChanged(parameter);
+            }
+        }
     }
 
     return true;
+}
+
+void UplinkParametersModel::setParameterValueSilently(int row, const QVariant &value)
+{
+    if (row < 0 || row >= m_parameters.size())
+    {
+        return;
+    }
+    
+    auto parameter = m_parameters[row];
+    
+    // Проверяем, изменилось ли значение
+    QVariant currentValue = parameter->getValue();
+    if (currentValue == value)
+    {
+        // Значение не изменилось, ничего не делаем
+        return;
+    }
+    
+    parameter->setValue(value);
+    
+    // Обновляем UI без отправки сигнала parameterChanged
+    QModelIndex topLeft = this->index(row, 0);
+    QModelIndex bottomRight = this->index(row, columnCount() - 1);
+    emit dataChanged(topLeft, bottomRight);
 }
 
 QVariant UplinkParametersModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -253,13 +305,24 @@ void UplinkParametersModel::setupParameters()
 
 void UplinkParametersModel::setParameters(const QList<BasicUplinkParameter*> &parameters)
 {
+    m_isInitializing = true; // Устанавливаем флаг инициализации
+    
     beginResetModel();
     m_parameters = parameters;
     endResetModel();
+    
+    // Запускаем таймер для завершения инициализации
+    m_initializationTimer->start();
 }
 
 void UplinkParametersModel::refreshModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+void UplinkParametersModel::onInitializationTimeout()
+{
+    m_isInitializing = false; // Сбрасываем флаг инициализации
+    qDebug() << "UplinkParametersModel: Initialization completed, auto-send enabled";
 }

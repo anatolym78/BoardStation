@@ -6,6 +6,7 @@
 #include "ViewModel/BoardParametersModel.h"
 #include "ViewModel/OutParametersModel.h"
 #include "ViewModel/UplinkParametersModel.h"
+#include "ViewModel/DebugViewModel.h"
 #include "ViewModel/ChartSeriesModel.h"
 #include "Model/IDriver.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
@@ -42,6 +43,9 @@ public:
     // Методы для работы с моделью uplink параметров
     UplinkParametersModel* getUplinkParametersModel() const;
     
+    // Методы для работы с моделью отладки
+    DebugViewModel* getDebugViewModel() const;
+    
     // Методы для работы с моделью серий графиков
     ChartSeriesModel* getChartSeriesModel() const;
     
@@ -56,11 +60,16 @@ public:
     // Методы для работы с записью сообщений от борта
     BoardMessagesJsonWriterNew* getBoardMessagesWriter() const;
     
+    // Методы для работы с драйвером
+    drv::IDriver* getDriver() const;
+    
     // Отправка параметров на борт
     void sendParametersToBoard();
+    void sendSingleParameter(BasicUplinkParameter* parameter);
 
 private slots:
     void onDataAvailable() const;
+    void onParameterChanged(BasicUplinkParameter* parameter);
 
 private:
     void setupDriver();
@@ -74,6 +83,7 @@ private:
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
     UplinkParametersModel *m_uplinkParametersModel;
+    DebugViewModel *m_debugViewModel;
     mutable QList<BasicUplinkParameter*> m_uplinkParameters;
     ChartSeriesModel *m_chartSeriesModel;
     drv::IDriver *m_driver;

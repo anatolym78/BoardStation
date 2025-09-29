@@ -23,11 +23,13 @@ public slots:
 
 private slots:
     void onParameterUpdated(const QString &label);
+    void onDataSent(const QString &data);
 
 private:
     void setupModel();
     void setupOutParametersModel();
     void setupUplinkParametersModel();
+    void setupDebugViewModel();
     void setupChartSeriesModel();
     void setupConnections();
     void addTestDataToModel();

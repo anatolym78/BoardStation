@@ -25,10 +25,12 @@ public:
 signals:
     void dataAvailable();
     void stateChanged(State state);
+    void dataSent(const QString &data);
 
 protected:
     void emitDataAvailable() { emit dataAvailable(); }
     void emitStateChanged(State state) { emit stateChanged(state); }
+    void emitDataSent(const QString &data) { emit dataSent(data); }
 };
 
 } // namespace drv

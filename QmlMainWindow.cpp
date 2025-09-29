@@ -7,6 +7,8 @@
 #include "ViewModel/ChartSeriesModel.h"
 #include "ViewModel/ChartsListModel.h"
 #include "ViewModel/ChartViewModel.h"
+#include <QDateTime>
+#include <QQuickItem>
 
 #include <QDebug>
 #include <QQmlContext>
@@ -57,6 +59,9 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         // Setup uplink parameters model
         setupUplinkParametersModel();
         
+        // Setup debug view model
+        setupDebugViewModel();
+        
         // Setup chart series model
         setupChartSeriesModel();
         
@@ -65,6 +70,13 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         {
             connect(m_app->getParametersStorage(), &BoardParameterHistoryStorage::parameterUpdated,
                     this, &QmlMainWindow::onParameterUpdated);
+        }
+        
+        // Connect driver signals
+        if (m_app->getDriver())
+        {
+            connect(m_app->getDriver(), &drv::IDriver::dataSent,
+                    this, &QmlMainWindow::onDataSent);
         }
         
         // Load QML file after setting up models
@@ -151,6 +163,26 @@ void QmlMainWindow::setupUplinkParametersModel()
     }
 }
 
+void QmlMainWindow::setupDebugViewModel()
+{
+    if (!m_app || !m_context) return;
+    
+    // Get debug view model from application
+    auto debugViewModel = m_app->getDebugViewModel();
+    if (debugViewModel) 
+    {
+        // Pass model to QML context
+        m_context->setContextProperty("debugViewModel", debugViewModel);
+        //qDebug() << "QmlMainWindow: Debug view model passed to QML";
+    }
+    else 
+    {
+        //qDebug() << "QmlMainWindow: Debug view model not found, will use default data";
+        // Create empty model to avoid errors
+        m_context->setContextProperty("debugViewModel", nullptr);
+    }
+}
+
 void QmlMainWindow::setupChartSeriesModel()
 {
     if (!m_app || !m_context) return;
@@ -180,6 +212,17 @@ void QmlMainWindow::onParameterUpdated(const QString &label)
 
         auto boardParameter = boardParametersStorage->getParameterHistory(label);
         Q_UNUSED(boardParameter); // Подавляем предупреждение о неиспользуемой переменной
+    }
+}
+
+void QmlMainWindow::onDataSent(const QString &data)
+{
+    //qDebug() << "QmlMainWindow: Data sent to board:" << data;
+    
+    // Добавляем сообщение в модель отладки
+    if (m_app && m_app->getDebugViewModel())
+    {
+        m_app->getDebugViewModel()->addUplinkParametersMessage(data);
     }
 }
 

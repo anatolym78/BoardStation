@@ -34,7 +34,16 @@ Item
     {
         id: chartsFlow
         anchors.fill: parent
+        anchors.margins: 10
         spacing: 10
+        
+        // Принудительно обновляем layout при изменении размера
+        onWidthChanged: {
+            // Небольшая задержка для корректного пересчета
+            Qt.callLater(function() {
+                chartsFlow.childrenChanged()
+            })
+        }
 
         Repeater
         {
@@ -46,7 +55,7 @@ Item
             {
                 id: chartView
                 property int chartIndex: index
-                width: 320
+                width: Math.max(300, Math.min(400, chartsFlow.width / 3))
                 height: 240
                 backgroundColor: "white"
                 z: depth
@@ -182,6 +191,8 @@ Item
                                 chartView.axes[i].tickCount = 3
                             }
                         }
+
+                        //chartViewModel.resetDepths()
                     }
 
                     function moveSeries(droppedChartView, targetChartView)

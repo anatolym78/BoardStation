@@ -7,6 +7,7 @@
 #include "Model/Parameters/AppConfigurationReader.h"
 #include "Model/Parameters/OutParametersParser.h"
 #include "Model/Parameters/UplinkParametersParser.h"
+#include "Model/Parameters/BoolUplinkParameter.h"
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -38,6 +39,13 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     
     // Создаем модель uplink параметров
     m_uplinkParametersModel = new UplinkParametersModel(this);
+    
+    // Подключаем сигнал изменения параметра к слоту
+    connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
+            this, &BoardStationApp::onParameterChanged);
+    
+    // Создаем модель отладки
+    m_debugViewModel = new DebugViewModel(this);
     
     // Создаем модель серий графиков
     m_chartSeriesModel = new ChartSeriesModel(this);
@@ -83,6 +91,10 @@ void BoardStationApp::setMainWindow(MainWindow *mainWindow)
         {
             m_uplinkParametersModel->setParent(m_mainWindow);
         }
+        if (m_debugViewModel) 
+        {
+            m_debugViewModel->setParent(m_mainWindow);
+        }
     }
 }
 
@@ -104,6 +116,11 @@ OutParametersModel* BoardStationApp::getOutParametersModel() const
 UplinkParametersModel* BoardStationApp::getUplinkParametersModel() const
 {
     return m_uplinkParametersModel;
+}
+
+DebugViewModel* BoardStationApp::getDebugViewModel() const
+{
+    return m_debugViewModel;
 }
 
 ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
@@ -217,39 +234,47 @@ BoardMessagesJsonWriterNew* BoardStationApp::getBoardMessagesWriter() const
     return m_boardMessagesWriter;
 }
 
+drv::IDriver* BoardStationApp::getDriver() const
+{
+    return m_driver;
+}
+
 void BoardStationApp::sendParametersToBoard()
 {
-    //qDebug() << "BoardStationApp: Sending parameters to board";
+    //qDebug() << "BoardStationApp: Sending uplink parameters to board";
     
-    if (!m_outParametersStorage) 
+    if (!m_uplinkParametersModel) 
     {
-        qWarning() << "BoardStationApp: OutParametersStorage is not available";
+        qWarning() << "BoardStationApp: UplinkParametersModel is not available";
         return;
     }
     
-    // Получаем все исходящие параметры
-    QList<OutParameter*> outParameters = m_outParametersStorage->getAllParameters();
+    // Получаем все uplink параметры из модели
+    QList<BasicUplinkParameter*> uplinkParameters = m_uplinkParametersModel->getParameters();
     
-    if (outParameters.isEmpty()) 
+    if (uplinkParameters.isEmpty()) 
     {
-        //qDebug() << "BoardStationApp: No out parameters to send";
+        //qDebug() << "BoardStationApp: No uplink parameters to send";
         return;
     }
     
-    // Создаем JSON массив из параметров
+    // Создаем JSON массив из параметров в формате для исходящих параметров
     QJsonArray parametersArray;
-    for (OutParameter *param : outParameters) 
+    for (BasicUplinkParameter *param : uplinkParameters) 
     {
         if (param && param->isValid())
         {
-            QJsonObject paramObj = param->toJsonObject();
+            QJsonObject paramObj;
+            paramObj["label"] = param->getLabel();
+            paramObj["value"] = QJsonValue::fromVariant(param->getValue());
+            
             parametersArray.append(paramObj);
         }
     }
     
     if (parametersArray.isEmpty())
     {
-        //qDebug() << "BoardStationApp: No valid parameters to send";
+        //qDebug() << "BoardStationApp: No valid uplink parameters to send";
         return;
     }
     
@@ -264,9 +289,9 @@ void BoardStationApp::sendParametersToBoard()
     {
         std::string data = jsonString.toStdString();
         m_driver->write(data);
-        //qDebug() << "BoardStationApp: Parameters sent to board successfully";
+        //qDebug() << "BoardStationApp: Uplink parameters sent to board successfully";
     }
-	else 
+    else 
     {
         qWarning() << "BoardStationApp: Driver is not available";
     }
@@ -337,4 +362,51 @@ void BoardStationApp::loadUplinkParameters() const
 QList<BasicUplinkParameter*> BoardStationApp::getUplinkParameters() const
 {
     return m_uplinkParameters;
+}
+
+void BoardStationApp::sendSingleParameter(BasicUplinkParameter* parameter)
+{
+    if (!parameter || !parameter->isValid())
+    {
+        qWarning() << "BoardStationApp: Invalid parameter for single send";
+        return;
+    }
+    
+    if (!m_driver)
+    {
+        qWarning() << "BoardStationApp: Driver is not available for single parameter send";
+        return;
+    }
+    
+    // Создаем JSON массив с одним параметром
+    QJsonArray parametersArray;
+    QJsonObject paramObj;
+    paramObj["label"] = parameter->getLabel();
+    paramObj["value"] = QJsonValue::fromVariant(parameter->getValue());
+    
+    parametersArray.append(paramObj);
+    
+    // Создаем JSON документ
+    QJsonDocument doc(parametersArray);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+    
+    // Отправляем данные через драйвер
+    std::string data = jsonString.toStdString();
+    m_driver->write(data);
+    
+    qDebug() << "BoardStationApp: Single parameter sent:" << parameter->getLabel() << "=" << parameter->getValue();
+}
+
+void BoardStationApp::onParameterChanged(BasicUplinkParameter* parameter)
+{
+    if (!parameter)
+    {
+        qWarning() << "BoardStationApp: Received null parameter in onParameterChanged";
+        return;
+    }
+    
+    qDebug() << "BoardStationApp: Parameter changed:" << parameter->getLabel() << "=" << parameter->getValue();
+    
+    // Отправляем только этот параметр
+    sendSingleParameter(parameter);
 }

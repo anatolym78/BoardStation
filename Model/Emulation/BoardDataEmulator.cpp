@@ -51,6 +51,9 @@ void BoardDataEmulator::write(const std::string &data)
     // Сохраняем отправленные параметры в файл
     QString jsonString = QString::fromStdString(data);
     saveSentParametersToFile(jsonString);
+    
+    // Эмитируем сигнал с отправленными данными
+    emitDataSent(jsonString);
 }
 
 const std::string &BoardDataEmulator::read()
