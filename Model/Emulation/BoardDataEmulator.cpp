@@ -25,7 +25,7 @@ BoardDataEmulator::BoardDataEmulator(QObject *)
     connect(m_stateTimer, &QTimer::timeout, this, &BoardDataEmulator::onStateTimerTimeout);
     
     // Настройка таймера данных (каждую секунду)
-    m_dataTimer->setInterval(200);
+    m_dataTimer->setInterval(1000);
     connect(m_dataTimer, &QTimer::timeout, this, &BoardDataEmulator::onDataTimerTimeout);
     
     // Настраиваем генераторы параметров

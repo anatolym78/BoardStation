@@ -95,7 +95,7 @@ Item
                         Layout.preferredHeight: 3
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "gainsboro"
+                        color: "#f0f0f0"
                         //border.color: "gainsboro"
                         radius: 4
 
@@ -113,7 +113,7 @@ Item
                         Layout.preferredHeight: 1.5
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "white"
+                        color: "#f0f0f0"
                         radius: 4
 
                         DebugLogsView

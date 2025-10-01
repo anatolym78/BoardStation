@@ -6,11 +6,11 @@ Rectangle
 {
     id: sessionPlayerPanel
     width: parent.width
-    height: 80
+    height: 75
     color: "#f8f9fa"
-    border.color: "#dee2e6"
-    border.width: 1
-    radius: 5
+    border.color: "transparent"
+    //border.width: 1
+    radius: 4
     
     property alias isPlaying: playStopButton.isPlaying
     property alias currentPosition: positionSlider.value
@@ -119,21 +119,21 @@ Rectangle
             
             Text 
             {
-                text: Qt.formatTime(new Date(positionSlider.value * 1000), "mm:ss")
-                font.pixelSize: 10
-                color: "#6c757d"
+                text: Qt.formatTime(new Date(positionSlider.value * 1000), "mm:ss") + "/"
+                font.pointSize: 11
+                color: "dimgray"
             }
             
-            Item 
-            {
-                Layout.fillWidth: true
-            }
+            // Item
+            // {
+            //     Layout.fillWidth: true
+            // }
             
             Text 
             {
                 text: Qt.formatTime(new Date(positionSlider.to * 1000), "mm:ss")
-                font.pixelSize: 10
-                color: "#6c757d"
+                font.pointSize: 11
+                color: "dimgray"
             }
         }
         

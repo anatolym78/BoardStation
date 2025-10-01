@@ -65,7 +65,6 @@ void SessionPlayer::loadSession(int sessionId)
     emit currentPositionChanged();
     emit sessionLoaded(sessionId, sessionInfo.name);
     
-    qDebug() << "SessionPlayer: Loaded session" << sessionId << ":" << sessionInfo.name;
 }
 
 void SessionPlayer::play()
@@ -81,7 +80,6 @@ void SessionPlayer::play()
         m_isPlaying = true;
         m_playbackTimer->start();
         emit isPlayingChanged();
-        qDebug() << "SessionPlayer: Started playback";
     }
 }
 
@@ -92,7 +90,6 @@ void SessionPlayer::stop()
         m_isPlaying = false;
         m_playbackTimer->stop();
         emit isPlayingChanged();
-        qDebug() << "SessionPlayer: Stopped playback";
     }
     
     // Сбрасываем позицию на начало
@@ -111,7 +108,6 @@ void SessionPlayer::pause()
         m_isPlaying = false;
         m_playbackTimer->stop();
         emit isPlayingChanged();
-        qDebug() << "SessionPlayer: Paused playback";
     }
 }
 
@@ -136,7 +132,6 @@ void SessionPlayer::setPosition(double position)
     }
     
     emit currentPositionChanged();
-    qDebug() << "SessionPlayer: Position set to" << position << "seconds";
 }
 
 void SessionPlayer::onPlaybackTimer()
@@ -153,7 +148,6 @@ void SessionPlayer::onPlaybackTimer()
     {
         stop();
         emit playbackFinished();
-        qDebug() << "SessionPlayer: Playback finished";
     }
 }
 
@@ -217,9 +211,6 @@ void SessionPlayer::loadSessionData(int sessionId)
     
     emit sessionEndTimeChanged();
     emit maxPositionChanged();
-    
-    qDebug() << "SessionPlayer: Loaded" << m_sessionData.size() << "data points";
-    qDebug() << "SessionPlayer: Duration:" << m_maxPosition << "seconds";
 }
 
 void SessionPlayer::clearStorage()
@@ -227,6 +218,5 @@ void SessionPlayer::clearStorage()
     if (m_storage)
     {
         m_storage->clear();
-        qDebug() << "SessionPlayer: Cleared storage";
     }
 }

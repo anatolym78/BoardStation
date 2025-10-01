@@ -32,7 +32,7 @@ Rectangle
                 text: qsTr("Sessions")
                 font.pixelSize: 16
                 font.bold: true
-                color: "#333333"
+                color: "dimgray"
             }
             
             Item 
@@ -40,25 +40,25 @@ Rectangle
                 Layout.fillWidth: true
             }
             
-            Button 
-            {
-                text: qsTr("Refresh")
-                onClicked: sessionsPanel.refreshRequested()
+            // Button
+            // {
+            //     text: qsTr("Refresh")
+            //     onClicked: sessionsPanel.refreshRequested()
                 
-                background: Rectangle 
-                {
-                    color: parent.pressed ? "#4CAF50" : "#5cb85c"
-                    radius: 3
-                }
+            //     background: Rectangle
+            //     {
+            //         color: parent.pressed ? "#4CAF50" : "#5cb85c"
+            //         radius: 3
+            //     }
                 
-                contentItem: Text 
-                {
-                    text: parent.text
-                    color: "white"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
+            //     contentItem: Text
+            //     {
+            //         text: parent.text
+            //         color: "white"
+            //         horizontalAlignment: Text.AlignHCenter
+            //         verticalAlignment: Text.AlignVCenter
+            //     }
+            // }
         }
         
         // Список сессий
@@ -73,6 +73,8 @@ Rectangle
             {
                 width: sessionsList.width
                 height: 60
+                radius: 2
+                anchors.margins: 2
                 color: sessionsList.currentIndex === index ? Qt.hsva(0.6, 0.99, 0.99, 0.3) : "transparent"
                 
                 MouseArea 
@@ -95,7 +97,7 @@ Rectangle
                     {
                         if (sessionsList.currentIndex !== index)
                         {
-                            parent.color = Qt.hsva(0.6, 0.99, 0.99, 0.2)
+                            //parent.color = Qt.hsva(0.6, 0.99, 0.99, 0.2)
                         }
                     }
                     
@@ -156,22 +158,22 @@ Rectangle
             }
         }
         
-        // Информация о текущей сессии
-        Rectangle 
-        {
-            Layout.fillWidth: true
-            height: 30
-            color: "transparent"
+        // // Информация о текущей сессии
+        // Rectangle
+        // {
+        //     Layout.fillWidth: true
+        //     height: 30
+        //     color: "transparent"
             
-            Text 
-            {
-                anchors.centerIn: parent
-                text: sessionsList.currentIndex >= 0 ? 
-                      qsTr("Selected session: ") + (sessionsList.model ? sessionsList.model.get(sessionsList.currentIndex).sessionName : "") :
-                      qsTr("Select a session")
-                font.pixelSize: 12
-                color: "#495057"
-            }
-        }
+        //     Text
+        //     {
+        //         anchors.centerIn: parent
+        //         text: sessionsList.currentIndex >= 0 ?
+        //               qsTr("Selected session: ") + (sessionsList.model ? sessionsList.model.get(sessionsList.currentIndex).sessionName : "") :
+        //               qsTr("Select a session")
+        //         font.pixelSize: 12
+        //         color: "#495057"
+        //     }
+        // }
     }
 }

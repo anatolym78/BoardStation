@@ -77,7 +77,7 @@ Rectangle
                     {
                         switch(column)
                         {
-                        case 0: return Qt.hsva(0.50, 0.5, 0.5, 0.7)
+                        case 0: return Qt.hsva(0.6, 0.5, 0.5, 0.7)// return Qt.hsva(0.50, 0.5, 0.5, 0.7)
                         case 1: return "white"
                         case 2: return "white"
                         default: return "white"

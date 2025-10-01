@@ -63,11 +63,8 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     m_boardMessagesWriter->clearCurrentSession();
     
     // Создаём новую сессию для текущего запуска
-    QString sessionName = QString("Сессия от %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-    m_boardMessagesWriter->createNewSession(sessionName);
-    
-    // Выводим информацию о базе данных
-    qDebug() << "BoardStationApp: Путь к базе данных:" << m_boardMessagesWriter->getDatabasePath();
+    QString sessionName = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+    //m_boardMessagesWriter->createNewSession(sessionName);
     
     // Настраиваем драйвер
     setupDriver();
@@ -83,7 +80,7 @@ BoardStationApp::~BoardStationApp()
     // Принудительно сохраняем все данные перед закрытием
     if (m_boardMessagesWriter) 
     {
-        m_boardMessagesWriter->forceSave();
+        //m_boardMessagesWriter->forceSave();
     }
     
     //qDebug() << "BoardStationApp: Application shutdown";

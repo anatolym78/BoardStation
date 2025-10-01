@@ -15,10 +15,13 @@ ScrollView
     {
         id: debugListView
         anchors.fill: parent
+        spacing: 4
         
         // Автоматическая прокрутка к концу при добавлении новых элементов
-        onCountChanged: {
-            if (count > 0) {
+        onCountChanged:
+        {
+            if (count > 0)
+            {
                 positionViewAtEnd()
             }
         }
@@ -28,8 +31,8 @@ ScrollView
             id: delegateRect
             width: debugListView.width
             height: messageText.implicitHeight + 8
-            border.color: "#f0f0f0"
-            border.width: 1
+            radius: 4
+            color: "gainsboro"
             
             Text
             {
