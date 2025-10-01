@@ -1,4 +1,6 @@
-#include "boardparameterslistmodel.h"
+#include "BoardParametersListModel.h"
+
+#include <random>
 
 BoardParametersListModel::BoardParametersListModel(BoardParameterHistoryStorage* storage, QObject *parent)
 	: QAbstractListModel{parent},
@@ -8,9 +10,15 @@ BoardParametersListModel::BoardParametersListModel(BoardParameterHistoryStorage*
 
     int hue = 0;
     int hueStep = 60 + 5;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib_int(192, 255);
     for(auto i=0;i<200;i++)
     {
-        m_colors.append(QColor::fromHsv(hue, 225, 192, 255));
+		auto sat = distrib_int(gen);
+		auto val = distrib_int(gen);
+        m_colors.append(QColor::fromHsv(hue, sat, val, 255));
 
         hue += hueStep;
 

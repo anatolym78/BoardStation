@@ -169,8 +169,20 @@ Rectangle
                         {
                             //chartViewModel.splitSeries(chartIndex)
 
-                            splitSeries(seriesMap)
+                            //splitSeries(seriesMap)
                         }
+                    }
+                    onWheel:
+                    {
+                        if(wheel.angleDelta.y > 0)
+                        {
+                            zoom(1.1)
+                        }
+                        else
+                        {
+                            zoom(0.9)
+                        }
+
                     }
                 }
 
@@ -181,6 +193,8 @@ Rectangle
                          if(map.hasOwnProperty(key))
                          {
                              console.log(map[key])
+
+
                          }
                     }
                 }

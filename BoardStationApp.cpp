@@ -145,9 +145,7 @@ void BoardStationApp::connectSignals()
 {
     if (m_driver)
     {
-        connect(m_driver, &drv::IDriver::dataAvailable,
-                this, &BoardStationApp::onDataAvailable);
-        //qDebug() << "BoardStationApp: Signals connected";
+        connect(m_driver, &drv::IDriver::dataAvailable, this, &BoardStationApp::onDataAvailable);
     }
 }
 
@@ -183,7 +181,7 @@ void BoardStationApp::onDataAvailable() const
     m_parametersStorage->addParameters(newParameters);
     
     // Добавляем сообщение в очередь для записи в файл
-    m_boardMessagesWriter->addMessage(newParameters);
+    //m_boardMessagesWriter->addMessage(newParameters);
 }
 
 void BoardStationApp::loadOutParameters() const
