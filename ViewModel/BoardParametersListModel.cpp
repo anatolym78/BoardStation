@@ -97,6 +97,11 @@ int BoardParametersListModel::getCountParameters() const
 	return rowCount(QModelIndex());
 }
 
+void BoardParametersListModel::clearParameters()
+{
+    onParametersCleared();
+}
+
 void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* parameter)
 {
 	if (parameter == nullptr) return;

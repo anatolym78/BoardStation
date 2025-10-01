@@ -20,6 +20,9 @@ public:
 
 public slots:
     void sendParametersToBoard();
+    void startListening();
+    void stopListening();
+    bool isListening() const;
 
 private slots:
     void onParameterUpdated(const QString &label);
@@ -31,6 +34,7 @@ private:
     void setupUplinkParametersModel();
     void setupDebugViewModel();
     void setupChartSeriesModel();
+    void setupSessionsListModel();
     void setupConnections();
     void addTestDataToModel();
 

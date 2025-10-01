@@ -3,6 +3,7 @@ QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT += charts
 QT += quick
+QT += sql
 
 CONFIG += c++17
 
@@ -37,6 +38,8 @@ SOURCES += \
     ViewModel/OutParametersModel.cpp \
     ViewModel/UplinkParametersModel.cpp \
     ViewModel/DebugViewModel.cpp \
+    ViewModel/SessionsListModel.cpp \
+    ViewModel/SessionPlayer.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
     Model/Parameters/RealOutParameter.cpp \
@@ -55,6 +58,8 @@ SOURCES += \
     Model/Parameters/BoardMessage.cpp \
     Model/Parameters/BoardMessagesJsonWriter.cpp \
     Model/Parameters/BoardMessagesJsonWriterNew.cpp \
+    Model/Parameters/BoardMessagesSqliteWriter.cpp \
+    Model/Parameters/BoardMessagesSqliteReader.cpp \
     main.cpp \
     mainwindow.cpp \
     QmlMainWindow.cpp
@@ -87,6 +92,8 @@ HEADERS += \
     ViewModel/OutParametersModel.h \
     ViewModel/UplinkParametersModel.h \
     ViewModel/DebugViewModel.h \
+    ViewModel/SessionsListModel.h \
+    ViewModel/SessionPlayer.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \
     Model/Parameters/RealOutParameter.h \
@@ -108,6 +115,8 @@ HEADERS += \
     Model/Parameters/BoardMessage.h \
     Model/Parameters/BoardMessagesJsonWriter.h \
     Model/Parameters/BoardMessagesJsonWriterNew.h \
+    Model/Parameters/BoardMessagesSqliteWriter.h \
+    Model/Parameters/BoardMessagesSqliteReader.h \
     Model/Parameters/Parameters.h \
     mainwindow.h \
     QmlMainWindow.h

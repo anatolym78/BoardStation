@@ -31,11 +31,44 @@ Rectangle
 
         Text
         {
-            text: "Drone Parameters"
+            text: qsTr("Drone Parameters")
             font.pointSize: 12
             font.bold: true
             color: "gray"
             Layout.alignment: Qt.AlignHCenter
+        }
+        
+        // Переключатель "прослушивать"
+        RowLayout
+        {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            
+            Switch
+            {
+                id: listenSwitch
+                text: qsTr("Listen")
+                font.pointSize: 10
+                checked: true // Включен по умолчанию
+                onCheckedChanged: 
+                {
+                    if (checked)
+                    {
+                        qmlMainWindow.startListening()
+                        console.log("Started listening")
+                    }
+                    else
+                    {
+                        qmlMainWindow.stopListening()
+                        console.log("Stopped listening")
+                    }
+                }
+            }
+            
+            Item
+            {
+                Layout.fillWidth: true
+            }
         }
 
         ListView

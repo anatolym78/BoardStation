@@ -7,7 +7,8 @@
 #include "ViewModel/ChartSeriesModel.h"
 #include "ViewModel/ChartsListModel.h"
 #include "ViewModel/ChartViewModel.h"
-#include <QDateTime>
+#include "ViewModel/SessionsListModel.h"
+#include "ViewModel/SessionPlayer.h"
 #include <QQuickItem>
 
 #include <QDebug>
@@ -27,6 +28,8 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
     qmlRegisterType<ChartSeriesModel>("BoardStation", 1, 0, "ChartSeriesModel");
     qmlRegisterType<ChartsListModel>("BoardStation", 1, 0, "ChartsListModel");
     qmlRegisterType<ChartViewModel>("BoardStation", 1, 0, "ChartViewModel");
+    qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
+    qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
     
     // Configure QML engine
     setResizeMode(SizeRootObjectToView);
@@ -64,6 +67,9 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         
         // Setup chart series model
         setupChartSeriesModel();
+        
+        // Setup sessions list model
+        setupSessionsListModel();
         
         // Connect parameter update signals
         if (m_app->getParametersStorage())
@@ -195,6 +201,49 @@ void QmlMainWindow::setupChartSeriesModel()
     m_context->setContextProperty("chartViewModel", chartViewModel);
 }
 
+void QmlMainWindow::setupSessionsListModel()
+{
+    if (!m_app || !m_context) return;
+    
+    // Create sessions list model
+    auto sessionsListModel = new SessionsListModel(this);
+    
+    // Set reader from application
+    auto reader = m_app->getBoardMessagesReader();
+    if (reader) 
+    {
+        sessionsListModel->setReader(reader);
+        //qDebug() << "QmlMainWindow: Sessions list model created and reader set";
+    }
+    else 
+    {
+        qWarning() << "QmlMainWindow: Board messages reader not found";
+    }
+    
+    // Pass model to QML context
+    m_context->setContextProperty("sessionsListModel", sessionsListModel);
+    
+    // Create session player
+    auto sessionPlayer = new SessionPlayer(this);
+    
+    // Set reader and storage from application
+    if (reader) 
+    {
+        sessionPlayer->setReader(reader);
+    }
+    
+    auto storage = m_app->getParametersStorage();
+    if (storage)
+    {
+        sessionPlayer->setStorage(storage);
+    }
+    
+    // Pass player to QML context
+    m_context->setContextProperty("sessionPlayer", sessionPlayer);
+    
+    qDebug() << "QmlMainWindow: Session player created and added to context";
+}
+
 void QmlMainWindow::setupConnections()
 {
 }
@@ -243,4 +292,39 @@ void QmlMainWindow::sendParametersToBoard()
     {
         qWarning() << "QmlMainWindow: Application instance is not available";
     }
+}
+
+void QmlMainWindow::startListening()
+{
+    if (m_app)
+    {
+        m_app->startListening();
+        qDebug() << "QmlMainWindow: Started listening";
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+void QmlMainWindow::stopListening()
+{
+    if (m_app)
+    {
+        m_app->stopListening();
+        qDebug() << "QmlMainWindow: Stopped listening";
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+bool QmlMainWindow::isListening() const
+{
+    if (m_app)
+    {
+        return m_app->isListening();
+    }
+    return false;
 }

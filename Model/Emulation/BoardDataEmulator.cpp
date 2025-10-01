@@ -18,6 +18,7 @@ BoardDataEmulator::BoardDataEmulator(QObject *)
     , m_time(0.0)
     , m_currentState(State::k_Disconnected)
     , m_isRunning(false)
+    , m_isListening(true) // По умолчанию слушаем
 {
     // Настройка таймера состояния (каждые 30 секунд)
     m_stateTimer->setInterval(30000);
@@ -128,7 +129,7 @@ void BoardDataEmulator::onStateTimerTimeout()
 
 void BoardDataEmulator::onDataTimerTimeout()
 {
-    if (!m_isRunning || m_currentState != State::k_Connected) {
+    if (!m_isRunning || m_currentState != State::k_Connected || !m_isListening) {
         return;
     }
     
@@ -234,6 +235,25 @@ void BoardDataEmulator::saveSentParametersToFile(const QString &jsonString)
     
     //qDebug() << "BoardDataEmulator: Sent parameters saved to" << filename;
     //qDebug() << "BoardDataEmulator: JSON content:" << jsonString;
+}
+
+// Реализации функций управления прослушиванием
+
+void BoardDataEmulator::startListening()
+{
+    m_isListening = true;
+    qDebug() << "BoardDataEmulator: Started listening";
+}
+
+void BoardDataEmulator::stopListening()
+{
+    m_isListening = false;
+    qDebug() << "BoardDataEmulator: Stopped listening";
+}
+
+bool BoardDataEmulator::isListening() const
+{
+    return m_isListening;
 }
 
 } // namespace drv

@@ -32,6 +32,9 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE int getCountParameters() const;
+    
+    // Публичный метод для очистки параметров
+    Q_INVOKABLE void clearParameters();
 
 protected slots:
     void onNewParameterAdded(BoardParameterSingle* param);

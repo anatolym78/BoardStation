@@ -15,6 +15,7 @@ Item
     {
         boardParametersList.parametersListModel = parametersListModel
         droneControlPanel.uplinkParametersModel = uplinkParametersModel
+        sessionsPanel.sessionsModel = sessionsListModel
     }
     
     // Main frame
@@ -22,29 +23,62 @@ Item
     {
         anchors.fill: parent
 
-
-        Rectangle
+        ColumnLayout
         {
             anchors.fill: parent
-            //color:"#f7f7f7"
-            radius: 4
+            spacing: 8
 
-            RowLayout
+            Rectangle
             {
-                 anchors.fill: parent
-                 spacing: 8
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                //color:"#f7f7f7"
+                radius: 4
 
-                // Отображает список параметров, полученных от дрона
-                BoardParametersList
+                RowLayout
                 {
-                    id: boardParametersList
-                    Layout.preferredWidth: 1.5
+                    anchors.fill: parent
+                    spacing: 8
+
+                ColumnLayout
+                {
+                    Layout.preferredWidth: 1.7
                     Layout.fillWidth: true
                     Layout.fillHeight: true
+                    spacing: 8
 
-                    onParameterSelected:
+                    // Отображает список параметров, полученных от дрона
+                    BoardParametersList
                     {
-                        simpleChartsPanel.toggleParameter(label, color)
+                        id: boardParametersList
+                        Layout.fillWidth: true
+                         Layout.fillHeight: true
+                        Layout.preferredHeight: 3
+
+                        onParameterSelected:
+                        {
+                            simpleChartsPanel.toggleParameter(label, color)
+                        }
+                    }
+
+                    // Панель управления сессиями
+                    SessionsPanel
+                    {
+                        id: sessionsPanel
+                        Layout.fillWidth: true
+                         Layout.fillHeight: true
+                        Layout.preferredHeight: 2
+
+                        onSessionSelected:
+                        {
+                            //console.log("Выбрана сессия:", sessionId, sessionName)
+                        }
+
+                        onRefreshRequested:
+                        {
+                            //console.log("Запрос на обновление сессий")
+                            sessionsListModel.refreshSessions()
+                        }
                     }
                 }
 
@@ -101,6 +135,42 @@ Item
                  }
              }
 
+            }
+            
+            // Панель плеера сессий в самом низу
+            SessionPlayerPanel
+            {
+                id: sessionPlayerPanel
+                Layout.fillWidth: true
+                Layout.preferredHeight: 80
+                
+                onPlayClicked:
+                {
+                    console.log("Play clicked")
+                    if (sessionPlayer)
+                    {
+                        sessionPlayer.play()
+                    }
+                }
+                
+                onStopClicked:
+                {
+                    console.log("Stop clicked")
+                    if (sessionPlayer)
+                    {
+                        sessionPlayer.stop()
+                    }
+                }
+                
+                onPositionChanged:
+                {
+                    console.log("Position changed:", position)
+                    if (sessionPlayer)
+                    {
+                        sessionPlayer.setPosition(position)
+                    }
+                }
+            }
         }
 
  }
@@ -121,6 +191,14 @@ Item
         property: "uplinkParametersModel"
         value: uplinkParametersModel
         when: uplinkParametersModel !== null
+    }
+    
+    Binding
+    {
+        target: sessionsPanel
+        property: "sessionsModel"
+        value: sessionsListModel
+        when: sessionsListModel !== null
     }
 }
 

@@ -220,7 +220,7 @@ bool UplinkParametersModel::setData(const QModelIndex &index, const QVariant &va
         
         // Проверяем, нужно ли эмитировать сигнал для автоматической отправки
         QString controlType = parameter->getControlType();
-        if (controlType == "CheckBox" || controlType == "SpinBox" ||
+        if (controlType == "CheckBox" || controlType == "Switch" || controlType == "SpinBox" ||
             controlType == "Slider" || controlType == "ComboBox")
         {
             // Не отправляем сигнал во время инициализации
@@ -324,5 +324,5 @@ void UplinkParametersModel::refreshModel()
 void UplinkParametersModel::onInitializationTimeout()
 {
     m_isInitializing = false; // Сбрасываем флаг инициализации
-    qDebug() << "UplinkParametersModel: Initialization completed, auto-send enabled";
+    //qDebug() << "UplinkParametersModel: Initialization completed, auto-send enabled";
 }

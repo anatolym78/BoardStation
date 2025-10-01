@@ -11,6 +11,7 @@
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QDateTime>
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
     : QApplication(argc, argv)
@@ -18,7 +19,8 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_parametersModel(nullptr)
     , m_driver(nullptr)
     , m_jsonReader(new BoardParametersJsonParserNew(this))
-    , m_boardMessagesWriter(new BoardMessagesJsonWriterNew("CaptureBoardData.json", this))
+    , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
+    , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
 {
     //qDebug() << "BoardStationApp: Application initialization";
     
@@ -57,8 +59,15 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Загружаем новые uplink параметры
     loadUplinkParameters();
     
-    // Очищаем файл записи сообщений от борта
-    m_boardMessagesWriter->clearFile();
+    // Очищаем данные текущей сессии (вместо очистки файла)
+    m_boardMessagesWriter->clearCurrentSession();
+    
+    // Создаём новую сессию для текущего запуска
+    QString sessionName = QString("Сессия от %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+    m_boardMessagesWriter->createNewSession(sessionName);
+    
+    // Выводим информацию о базе данных
+    qDebug() << "BoardStationApp: Путь к базе данных:" << m_boardMessagesWriter->getDatabasePath();
     
     // Настраиваем драйвер
     setupDriver();
@@ -69,6 +78,14 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 BoardStationApp::~BoardStationApp()
 {
+    qDebug() << "BoardStationApp: Application shutdown - сохранение данных...";
+    
+    // Принудительно сохраняем все данные перед закрытием
+    if (m_boardMessagesWriter) 
+    {
+        m_boardMessagesWriter->forceSave();
+    }
+    
     //qDebug() << "BoardStationApp: Application shutdown";
 }
 
@@ -180,8 +197,8 @@ void BoardStationApp::onDataAvailable() const
     // Добавляем параметры в хранилище (создаёт или дополняет истории)
     m_parametersStorage->addParameters(newParameters);
     
-    // Добавляем сообщение в очередь для записи в файл
-    //m_boardMessagesWriter->addMessage(newParameters);
+    // Добавляем сообщение в очередь для записи в базу данных
+    m_boardMessagesWriter->addMessage(newParameters);
 }
 
 void BoardStationApp::loadOutParameters() const
@@ -227,9 +244,23 @@ OutParametersStorage* BoardStationApp::getOutParametersStorage() const
     return m_outParametersStorage;
 }
 
-BoardMessagesJsonWriterNew* BoardStationApp::getBoardMessagesWriter() const
+BoardMessagesSqliteWriter* BoardStationApp::getBoardMessagesWriter() const
 {
     return m_boardMessagesWriter;
+}
+
+BoardMessagesSqliteReader* BoardStationApp::getBoardMessagesReader() const
+{
+    return m_boardMessagesReader;
+}
+
+QString BoardStationApp::getDatabasePath() const
+{
+    if (m_boardMessagesWriter) 
+    {
+        return m_boardMessagesWriter->getDatabasePath();
+    }
+    return QString();
 }
 
 drv::IDriver* BoardStationApp::getDriver() const
@@ -407,4 +438,46 @@ void BoardStationApp::onParameterChanged(BasicUplinkParameter* parameter)
     
     // Отправляем только этот параметр
     sendSingleParameter(parameter);
+}
+
+// Методы управления прослушиванием
+
+void BoardStationApp::startListening()
+{
+    if (m_driver)
+    {
+        m_driver->startListening();
+        qDebug() << "BoardStationApp: Started listening";
+    }
+}
+
+void BoardStationApp::stopListening()
+{
+    if (m_driver)
+    {
+        m_driver->stopListening();
+        
+        // Очищаем модель параметров
+        if (m_parametersModel)
+        {
+            m_parametersModel->clearParameters();
+        }
+        
+        // Очищаем хранилище параметров
+        if (m_parametersStorage)
+        {
+            m_parametersStorage->clear();
+        }
+        
+        qDebug() << "BoardStationApp: Stopped listening and cleared data";
+    }
+}
+
+bool BoardStationApp::isListening() const
+{
+    if (m_driver)
+    {
+        return m_driver->isListening();
+    }
+    return false;
 }

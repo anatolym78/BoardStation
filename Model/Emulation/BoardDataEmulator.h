@@ -24,6 +24,11 @@ public:
     void write(const std::string &data) override;
     const std::string &read() override;
     void flushData() override;
+    
+    // Функции управления прослушиванием
+    void startListening() override;
+    void stopListening() override;
+    bool isListening() const override;
 
     // Control methods
     void start();
@@ -54,6 +59,7 @@ private:
     
     State m_currentState;
     bool m_isRunning;
+    bool m_isListening;
 };
 
 } // namespace drv

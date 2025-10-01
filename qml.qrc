@@ -5,6 +5,8 @@
         <file>Interface/Qml/ChartsPanel.qml</file>
         <file>Interface/Qml/SimpleChartsPanel.qml</file>
         <file>Interface/Qml/BoardParametersList.qml</file>
+        <file>Interface/Qml/SessionsPanel.qml</file>
+        <file>Interface/Qml/SessionPlayerPanel.qml</file>
         <file>Interface/Qml/Colors.qml</file>
         <file>Interface/Qml/DebugLogsView.qml</file>
     </qresource>

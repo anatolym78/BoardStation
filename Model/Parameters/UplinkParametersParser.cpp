@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QDebug>
+#include <functional>
 
 UplinkParametersParser::UplinkParametersParser()
 {
@@ -334,7 +335,12 @@ QString UplinkParametersParser::correctControlType(const QString &valueType, con
         {
             return "ComboBox";
         }
-        return "CheckBox";
+        // Если исходный controlType был CheckBox или Switch, сохраняем его
+        if (controlType == "CheckBox" || controlType == "Switch") 
+        {
+            return controlType;
+        }
+        return "Switch"; // По умолчанию для булевых параметров
     }
     else if (valueType == "string") 
     {
@@ -409,86 +415,20 @@ QJsonValue UplinkParametersParser::getDefaultValueForType(const QString &valueTy
 
 bool UplinkParametersParser::isControlTypeSuitable(const QString &controlType, const QString &valueType, const QJsonObject &parameterObj)
 {
-    if (controlType == "TextEdit") 
+    // Используем map для более элегантного решения
+    static const QHash<QString, std::function<bool(const QString&, const QJsonObject&)>> controlTypeMap = {
+        {"TextEdit", [this](const QString& vt, const QJsonObject& po) { return isTextEditSuitable(vt, po); }},
+        {"Slider", [this](const QString& vt, const QJsonObject& po) { return isSliderSuitable(vt, po); }},
+        {"CheckBox", [this](const QString& vt, const QJsonObject& po) { return isCheckBoxSuitable(vt, po); }},
+        {"Switch", [this](const QString& vt, const QJsonObject& po) { return isSwitchSuitable(vt, po); }},
+        {"SpinBox", [this](const QString& vt, const QJsonObject& po) { return isSpinBoxSuitable(vt, po); }},
+        {"ComboBox", [this](const QString& vt, const QJsonObject& po) { return isComboBoxSuitable(vt, po); }}
+    };
+    
+    auto it = controlTypeMap.find(controlType);
+    if (it != controlTypeMap.end()) 
     {
-        return true; // TextEdit подходит для всех типов
-    }
-    else if (controlType == "Slider") 
-    {
-        if (valueType == "bool" || valueType == "string") 
-        {
-            return false;
-        }
-        double min, max, step;
-        return parseRange(parameterObj, min, max, step);
-    }
-    else if (controlType == "CheckBox") 
-    {
-        if (valueType != "bool") 
-        {
-            // Для int и double можно использовать CheckBox только если есть список из двух значений
-            if (valueType == "int" || valueType == "double") 
-            {
-                QList<double> valuesList = parseValuesList(parameterObj);
-                return valuesList.size() == 2;
-            }
-            return false;
-        }
-        QStringList valuesList = parseStringValuesList(parameterObj);
-        return valuesList.size() == 2;
-    }
-    else if (controlType == "SpinBox") 
-    {
-        if (valueType == "bool" || valueType == "string") 
-        {
-            return false;
-        }
-        // SpinBox подходит если указан шаг
-        double min, max, step;
-        if (parseRange(parameterObj, min, max, step)) 
-        {
-            return step != 1.0;
-        }
-        // Также проверяем в самом объекте параметра
-        if (parameterObj.contains("range")) 
-        {
-            QString rangeStr = parameterObj["range"].toString();
-            QStringList parts = rangeStr.split(",");
-            return parts.size() > 2 && parts[2].trimmed().toDouble() != 1.0;
-        }
-        return false;
-    }
-    else if (controlType == "ComboBox") 
-    {
-        if (valueType == "bool" || valueType == "string") 
-        {
-            // Для bool и string ComboBox подходит если есть список значений
-            if (valueType == "bool") 
-            {
-                QList<bool> valuesList = parseBoolValuesList(parameterObj);
-                return !valuesList.isEmpty();
-            }
-            else 
-            {
-                QStringList valuesList = parseStringValuesList(parameterObj);
-                return !valuesList.isEmpty();
-            }
-        }
-        else 
-        {
-            // Для int и double ComboBox подходит если есть список или диапазон с ограниченным количеством значений
-            QList<double> valuesList = parseValuesList(parameterObj);
-            if (!valuesList.isEmpty()) 
-            {
-                return true;
-            }
-            double min, max, step;
-            if (parseRange(parameterObj, min, max, step)) 
-            {
-                int valuesCount = calculatePossibleValuesCount(min, max, step);
-                return valuesCount <= 10;
-            }
-        }
+        return it.value()(valueType, parameterObj);
     }
     
     return false;
@@ -506,4 +446,104 @@ int UplinkParametersParser::calculatePossibleValuesCount(double min, double max,
     int count = static_cast<int>(range / step) + 1;
     
     return count;
+}
+
+// Реализации отдельных функций для проверки типов контролов
+
+bool UplinkParametersParser::isTextEditSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    Q_UNUSED(valueType)
+    Q_UNUSED(parameterObj)
+    return true; // TextEdit подходит для всех типов
+}
+
+bool UplinkParametersParser::isSliderSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    if (valueType == "bool" || valueType == "string") 
+    {
+        return false;
+    }
+    double min, max, step;
+    return parseRange(parameterObj, min, max, step);
+}
+
+bool UplinkParametersParser::isCheckBoxSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    if (valueType == "bool") 
+    {
+        QStringList valuesList = parseStringValuesList(parameterObj);
+        return valuesList.size() == 2;
+    }
+    
+    // Для int и double можно использовать CheckBox только если есть список из двух значений
+    if (valueType == "int" || valueType == "double") 
+    {
+        QList<double> valuesList = parseValuesList(parameterObj);
+        return valuesList.size() == 2;
+    }
+    
+    return false;
+}
+
+bool UplinkParametersParser::isSwitchSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    // Switch работает идентично CheckBox
+    return isCheckBoxSuitable(valueType, parameterObj);
+}
+
+bool UplinkParametersParser::isSpinBoxSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    if (valueType == "bool" || valueType == "string") 
+    {
+        return false;
+    }
+    
+    // SpinBox подходит если указан шаг
+    double min, max, step;
+    if (parseRange(parameterObj, min, max, step)) 
+    {
+        return step != 1.0;
+    }
+    
+    // Также проверяем в самом объекте параметра
+    if (parameterObj.contains("range")) 
+    {
+        QString rangeStr = parameterObj["range"].toString();
+        QStringList parts = rangeStr.split(",");
+        return parts.size() > 2 && parts[2].trimmed().toDouble() != 1.0;
+    }
+    
+    return false;
+}
+
+bool UplinkParametersParser::isComboBoxSuitable(const QString &valueType, const QJsonObject &parameterObj)
+{
+    if (valueType == "bool") 
+    {
+        QList<bool> valuesList = parseBoolValuesList(parameterObj);
+        return !valuesList.isEmpty();
+    }
+    else if (valueType == "string") 
+    {
+        QStringList valuesList = parseStringValuesList(parameterObj);
+        return !valuesList.isEmpty();
+    }
+    else if (valueType == "int" || valueType == "double") 
+    {
+        // Для int и double ComboBox подходит если есть список или диапазон с ограниченным количеством значений
+        QList<double> valuesList = parseValuesList(parameterObj);
+        if (!valuesList.isEmpty()) 
+        {
+            return true;
+        }
+        
+        double min, max, step;
+        if (parseRange(parameterObj, min, max, step)) 
+        {
+            int valuesCount = calculatePossibleValuesCount(min, max, step);
+            return valuesCount <= 10;
+        }
+    }
+    
+    return false;
 }

@@ -53,7 +53,8 @@ Item
                 property var chartIndex: model.index
                 width: 320
                 height: 240
-                theme: ChartView.ChartThemeLight
+                //theme: ChartView.ChartThemeDark
+                //backgroundColor: "blue"
                 property bool highlight: false
                 opacity: highlight ? 0.8 : 1.0
                 //z: depth

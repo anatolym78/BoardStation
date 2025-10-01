@@ -14,7 +14,8 @@
 #include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/UplinkParametersParser.h"
 #include "Model/Parameters/BasicUplinkParameter.h"
-#include "Model/Parameters/BoardMessagesJsonWriterNew.h"
+#include "Model/Parameters/BoardMessagesSqliteWriter.h"
+#include "Model/Parameters/BoardMessagesSqliteReader.h"
 #include "Interface/Charts/ChartBuilder.h"
 #include "ViewModel/BoardParametersListModel.h"
 
@@ -58,10 +59,17 @@ public:
     QList<BasicUplinkParameter*> getUplinkParameters() const;
     
     // Методы для работы с записью сообщений от борта
-    BoardMessagesJsonWriterNew* getBoardMessagesWriter() const;
+    BoardMessagesSqliteWriter* getBoardMessagesWriter() const;
+    BoardMessagesSqliteReader* getBoardMessagesReader() const;
+    QString getDatabasePath() const;
     
     // Методы для работы с драйвером
     drv::IDriver* getDriver() const;
+    
+    // Методы управления прослушиванием
+    void startListening();
+    void stopListening();
+    bool isListening() const;
     
     // Отправка параметров на борт
     void sendParametersToBoard();
@@ -88,7 +96,8 @@ private:
     ChartSeriesModel *m_chartSeriesModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParserNew *m_jsonReader;
-    BoardMessagesJsonWriterNew *m_boardMessagesWriter;
+    BoardMessagesSqliteWriter *m_boardMessagesWriter;
+    BoardMessagesSqliteReader *m_boardMessagesReader;
 };
 
 #endif // BOARDSTATIONAPP_H

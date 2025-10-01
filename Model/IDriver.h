@@ -21,6 +21,11 @@ public:
     virtual void write(const std::string &data) = 0;
     virtual const std::string &read() = 0;
     virtual void flushData() = 0;
+    
+    // Функции управления прослушиванием
+    virtual void startListening() = 0;
+    virtual void stopListening() = 0;
+    virtual bool isListening() const = 0;
 
 signals:
     void dataAvailable();

@@ -35,6 +35,14 @@ private:
     // Проверяет является ли тип контрола подходящим для параметра
     bool isControlTypeSuitable(const QString &controlType, const QString &valueType, const QJsonObject &parameterObj);
     
+    // Отдельные функции для проверки каждого типа контрола
+    bool isTextEditSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    bool isSliderSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    bool isCheckBoxSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    bool isSwitchSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    bool isSpinBoxSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    bool isComboBoxSuitable(const QString &valueType, const QJsonObject &parameterObj);
+    
     // Рассчитывает количество возможных значений для диапазона и шага
     int calculatePossibleValuesCount(double min, double max, double step);
     

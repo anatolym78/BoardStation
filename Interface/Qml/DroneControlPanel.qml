@@ -28,7 +28,7 @@ Rectangle
         
         Text
         {
-            text: "Drone Control"
+            text: qsTr("Drone Control")
             font.pointSize: 12
             font.bold: true
             Layout.alignment: Qt.AlignHCenter
@@ -204,6 +204,7 @@ Rectangle
                                         case "Slider": return sliderComponent
                                         case "ComboBox": return comboBoxComponent
                                         case "CheckBox": return checkBoxComponent
+                                        case "Switch": return switchComponent
                                         case "TextEdit": return textEditComponent
                                     }
 
@@ -277,6 +278,21 @@ Rectangle
 
                             Component
                             {
+                                id: switchComponent
+                                Switch
+                                {
+                                    anchors.centerIn: parent
+                                    font.pointSize: 11
+                                    checked: dataControl ? dataControl.currentValue : false
+                                    onCheckedChanged:
+                                    {
+                                        parameterValue = checked
+                                    }
+                                }
+                            }
+
+                            Component
+                            {
                                 id: textEditComponent
                                 TextField
                                 {
@@ -316,7 +332,7 @@ Rectangle
             
             Button
             {
-                text: "Send to drone"
+                text: qsTr("Send to drone")
                 font.pointSize: 10
                 Layout.preferredWidth: 120
                 onClicked: 
@@ -331,7 +347,7 @@ Rectangle
             
             CheckBox
             {
-                text: "Send immediately"
+                text: qsTr("Send immediately")
                 checked: false
                 font.pointSize: 10
                 onCheckedChanged: 
