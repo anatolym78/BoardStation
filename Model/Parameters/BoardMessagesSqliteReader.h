@@ -48,6 +48,9 @@ public:
     
     // Экспорт данных сессии в JSON (для совместимости)
     QString exportSessionToJson(int sessionId);
+    
+    // Удаление сессии
+    bool removeSession(int sessionId);
 
 signals:
     void readError(const QString &error);

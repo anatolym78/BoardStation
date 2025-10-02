@@ -38,7 +38,7 @@ Rectangle
             Layout.alignment: Qt.AlignHCenter
         }
         
-        // Переключатель "прослушивать"
+        // Переключатель "запись в базу данных"
         RowLayout
         {
             Layout.fillWidth: true
@@ -46,21 +46,19 @@ Rectangle
             
             Switch
             {
-                id: listenSwitch
-                text: qsTr("Listen")
+                id: recordSwitch
+                text: qsTr("Record")
                 font.pointSize: 10
-                checked: true // Включен по умолчанию
+                checked: false // Выключен по умолчанию
                 onCheckedChanged: 
                 {
                     if (checked)
                     {
-                        qmlMainWindow.startListening()
-                        console.log("Started listening")
+                        qmlMainWindow.startRecording()
                     }
                     else
                     {
-                        qmlMainWindow.stopListening()
-                        console.log("Stopped listening")
+                        qmlMainWindow.stopRecording()
                     }
                 }
             }
@@ -113,7 +111,7 @@ Rectangle
                         anchors.bottomMargin: 4
                         anchors.top: parent.top
                         anchors.bottom: parent.bottom
-                        color: Qt.hsva(0.6, 0.5, 0.5, 0.7)
+                        color: Qt.hsva(0.6, 0.3, 0.4, 0.7)
                         Text
                         {
                             anchors.centerIn: parent

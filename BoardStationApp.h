@@ -18,6 +18,7 @@
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
 #include "Interface/Charts/ChartBuilder.h"
 #include "ViewModel/BoardParametersListModel.h"
+#include "ViewModel/SessionsListModel.h"
 
 class MainWindow;
 class BoardParametersJsonParserNew;
@@ -50,6 +51,9 @@ public:
     // Методы для работы с моделью серий графиков
     ChartSeriesModel* getChartSeriesModel() const;
     
+    // Методы для работы с моделью сессий
+    SessionsListModel* getSessionsListModel() const;
+    
     // Методы для работы с исходящими параметрами
     void loadOutParameters() const;
     OutParametersStorage* getOutParametersStorage() const;
@@ -70,6 +74,11 @@ public:
     void startListening();
     void stopListening();
     bool isListening() const;
+    
+    // Методы управления записью в базу данных
+    void startRecording();
+    void stopRecording();
+    bool isRecording() const;
     
     // Отправка параметров на борт
     void sendParametersToBoard();
@@ -94,10 +103,12 @@ private:
     DebugViewModel *m_debugViewModel;
     mutable QList<BasicUplinkParameter*> m_uplinkParameters;
     ChartSeriesModel *m_chartSeriesModel;
+    SessionsListModel *m_sessionsListModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParserNew *m_jsonReader;
     BoardMessagesSqliteWriter *m_boardMessagesWriter;
     BoardMessagesSqliteReader *m_boardMessagesReader;
+    bool m_isRecording;
 };
 
 #endif // BOARDSTATIONAPP_H

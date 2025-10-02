@@ -330,3 +330,54 @@ BoardParameterSingle* BoardMessagesSqliteReader::createParameterFromQuery(const 
     
     return new BoardParameterSingle(label, value, timestamp, unit, const_cast<BoardMessagesSqliteReader*>(this));
 }
+
+bool BoardMessagesSqliteReader::removeSession(int sessionId)
+{
+    if (sessionId <= 0)
+    {
+        qWarning() << "BoardMessagesSqliteReader: Invalid session ID for removal:" << sessionId;
+        return false;
+    }
+    
+    QSqlQuery query(m_database);
+    
+    // Начинаем транзакцию
+    m_database.transaction();
+    
+    try 
+    {
+        // Удаляем все значения параметров для этой сессии
+        query.prepare("DELETE FROM parameter_values WHERE session_id = ?");
+        query.addBindValue(sessionId);
+        
+        if (!query.exec()) 
+        {
+            qWarning() << "BoardMessagesSqliteReader: Failed to delete parameter values for session" << sessionId << ":" << query.lastError().text();
+            m_database.rollback();
+            return false;
+        }
+        
+        // Удаляем саму сессию
+        query.prepare("DELETE FROM sessions WHERE id = ?");
+        query.addBindValue(sessionId);
+        
+        if (!query.exec()) 
+        {
+            qWarning() << "BoardMessagesSqliteReader: Failed to delete session" << sessionId << ":" << query.lastError().text();
+            m_database.rollback();
+            return false;
+        }
+        
+        // Подтверждаем транзакцию
+        m_database.commit();
+        
+        qDebug() << "BoardMessagesSqliteReader: Successfully removed session" << sessionId;
+        return true;
+    }
+    catch (const std::exception &e) 
+    {
+        qWarning() << "BoardMessagesSqliteReader: Exception during session removal:" << e.what();
+        m_database.rollback();
+        return false;
+    }
+}

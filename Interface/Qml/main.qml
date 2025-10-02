@@ -68,6 +68,11 @@ Item
                         Layout.fillWidth: true
                          Layout.fillHeight: true
                         Layout.preferredHeight: 2
+                        
+                        // Передаем состояние записи и ID текущей сессии
+                        isRecording: qmlMainWindow.isRecording()
+                        currentRecordingSessionId: qmlMainWindow.isRecording() ? 
+                            (boardMessagesWriter ? boardMessagesWriter.getCurrentSessionId() : -1) : -1
 
                         onSessionSelected:
                         {

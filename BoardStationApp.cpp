@@ -21,6 +21,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_jsonReader(new BoardParametersJsonParserNew(this))
     , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
+    , m_isRecording(false)
 {
     //qDebug() << "BoardStationApp: Application initialization";
     
@@ -53,6 +54,10 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     m_chartSeriesModel = new ChartSeriesModel(this);
     m_chartSeriesModel->setParametersStorage(m_parametersStorage);
     
+    // Создаем модель списка сессий
+    m_sessionsListModel = new SessionsListModel(this);
+    m_sessionsListModel->setReader(m_boardMessagesReader);
+    
     // Загружаем исходящие параметры
     loadOutParameters();
     
@@ -62,9 +67,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Очищаем данные текущей сессии (вместо очистки файла)
     m_boardMessagesWriter->clearCurrentSession();
     
-    // Создаём новую сессию для текущего запуска
-    QString sessionName = QString("%1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-    //m_boardMessagesWriter->createNewSession(sessionName);
+    // НЕ создаём сессию при старте - она будет создана при включении переключателя записи
     
     // Настраиваем драйвер
     setupDriver();
@@ -109,6 +112,10 @@ void BoardStationApp::setMainWindow(MainWindow *mainWindow)
         {
             m_debugViewModel->setParent(m_mainWindow);
         }
+        if (m_sessionsListModel) 
+        {
+            m_sessionsListModel->setParent(m_mainWindow);
+        }
     }
 }
 
@@ -142,6 +149,11 @@ ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
     return m_chartSeriesModel;
 }
 
+SessionsListModel* BoardStationApp::getSessionsListModel() const
+{
+    return m_sessionsListModel;
+}
+
 BoardParameterHistoryStorage* BoardStationApp::getParametersStorage() const
 {
     return m_parametersStorage;
@@ -152,7 +164,13 @@ void BoardStationApp::setupDriver()
     // Создаем эмулятор данных платы и присваиваем его интерфейсу
     m_driver = new drv::BoardDataEmulator(this);
     
-    //qDebug() << "BoardStationApp: Driver configured";
+    // Автоматически запускаем прослушивание драйвера
+    if (m_driver)
+    {
+        m_driver->startListening();
+    }
+    
+    //qDebug() << "BoardStationApp: Driver configured and listening started";
 }
 
 void BoardStationApp::connectSignals()
@@ -194,8 +212,22 @@ void BoardStationApp::onDataAvailable() const
     // Добавляем параметры в хранилище (создаёт или дополняет истории)
     m_parametersStorage->addParameters(newParameters);
     
-    // Добавляем сообщение в очередь для записи в базу данных
-    m_boardMessagesWriter->addMessage(newParameters);
+    // Добавляем сообщение в очередь для записи в базу данных только если запись включена
+    if (m_isRecording)
+    {
+        m_boardMessagesWriter->addMessage(newParameters);
+        
+        // Обновляем счетчик сообщений в текущей сессии
+        if (m_sessionsListModel)
+        {
+            int currentSessionId = m_boardMessagesWriter->getCurrentSessionId();
+            if (currentSessionId > 0 && m_boardMessagesReader)
+            {
+                BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(currentSessionId);
+                m_sessionsListModel->updateSessionMessageCount(currentSessionId, sessionInfo.messageCount);
+            }
+        }
+    }
 }
 
 void BoardStationApp::loadOutParameters() const
@@ -477,4 +509,81 @@ bool BoardStationApp::isListening() const
         return m_driver->isListening();
     }
     return false;
+}
+
+void BoardStationApp::startRecording()
+{
+    if (!m_isRecording)
+    {
+        m_isRecording = true;
+        
+        // Создаём новую сессию для записи
+        // Получаем следующий номер сессии
+        int nextSessionNumber = 1;
+        if (m_sessionsListModel)
+        {
+            // Находим максимальный номер сессии и увеличиваем на 1
+            for (int i = 0; i < m_sessionsListModel->rowCount(); ++i)
+            {
+                QString sessionName = m_sessionsListModel->data(m_sessionsListModel->index(i), SessionsListModel::SessionNameRole).toString();
+                QRegExp rx("Session (\\d+)");
+                if (rx.indexIn(sessionName) != -1)
+                {
+                    int sessionNum = rx.cap(1).toInt();
+                    if (sessionNum >= nextSessionNumber)
+                    {
+                        nextSessionNumber = sessionNum + 1;
+                    }
+                }
+            }
+        }
+        
+        QString sessionName = QString("Session %1").arg(nextSessionNumber);
+        m_boardMessagesWriter->createNewSession(sessionName);
+        
+        // Добавляем новую сессию в модель списка
+        if (m_sessionsListModel && m_boardMessagesReader)
+        {
+            // Получаем информацию о только что созданной сессии
+            int currentSessionId = m_boardMessagesWriter->getCurrentSessionId();
+            if (currentSessionId > 0)
+            {
+                BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(currentSessionId);
+                m_sessionsListModel->addSession(sessionInfo);
+            }
+        }
+
+        if (m_sessionsListModel)
+        {
+            m_sessionsListModel->startRecording();
+        }
+        
+        qDebug() << "BoardStationApp: Started recording to database";
+    }
+}
+
+void BoardStationApp::stopRecording()
+{
+    if (m_isRecording)
+    {
+        m_isRecording = false;
+        
+        // Принудительно сохраняем все данные из очереди
+        if (m_boardMessagesWriter)
+        {
+            m_boardMessagesWriter->flushQueue();
+        }
+
+		if (m_sessionsListModel)
+		{
+			m_sessionsListModel->stopRecording();
+		}
+        
+        qDebug() << "BoardStationApp: Stopped recording to database";
+    }
+}
+
+bool BoardStationApp::isRecording() const
+{
+    return m_isRecording;
 }

@@ -136,10 +136,5 @@ Rectangle
                 color: "dimgray"
             }
         }
-        
-        Item
-        {
-            Layout.preferredWidth: 20
-        }
     }
 }

@@ -23,6 +23,9 @@ public slots:
     void startListening();
     void stopListening();
     bool isListening() const;
+    void startRecording();
+    void stopRecording();
+    bool isRecording() const;
 
 private slots:
     void onParameterUpdated(const QString &label);

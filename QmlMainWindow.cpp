@@ -205,28 +205,24 @@ void QmlMainWindow::setupSessionsListModel()
 {
     if (!m_app || !m_context) return;
     
-    // Create sessions list model
-    auto sessionsListModel = new SessionsListModel(this);
-    
-    // Set reader from application
-    auto reader = m_app->getBoardMessagesReader();
-    if (reader) 
+    // Get sessions list model from application
+    auto sessionsListModel = m_app->getSessionsListModel();
+    if (sessionsListModel) 
     {
-        sessionsListModel->setReader(reader);
-        //qDebug() << "QmlMainWindow: Sessions list model created and reader set";
+        // Pass model to QML context
+        m_context->setContextProperty("sessionsListModel", sessionsListModel);
+        qDebug() << "QmlMainWindow: Sessions list model set from application";
     }
     else 
     {
-        qWarning() << "QmlMainWindow: Board messages reader not found";
+        qWarning() << "QmlMainWindow: Sessions list model not found in application";
     }
-    
-    // Pass model to QML context
-    m_context->setContextProperty("sessionsListModel", sessionsListModel);
     
     // Create session player
     auto sessionPlayer = new SessionPlayer(this);
     
     // Set reader and storage from application
+    auto reader = m_app->getBoardMessagesReader();
     if (reader) 
     {
         sessionPlayer->setReader(reader);
@@ -241,7 +237,14 @@ void QmlMainWindow::setupSessionsListModel()
     // Pass player to QML context
     m_context->setContextProperty("sessionPlayer", sessionPlayer);
     
-    qDebug() << "QmlMainWindow: Session player created and added to context";
+    // Pass board messages writer to QML context
+    auto boardMessagesWriter = m_app->getBoardMessagesWriter();
+    if (boardMessagesWriter)
+    {
+        m_context->setContextProperty("boardMessagesWriter", boardMessagesWriter);
+    }
+    
+    qDebug() << "QmlMainWindow: Session player and board messages writer created and added to context";
 }
 
 void QmlMainWindow::setupConnections()
@@ -325,6 +328,41 @@ bool QmlMainWindow::isListening() const
     if (m_app)
     {
         return m_app->isListening();
+    }
+    return false;
+}
+
+void QmlMainWindow::startRecording()
+{
+    if (m_app)
+    {
+        m_app->startRecording();
+        qDebug() << "QmlMainWindow: Started recording";
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+void QmlMainWindow::stopRecording()
+{
+    if (m_app)
+    {
+        m_app->stopRecording();
+        qDebug() << "QmlMainWindow: Stopped recording";
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+bool QmlMainWindow::isRecording() const
+{
+    if (m_app)
+    {
+        return m_app->isRecording();
     }
     return false;
 }
