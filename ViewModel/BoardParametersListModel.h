@@ -4,7 +4,7 @@
 #include <QAbstractListModel>
 #include <QColor>
 
-#include "Model/Parameters/BoardParameterHistoryStorage.h"
+#include "Model/Parameters/BoardMessagesSqliteReader.h"
 
 class BoardParametersListModel : public QAbstractListModel
 {
@@ -21,12 +21,8 @@ public:
         ColorRole,
 	};
 public:
-    explicit BoardParametersListModel(BoardParameterHistoryStorage* storage, QObject *parent = nullptr);
+	explicit BoardParametersListModel(BoardMessagesSqliteReader* dbReader, QObject* parent = nullptr);
 
-    void setParametersStorage(BoardParameterHistoryStorage* boardParametersStorage);
-
-    // QAbstractItemModel interface
-public:
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
@@ -36,21 +32,21 @@ public:
     // Публичный метод для очистки параметров
     Q_INVOKABLE void clearParameters();
 
-protected slots:
+public slots :
     void onNewParameterAdded(BoardParameterSingle* param);
-	void onParameterAdded(const QString& label);
-	void onParameterUpdated(const QString& label);
 	void onParametersCleared();
 
 private:
-    BoardParameterHistoryStorage* m_pParametersStorage;
-    QStringList m_parameterLabels; //
+    BoardMessagesSqliteReader* m_pDbReader;
+    QMap<QString, BoardParameterSingle*> m_values;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;
 
-    // QAbstractItemModel interface
 public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+
+private:
+    void makeRandomColors();
 };
 
 #endif // BOARDPARAMETERSLISTMODEL_H

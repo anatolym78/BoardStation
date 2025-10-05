@@ -23,13 +23,17 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
     , m_isRecording(false)
 {
-    //qDebug() << "BoardStationApp: Application initialization";
-    
     // Создаем хранилище параметров
     m_parametersStorage = new BoardParameterHistoryStorage(this);
-    
+
     // Создаем модель параметров
-    m_parametersModel = new BoardParametersListModel(m_parametersStorage, this);
+    //m_parametersModel = new BoardParametersListModel(m_parametersStorage, this);
+	m_parametersModel = new BoardParametersListModel(m_boardMessagesReader, this);
+
+    // Создаем модель списка чартов
+    m_chatsViewModel = new ChartViewModel(this);
+    
+    
     
     // Создаем хранилище исходящих параметров
     m_outParametersStorage = new OutParametersStorage(this);
@@ -208,9 +212,11 @@ void BoardStationApp::onDataAvailable() const
         //qDebug() << "BoardStationApp: Failed to extract parameters from driver data";
         return;
     }
-    
-    // Добавляем параметры в хранилище (создаёт или дополняет истории)
-    m_parametersStorage->addParameters(newParameters);
+
+    for(auto p: newParameters)
+    {
+        getParametersModel()->onNewParameterAdded(p);
+    }
     
     // Добавляем сообщение в очередь для записи в базу данных только если запись включена
     if (m_isRecording)
@@ -238,7 +244,7 @@ void BoardStationApp::loadOutParameters() const
     AppConfigurationReader reader;
     
     // Формируем полный путь к файлу конфигурации
-    QString configPath = QApplication::applicationDirPath() + "/configuration.json";
+    QString configPath = applicationDirPath() + "/configuration.json";
     //qDebug() << "BoardStationApp: Configuration path:" << configPath;
     
     // Загружаем конфигурацию

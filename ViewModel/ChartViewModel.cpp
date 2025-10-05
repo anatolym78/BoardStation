@@ -25,6 +25,9 @@ ChartViewModel::ChartViewModel(BoardParameterHistoryStorage *parametersStorage, 
 void ChartViewModel::setParametersStorage(BoardParameterHistoryStorage* storage)
 {
     m_parametersStorage = storage;
+
+    return;
+
     if (m_parametersStorage)
     {
         connect(m_parametersStorage,

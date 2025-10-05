@@ -19,6 +19,7 @@
 #include "Interface/Charts/ChartBuilder.h"
 #include "ViewModel/BoardParametersListModel.h"
 #include "ViewModel/SessionsListModel.h"
+#include "ViewModel/ChartViewModel.h"
 
 class MainWindow;
 class BoardParametersJsonParserNew;
@@ -37,6 +38,7 @@ public:
 
     // Методы для работы с моделью параметров
     BoardParametersListModel* getParametersModel() const;
+    ChartViewModel* getChartViewModel() const { return m_chatsViewModel; }
     BoardParameterHistoryStorage* getParametersStorage() const;
     
     // Методы для работы с моделью исходящих параметров
@@ -94,9 +96,13 @@ private:
 
 private:
     MainWindow *m_mainWindow;
+	BoardMessagesSqliteWriter* m_boardMessagesWriter;
+	BoardMessagesSqliteReader* m_boardMessagesReader;
+	BoardParametersListModel* m_parametersModel;
+    ChartViewModel* m_chatsViewModel;
+
     BoardParameterHistoryStorage *m_parametersStorage;
     //BoardParametersModel *m_parametersModel;
-    BoardParametersListModel* m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;
     UplinkParametersModel *m_uplinkParametersModel;
@@ -106,8 +112,6 @@ private:
     SessionsListModel *m_sessionsListModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParserNew *m_jsonReader;
-    BoardMessagesSqliteWriter *m_boardMessagesWriter;
-    BoardMessagesSqliteReader *m_boardMessagesReader;
     bool m_isRecording;
 };
 

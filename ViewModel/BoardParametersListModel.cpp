@@ -2,40 +2,11 @@
 
 #include <random>
 
-BoardParametersListModel::BoardParametersListModel(BoardParameterHistoryStorage* storage, QObject *parent)
-	: QAbstractListModel{parent},
-	m_pParametersStorage(nullptr)
+BoardParametersListModel::BoardParametersListModel(BoardMessagesSqliteReader* dbReader, QObject* parent /*= nullptr*/)
+	: QAbstractListModel{ parent },
+	m_pDbReader(dbReader)
 {
-	setParametersStorage(storage);
-
-    int hue = 0;
-    int hueStep = 60 + 5;
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> distrib_int(192, 255);
-    for(auto i=0;i<200;i++)
-    {
-		auto sat = distrib_int(gen);
-		auto val = distrib_int(gen);
-        m_colors.append(QColor::fromHsv(hue, sat, val, 255));
-
-        hue += hueStep;
-
-        if(hue > 360)
-        {
-            hue -= 360;
-        }
-    }
-}
-
-void BoardParametersListModel::setParametersStorage(BoardParameterHistoryStorage* boardParametersStorage)
-{
-	m_pParametersStorage = boardParametersStorage;
-
-
-	connect(m_pParametersStorage, &BoardParameterHistoryStorage::newParameterAdded,
-		this, &BoardParametersListModel::onNewParameterAdded);
+	makeRandomColors();
 }
 
 int BoardParametersListModel::rowCount(const QModelIndex& parent) const
@@ -43,38 +14,40 @@ int BoardParametersListModel::rowCount(const QModelIndex& parent) const
 	if (parent.isValid())
 		return 0;
 
-	return m_parameterLabels.size();
+	return m_values.size();
 }
 
 QVariant BoardParametersListModel::data(const QModelIndex& index, int role) const
 {
-	const QString& label = m_parameterLabels.at(index.row());
-	BoardParameterHistory* parameterHistory = m_pParametersStorage->getParameterHistory(label);
-
-	if (parameterHistory->valueCount() == 0) return {};
+	auto keys = m_values.keys();
+	const QString& label = keys.at(index.row());
+	auto parameter = m_values[label];
 
 	switch (static_cast<ParameterRole>(role))
 	{
 	case ParameterRole::LabelRole:
 	{
-		return parameterHistory->label();
+		return label;
 	}
 	case ParameterRole::ValueRole:
 	{
-		auto value = parameterHistory->lastValueData().toDouble();
+		bool ok;
+		auto doubleValue = parameter->value().toDouble(&ok);
 
-		auto stringDoubleValue = QString::number(value, 'g', 3);
+		if (!ok) return {};
 
-		return QVariant::fromValue(stringDoubleValue);
+
+		return QVariant::fromValue(QString::number(doubleValue, 'g', 3));
 	}
 	case ParameterRole::UntiRole:
-		return QVariant::fromValue(parameterHistory->unit());
+		return QVariant::fromValue(parameter->unit());
 	case ParameterRole::TimeRole:
-		return QVariant::fromValue(parameterHistory->lastTimestamp());
-    case ParameterRole::ChartVisibilityRole:
-        return QVariant::fromValue(m_chartVisibilities[index.row()]);
-    case ParameterRole::ColorRole:
-        return QVariant::fromValue(m_colors[index.row()]);	}
+		return QVariant::fromValue(parameter->timestamp());
+	case ParameterRole::ChartVisibilityRole:
+		return QVariant::fromValue(m_chartVisibilities[index.row()]);
+	case ParameterRole::ColorRole:
+		return QVariant::fromValue(m_colors[index.row()]);
+	}
 
 	return {};
 }
@@ -107,43 +80,28 @@ void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* paramet
 	if (parameter == nullptr) return;
 
 	auto label = parameter->label();
-	if (m_parameterLabels.contains(label))
+
+	if(!m_values.contains(label))
 	{
-		onParameterUpdated(label);
+		beginInsertRows(QModelIndex(), m_values.size(), m_values.size());
+		m_chartVisibilities.append(false);
+		m_values.insert(label, parameter);
+		endInsertRows();
 	}
 	else
 	{
-		onParameterAdded(label);
+		m_values[label] = parameter;
+
+		emit dataChanged(index(0, 0), index(m_values.count() - 1, 0));
 	}
 }
 
-void BoardParametersListModel::onParameterAdded(const QString& label)
-{
-    //
-	beginInsertRows(QModelIndex(), m_parameterLabels.size(), m_parameterLabels.size());
-	m_parameterLabels.append(label);
-    m_chartVisibilities.append(false);
-	endInsertRows();
-}
-
-void BoardParametersListModel::onParameterUpdated(const QString& label)
-{
-	int row = m_parameterLabels.indexOf(label);
-	if (row < 0) return;
-
-	auto topLeft = this->index(row, 0);
-	auto bottomRight = this->index(row, 0);
-
-	emit dataChanged(topLeft, bottomRight);
-}
 
 void BoardParametersListModel::onParametersCleared()
 {
-    //
 	beginResetModel();
-	m_parameterLabels.clear();
     m_chartVisibilities.clear();
-    //m_colors.clear();
+	m_values.clear();
 	endResetModel();
 }
 
@@ -157,4 +115,27 @@ bool BoardParametersListModel::setData(const QModelIndex &index, const QVariant 
     }
 
     return false;
+}
+
+void BoardParametersListModel::makeRandomColors()
+{
+	int hue = 0;
+	int hueStep = 60 + 5;
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> distrib_int(192, 255);
+	for (auto i = 0; i < 200; i++)
+	{
+		auto sat = distrib_int(gen);
+		auto val = distrib_int(gen);
+		m_colors.append(QColor::fromHsv(hue, sat, val, 255));
+
+		hue += hueStep;
+
+		if (hue > 360)
+		{
+			hue -= 360;
+		}
+	}
 }

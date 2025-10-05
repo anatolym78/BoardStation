@@ -194,7 +194,7 @@ void QmlMainWindow::setupChartSeriesModel()
     if (!m_app || !m_context) return;
     
     // Create new simplified chart view model
-    auto chartViewModel = new ChartViewModel(this);
+    auto chartViewModel = m_app->getChartViewModel();
     chartViewModel->setParametersStorage(m_app->getParametersStorage());
     
     // Pass model to QML context
