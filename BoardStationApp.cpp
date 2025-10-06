@@ -22,6 +22,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
     , m_isRecording(false)
+    , m_dataPlayer(new DriverDataPlayer(this))// По умолчанию используем DriverDataPlayer
 {
     // Создаем хранилище параметров
     m_parametersStorage = new BoardParameterHistoryStorage(this);
@@ -32,7 +33,9 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
     // Создаем модель списка чартов
     m_chatsViewModel = new ChartViewModel(this);
-    
+       
+    // Настраиваем DriverDataPlayer
+    m_dataPlayer->setStorage(m_parametersStorage);
     
     
     // Создаем хранилище исходящих параметров
@@ -77,7 +80,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     setupDriver();
     
     // Подключаем сигналы
-    connectSignals();
+    connectSignals(); 
 }
 
 BoardStationApp::~BoardStationApp()
@@ -183,6 +186,9 @@ void BoardStationApp::connectSignals()
     {
         connect(m_driver, &drv::IDriver::dataAvailable, this, &BoardStationApp::onDataAvailable);
     }
+
+    connect(m_dataPlayer, &DataPlayer::parameterPlayed, m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
+	
 }
 
 void BoardStationApp::onDataAvailable() const
@@ -213,10 +219,11 @@ void BoardStationApp::onDataAvailable() const
         return;
     }
 
-    for(auto p: newParameters)
-    {
-        getParametersModel()->onNewParameterAdded(p);
-    }
+    m_parametersStorage->addParameters(newParameters);
+    //for(auto p: newParameters)
+    //{
+    //    getParametersModel()->onNewParameterAdded(p);
+    //}
     
     // Добавляем сообщение в очередь для записи в базу данных только если запись включена
     if (m_isRecording)
@@ -592,4 +599,27 @@ void BoardStationApp::stopRecording()
 bool BoardStationApp::isRecording() const
 {
     return m_isRecording;
+}
+
+void BoardStationApp::loadSession(int sessionId)
+{
+    if (m_parametersStorage)
+    {
+        // Создаем новый SessionPlayer для этой сессии
+        SessionPlayer* sessionPlayer = new SessionPlayer(this);
+        sessionPlayer->setStorage(m_parametersStorage);
+        sessionPlayer->setReader(m_boardMessagesReader);
+        
+        // Переключаемся на SessionPlayer
+        m_dataPlayer = sessionPlayer;
+        
+        // Загружаем данные сессии
+        m_parametersStorage->loadSessionData(sessionId, m_boardMessagesReader);
+        
+        qDebug() << "BoardStationApp: Loading session" << sessionId << "into new SessionPlayer";
+    }
+    else
+    {
+        qWarning() << "BoardStationApp: ParametersStorage is not available";
+    }
 }

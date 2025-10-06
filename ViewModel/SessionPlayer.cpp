@@ -3,19 +3,11 @@
 #include <QDateTime>
 
 SessionPlayer::SessionPlayer(QObject *parent)
-    : QObject(parent)
+    : DataPlayer(parent)
     , m_reader(nullptr)
-    , m_storage(nullptr)
-    , m_playbackTimer(new QTimer(this))
-    , m_isPlaying(false)
-    , m_currentPosition(0.0)
-    , m_maxPosition(0.0)
     , m_currentSessionId(-1)
-    , m_currentDataIndex(0)
+    , m_lastPlayedIndex(-1)
 {
-    // Настройка таймера воспроизведения (каждые 100мс для плавности)
-    m_playbackTimer->setInterval(100);
-    connect(m_playbackTimer, &QTimer::timeout, this, &SessionPlayer::onPlaybackTimer);
 }
 
 SessionPlayer::~SessionPlayer()
@@ -23,21 +15,60 @@ SessionPlayer::~SessionPlayer()
     stop();
 }
 
+void SessionPlayer::setStorage(BoardParameterHistoryStorage* storage)
+{
+    // Вызываем базовую реализацию
+    DataPlayer::setStorage(storage);
+    
+    // Подключаемся к сигналу загрузки данных сессии
+    if (storage)
+    {
+        connect(storage, &BoardParameterHistoryStorage::sessionDataLoaded,
+                this, &SessionPlayer::onSessionDataLoaded);
+    }
+}
+
 void SessionPlayer::setReader(BoardMessagesSqliteReader* reader)
 {
     m_reader = reader;
 }
 
-void SessionPlayer::setStorage(BoardParameterHistoryStorage* storage)
+void SessionPlayer::play()
 {
-    m_storage = storage;
+    if (m_currentSessionId == -1)
+    {
+        qWarning() << "SessionPlayer: No session loaded";
+        return;
+    }
+    
+    DataPlayer::play();
 }
 
-void SessionPlayer::loadSession(int sessionId)
+void SessionPlayer::stop()
+{
+    DataPlayer::stop();
+    
+    // Сбрасываем индекс последнего проигранного параметра
+    m_lastPlayedIndex = -1;
+}
+
+void SessionPlayer::pause()
+{
+    DataPlayer::pause();
+}
+
+void SessionPlayer::setPosition(double position)
+{
+    DataPlayer::setPosition(position);
+    
+    // Проигрываем параметры до текущей позиции
+    playParametersToCurrentPosition();
+}
+
+void SessionPlayer::onSessionDataLoaded(int sessionId)
 {
     if (!m_reader)
     {
-        qWarning() << "SessionPlayer: Reader is not set";
         return;
     }
     
@@ -53,145 +84,22 @@ void SessionPlayer::loadSession(int sessionId)
     m_currentSessionName = sessionInfo.name;
     m_sessionStartTime = sessionInfo.createdAt;
     
-    // Загружаем данные сессии
-    loadSessionData(sessionId);
-    
     // Устанавливаем курсор на начало
     m_currentPosition = 0.0;
-    m_currentDataIndex = 0;
+    m_lastPlayedIndex = -1;
     
     emit currentSessionNameChanged();
     emit sessionStartTimeChanged();
     emit currentPositionChanged();
-    emit sessionLoaded(sessionId, sessionInfo.name);
     
-}
-
-void SessionPlayer::play()
-{
-    if (m_currentSessionId == -1)
-    {
-        qWarning() << "SessionPlayer: No session loaded";
-        return;
-    }
+    // Получаем параметры из хранилища для определения временных границ
+    QList<BoardParameterSingle*> sessionParams = m_storage->getSessionParameters();
     
-    if (!m_isPlaying)
-    {
-        m_isPlaying = true;
-        m_playbackTimer->start();
-        emit isPlayingChanged();
-    }
-}
-
-void SessionPlayer::stop()
-{
-    if (m_isPlaying)
-    {
-        m_isPlaying = false;
-        m_playbackTimer->stop();
-        emit isPlayingChanged();
-    }
-    
-    // Сбрасываем позицию на начало
-    m_currentPosition = 0.0;
-    m_currentDataIndex = 0;
-    emit currentPositionChanged();
-    
-    // Очищаем хранилище
-    clearStorage();
-}
-
-void SessionPlayer::pause()
-{
-    if (m_isPlaying)
-    {
-        m_isPlaying = false;
-        m_playbackTimer->stop();
-        emit isPlayingChanged();
-    }
-}
-
-void SessionPlayer::setPosition(double position)
-{
-    if (m_currentSessionId == -1)
-    {
-        return;
-    }
-    
-    // Ограничиваем позицию в пределах сессии
-    position = qBound(0.0, position, m_maxPosition);
-    
-    m_currentPosition = position;
-    
-    // Находим соответствующий индекс данных
-    if (!m_sessionData.isEmpty())
-    {
-        double timePerDataPoint = m_maxPosition / m_sessionData.size();
-        m_currentDataIndex = static_cast<int>(position / timePerDataPoint);
-        m_currentDataIndex = qBound(0, m_currentDataIndex, m_sessionData.size() - 1);
-    }
-    
-    emit currentPositionChanged();
-}
-
-void SessionPlayer::onPlaybackTimer()
-{
-    if (!m_isPlaying || m_currentSessionId == -1)
-    {
-        return;
-    }
-    
-    updatePlaybackPosition();
-    
-    // Проверяем, не достигли ли конца сессии
-    if (m_currentPosition >= m_maxPosition)
-    {
-        stop();
-        emit playbackFinished();
-    }
-}
-
-void SessionPlayer::updatePlaybackPosition()
-{
-    if (m_sessionData.isEmpty())
-    {
-        return;
-    }
-    
-    // Увеличиваем позицию на 0.1 секунды (100мс)
-    m_currentPosition += 0.1;
-    
-    // Обновляем данные в хранилище
-    if (m_currentDataIndex < m_sessionData.size())
-    {
-        auto parameter = m_sessionData[m_currentDataIndex];
-        if (parameter && m_storage)
-        {
-            m_storage->addParameter(parameter);
-        }
-        
-        // Переходим к следующему элементу данных
-        m_currentDataIndex++;
-    }
-    
-    emit currentPositionChanged();
-}
-
-void SessionPlayer::loadSessionData(int sessionId)
-{
-    if (!m_reader)
-    {
-        return;
-    }
-    
-    // Загружаем все параметры сессии
-    m_sessionData = m_reader->getSessionParameters(sessionId, "");
-    
-    if (!m_sessionData.isEmpty())
+    if (!sessionParams.isEmpty())
     {
         // Определяем время начала и конца сессии
-        auto firstParam = m_sessionData.first();
-        auto lastParam = m_sessionData.last();
+        auto firstParam = sessionParams.first();
+        auto lastParam = sessionParams.last();
         
         if (firstParam && lastParam)
         {
@@ -213,10 +121,39 @@ void SessionPlayer::loadSessionData(int sessionId)
     emit maxPositionChanged();
 }
 
-void SessionPlayer::clearStorage()
+void SessionPlayer::updatePlaybackPosition()
 {
-    if (m_storage)
+    // Увеличиваем позицию на 0.1 секунды (100мс)
+    m_currentPosition += 0.1;
+    
+    // Проигрываем параметры до текущей позиции
+    playParametersToCurrentPosition();
+    
+    emit currentPositionChanged();
+}
+
+void SessionPlayer::playParametersToCurrentPosition()
+{
+    if (!m_storage)
     {
-        m_storage->clear();
+        return;
+    }
+    
+    QDateTime currentTime = getCurrentTimeFromPosition();
+    QList<BoardParameterSingle*> sessionParams = m_storage->getSessionParameters();
+    
+    // Проигрываем все параметры от последнего проигранного до текущего времени
+    for (int i = m_lastPlayedIndex + 1; i < sessionParams.size(); ++i)
+    {
+        BoardParameterSingle* param = sessionParams[i];
+        if (param && param->timestamp() <= currentTime)
+        {
+            emit parameterPlayed(param);
+            m_lastPlayedIndex = i;
+        }
+        else
+        {
+            break; // Прерываем, если достигли параметра с более поздним временем
+        }
     }
 }

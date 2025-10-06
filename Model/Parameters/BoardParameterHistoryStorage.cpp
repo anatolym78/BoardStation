@@ -1,4 +1,5 @@
 #include "BoardParameterHistoryStorage.h"
+#include "BoardMessagesSqliteReader.h"
 #include <QDebug>
 
 BoardParameterHistoryStorage::BoardParameterHistoryStorage(QObject *parent)
@@ -45,6 +46,27 @@ void BoardParameterHistoryStorage::addParameter(BoardParameterSingle *parameter)
     emit newParameterAdded(parameter);
 }
 
+void BoardParameterHistoryStorage::loadSessionData(int sessionId, BoardMessagesSqliteReader* reader)
+{
+    return;
+
+    if (!reader)
+    {
+        qWarning() << "BoardParameterHistoryStorage: Reader is not set";
+        return;
+    }
+    
+    // Очищаем текущие данные
+    clear();
+    
+    // Загружаем данные сессии из базы
+    m_sessionParameters = reader->getSessionParameters(sessionId, "");
+    
+    qDebug() << "BoardParameterHistoryStorage: Loaded" << m_sessionParameters.size() << "parameters for session" << sessionId;
+    
+    emit sessionDataLoaded(sessionId);
+}
+
 BoardParameterHistory* BoardParameterHistoryStorage::getParameterHistory(const QString &label) const
 {
     return findHistoryByLabel(label);
@@ -83,6 +105,10 @@ void BoardParameterHistoryStorage::clear()
         emit parametersCleared();
         //qDebug() << "BoardParameterHistoryStorage: Все истории параметров очищены";
     }
+    
+    // Очищаем список параметров сессии
+    qDeleteAll(m_sessionParameters);
+    m_sessionParameters.clear();
 }
 
 int BoardParameterHistoryStorage::indexOf(const QString& label) const
@@ -100,6 +126,26 @@ int BoardParameterHistoryStorage::indexOf(const QString& label) const
 QList<BoardParameterHistory*> BoardParameterHistoryStorage::getAllParameterHistories() const
 {
     return m_parameterHistories;
+}
+
+QList<BoardParameterSingle*> BoardParameterHistoryStorage::getSessionParameters() const
+{
+    return m_sessionParameters;
+}
+
+QList<BoardParameterSingle*> BoardParameterHistoryStorage::getParametersInTimeRange(const QDateTime &startTime, const QDateTime &endTime) const
+{
+    QList<BoardParameterSingle*> result;
+    
+    for (BoardParameterSingle* param : m_sessionParameters)
+    {
+        if (param && param->timestamp() >= startTime && param->timestamp() <= endTime)
+        {
+            result.append(param);
+        }
+    }
+    
+    return result;
 }
 
 BoardParameterHistory* BoardParameterHistoryStorage::findHistoryByLabel(const QString &label) const

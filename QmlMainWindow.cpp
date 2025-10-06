@@ -218,24 +218,14 @@ void QmlMainWindow::setupSessionsListModel()
         qWarning() << "QmlMainWindow: Sessions list model not found in application";
     }
     
-    // Create session player
-    auto sessionPlayer = new SessionPlayer(this);
-    
-    // Set reader and storage from application
-    auto reader = m_app->getBoardMessagesReader();
-    if (reader) 
-    {
-        sessionPlayer->setReader(reader);
-    }
-    
-    auto storage = m_app->getParametersStorage();
-    if (storage)
-    {
-        sessionPlayer->setStorage(storage);
-    }
-    
-    // Pass player to QML context
-    m_context->setContextProperty("sessionPlayer", sessionPlayer);
+    auto dataPlayer = m_app->getDataPlayer();
+    //// Create session player
+    //auto sessionPlayer = m_app->getSessionPlayer();
+    //auto currentPlayer = m_app->getCurrentPlayer();
+    //
+    //// Pass players to QML context
+    //m_context->setContextProperty("sessionPlayer", sessionPlayer);
+    m_context->setContextProperty("driverDataPlayer", dataPlayer);
     
     // Pass board messages writer to QML context
     auto boardMessagesWriter = m_app->getBoardMessagesWriter();
@@ -365,4 +355,17 @@ bool QmlMainWindow::isRecording() const
         return m_app->isRecording();
     }
     return false;
+}
+
+void QmlMainWindow::loadSession(int sessionId)
+{
+    if (m_app)
+    {
+        m_app->loadSession(sessionId);
+        qDebug() << "QmlMainWindow: Loading session" << sessionId;
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
 }

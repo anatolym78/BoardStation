@@ -131,10 +131,10 @@ Rectangle
                             sessionsList.currentIndex = index
                             sessionsPanel.sessionSelected(sessionId, sessionName)
                             
-                            // Загружаем сессию в плеер
-                            if (sessionPlayer)
+                            // Загружаем сессию через главное окно
+                            if (qmlMainWindow)
                             {
-                                sessionPlayer.loadSession(sessionId)
+                                qmlMainWindow.loadSession(sessionId)
                             }
                         }
                     }

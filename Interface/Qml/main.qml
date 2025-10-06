@@ -66,7 +66,7 @@ Item
                     {
                         id: sessionsPanel
                         Layout.fillWidth: true
-                         Layout.fillHeight: true
+                        Layout.fillHeight: true
                         Layout.preferredHeight: 2
                         
                         // Передаем состояние записи и ID текущей сессии
@@ -152,27 +152,27 @@ Item
                 onPlayClicked:
                 {
                     console.log("Play clicked")
-                    if (sessionPlayer)
+                    if (driverDataPlayer)
                     {
-                        sessionPlayer.play()
+                        driverDataPlayer.play()
                     }
                 }
                 
                 onStopClicked:
                 {
                     console.log("Stop clicked")
-                    if (sessionPlayer)
+                    if (driverDataPlayer)
                     {
-                        sessionPlayer.stop()
+                        driverDataPlayer.stop()
                     }
                 }
                 
                 onPositionChanged:
                 {
                     console.log("Position changed:", position)
-                    if (sessionPlayer)
+                    if (driverDataPlayer)
                     {
-                        sessionPlayer.setPosition(position)
+                        driverDataPlayer.setPosition(position)
                     }
                 }
             }

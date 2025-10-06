@@ -289,4 +289,17 @@ void MainWindow::onChartWindowClosed(const QString &parameterName)
     }
 }
 
+void MainWindow::loadSession(int sessionId)
+{
+    if (m_app)
+    {
+        m_app->loadSession(sessionId);
+        qDebug() << "MainWindow: Loading session" << sessionId << "via app";
+    }
+    else
+    {
+        qWarning() << "MainWindow: App is not available";
+    }
+}
+
 

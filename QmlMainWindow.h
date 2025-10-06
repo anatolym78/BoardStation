@@ -26,6 +26,7 @@ public slots:
     void startRecording();
     void stopRecording();
     bool isRecording() const;
+    void loadSession(int sessionId);
 
 private slots:
     void onParameterUpdated(const QString &label);

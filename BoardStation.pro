@@ -40,6 +40,8 @@ SOURCES += \
     ViewModel/DebugViewModel.cpp \
     ViewModel/SessionsListModel.cpp \
     ViewModel/SessionPlayer.cpp \
+    ViewModel/DataPlayer.cpp \
+    ViewModel/DriverDataPlayer.cpp \
     Model/Parameters/OutParameter.cpp \
     Model/Parameters/StringOutParameter.cpp \
     Model/Parameters/RealOutParameter.cpp \
@@ -94,6 +96,8 @@ HEADERS += \
     ViewModel/DebugViewModel.h \
     ViewModel/SessionsListModel.h \
     ViewModel/SessionPlayer.h \
+    ViewModel/DataPlayer.h \
+    ViewModel/DriverDataPlayer.h \
     Model/Parameters/OutParameter.h \
     Model/Parameters/StringOutParameter.h \
     Model/Parameters/RealOutParameter.h \

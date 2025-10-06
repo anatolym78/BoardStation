@@ -20,6 +20,9 @@
 #include "ViewModel/BoardParametersListModel.h"
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/ChartViewModel.h"
+#include "ViewModel/DataPlayer.h"
+#include "ViewModel/SessionPlayer.h"
+#include "ViewModel/DriverDataPlayer.h"
 
 class MainWindow;
 class BoardParametersJsonParserNew;
@@ -71,6 +74,8 @@ public:
     
     // Методы для работы с драйвером
     drv::IDriver* getDriver() const;
+
+    DataPlayer* getDataPlayer() const { return m_dataPlayer; }
     
     // Методы управления прослушиванием
     void startListening();
@@ -82,6 +87,9 @@ public:
     void stopRecording();
     bool isRecording() const;
     
+    // Метод для загрузки сессии в плеер
+    void loadSession(int sessionId);
+      
     // Отправка параметров на борт
     void sendParametersToBoard();
     void sendSingleParameter(BasicUplinkParameter* parameter);
@@ -96,12 +104,15 @@ private:
 
 private:
     MainWindow *m_mainWindow;
+
+	BoardParameterHistoryStorage* m_parametersStorage;
+	BoardParametersListModel* m_parametersModel;
+	ChartViewModel* m_chatsViewModel;
+    DataPlayer* m_dataPlayer;
+
 	BoardMessagesSqliteWriter* m_boardMessagesWriter;
 	BoardMessagesSqliteReader* m_boardMessagesReader;
-	BoardParametersListModel* m_parametersModel;
-    ChartViewModel* m_chatsViewModel;
 
-    BoardParameterHistoryStorage *m_parametersStorage;
     //BoardParametersModel *m_parametersModel;
     OutParametersModel *m_outParametersModel;
     OutParametersStorage *m_outParametersStorage;

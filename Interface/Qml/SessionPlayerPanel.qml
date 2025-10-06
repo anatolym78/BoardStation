@@ -16,26 +16,29 @@ Rectangle
     property alias currentPosition: positionSlider.value
     property alias maxPosition: positionSlider.to
     
-    // Привязки к SessionPlayer
-    Binding {
+    // Привязки к DriverDataPlayer
+    Binding
+    {
         target: playStopButton
         property: "isPlaying"
-        value: sessionPlayer ? sessionPlayer.isPlaying : false
-        when: sessionPlayer !== null
+        value: driverDataPlayer ? driverDataPlayer.isPlaying : false
+        when: driverDataPlayer !== null
     }
     
-    Binding {
+    Binding
+    {
         target: positionSlider
         property: "value"
-        value: sessionPlayer ? sessionPlayer.currentPosition : 0
-        when: sessionPlayer !== null
+        value: driverDataPlayer ? driverDataPlayer.currentPosition : 0
+        when: driverDataPlayer !== null
     }
     
-    Binding {
+    Binding
+    {
         target: positionSlider
         property: "to"
-        value: sessionPlayer ? sessionPlayer.maxPosition : 100
-        when: sessionPlayer !== null
+        value: driverDataPlayer ? driverDataPlayer.maxPosition : 100
+        when: driverDataPlayer !== null
     }
     
     signal playClicked()

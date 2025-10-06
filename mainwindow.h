@@ -26,6 +26,9 @@ public:
     // Методы для работы с приложением
     void setApp(BoardStationApp *app);
     BoardStationApp* getApp() const;
+    
+    // Метод для загрузки сессии (для QML)
+    Q_INVOKABLE void loadSession(int sessionId);
 
 private slots:
     void onSendToBoardButtonClicked();
