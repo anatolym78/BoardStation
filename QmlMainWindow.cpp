@@ -3,9 +3,6 @@
 #include "Model/Parameters/BoardParameterHistory.h"
 #include "Model/Parameters/BoardParameterSingle.h"
 #include "Model/Parameters/BoardParameterValue.h"
-#include "ViewModel/ChartPointsModel.h"
-#include "ViewModel/ChartSeriesModel.h"
-#include "ViewModel/ChartsListModel.h"
 #include "ViewModel/ChartViewModel.h"
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/SessionPlayer.h"
@@ -24,9 +21,7 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
     qmlRegisterType<BoardParameterValue>("BoardStation", 1, 0, "BoardParameterValue");
     qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
     qmlRegisterType<BoardParameterHistory>("BoardStation", 1, 0, "BoardParameterHistory");
-    qmlRegisterType<ChartPointsModel>("BoardStation", 1, 0, "ChartPointsModel");
-    qmlRegisterType<ChartSeriesModel>("BoardStation", 1, 0, "ChartSeriesModel");
-    qmlRegisterType<ChartsListModel>("BoardStation", 1, 0, "ChartsListModel");
+
     qmlRegisterType<ChartViewModel>("BoardStation", 1, 0, "ChartViewModel");
     qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
     qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
@@ -51,13 +46,10 @@ void QmlMainWindow::setApp(BoardStationApp *app)
     if (m_app)
     {
         // Notify application about main window
-        m_app->setMainWindow(nullptr); // QML window doesn't inherit from QMainWindow
+        //m_app->setMainWindow(nullptr); // QML window doesn't inherit from QMainWindow
         
         // Setup model
         setupModel();
-        
-        // Setup out parameters model
-        setupOutParametersModel();
         
         // Setup uplink parameters model
         setupUplinkParametersModel();
@@ -124,29 +116,6 @@ void QmlMainWindow::setupModel()
         m_context->setContextProperty(QString("parametersListModel"), nullptr);
     }
    
-}
-
-void QmlMainWindow::setupOutParametersModel()
-{
-    if (!m_app || !m_context) return;
-    
-    // Get out parameters model from application
-    auto outParametersModel = m_app->getOutParametersModel();
-    if (outParametersModel) 
-    {
-        // Pass model to QML context
-        m_context->setContextProperty("outParametersModel", outParametersModel);
-        //qDebug() << "QmlMainWindow: Out parameters model passed to QML";
-    }
-	else 
-    {
-        //qDebug() << "QmlMainWindow: Out parameters model not found, will use default data";
-        // Create empty model to avoid errors
-        m_context->setContextProperty("outParametersModel", nullptr);
-    }
-    
-    // Добавляем объект QmlMainWindow в QML контекст для вызова методов
-    m_context->setContextProperty("qmlMainWindow", this);
 }
 
 void QmlMainWindow::setupUplinkParametersModel()
@@ -249,11 +218,7 @@ void QmlMainWindow::onParameterUpdated(const QString &label)
     // Can send signal to QML to update interface
     if (m_context) 
     {
-
-        auto boardParametersStorage = getApp()->getParametersStorage();
-
-        auto boardParameter = boardParametersStorage->getParameterHistory(label);
-        Q_UNUSED(boardParameter); // Подавляем предупреждение о неиспользуемой переменной
+        // Код для работы с параметрами можно добавить здесь при необходимости
     }
 }
 

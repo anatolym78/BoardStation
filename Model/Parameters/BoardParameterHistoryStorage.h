@@ -26,25 +26,8 @@ public:
     // Загрузка данных сессии из базы данных
     void loadSessionData(int sessionId, BoardMessagesSqliteReader* reader);
     
-    // Получение истории параметра по метке
-    BoardParameterHistory* getParameterHistory(const QString &label) const;
-    
-    // Получение всех меток параметров
-    QStringList getParameterLabels() const;
-    
-    // Получение количества историй параметров
-    int parameterHistoryCount() const;
-    
-    // Проверка существования истории параметра
-    bool hasParameterHistory(const QString &label) const;
-    
-    // Очистка всех историй параметров
+    // Очистка всех параметров
     void clear();
-
-    int indexOf(const QString& label) const;
-    
-    // Получение всех историй параметров как список
-    QList<BoardParameterHistory*> getAllParameterHistories() const;
     
     // Получение списка всех параметров сессии
     QList<BoardParameterSingle*> getSessionParameters() const;
@@ -60,11 +43,6 @@ signals:
     void sessionDataLoaded(int sessionId);
 
 private:
-    // Поиск истории по метке
-    BoardParameterHistory* findHistoryByLabel(const QString &label) const;
-
-private:
-    QList<BoardParameterHistory*> m_parameterHistories;
     QList<BoardParameterSingle*> m_sessionParameters; // Список всех параметров сессии
 };
 

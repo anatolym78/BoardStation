@@ -3,9 +3,7 @@
 #include "Model/Parameters/BoardParametersJsonParserNew.h"
 #include "Model/Emulation/BoardDataEmulator.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
-#include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/AppConfigurationReader.h"
-#include "Model/Parameters/OutParametersParser.h"
 #include "Model/Parameters/UplinkParametersParser.h"
 #include "Model/Parameters/BoolUplinkParameter.h"
 #include <QDebug>
@@ -15,7 +13,6 @@
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
     : QApplication(argc, argv)
-    , m_mainWindow(nullptr)
     , m_parametersModel(nullptr)
     , m_driver(nullptr)
     , m_jsonReader(new BoardParametersJsonParserNew(this))
@@ -36,17 +33,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
        
     // Настраиваем DriverDataPlayer
     m_dataPlayer->setStorage(m_parametersStorage);
-    
-    
-    // Создаем хранилище исходящих параметров
-    m_outParametersStorage = new OutParametersStorage(this);
-    
-    // Создаем модель исходящих параметров
-    m_outParametersModel = new OutParametersModel(this);
-    
-    // Устанавливаем хранилище в модель
-    m_outParametersModel->setStorage(m_outParametersStorage);
-    
+        
     // Создаем модель uplink параметров
     m_uplinkParametersModel = new UplinkParametersModel(this);
     
@@ -56,17 +43,10 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     
     // Создаем модель отладки
     m_debugViewModel = new DebugViewModel(this);
-    
-    // Создаем модель серий графиков
-    m_chartSeriesModel = new ChartSeriesModel(this);
-    m_chartSeriesModel->setParametersStorage(m_parametersStorage);
-    
+        
     // Создаем модель списка сессий
     m_sessionsListModel = new SessionsListModel(this);
     m_sessionsListModel->setReader(m_boardMessagesReader);
-    
-    // Загружаем исходящие параметры
-    loadOutParameters();
     
     // Загружаем новые uplink параметры
     loadUplinkParameters();
@@ -92,53 +72,15 @@ BoardStationApp::~BoardStationApp()
     {
         //m_boardMessagesWriter->forceSave();
     }
+
+    m_dataPlayer->stop();
     
     //qDebug() << "BoardStationApp: Application shutdown";
-}
-
-void BoardStationApp::setMainWindow(MainWindow *mainWindow)
-{
-    m_mainWindow = mainWindow;
-    
-    if (m_mainWindow)
-    {
-        // Устанавливаем родителя для моделей - главное окно
-        if (m_parametersModel) 
-        {
-            m_parametersModel->setParent(m_mainWindow);
-        }
-        if (m_outParametersModel) 
-        {
-            m_outParametersModel->setParent(m_mainWindow);
-        }
-        if (m_uplinkParametersModel) 
-        {
-            m_uplinkParametersModel->setParent(m_mainWindow);
-        }
-        if (m_debugViewModel) 
-        {
-            m_debugViewModel->setParent(m_mainWindow);
-        }
-        if (m_sessionsListModel) 
-        {
-            m_sessionsListModel->setParent(m_mainWindow);
-        }
-    }
-}
-
-MainWindow* BoardStationApp::getMainWindow() const
-{
-    return m_mainWindow;
 }
 
 BoardParametersListModel* BoardStationApp::getParametersModel() const
 {
     return m_parametersModel;
-}
-
-OutParametersModel* BoardStationApp::getOutParametersModel() const
-{
-    return m_outParametersModel;
 }
 
 UplinkParametersModel* BoardStationApp::getUplinkParametersModel() const
@@ -149,11 +91,6 @@ UplinkParametersModel* BoardStationApp::getUplinkParametersModel() const
 DebugViewModel* BoardStationApp::getDebugViewModel() const
 {
     return m_debugViewModel;
-}
-
-ChartSeriesModel* BoardStationApp::getChartSeriesModel() const
-{
-    return m_chartSeriesModel;
 }
 
 SessionsListModel* BoardStationApp::getSessionsListModel() const
@@ -241,49 +178,6 @@ void BoardStationApp::onDataAvailable() const
             }
         }
     }
-}
-
-void BoardStationApp::loadOutParameters() const
-{
-    //qDebug() << "BoardStationApp: Loading out parameters from configuration.json";
-    
-    // Создаем читатель конфигурации
-    AppConfigurationReader reader;
-    
-    // Формируем полный путь к файлу конфигурации
-    QString configPath = applicationDirPath() + "/configuration.json";
-    //qDebug() << "BoardStationApp: Configuration path:" << configPath;
-    
-    // Загружаем конфигурацию
-    if (!reader.loadConfiguration(configPath))
-    {
-        qWarning() << "BoardStationApp: Failed to load configuration from" << configPath;
-        return;
-    }
-    
-    // Получаем узел с параметрами
-    QJsonArray parametersArray = reader.getParametersNode();
-    if (parametersArray.isEmpty())
-    {
-        qWarning() << "BoardStationApp: Parameters node is empty or not found";
-        return;
-    }
-    
-    // Создаем парсер параметров
-    OutParametersParser parser;
-    
-    // Парсим параметры
-    QList<OutParameter*> parsedParameters = parser.parseParameters(parametersArray);
-    
-    // Добавляем параметры в хранилище
-    m_outParametersStorage->addParameters(parsedParameters);
-    
-    //qDebug() << "BoardStationApp: Successfully loaded" << parsedParameters.size() << "out parameters";
-}
-
-OutParametersStorage* BoardStationApp::getOutParametersStorage() const
-{
-    return m_outParametersStorage;
 }
 
 BoardMessagesSqliteWriter* BoardStationApp::getBoardMessagesWriter() const

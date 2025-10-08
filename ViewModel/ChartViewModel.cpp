@@ -449,14 +449,15 @@ void ChartViewModel::setupChart(QtCharts::QChart* chart, const QString &label)
 
 bool ChartViewModel::parameterExistsInHistory(const QString &label) const
 {
-    if (!m_parametersStorage)
-    {
-        return false;
-    }
+    return false;
+    // if (!m_parametersStorage)
+    // {
+    //     return false;
+    // }
     
-    // Проверяем, есть ли параметр в хранилище истории
-    BoardParameterHistory* history = m_parametersStorage->getParameterHistory(label);
-    return history != nullptr;
+    // // Проверяем, есть ли параметр в хранилище истории
+    // BoardParameterHistory* history = m_parametersStorage->getParameterHistory(label);
+    // return history != nullptr;
 }
 
 QVariantList ChartViewModel::getSeriesData(const QString &chartLabel, const QString &parameterLabel) const

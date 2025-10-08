@@ -25,22 +25,6 @@ Rectangle
         when: driverDataPlayer !== null
     }
     
-    Binding
-    {
-        target: positionSlider
-        property: "value"
-        value: driverDataPlayer ? driverDataPlayer.currentPosition : 0
-        when: driverDataPlayer !== null
-    }
-    
-    Binding
-    {
-        target: positionSlider
-        property: "to"
-        value: driverDataPlayer ? driverDataPlayer.maxPosition : 100
-        when: driverDataPlayer !== null
-    }
-    
     signal playClicked()
     signal stopClicked()
     signal positionChanged(real position)
@@ -105,9 +89,9 @@ Rectangle
             Layout.fillHeight: true
             
             from: 0
-            to: 100
-            value: 0
-            stepSize: 1
+            to: driverDataPlayer ? driverDataPlayer.sessionDuration : 100
+            value: driverDataPlayer ? driverDataPlayer.elapsedTime : 0
+            stepSize: 0.1
             
             onValueChanged: 
             {

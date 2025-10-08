@@ -15,7 +15,7 @@ public:
     Q_INVOKABLE void play() override;
     Q_INVOKABLE void stop() override;
     Q_INVOKABLE void pause() override;
-    Q_INVOKABLE void setPosition(double position) override;
+    Q_INVOKABLE void setPosition(QDateTime position) override;
     
     // Методы для работы с хранилищем
     void setStorage(BoardParameterHistoryStorage* storage) override;
@@ -27,6 +27,7 @@ private:
     void updatePlaybackPosition() override;
     void extendTimeRange();
     void initializeTimeRange();
+    void checkAndPlayParameters();
 
 private:
     bool m_isInitialized;

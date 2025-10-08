@@ -16,22 +16,13 @@ public:
     explicit SessionPlayer(QObject *parent = nullptr);
     ~SessionPlayer();
 
-    // Методы управления
-    Q_INVOKABLE void play() override;
-    Q_INVOKABLE void stop() override;
-    Q_INVOKABLE void pause() override;
-    Q_INVOKABLE void setPosition(double position) override;
-    
+    // Методы управления - наследуем базовую логику
     // Методы для работы с хранилищем
     void setStorage(BoardParameterHistoryStorage* storage) override;
     void setReader(BoardMessagesSqliteReader* reader);
 
 private slots:
     void onSessionDataLoaded(int sessionId);
-
-private:
-    void updatePlaybackPosition() override;
-    void playParametersToCurrentPosition();
 
 private:
     BoardMessagesSqliteReader* m_reader;

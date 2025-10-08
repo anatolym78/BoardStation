@@ -34,7 +34,6 @@ private slots:
 
 private:
     void setupModel();
-    void setupOutParametersModel();
     void setupUplinkParametersModel();
     void setupDebugViewModel();
     void setupChartSeriesModel();

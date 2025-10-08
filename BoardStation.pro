@@ -25,45 +25,29 @@ SOURCES += \
     Model/Parameters/BoardParameterValue.cpp \
     Model/Parameters/BoardParameterSingle.cpp \
     Model/Parameters/BoardParameter.cpp \
-    Model/Parameters/BoardParameterHistory.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
-    Interface/Charts/ChartBuilder.cpp \
     ViewModel/BoardParametersListModel.cpp \
-    ViewModel/BoardParametersModel.cpp \
-    ViewModel/ChartPointsModel.cpp \
-    ViewModel/ChartSeriesModel.cpp \
-    ViewModel/ChartsListModel.cpp \
     ViewModel/ChartViewModel.cpp \
-    ViewModel/OutParametersModel.cpp \
     ViewModel/UplinkParametersModel.cpp \
     ViewModel/DebugViewModel.cpp \
     ViewModel/SessionsListModel.cpp \
     ViewModel/SessionPlayer.cpp \
     ViewModel/DataPlayer.cpp \
     ViewModel/DriverDataPlayer.cpp \
-    Model/Parameters/OutParameter.cpp \
-    Model/Parameters/StringOutParameter.cpp \
-    Model/Parameters/RealOutParameter.cpp \
-    Model/Parameters/RangedRealOutParameter.cpp \
-    Model/Parameters/ListedRealOutParameter.cpp \
-    Model/Parameters/BooleanOutParameter.cpp \
     Model/Parameters/BasicUplinkParameter.cpp \
     Model/Parameters/IntUplinkParameter.cpp \
     Model/Parameters/DoubleUplinkParameter.cpp \
     Model/Parameters/StringUplinkParameter.cpp \
     Model/Parameters/BoolUplinkParameter.cpp \
     Model/Parameters/UplinkParametersParser.cpp \
-    Model/Parameters/OutParametersStorage.cpp \
     Model/Parameters/AppConfigurationReader.cpp \
-    Model/Parameters/OutParametersParser.cpp \
     Model/Parameters/BoardMessage.cpp \
     Model/Parameters/BoardMessagesJsonWriter.cpp \
     Model/Parameters/BoardMessagesJsonWriterNew.cpp \
     Model/Parameters/BoardMessagesSqliteWriter.cpp \
     Model/Parameters/BoardMessagesSqliteReader.cpp \
     main.cpp \
-    mainwindow.cpp \
     QmlMainWindow.cpp
 
 HEADERS += \
@@ -80,30 +64,17 @@ HEADERS += \
     Model/Parameters/BoardParametersJsonParserNew.h \
     Model/Parameters/BoardParameter.h \
     Model/Parameters/BoardParameterSingle.h \
-    Model/Parameters/BoardParameterHistory.h \
     Model/Parameters/BoardParameterValue.h \
     Model/Parameters/BoardParametersStorage.h \
     Model/Parameters/BoardParameterHistoryStorage.h \
-    Interface/Charts/ChartBuilder.h \
     ViewModel/BoardParametersListModel.h \
-    ViewModel/BoardParametersModel.h \
-    ViewModel/ChartPointsModel.h \
-    ViewModel/ChartSeriesModel.h \
-    ViewModel/ChartsListModel.h \
     ViewModel/ChartViewModel.h \
-    ViewModel/OutParametersModel.h \
     ViewModel/UplinkParametersModel.h \
     ViewModel/DebugViewModel.h \
     ViewModel/SessionsListModel.h \
     ViewModel/SessionPlayer.h \
     ViewModel/DataPlayer.h \
     ViewModel/DriverDataPlayer.h \
-    Model/Parameters/OutParameter.h \
-    Model/Parameters/StringOutParameter.h \
-    Model/Parameters/RealOutParameter.h \
-    Model/Parameters/RangedRealOutParameter.h \
-    Model/Parameters/ListedRealOutParameter.h \
-    Model/Parameters/BooleanOutParameter.h \
     Model/Parameters/BasicUplinkParameter.h \
     Model/Parameters/TypedUplinkParameter.h \
     Model/Parameters/Range.h \
@@ -113,20 +84,16 @@ HEADERS += \
     Model/Parameters/StringUplinkParameter.h \
     Model/Parameters/BoolUplinkParameter.h \
     Model/Parameters/UplinkParametersParser.h \
-    Model/Parameters/OutParametersStorage.h \
     Model/Parameters/AppConfigurationReader.h \
-    Model/Parameters/OutParametersParser.h \
     Model/Parameters/BoardMessage.h \
     Model/Parameters/BoardMessagesJsonWriter.h \
     Model/Parameters/BoardMessagesJsonWriterNew.h \
     Model/Parameters/BoardMessagesSqliteWriter.h \
     Model/Parameters/BoardMessagesSqliteReader.h \
     Model/Parameters/Parameters.h \
-    mainwindow.h \
     QmlMainWindow.h
 
-FORMS += \
-    mainwindow.ui
+FORMS +=
 
 RESOURCES += \
     qml.qrc

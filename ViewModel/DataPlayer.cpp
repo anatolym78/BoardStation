@@ -1,18 +1,15 @@
 #include "DataPlayer.h"
 #include <QDebug>
 #include <QDateTime>
+#include <QThread>
 
 DataPlayer::DataPlayer(QObject *parent)
     : QObject(parent)
     , m_storage(nullptr)
-    , m_playbackTimer(new QTimer(this))
+    , m_shouldStop(0)
     , m_isPlaying(false)
-    , m_currentPosition(0.0)
-    , m_maxPosition(0.0)
+    , m_currentPosition(QDateTime())
 {
-    // Настройка таймера воспроизведения (каждые 100мс для плавности)
-    m_playbackTimer->setInterval(100);
-    connect(m_playbackTimer, &QTimer::timeout, this, &DataPlayer::onPlaybackTimer);
 }
 
 DataPlayer::~DataPlayer()
@@ -30,7 +27,8 @@ void DataPlayer::play()
     if (!m_isPlaying)
     {
         m_isPlaying = true;
-        m_playbackTimer->start();
+        m_shouldStop = 0;
+        startPlayback();
         emit isPlayingChanged();
     }
 }
@@ -40,13 +38,15 @@ void DataPlayer::stop()
     if (m_isPlaying)
     {
         m_isPlaying = false;
-        m_playbackTimer->stop();
+        m_shouldStop = 1;
+        stopPlayback();
         emit isPlayingChanged();
     }
     
-    // Сбрасываем позицию на начало
-    m_currentPosition = 0.0;
+    // Сбрасываем позицию на начало сессии
+    m_currentPosition = m_sessionStartTime;
     emit currentPositionChanged();
+    emit elapsedTimeChanged();
     
     // Очищаем хранилище
     clearStorage();
@@ -57,42 +57,73 @@ void DataPlayer::pause()
     if (m_isPlaying)
     {
         m_isPlaying = false;
-        m_playbackTimer->stop();
+        m_shouldStop = 1;
+        stopPlayback();
         emit isPlayingChanged();
     }
 }
 
-void DataPlayer::setPosition(double position)
+void DataPlayer::setPosition(QDateTime position)
 {
     // Ограничиваем позицию в пределах сессии
-    position = qBound(0.0, position, m_maxPosition);
+    if (position < m_sessionStartTime)
+    {
+        position = m_sessionStartTime;
+    }
+    else if (position > m_sessionEndTime)
+    {
+        position = m_sessionEndTime;
+    }
     
     m_currentPosition = position;
     emit currentPositionChanged();
+    emit elapsedTimeChanged();
 }
 
-void DataPlayer::onPlaybackTimer()
+void DataPlayer::startPlayback()
 {
-    if (!m_isPlaying)
+    // Запускаем асинхронный поток проигрывания
+    m_playbackFuture = QtConcurrent::run(this, &DataPlayer::playbackLoop);
+}
+
+void DataPlayer::stopPlayback()
+{
+    // Ожидаем завершения потока проигрывания
+    if (m_playbackFuture.isRunning())
     {
-        return;
+        m_playbackFuture.waitForFinished();
     }
-    
-    updatePlaybackPosition();
-    
-    // Проверяем, не достигли ли конца сессии
-    if (m_currentPosition >= m_maxPosition)
+}
+
+void DataPlayer::playbackLoop()
+{
+    while (!m_shouldStop.loadAcquire())
     {
-        stop();
-        emit playbackFinished();
+        if (m_isPlaying)
+        {
+            updatePlaybackPosition();
+            
+            // Проверяем, не достигли ли конца сессии
+            if (m_currentPosition >= m_sessionEndTime)
+            {
+                // Завершаем проигрывание
+                m_shouldStop = 1;
+                emit playbackFinished();
+                break;
+            }
+        }
+        
+        // Небольшая пауза, чтобы не нагружать CPU
+        QThread::msleep(100);
     }
 }
 
 void DataPlayer::updatePlaybackPosition()
 {
     // Увеличиваем позицию на 0.1 секунды (100мс)
-    m_currentPosition += 0.1;
+    m_currentPosition = QDateTime::currentDateTime();// m_currentPosition.addMSecs(100);
     emit currentPositionChanged();
+    emit elapsedTimeChanged();
 }
 
 void DataPlayer::clearStorage()
@@ -103,14 +134,24 @@ void DataPlayer::clearStorage()
     }
 }
 
-QDateTime DataPlayer::getCurrentTimeFromPosition() const
+double DataPlayer::sessionDuration() const
 {
-    if (m_maxPosition <= 0.0)
+    if (m_sessionStartTime.isNull() || m_sessionEndTime.isNull())
     {
-        return m_sessionStartTime;
+        return 0.0;
     }
     
-    // Вычисляем текущее время на основе позиции
-    qint64 positionMs = static_cast<qint64>(m_currentPosition * 1000.0);
-    return m_sessionStartTime.addMSecs(positionMs);
+    qint64 durationMs = m_sessionStartTime.msecsTo(m_sessionEndTime);
+    return durationMs / 1000.0; // Конвертируем в секунды
+}
+
+double DataPlayer::elapsedTime() const
+{
+    if (m_sessionStartTime.isNull() || m_currentPosition.isNull())
+    {
+        return 0.0;
+    }
+    
+    qint64 elapsedMs = m_sessionStartTime.msecsTo(m_currentPosition);
+    return elapsedMs / 1000.0; // Конвертируем в секунды
 }

@@ -9,6 +9,9 @@ DriverDataPlayer::DriverDataPlayer(QObject *parent)
     // Устанавливаем имя сессии для режима реального времени
     m_currentSessionName = "Live Data";
     emit currentSessionNameChanged();
+
+    // В режиме реального времени не запускаем таймер автоматически
+    // Позиция будет обновляться при получении новых параметров
 }
 
 DriverDataPlayer::~DriverDataPlayer()
@@ -18,8 +21,15 @@ DriverDataPlayer::~DriverDataPlayer()
 
 void DriverDataPlayer::play()
 {
-    // В режиме реального времени просто запускаем таймер
-    DataPlayer::play();
+    // В режиме реального времени просто устанавливаем флаг воспроизведения
+    // Позиция обновляется при получении новых параметров
+    if (!m_isPlaying)
+    {
+        m_isPlaying = true;
+        m_shouldStop = 0;
+        startPlayback();
+        emit isPlayingChanged();
+    }
 }
 
 void DriverDataPlayer::stop()
@@ -32,16 +42,31 @@ void DriverDataPlayer::stop()
 
 void DriverDataPlayer::pause()
 {
-    DataPlayer::pause();
+    // В режиме реального времени просто останавливаем воспроизведение
+    if (m_isPlaying)
+    {
+        m_isPlaying = false;
+        m_shouldStop = 1;
+        stopPlayback();
+        emit isPlayingChanged();
+    }
 }
 
-void DriverDataPlayer::setPosition(double position)
+void DriverDataPlayer::setPosition(QDateTime position)
 {
     // В режиме реального времени ограничиваем позицию текущим временем
-    position = qBound(0.0, position, m_maxPosition);
+    if (position < m_sessionStartTime)
+    {
+        position = m_sessionStartTime;
+    }
+    else if (position > m_sessionEndTime)
+    {
+        position = m_sessionEndTime;
+    }
     
     m_currentPosition = position;
     emit currentPositionChanged();
+    emit elapsedTimeChanged();
 }
 
 void DriverDataPlayer::setStorage(BoardParameterHistoryStorage* storage)
@@ -68,22 +93,18 @@ void DriverDataPlayer::onNewParameterAdded(BoardParameterSingle* parameter)
     if (!m_isInitialized)
     {
         initializeTimeRange();
+
+        play();
     }
 
-	QDateTime paramTime = parameter->timestamp();
+    QDateTime paramTime = parameter->timestamp();
 
     if (m_sessionStartTime.isNull())
-	{
+    {
         m_sessionStartTime = QDateTime(paramTime);
 
         extendTimeRange();
     }
-
-
-    
-    // Обновляем текущую позицию на основе времени параметра
-    qint64 positionMs = m_sessionStartTime.msecsTo(paramTime);
-    m_currentPosition = positionMs / 1000.0;
     
     // Проверяем, нужно ли расширить временной диапазон
     if (paramTime >= m_sessionEndTime)
@@ -91,24 +112,52 @@ void DriverDataPlayer::onNewParameterAdded(BoardParameterSingle* parameter)
         extendTimeRange();
     }
     
-    // Эмитируем сигнал о проигрывании параметра
-    emit parameterPlayed(parameter);
-    
-    emit currentPositionChanged();
+    // Проверяем и проигрываем параметры, если плеер активен
+    checkAndPlayParameters();
 }
 
 void DriverDataPlayer::updatePlaybackPosition()
 {
-    // В режиме реального времени просто увеличиваем позицию
-    m_currentPosition += 0.1;
+    // В режиме реального времени обновляем позицию на текущее время
+    QDateTime currentTime = QDateTime::currentDateTime();
     
-    // Проверяем, не достигли ли конца диапазона
-    if (m_currentPosition >= m_maxPosition)
+    // Ограничиваем позицию в пределах сессии
+    if (currentTime < m_sessionStartTime)
     {
-        extendTimeRange();
+        currentTime = m_sessionStartTime;
+    }
+    else if (currentTime > m_sessionEndTime)
+    {
+        currentTime = m_sessionEndTime;
     }
     
+    m_currentPosition = currentTime;
+    
+    // Проверяем и проигрываем параметры
+    checkAndPlayParameters();
+    
     emit currentPositionChanged();
+    emit elapsedTimeChanged();
+}
+
+void DriverDataPlayer::checkAndPlayParameters()
+{
+    if (!m_storage || !m_isPlaying)
+    {
+        return;
+    }
+    
+    // Получаем все параметры из хранилища
+    QList<BoardParameterSingle*> params = m_storage->getSessionParameters();
+    
+    // Проигрываем параметры, время которых меньше или равно текущей позиции
+    for (BoardParameterSingle* param : params)
+    {
+        if (param && param->timestamp() <= m_currentPosition)
+        {
+            emit parameterPlayed(param);
+        }
+    }
 }
 
 void DriverDataPlayer::extendTimeRange()
@@ -116,12 +165,8 @@ void DriverDataPlayer::extendTimeRange()
     // Расширяем конечное время на 10 минут
     m_sessionEndTime = m_sessionEndTime.addSecs(60*TIME_RANGE_MINUTES);
     
-    // Пересчитываем максимальную позицию
-    qint64 durationMs = m_sessionStartTime.msecsTo(m_sessionEndTime);
-    m_maxPosition = durationMs / 1000.0;
-    
     emit sessionEndTimeChanged();
-    emit maxPositionChanged();
+    emit sessionDurationChanged();
     
     qDebug() << "DriverDataPlayer: Extended time range to" << m_sessionEndTime.toString();
 }
@@ -145,16 +190,15 @@ void DriverDataPlayer::initializeTimeRange()
     {
         m_sessionStartTime = firstParam->timestamp();
         m_sessionEndTime = m_sessionStartTime.addSecs(60*TIME_RANGE_MINUTES);
-        
-        // Вычисляем максимальную позицию
-        qint64 durationMs = m_sessionStartTime.msecsTo(m_sessionEndTime);
-        m_maxPosition = durationMs / 1000.0;
+        m_currentPosition = m_sessionStartTime;
         
         m_isInitialized = true;
         
         emit sessionStartTimeChanged();
         emit sessionEndTimeChanged();
-        emit maxPositionChanged();
+        emit sessionDurationChanged();
+        emit currentPositionChanged();
+        emit elapsedTimeChanged();
         
         qDebug() << "DriverDataPlayer: Initialized time range from" 
                  << m_sessionStartTime.toString() << "to" << m_sessionEndTime.toString();

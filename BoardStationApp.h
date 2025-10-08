@@ -3,20 +3,16 @@
 
 #include <QApplication>
 #include <QObject>
-#include "ViewModel/BoardParametersModel.h"
 #include "ViewModel/OutParametersModel.h"
 #include "ViewModel/UplinkParametersModel.h"
 #include "ViewModel/DebugViewModel.h"
-#include "ViewModel/ChartSeriesModel.h"
 #include "Model/IDriver.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include "Model/Parameters/Parameters.h"
-#include "Model/Parameters/OutParametersStorage.h"
 #include "Model/Parameters/UplinkParametersParser.h"
 #include "Model/Parameters/BasicUplinkParameter.h"
 #include "Model/Parameters/BoardMessagesSqliteWriter.h"
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
-#include "Interface/Charts/ChartBuilder.h"
 #include "ViewModel/BoardParametersListModel.h"
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/ChartViewModel.h"
@@ -24,7 +20,6 @@
 #include "ViewModel/SessionPlayer.h"
 #include "ViewModel/DriverDataPlayer.h"
 
-class MainWindow;
 class BoardParametersJsonParserNew;
 
 class BoardStationApp : public QApplication
@@ -35,34 +30,21 @@ public:
     BoardStationApp(int &argc, char **argv);
     ~BoardStationApp();
 
-    // Методы для работы с главным окном
-    void setMainWindow(MainWindow *mainWindow);
-    MainWindow* getMainWindow() const;
 
     // Методы для работы с моделью параметров
     BoardParametersListModel* getParametersModel() const;
     ChartViewModel* getChartViewModel() const { return m_chatsViewModel; }
     BoardParameterHistoryStorage* getParametersStorage() const;
-    
-    // Методы для работы с моделью исходящих параметров
-    OutParametersModel* getOutParametersModel() const;
-    
+       
     // Методы для работы с моделью uplink параметров
     UplinkParametersModel* getUplinkParametersModel() const;
     
     // Методы для работы с моделью отладки
     DebugViewModel* getDebugViewModel() const;
     
-    // Методы для работы с моделью серий графиков
-    ChartSeriesModel* getChartSeriesModel() const;
-    
     // Методы для работы с моделью сессий
     SessionsListModel* getSessionsListModel() const;
-    
-    // Методы для работы с исходящими параметрами
-    void loadOutParameters() const;
-    OutParametersStorage* getOutParametersStorage() const;
-    
+       
     // Методы для работы с новыми uplink параметрами
     void loadUplinkParameters() const;
     QList<BasicUplinkParameter*> getUplinkParameters() const;
@@ -103,8 +85,6 @@ private:
     void connectSignals();
 
 private:
-    MainWindow *m_mainWindow;
-
 	BoardParameterHistoryStorage* m_parametersStorage;
 	BoardParametersListModel* m_parametersModel;
 	ChartViewModel* m_chatsViewModel;
@@ -113,13 +93,9 @@ private:
 	BoardMessagesSqliteWriter* m_boardMessagesWriter;
 	BoardMessagesSqliteReader* m_boardMessagesReader;
 
-    //BoardParametersModel *m_parametersModel;
-    OutParametersModel *m_outParametersModel;
-    OutParametersStorage *m_outParametersStorage;
     UplinkParametersModel *m_uplinkParametersModel;
     DebugViewModel *m_debugViewModel;
     mutable QList<BasicUplinkParameter*> m_uplinkParameters;
-    ChartSeriesModel *m_chartSeriesModel;
     SessionsListModel *m_sessionsListModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParserNew *m_jsonReader;

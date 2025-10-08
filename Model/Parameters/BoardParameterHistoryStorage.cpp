@@ -22,27 +22,12 @@ void BoardParameterHistoryStorage::addParameter(BoardParameterSingle *parameter)
 {
     if (!parameter || parameter->label().isEmpty()) 
     {
-        //qWarning() << "BoardParameterHistoryStorage: Попытка добавить параметр с пустой меткой или nullptr";
         return;
     }
 
-    // Ищем существующую историю для данной метки
-    BoardParameterHistory* existingHistory = findHistoryByLabel(parameter->label());
+    // Просто добавляем параметр в список сессии
+    m_sessionParameters.append(parameter);
     
-    if (!existingHistory) 
-    {
-        // История ещё не существует, создаём новую
-        existingHistory = new BoardParameterHistory(parameter->label(), parameter->unit(), this);
-        m_parameterHistories.append(existingHistory);
-        //emit parameterAdded(parameter->label());
-    }
-
-    // Добавляем параметр в историю
-    if (existingHistory->addParameter(parameter)) 
-    {
-        //emit parameterUpdated(parameter->label());
-    }
-
     emit newParameterAdded(parameter);
 }
 
@@ -67,65 +52,9 @@ void BoardParameterHistoryStorage::loadSessionData(int sessionId, BoardMessagesS
     emit sessionDataLoaded(sessionId);
 }
 
-BoardParameterHistory* BoardParameterHistoryStorage::getParameterHistory(const QString &label) const
-{
-    return findHistoryByLabel(label);
-}
-
-QStringList BoardParameterHistoryStorage::getParameterLabels() const
-{
-    QStringList labels;
-    for (const BoardParameterHistory *history : m_parameterHistories) 
-    {
-        if (history) 
-        {
-            labels.append(history->label());
-        }
-    }
-    return labels;
-}
-
-int BoardParameterHistoryStorage::parameterHistoryCount() const
-{
-    return m_parameterHistories.size();
-}
-
-bool BoardParameterHistoryStorage::hasParameterHistory(const QString &label) const
-{
-    return findHistoryByLabel(label) != nullptr;
-}
-
 void BoardParameterHistoryStorage::clear()
 {
-    if (!m_parameterHistories.isEmpty()) 
-    {
-        // Удаляем все объекты перед очисткой
-        qDeleteAll(m_parameterHistories);
-        m_parameterHistories.clear();
-        emit parametersCleared();
-        //qDebug() << "BoardParameterHistoryStorage: Все истории параметров очищены";
-    }
-    
-    // Очищаем список параметров сессии
-    qDeleteAll(m_sessionParameters);
     m_sessionParameters.clear();
-}
-
-int BoardParameterHistoryStorage::indexOf(const QString& label) const
-{
-    for (auto i = 0; i < m_parameterHistories.count(); i++)
-	{
-        if(m_parameterHistories[i] == nullptr) continue;
-
-        if (m_parameterHistories[i]->label() == label) return i;
-	}
-
-    return -1;
-}
-
-QList<BoardParameterHistory*> BoardParameterHistoryStorage::getAllParameterHistories() const
-{
-    return m_parameterHistories;
 }
 
 QList<BoardParameterSingle*> BoardParameterHistoryStorage::getSessionParameters() const
@@ -146,16 +75,4 @@ QList<BoardParameterSingle*> BoardParameterHistoryStorage::getParametersInTimeRa
     }
     
     return result;
-}
-
-BoardParameterHistory* BoardParameterHistoryStorage::findHistoryByLabel(const QString &label) const
-{
-    for (BoardParameterHistory *history : m_parameterHistories) 
-    {
-        if (history && history->label() == label) 
-        {
-            return history;
-        }
-    }
-    return nullptr;
 }

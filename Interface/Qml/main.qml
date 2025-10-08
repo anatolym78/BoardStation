@@ -172,7 +172,9 @@ Item
                     console.log("Position changed:", position)
                     if (driverDataPlayer)
                     {
-                        driverDataPlayer.setPosition(position)
+                        // Конвертируем секунды в QDateTime
+                        var newPosition = new Date(driverDataPlayer.sessionStartTime.getTime() + position * 1000)
+                        driverDataPlayer.setPosition(newPosition)
                     }
                 }
             }

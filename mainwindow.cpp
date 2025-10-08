@@ -201,41 +201,9 @@ void MainWindow::createChartWindow(const QString &parameterName)
         return;
     }
     
-    BoardParameterHistory *param = m_app->getParametersStorage()->getParameterHistory(parameterName);
-    if (!param || !param->hasValues()) {
-        qWarning() << "MainWindow: Параметр" << parameterName << "не содержит значений";
-        return;
-    }
-    
-    // Проверяем, можно ли создать график для этого параметра
-    if (!ChartBuilder::canCreateChart(*param)) {
-        qWarning() << "MainWindow: Параметр" << parameterName << "не подходит для создания графика";
-        return;
-    }
-    
-    // Создаем график с помощью ChartBuilder
-    QChartView *chartView = m_chartBuilder->createChart(*param);
-    if (!chartView) {
-        qWarning() << "MainWindow: Не удалось создать график для параметра" << parameterName;
-        return;
-    }
-    
-    // Создаем MDI подокно с графиком
-    QMdiSubWindow *chartWindow = ui->mdiArea->addSubWindow(chartView);
-    chartWindow->setWindowTitle(tr("Chart: %1").arg(parameterName));
-    chartWindow->resize(500, 400);
-    
-    // Подключаем сигнал закрытия окна
-    connect(chartWindow, &QMdiSubWindow::destroyed, this, [this, parameterName]() {
-        onChartWindowClosed(parameterName);
-    });
-    
-    chartWindow->show();
-    
-    // Сохраняем график в словарь
-    m_chartViews[parameterName] = chartView;
-    
-    qDebug() << "MainWindow: Создано окно с графиком для параметра:" << parameterName;
+    // TODO: Переписать логику для работы с m_sessionParameters вместо BoardParameterHistory
+    qWarning() << "MainWindow: Метод createChartWindow требует переработки для работы с новой архитектурой";
+    return;
 }
 
 void MainWindow::onParameterUpdated(const QString &label)
@@ -270,14 +238,8 @@ void MainWindow::updateChart(const QString &parameterName)
         return;
     }
     
-    // Получаем актуальные данные параметра
-    BoardParameterHistory *param = m_app->getParametersStorage()->getParameterHistory(parameterName);
-    if (!param || !param->hasValues()) {
-        return;
-    }
-    
-    // Обновляем график с помощью ChartBuilder
-    m_chartBuilder->updateChart(chartView, *param);
+    // TODO: Переписать логику для работы с m_sessionParameters вместо BoardParameterHistory
+    qWarning() << "MainWindow: Метод updateChart требует переработки для работы с новой архитектурой";
 }
 
 void MainWindow::onChartWindowClosed(const QString &parameterName)

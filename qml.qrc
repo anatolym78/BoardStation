@@ -2,7 +2,6 @@
     <qresource prefix="/">
         <file>Interface/Qml/main.qml</file>
         <file>Interface/Qml/DroneControlPanel.qml</file>
-        <file>Interface/Qml/ChartsPanel.qml</file>
         <file>Interface/Qml/SimpleChartsPanel.qml</file>
         <file>Interface/Qml/BoardParametersList.qml</file>
         <file>Interface/Qml/SessionsPanel.qml</file>
