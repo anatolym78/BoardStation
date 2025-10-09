@@ -28,6 +28,8 @@ public slots:
     bool isRecording() const;
     void loadSession(int sessionId);
 
+    bool saveLiveData();
+
 private slots:
     void onParameterUpdated(const QString &label);
     void onDataSent(const QString &data);

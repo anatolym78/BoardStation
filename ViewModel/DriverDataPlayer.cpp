@@ -82,6 +82,29 @@ void DriverDataPlayer::setStorage(BoardParameterHistoryStorage* storage)
     }
 }
 
+void DriverDataPlayer::resetState()
+{
+    // Останавливаем плеер
+    stop();
+    
+    // Сбрасываем состояние инициализации
+    m_isInitialized = false;
+    
+    // Сбрасываем временные диапазоны
+    m_sessionStartTime = QDateTime();
+    m_sessionEndTime = QDateTime();
+    m_currentPosition = QDateTime();
+    
+    // Эмитируем сигналы об изменении состояния
+    emit sessionStartTimeChanged();
+    emit sessionEndTimeChanged();
+    emit sessionDurationChanged();
+    emit currentPositionChanged();
+    emit elapsedTimeChanged();
+    
+    qDebug() << "DriverDataPlayer: State reset - ready for new live session";
+}
+
 void DriverDataPlayer::onNewParameterAdded(BoardParameterSingle* parameter)
 {
     if (!parameter)

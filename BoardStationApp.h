@@ -68,6 +68,8 @@ public:
     void startRecording();
     void stopRecording();
     bool isRecording() const;
+
+    bool saveLiveData();
     
     // Метод для загрузки сессии в плеер
     void loadSession(int sessionId);
@@ -99,7 +101,6 @@ private:
     SessionsListModel *m_sessionsListModel;
     drv::IDriver *m_driver;
     BoardParametersJsonParserNew *m_jsonReader;
-    bool m_isRecording;
 };
 
 #endif // BOARDSTATIONAPP_H

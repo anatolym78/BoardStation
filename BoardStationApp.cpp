@@ -18,7 +18,6 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_jsonReader(new BoardParametersJsonParserNew(this))
     , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
-    , m_isRecording(false)
     , m_dataPlayer(new DriverDataPlayer(this))// По умолчанию используем DriverDataPlayer
 {
     // Создаем хранилище параметров
@@ -125,6 +124,13 @@ void BoardStationApp::connectSignals()
     }
 
     connect(m_dataPlayer, &DataPlayer::parameterPlayed, m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
+    
+    // Подключаем сигнал новых параметров к живой сессии для обновления счетчиков
+    if (m_sessionsListModel && m_parametersStorage)
+    {
+        connect(m_parametersStorage, &BoardParameterHistoryStorage::newParameterAdded,
+                m_sessionsListModel, &SessionsListModel::onNewParameterAdded);
+    }
 	
 }
 
@@ -157,26 +163,11 @@ void BoardStationApp::onDataAvailable() const
     }
 
     m_parametersStorage->addParameters(newParameters);
-    //for(auto p: newParameters)
-    //{
-    //    getParametersModel()->onNewParameterAdded(p);
-    //}
-    
-    // Добавляем сообщение в очередь для записи в базу данных только если запись включена
-    if (m_isRecording)
+
+    // Обновляем счетчики живой сессии
+    if (m_sessionsListModel)
     {
-        m_boardMessagesWriter->addMessage(newParameters);
-        
-        // Обновляем счетчик сообщений в текущей сессии
-        if (m_sessionsListModel)
-        {
-            int currentSessionId = m_boardMessagesWriter->getCurrentSessionId();
-            if (currentSessionId > 0 && m_boardMessagesReader)
-            {
-                BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(currentSessionId);
-                m_sessionsListModel->updateSessionMessageCount(currentSessionId, sessionInfo.messageCount);
-            }
-        }
+        m_sessionsListModel->updateLiveSessionCounters();
     }
 }
 
@@ -420,79 +411,181 @@ bool BoardStationApp::isListening() const
 
 void BoardStationApp::startRecording()
 {
-    if (!m_isRecording)
-    {
-        m_isRecording = true;
-        
-        // Создаём новую сессию для записи
-        // Получаем следующий номер сессии
-        int nextSessionNumber = 1;
-        if (m_sessionsListModel)
-        {
-            // Находим максимальный номер сессии и увеличиваем на 1
-            for (int i = 0; i < m_sessionsListModel->rowCount(); ++i)
-            {
-                QString sessionName = m_sessionsListModel->data(m_sessionsListModel->index(i), SessionsListModel::SessionNameRole).toString();
-                QRegExp rx("Session (\\d+)");
-                if (rx.indexIn(sessionName) != -1)
-                {
-                    int sessionNum = rx.cap(1).toInt();
-                    if (sessionNum >= nextSessionNumber)
-                    {
-                        nextSessionNumber = sessionNum + 1;
-                    }
-                }
-            }
-        }
-        
-        QString sessionName = QString("Session %1").arg(nextSessionNumber);
-        m_boardMessagesWriter->createNewSession(sessionName);
-        
-        // Добавляем новую сессию в модель списка
-        if (m_sessionsListModel && m_boardMessagesReader)
-        {
-            // Получаем информацию о только что созданной сессии
-            int currentSessionId = m_boardMessagesWriter->getCurrentSessionId();
-            if (currentSessionId > 0)
-            {
-                BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(currentSessionId);
-                m_sessionsListModel->addSession(sessionInfo);
-            }
-        }
+    //if (!m_isRecording)
+    //{
+    //    m_isRecording = true;
+    //    
+    //    // Создаём новую сессию для записи
+    //    // Получаем следующий номер сессии
+    //    int nextSessionNumber = 1;
+    //    if (m_sessionsListModel)
+    //    {
+    //        // Находим максимальный номер сессии и увеличиваем на 1
+    //        for (int i = 0; i < m_sessionsListModel->rowCount(); ++i)
+    //        {
+    //            QString sessionName = m_sessionsListModel->data(m_sessionsListModel->index(i), SessionsListModel::SessionNameRole).toString();
+    //            QRegExp rx("Session (\\d+)");
+    //            if (rx.indexIn(sessionName) != -1)
+    //            {
+    //                int sessionNum = rx.cap(1).toInt();
+    //                if (sessionNum >= nextSessionNumber)
+    //                {
+    //                    nextSessionNumber = sessionNum + 1;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    
+    //    QString sessionName = QString("Session %1").arg(nextSessionNumber);
+    //    m_boardMessagesWriter->createNewSession(sessionName);
+    //    
+    //    // Добавляем новую сессию в модель списка
+    //    if (m_sessionsListModel && m_boardMessagesReader)
+    //    {
+    //        // Получаем информацию о только что созданной сессии
+    //        int currentSessionId = m_boardMessagesWriter->getCurrentSessionId();
+    //        if (currentSessionId > 0)
+    //        {
+    //            BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(currentSessionId);
+    //            m_sessionsListModel->addRecordedSession(sessionInfo);
+    //        }
+    //    }
 
-        if (m_sessionsListModel)
-        {
-            m_sessionsListModel->startRecording();
-        }
-        
-        qDebug() << "BoardStationApp: Started recording to database";
-    }
+    //    if (m_sessionsListModel)
+    //    {
+    //        m_sessionsListModel->startRecording();
+    //    }
+    //    
+    //    qDebug() << "BoardStationApp: Started recording to database";
+    //}
 }
 
 void BoardStationApp::stopRecording()
 {
-    if (m_isRecording)
-    {
-        m_isRecording = false;
-        
-        // Принудительно сохраняем все данные из очереди
-        if (m_boardMessagesWriter)
-        {
-            m_boardMessagesWriter->flushQueue();
-        }
+  //  if (m_isRecording)
+  //  {
+  //      m_isRecording = false;
+  //      
+  //      // Принудительно сохраняем все данные из очереди
+  //      if (m_boardMessagesWriter)
+  //      {
+  //          m_boardMessagesWriter->flushQueue();
+  //      }
 
-		if (m_sessionsListModel)
-		{
-			m_sessionsListModel->stopRecording();
-		}
-        
-        qDebug() << "BoardStationApp: Stopped recording to database";
-    }
+		//if (m_sessionsListModel)
+		//{
+		//	m_sessionsListModel->stopRecording();
+		//}
+  //      
+  //      qDebug() << "BoardStationApp: Stopped recording to database";
+  //  }
 }
 
 bool BoardStationApp::isRecording() const
 {
-    return m_isRecording;
+    return true;
+    //return m_isRecording;
+}
+
+
+bool BoardStationApp::saveLiveData()
+{
+    qDebug() << "BoardStationApp: Starting to save live data to database";
+    
+    if (!m_parametersStorage || !m_boardMessagesWriter || !m_boardMessagesReader)
+    {
+        qWarning() << "BoardStationApp: Required components not available for saving live data";
+        return false;
+    }
+    
+    // Получаем все параметры из хранилища
+    QList<BoardParameterSingle*> liveParameters = m_parametersStorage->getSessionParameters();
+    
+    if (liveParameters.isEmpty())
+    {
+        qWarning() << "BoardStationApp: No live data to save";
+        return false;
+    }
+    
+    qDebug() << "BoardStationApp: Found" << liveParameters.size() << "parameters to save";
+    
+    // Создаем новую сессию для сохранения живых данных
+    QString sessionName = QString("Live Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+    m_boardMessagesWriter->createNewSession(sessionName);
+    
+    int newSessionId = m_boardMessagesWriter->getCurrentSessionId();
+    if (newSessionId <= 0)
+    {
+        qWarning() << "BoardStationApp: Failed to create new session for live data";
+        return false;
+    }
+    
+    qDebug() << "BoardStationApp: Created new session" << newSessionId << "with name" << sessionName;
+    
+    // Группируем параметры по временным меткам для записи как сообщения
+    QMap<QDateTime, QList<BoardParameterSingle*>> parametersByTimestamp;
+    
+    for (BoardParameterSingle* param : liveParameters)
+    {
+        if (param)
+        {
+            parametersByTimestamp[param->timestamp()].append(param);
+        }
+    }
+    
+    // Записываем параметры в базу данных группами по времени
+    int messagesWritten = 0;
+    for (auto it = parametersByTimestamp.begin(); it != parametersByTimestamp.end(); ++it)
+    {
+        const QDateTime& timestamp = it.key();
+        const QList<BoardParameterSingle*>& params = it.value();
+        
+        // Добавляем сообщение в очередь записи
+        m_boardMessagesWriter->addMessage(params, timestamp);
+        messagesWritten++;
+    }
+    
+    // Принудительно записываем все данные из очереди
+    m_boardMessagesWriter->flushQueue();
+    
+    qDebug() << "BoardStationApp: Written" << messagesWritten << "messages to database";
+    
+    // Получаем информацию о созданной сессии из базы данных
+    BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(newSessionId);
+    
+    // Добавляем новую сессию в модель списка сессий
+    if (m_sessionsListModel)
+    {
+        m_sessionsListModel->addRecordedSession(sessionInfo);
+        qDebug() << "BoardStationApp: Added new session to sessions list model";
+    }
+    
+    // Очищаем хранилище параметров
+    m_parametersStorage->clear();
+    qDebug() << "BoardStationApp: Cleared parameters storage";
+    
+    // Сбрасываем состояние DriverDataPlayer
+    if (m_dataPlayer)
+    {
+        DriverDataPlayer* driverPlayer = qobject_cast<DriverDataPlayer*>(m_dataPlayer);
+        if (driverPlayer)
+        {
+            // Сбрасываем состояние плеера
+            driverPlayer->resetState();
+            qDebug() << "BoardStationApp: Reset DriverDataPlayer state";
+        }
+    }
+    
+    // Сбрасываем счетчики живой сессии
+    if (m_sessionsListModel)
+    {
+        m_sessionsListModel->resetLiveSessionCounters();
+        qDebug() << "BoardStationApp: Reset live session counters";
+    }
+    
+    qDebug() << "BoardStationApp: Successfully saved live data to session" << newSessionId;
+
+    return true;
 }
 
 void BoardStationApp::loadSession(int sessionId)

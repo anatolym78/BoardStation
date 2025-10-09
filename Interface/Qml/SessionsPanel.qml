@@ -168,7 +168,7 @@ Rectangle
                             height: 10
                             radius: 5
                             color: "red"
-                            visible: recordedSession
+                            visible: isLiveSession
                         }
 
                         Text
@@ -185,6 +185,7 @@ Rectangle
                         {
                             id: deleteButton
                             Layout.alignment: right
+                            visible: true//!isLiveSession
 
                             background: Rectangle
                             {
@@ -242,10 +243,17 @@ Rectangle
                                     }
                                      onClicked:
                                      {
-                                         // Показываем диалог подтверждения
-                                         deleteConfirmationDialog.sessionIndex = index
-                                         deleteConfirmationDialog.sessionName = sessionName
-                                         deleteConfirmationDialog.open()
+                                         if(isLiveSession)
+                                         {
+                                             qmlMainWindow.saveLiveData()
+                                         }
+                                         else
+                                         {
+                                             // Показываем диалог подтверждения
+                                             deleteConfirmationDialog.sessionIndex = index
+                                             deleteConfirmationDialog.sessionName = sessionName
+                                             deleteConfirmationDialog.open()
+                                         }
                                      }
                                 }
 
@@ -253,7 +261,10 @@ Rectangle
 
                             contentItem: Text
                             {
-                                text: qsTr("delete")
+                                text:
+                                {
+                                    return isLiveSession ? qsTr("save session") : qsTr("delete")
+                                }
                                 color: "white"
                                 font.bold: true
                             }

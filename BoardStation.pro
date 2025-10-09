@@ -20,6 +20,7 @@ SOURCES += \
     Model/Emulation/BoardDataGenerators/LatitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
+    Model/Parameters/BoardParameterHistory.cpp \
     Model/Parameters/BoardParametersJsonParser.cpp \
     Model/Parameters/BoardParametersJsonParserNew.cpp \
     Model/Parameters/BoardParameterValue.cpp \
@@ -32,6 +33,11 @@ SOURCES += \
     ViewModel/UplinkParametersModel.cpp \
     ViewModel/DebugViewModel.cpp \
     ViewModel/SessionsListModel.cpp \
+    ViewModel/Session.cpp \
+    ViewModel/RecordedSession.cpp \
+    ViewModel/LiveSession.cpp \
+    ViewModel/RecordedSessionsFactory.cpp \
+    ViewModel/LiveSessionFactory.cpp \
     ViewModel/SessionPlayer.cpp \
     ViewModel/DataPlayer.cpp \
     ViewModel/DriverDataPlayer.cpp \
@@ -66,12 +72,18 @@ HEADERS += \
     Model/Parameters/BoardParameterSingle.h \
     Model/Parameters/BoardParameterValue.h \
     Model/Parameters/BoardParametersStorage.h \
+    Model/Parameters/BoardParameterHistory.h \
     Model/Parameters/BoardParameterHistoryStorage.h \
     ViewModel/BoardParametersListModel.h \
     ViewModel/ChartViewModel.h \
     ViewModel/UplinkParametersModel.h \
     ViewModel/DebugViewModel.h \
     ViewModel/SessionsListModel.h \
+    ViewModel/Session.h \
+    ViewModel/RecordedSession.h \
+    ViewModel/LiveSession.h \
+    ViewModel/RecordedSessionsFactory.h \
+    ViewModel/LiveSessionFactory.h \
     ViewModel/SessionPlayer.h \
     ViewModel/DataPlayer.h \
     ViewModel/DriverDataPlayer.h \

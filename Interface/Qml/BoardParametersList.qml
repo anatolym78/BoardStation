@@ -37,37 +37,6 @@ Rectangle
             color: "gray"
             Layout.alignment: Qt.AlignHCenter
         }
-        
-        // Переключатель "запись в базу данных"
-        RowLayout
-        {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter
-            
-            Switch
-            {
-                id: recordSwitch
-                text: qsTr("Record")
-                font.pointSize: 10
-                checked: false // Выключен по умолчанию
-                onCheckedChanged: 
-                {
-                    if (checked)
-                    {
-                        qmlMainWindow.startRecording()
-                    }
-                    else
-                    {
-                        qmlMainWindow.stopRecording()
-                    }
-                }
-            }
-            
-            Item
-            {
-                Layout.fillWidth: true
-            }
-        }
 
         ListView
         {

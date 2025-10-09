@@ -334,3 +334,9 @@ void QmlMainWindow::loadSession(int sessionId)
         qWarning() << "QmlMainWindow: Application instance is not available";
     }
 }
+
+bool QmlMainWindow::saveLiveData()
+{
+
+    return m_app->saveLiveData();
+}

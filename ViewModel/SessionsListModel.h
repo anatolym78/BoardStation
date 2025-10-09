@@ -4,7 +4,12 @@
 #include <QAbstractListModel>
 #include <QObject>
 #include <QDateTime>
+#include <QList>
+#include "Session.h"
+#include "RecordedSessionsFactory.h"
+#include "LiveSessionFactory.h"
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
+#include "Model/Parameters/BoardParameterSingle.h"
 
 class SessionsListModel : public QAbstractListModel
 {
@@ -22,9 +27,12 @@ public:
         DescriptionRole,
         RecordingRole,
         RecordedSessionRole,
+        SessionTypeRole,
+        IsLiveSessionRole,
     };
 
     explicit SessionsListModel(QObject *parent = nullptr);
+    ~SessionsListModel();
 
     Q_INVOKABLE bool isRecordingState() const { return m_recording;}
     Q_INVOKABLE void startRecording ();
@@ -39,23 +47,52 @@ public:
     // Методы для работы с данными
     void setReader(BoardMessagesSqliteReader *reader);
     Q_INVOKABLE void refreshSessions();
-    Q_INVOKABLE void addSession(const BoardMessagesSqliteReader::SessionInfo &sessionInfo);
+    Q_INVOKABLE void addRecordedSession(const BoardMessagesSqliteReader::SessionInfo &sessionInfo);
     Q_INVOKABLE void updateSessionMessageCount(int sessionId, int messageCount);
     Q_INVOKABLE void removeSession(int index);
     
     // Получение информации о сессии
+    Session* getSession(int index) const;
     BoardMessagesSqliteReader::SessionInfo getSessionInfo(int index) const;
     int getSessionId(int index) const;
     int findSessionIndex(int sessionId) const;
+    
+    // Методы для работы с живой сессией
+    void initializeLiveSession();
+    void updateLiveSessionCounters();
+    void resetLiveSessionCounters();
 
 signals:
     void sessionsRefreshed();
     void errorOccurred(const QString &error);
 
+private slots:
+    void onRecordedSessionsCreated(const QList<Session*>& sessions);
+    void onLiveSessionCreated(Session* session);
+    void onSessionChanged();
+    void onMessageCountChanged(int count);
+    void onParameterCountChanged(int count);
+
+public slots:
+    void onNewParameterAdded(BoardParameterSingle* parameter);
+
+private:
+    void sortSessions();
+    void addSessionToList(Session* session);
+    void removeSessionFromList(Session* session);
+    void updateSessionInList(Session* session);
+
 private:
     BoardMessagesSqliteReader *m_reader;
     bool m_recording = false;
-    QList<BoardMessagesSqliteReader::SessionInfo> m_sessions;
+    QList<Session*> m_sessions;
+    
+    // Фабрики для создания сессий
+    RecordedSessionsFactory *m_recordedSessionsFactory;
+    LiveSessionFactory *m_liveSessionFactory;
+    
+    // Указатель на живую сессию
+    Session* m_liveSession;
 };
 
 #endif // SESSIONSLISTMODEL_H

@@ -19,6 +19,9 @@ public:
     
     // Методы для работы с хранилищем
     void setStorage(BoardParameterHistoryStorage* storage) override;
+    
+    // Метод для сброса состояния плеера
+    void resetState();
 
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);

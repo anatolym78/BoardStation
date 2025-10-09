@@ -1,10 +1,26 @@
 #include "SessionsListModel.h"
 #include <QDebug>
+#include <algorithm>
 
 SessionsListModel::SessionsListModel(QObject *parent)
     : QAbstractListModel(parent)
     , m_reader(nullptr)
+    , m_recordedSessionsFactory(new RecordedSessionsFactory(this))
+    , m_liveSessionFactory(new LiveSessionFactory(this))
+    , m_liveSession(nullptr)
 {
+    // Подключаем сигналы фабрик
+    connect(m_recordedSessionsFactory, &RecordedSessionsFactory::sessionsCreated,
+            this, &SessionsListModel::onRecordedSessionsCreated);
+    connect(m_liveSessionFactory, &LiveSessionFactory::liveSessionCreated,
+            this, &SessionsListModel::onLiveSessionCreated);
+}
+
+SessionsListModel::~SessionsListModel()
+{
+    // Очищаем список сессий
+    qDeleteAll(m_sessions);
+    m_sessions.clear();
 }
 
 Q_INVOKABLE void SessionsListModel::startRecording ()
@@ -37,30 +53,38 @@ QVariant SessionsListModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
     
-    const BoardMessagesSqliteReader::SessionInfo &session = m_sessions.at(index.row());
+    Session* session = m_sessions.at(index.row());
+    if (!session)
+    {
+        return QVariant();
+    }
     
     switch (role) 
     {
         case SessionIdRole:
-            return session.id;
+            return session->getId();
         case SessionNameRole:
-            return session.name;
+            return session->getName();
         case CreatedAtRole:
-            return session.createdAt;
+            return session->getCreatedAt();
         case CreatedAtFormattedRole:
-            return session.createdAt.toString("dd.MM.yyyy hh:mm");
+            return session->getCreatedAt().toString("dd.MM.yyyy hh:mm");
         case MessageCountRole:
-            return session.messageCount;
+            return session->getMessageCount();
         case ParameterCountRole:
-            return session.parameterCount;
+            return session->getParameterCount();
         case DescriptionRole:
-            return session.description;
+            return session->getDescription();
         case Qt::DisplayRole:
-            return QString("%1 (%2 сообщений)").arg(session.name).arg(session.messageCount);
+            return QString("%1 (%2 сообщений)").arg(session->getName()).arg(session->getMessageCount());
         case RecordedSessionRole:
-            return index.row() == 0 && m_recording;
+            return session->getType() == Session::RecordedSession;
         case RecordingRole:
-            return m_recording;
+            return session->isRecording();
+        case SessionTypeRole:
+            return static_cast<int>(session->getType());
+        case IsLiveSessionRole:
+            return session->getType() == Session::LiveSession;
         default:
             return QVariant();
     }
@@ -78,6 +102,8 @@ QHash<int, QByteArray> SessionsListModel::roleNames() const
     roles[DescriptionRole] = "description";
     roles[RecordingRole] = "recordingRole";
     roles[RecordedSessionRole] = "recordedSession";
+    roles[SessionTypeRole] = "sessionType";
+    roles[IsLiveSessionRole] = "isLiveSession";
 
     return roles;
 }
@@ -87,6 +113,7 @@ void SessionsListModel::setReader(BoardMessagesSqliteReader *reader)
     if (m_reader != reader) 
     {
         m_reader = reader;
+        m_recordedSessionsFactory->setReader(reader);
         refreshSessions();
     }
 }
@@ -102,36 +129,57 @@ void SessionsListModel::refreshSessions()
     
     beginResetModel();
     
-    try 
+    // Очищаем существующие сессии
+    qDeleteAll(m_sessions);
+    m_sessions.clear();
+    
+    // Создаем живую сессию, если она еще не создана
+    if (!m_liveSession)
     {
-        m_sessions = m_reader->getAvailableSessions();
-        
-        // Сортируем сессии по дате создания в убывающем порядке (новые сверху)
-        std::sort(m_sessions.begin(), m_sessions.end(), 
-                 [](const BoardMessagesSqliteReader::SessionInfo &a, 
-                    const BoardMessagesSqliteReader::SessionInfo &b) 
-                 {
-                     return a.createdAt > b.createdAt;
-                 });
-        
-        qDebug() << "SessionsListModel: Загружено" << m_sessions.size() << "сессий";
+        initializeLiveSession();
     }
-    catch (const std::exception &e) 
+    
+    // Создаем записанные сессии через фабрику
+    QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
+    
+    // Добавляем все сессии в список
+    if (m_liveSession)
     {
-        qWarning() << "SessionsListModel: Ошибка при загрузке сессий:" << e.what();
-        emit errorOccurred(QString("Ошибка загрузки сессий: %1").arg(e.what()));
-        m_sessions.clear();
+        m_sessions.append(m_liveSession);
     }
+    m_sessions.append(recordedSessions);
+    
+    // Сортируем сессии
+    sortSessions();
+    
+    qDebug() << "SessionsListModel: Загружено" << m_sessions.size() << "сессий";
     
     endResetModel();
     emit sessionsRefreshed();
+}
+
+Session* SessionsListModel::getSession(int index) const
+{
+    if (index >= 0 && index < m_sessions.size())
+    {
+        return m_sessions.at(index);
+    }
+    return nullptr;
 }
 
 BoardMessagesSqliteReader::SessionInfo SessionsListModel::getSessionInfo(int index) const
 {
     if (index >= 0 && index < m_sessions.size()) 
     {
-        return m_sessions.at(index);
+        Session* session = m_sessions.at(index);
+        if (session && session->getType() == Session::RecordedSession)
+        {
+            RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
+            if (recordedSession)
+            {
+                return recordedSession->getSessionInfo();
+            }
+        }
     }
     
     BoardMessagesSqliteReader::SessionInfo emptyInfo;
@@ -143,29 +191,35 @@ int SessionsListModel::getSessionId(int index) const
 {
     if (index >= 0 && index < m_sessions.size()) 
     {
-        return m_sessions.at(index).id;
+        Session* session = m_sessions.at(index);
+        if (session)
+        {
+            return session->getId();
+        }
     }
     return -1;
 }
 
-void SessionsListModel::addSession(const BoardMessagesSqliteReader::SessionInfo &sessionInfo)
+void SessionsListModel::addRecordedSession(const BoardMessagesSqliteReader::SessionInfo &sessionInfo)
 {
     // Проверяем, не существует ли уже сессия с таким ID
     for (int i = 0; i < m_sessions.size(); ++i)
     {
-        if (m_sessions.at(i).id == sessionInfo.id)
+        Session* session = m_sessions.at(i);
+        if (session && session->getId() == sessionInfo.id)
         {
             qDebug() << "SessionsListModel: Session with ID" << sessionInfo.id << "already exists";
             return;
         }
     }
     
-    // Добавляем новую сессию в начало списка
-    beginInsertRows(QModelIndex(), 0, 0);
-    m_sessions.prepend(sessionInfo);
-    endInsertRows();
-    
-    qDebug() << "SessionsListModel: Added new session" << sessionInfo.id << "with name" << sessionInfo.name;
+    // Создаем новую записанную сессию через фабрику
+    Session* newSession = m_recordedSessionsFactory->createSession(sessionInfo);
+    if (newSession)
+    {
+        addSessionToList(newSession);
+        qDebug() << "SessionsListModel: Added new recorded session" << sessionInfo.id << "with name" << sessionInfo.name;
+    }
 }
 
 void SessionsListModel::updateSessionMessageCount(int sessionId, int messageCount)
@@ -173,15 +227,15 @@ void SessionsListModel::updateSessionMessageCount(int sessionId, int messageCoun
     int index = findSessionIndex(sessionId);
     if (index >= 0 && index < m_sessions.size())
     {
-        if (m_sessions[index].messageCount != messageCount)
+        Session* session = m_sessions.at(index);
+        if (session && session->getType() == Session::RecordedSession)
         {
-            m_sessions[index].messageCount = messageCount;
-            
-            // Уведомляем об изменении данных
-            QModelIndex modelIndex = createIndex(index, 0);
-            emit dataChanged(modelIndex, modelIndex, {MessageCountRole});
-            
-            qDebug() << "SessionsListModel: Updated message count for session" << sessionId << "to" << messageCount;
+            RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
+            if (recordedSession)
+            {
+                recordedSession->updateMessageCount(messageCount);
+                qDebug() << "SessionsListModel: Updated message count for session" << sessionId << "to" << messageCount;
+            }
         }
     }
 }
@@ -194,8 +248,15 @@ void SessionsListModel::removeSession(int index)
         return;
     }
     
-    // Получаем ID сессии для удаления из базы данных
-    int sessionId = m_sessions.at(index).id;
+    Session* session = m_sessions.at(index);
+    if (!session)
+    {
+        qWarning() << "SessionsListModel: Session at index" << index << "is null";
+        return;
+    }
+    
+    // Получаем ID сессии для удаления из базы данных (только для записанных сессий)
+    int sessionId = session->getId();
     
     // Удаляем сессию из списка
     beginRemoveRows(QModelIndex(), index, index);
@@ -204,27 +265,182 @@ void SessionsListModel::removeSession(int index)
     
     qDebug() << "SessionsListModel: Removed session at index" << index << "with ID" << sessionId;
     
-    // Удаляем сессию из базы данных
-    if (m_reader)
+    // Удаляем сессию из базы данных только для записанных сессий
+    if (session->getType() == Session::RecordedSession && m_reader && sessionId > 0)
     {
         if (!m_reader->removeSession(sessionId))
         {
             qWarning() << "SessionsListModel: Failed to remove session" << sessionId << "from database";
-            // Можно добавить сигнал об ошибке
             emit errorOccurred(QString("Не удалось удалить сессию %1 из базы данных").arg(sessionId));
         }
     }
+    
+    // Удаляем объект сессии
+    session->deleteLater();
 }
 
 int SessionsListModel::findSessionIndex(int sessionId) const
 {
     for (int i = 0; i < m_sessions.size(); ++i)
     {
-        if (m_sessions.at(i).id == sessionId)
+        Session* session = m_sessions.at(i);
+        if (session && session->getId() == sessionId)
         {
             return i;
         }
     }
     return -1;
+}
+
+void SessionsListModel::initializeLiveSession()
+{
+    if (!m_liveSession)
+    {
+        m_liveSession = m_liveSessionFactory->createLiveSession();
+        if (m_liveSession)
+        {
+            // Подключаем сигналы живой сессии
+            connect(m_liveSession, &Session::sessionChanged,
+                    this, &SessionsListModel::onSessionChanged);
+            connect(m_liveSession, &Session::messageCountChanged,
+                    this, &SessionsListModel::onMessageCountChanged);
+            connect(m_liveSession, &Session::parameterCountChanged,
+                    this, &SessionsListModel::onParameterCountChanged);
+            
+            qDebug() << "SessionsListModel: Live session initialized";
+        }
+    }
+}
+
+void SessionsListModel::updateLiveSessionCounters()
+{
+    if (m_liveSession)
+    {
+        // Обновляем счетчик сообщений (каждое сообщение от драйвера)
+        m_liveSessionFactory->incrementMessageCount();
+        
+        // Счетчик параметров будет обновляться автоматически через сигналы
+        // когда параметры добавляются в хранилище
+    }
+}
+
+void SessionsListModel::resetLiveSessionCounters()
+{
+    if (m_liveSession)
+    {
+        m_liveSessionFactory->resetCounters();
+        qDebug() << "SessionsListModel: Reset live session counters";
+    }
+}
+
+void SessionsListModel::onRecordedSessionsCreated(const QList<Session*>& sessions)
+{
+    // Этот метод вызывается фабрикой при создании записанных сессий
+    // Сессии уже добавлены в список в методе refreshSessions
+    qDebug() << "SessionsListModel: Received" << sessions.size() << "recorded sessions from factory";
+}
+
+void SessionsListModel::onLiveSessionCreated(Session* session)
+{
+    // Этот метод вызывается фабрикой при создании живой сессии
+    qDebug() << "SessionsListModel: Live session created by factory";
+}
+
+void SessionsListModel::onSessionChanged()
+{
+    // Находим индекс изменившейся сессии и обновляем модель
+    Session* changedSession = qobject_cast<Session*>(sender());
+    if (changedSession)
+    {
+        updateSessionInList(changedSession);
+    }
+}
+
+void SessionsListModel::onMessageCountChanged(int count)
+{
+    // Находим индекс сессии с изменившимся счетчиком сообщений
+    Session* changedSession = qobject_cast<Session*>(sender());
+    if (changedSession)
+    {
+        updateSessionInList(changedSession);
+    }
+}
+
+void SessionsListModel::onParameterCountChanged(int count)
+{
+    // Находим индекс сессии с изменившимся счетчиком параметров
+    Session* changedSession = qobject_cast<Session*>(sender());
+    if (changedSession)
+    {
+        updateSessionInList(changedSession);
+    }
+}
+
+void SessionsListModel::onNewParameterAdded(BoardParameterSingle* parameter)
+{
+    Q_UNUSED(parameter)
+    
+    // Обновляем счетчик параметров живой сессии
+    if (m_liveSession)
+    {
+        m_liveSessionFactory->incrementParameterCount();
+    }
+}
+
+void SessionsListModel::sortSessions()
+{
+    // Сортируем сессии: LiveSession первыми, затем RecordedSession по убыванию даты
+    std::sort(m_sessions.begin(), m_sessions.end(),
+              [](Session* a, Session* b)
+              {
+                  if (!a || !b) return false;
+                  return *a < *b;
+              });
+}
+
+void SessionsListModel::addSessionToList(Session* session)
+{
+    if (!session) return;
+    
+    // Добавляем сессию в список
+    beginInsertRows(QModelIndex(), m_sessions.size(), m_sessions.size());
+    m_sessions.append(session);
+    endInsertRows();
+    
+    // Подключаем сигналы сессии
+    connect(session, &Session::sessionChanged,
+            this, &SessionsListModel::onSessionChanged);
+    connect(session, &Session::messageCountChanged,
+            this, &SessionsListModel::onMessageCountChanged);
+    connect(session, &Session::parameterCountChanged,
+            this, &SessionsListModel::onParameterCountChanged);
+    
+    // Сортируем список после добавления
+    sortSessions();
+}
+
+void SessionsListModel::removeSessionFromList(Session* session)
+{
+    if (!session) return;
+    
+    int index = m_sessions.indexOf(session);
+    if (index >= 0)
+    {
+        beginRemoveRows(QModelIndex(), index, index);
+        m_sessions.removeAt(index);
+        endRemoveRows();
+    }
+}
+
+void SessionsListModel::updateSessionInList(Session* session)
+{
+    if (!session) return;
+    
+    int index = m_sessions.indexOf(session);
+    if (index >= 0)
+    {
+        QModelIndex modelIndex = createIndex(index, 0);
+        emit dataChanged(modelIndex, modelIndex);
+    }
 }
 
