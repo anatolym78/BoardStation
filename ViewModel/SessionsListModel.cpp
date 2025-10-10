@@ -329,6 +329,10 @@ void SessionsListModel::resetLiveSessionCounters()
     if (m_liveSession)
     {
         m_liveSessionFactory->resetCounters();
+        
+        // Обновляем отображение живой сессии в интерфейсе
+        updateSessionInList(m_liveSession);
+        
         qDebug() << "SessionsListModel: Reset live session counters";
     }
 }
@@ -415,8 +419,11 @@ void SessionsListModel::addSessionToList(Session* session)
     connect(session, &Session::parameterCountChanged,
             this, &SessionsListModel::onParameterCountChanged);
     
-    // Сортируем список после добавления
+    // Пересортируем список после добавления новой сессии
+    // Используем beginResetModel/endResetModel для корректного обновления интерфейса
+    beginResetModel();
     sortSessions();
+    endResetModel();
 }
 
 void SessionsListModel::removeSessionFromList(Session* session)

@@ -455,8 +455,10 @@ bool BoardMessagesSqliteWriter::createTables()
 int BoardMessagesSqliteWriter::createSessionRecord(const QString &sessionName)
 {
     QSqlQuery query(m_database);
-    query.prepare("INSERT INTO sessions (name) VALUES (?)");
+    // Явно указываем локальное время создания вместо DEFAULT CURRENT_TIMESTAMP
+    query.prepare("INSERT INTO sessions (name, created_at) VALUES (?, ?)");
     query.addBindValue(sessionName);
+    query.addBindValue(QDateTime::currentDateTime().toLocalTime());
     
     if (query.exec()) 
     {
@@ -501,7 +503,8 @@ bool BoardMessagesSqliteWriter::writeMessageToDatabase(const ParameterMessage *m
         query.addBindValue(m_currentSessionId);
         query.addBindValue(parameterId);
         query.addBindValue(param->value().toString());
-        query.addBindValue(message->timestamp);
+        // Сохраняем временную метку в локальном времени
+        query.addBindValue(message->timestamp.toLocalTime());
         
         if (!query.exec()) 
         {

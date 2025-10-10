@@ -169,7 +169,6 @@ Item
                 
                 onPositionChanged:
                 {
-                    console.log("Position changed:", position)
                     if (driverDataPlayer)
                     {
                         // Конвертируем секунды в QDateTime

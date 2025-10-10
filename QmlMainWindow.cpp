@@ -32,6 +32,8 @@ QmlMainWindow::QmlMainWindow(QWindow *parent)
     // Create context
     m_context = rootContext();
     
+    m_context->setContextProperty("qmlMainWindow", this);
+
     //qDebug() << "QmlMainWindow: QML interface loaded";
 }
 
@@ -337,6 +339,5 @@ void QmlMainWindow::loadSession(int sessionId)
 
 bool QmlMainWindow::saveLiveData()
 {
-
     return m_app->saveLiveData();
 }

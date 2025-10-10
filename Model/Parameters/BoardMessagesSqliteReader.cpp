@@ -43,6 +43,7 @@ QList<BoardMessagesSqliteReader::SessionInfo> BoardMessagesSqliteReader::getAvai
             SessionInfo info;
             info.id = query.value("id").toInt();
             info.name = query.value("name").toString();
+            // Время теперь сохраняется в локальном времени, поэтому просто читаем его
             info.createdAt = query.value("created_at").toDateTime();
             info.description = query.value("description").toString();
             info.messageCount = query.value("message_count").toInt();
@@ -212,6 +213,7 @@ BoardMessagesSqliteReader::SessionInfo BoardMessagesSqliteReader::getSessionInfo
     {
         info.id = query.value("id").toInt();
         info.name = query.value("name").toString();
+        // Время теперь сохраняется в локальном времени, поэтому просто читаем его
         info.createdAt = query.value("created_at").toDateTime();
         info.description = query.value("description").toString();
         info.messageCount = query.value("message_count").toInt();
@@ -302,6 +304,7 @@ BoardParameterSingle* BoardMessagesSqliteReader::createParameterFromQuery(const 
     QString label = query.value("label").toString();
     QString unit = query.value("unit").toString();
     QString valueStr = query.value("value").toString();
+    // Время теперь сохраняется в локальном времени, поэтому просто читаем его
     QDateTime timestamp = query.value("timestamp").toDateTime();
     
     // Пытаемся определить тип значения

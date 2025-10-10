@@ -78,29 +78,8 @@ Rectangle
                 // Отладочная информация
                 Component.onCompleted:
                 {
-                    console.log("Session", sessionId, "isRecording:", sessionsPanel.isRecording, "currentRecordingSessionId:", sessionsPanel.currentRecordingSessionId, "isDisabled:", isDisabled)
                 }
                 
-                // color:
-                // {
-                //     if (isSelected)
-                //         return Qt.hsva(0.6, 0.99, 0.99, 0.3)
-                //     else if (isDisabled)
-                //         return "#e0e0e0"
-                //     else
-                //         return "transparent"
-                // }
-                
-                // border.color:
-                // {
-                //     if (isSelected)
-                //         return Qt.hsva(0.6, 0.99, 0.99, 0.8)
-                //     else if (isDisabled)
-                //         return "#cccccc"
-                //     else
-                //         return "transparent"
-                // }
-                // border.width: isSelected ? 1 : 0
                 states:
                 [
                     State
@@ -109,7 +88,20 @@ Rectangle
                         PropertyChanges
                         {
                             target: listItemRect;
-                            color: Qt.hsva(0.6, 0.59, 0.99, 0.1)
+                            color:
+                            {
+                                return Qt.hsva(0.6, 0.59, 0.99, 0.1)
+
+                                return
+                                if(isLiveSession)
+                                {
+                                    return Qt.hsva(0.6, 0.59, 0.99, 0.1)
+                                }
+                                else
+                                {
+                                    return Qt.hsva(0.6, 0.59, 0.99, 0.1)
+                                }
+                            }
                         }
                     }
                 ]
@@ -212,7 +204,17 @@ Rectangle
                                         PropertyChanges
                                         {
                                             target: deleteButtonBackground
-                                            color: "#d32f2f"// "darkslateblue"
+                                            color:
+                                            {
+                                                if(isLiveSession)
+                                                {
+                                                    return Qt.hsva(0.35, 0.90, 0.80, 0.9)
+                                                }
+                                                else
+                                                {
+                                                    return Qt.hsva(0.025, 0.90, 0.80, 0.9)
+                                                }
+                                            }
                                             opacity: 1
                                         }
                                     }
@@ -241,20 +243,21 @@ Rectangle
                                     {
                                         deleteButtonBackground.state = "deleteButtonHovered"
                                     }
-                                     onClicked:
-                                     {
-                                         if(isLiveSession)
-                                         {
-                                             qmlMainWindow.saveLiveData()
-                                         }
-                                         else
-                                         {
-                                             // Показываем диалог подтверждения
-                                             deleteConfirmationDialog.sessionIndex = index
-                                             deleteConfirmationDialog.sessionName = sessionName
-                                             deleteConfirmationDialog.open()
-                                         }
-                                     }
+                                    onClicked:
+                                    {
+                                        if(isLiveSession)
+                                        {
+                                            console.log(qmlMainWindow)
+                                            qmlMainWindow.saveLiveData()
+                                        }
+                                        else
+                                        {
+                                            // Показываем диалог подтверждения
+                                            deleteConfirmationDialog.sessionIndex = index
+                                            deleteConfirmationDialog.sessionName = sessionName
+                                            deleteConfirmationDialog.open()
+                                        }
+                                    }
                                 }
 
                             }

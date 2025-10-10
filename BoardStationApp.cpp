@@ -553,6 +553,13 @@ bool BoardStationApp::saveLiveData()
     // Получаем информацию о созданной сессии из базы данных
     BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(newSessionId);
     
+    // Сбрасываем счетчики живой сессии ПЕРЕД добавлением новой сессии
+    if (m_sessionsListModel)
+    {
+        m_sessionsListModel->resetLiveSessionCounters();
+        qDebug() << "BoardStationApp: Reset live session counters";
+    }
+    
     // Добавляем новую сессию в модель списка сессий
     if (m_sessionsListModel)
     {
@@ -575,13 +582,8 @@ bool BoardStationApp::saveLiveData()
             qDebug() << "BoardStationApp: Reset DriverDataPlayer state";
         }
     }
-    
-    // Сбрасываем счетчики живой сессии
-    if (m_sessionsListModel)
-    {
-        m_sessionsListModel->resetLiveSessionCounters();
-        qDebug() << "BoardStationApp: Reset live session counters";
-    }
+
+	//m_sessionsListModel->refreshSessions();
     
     qDebug() << "BoardStationApp: Successfully saved live data to session" << newSessionId;
 
