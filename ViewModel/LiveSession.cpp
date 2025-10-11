@@ -1,4 +1,5 @@
 #include "LiveSession.h"
+#include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include <QDebug>
 #include <QDateTime>
 
@@ -8,6 +9,7 @@ LiveSession::LiveSession(QObject *parent)
     , m_messageCount(0)
     , m_parameterCount(0)
     , m_isRecording(false)
+    , m_storage(new BoardParameterHistoryStorage(this))
 {
     qDebug() << "LiveSession: Created live session at" << m_startTime.toString();
 }
@@ -64,4 +66,18 @@ void LiveSession::resetCounters()
     emit parameterCountChanged(m_parameterCount);
     emit sessionChanged();
     qDebug() << "LiveSession: Counters reset";
+}
+
+BoardParameterHistoryStorage* LiveSession::getStorage() const
+{
+    return m_storage;
+}
+
+void LiveSession::clearStorage()
+{
+    if (m_storage)
+    {
+        m_storage->clear();
+        qDebug() << "LiveSession: Storage cleared";
+    }
 }

@@ -19,6 +19,8 @@
 #include "ViewModel/DataPlayer.h"
 #include "ViewModel/SessionPlayer.h"
 #include "ViewModel/DriverDataPlayer.h"
+#include "Model/DriverAdapter.h"
+#include "ViewModel/LiveSession.h"
 
 class BoardParametersJsonParserNew;
 
@@ -32,54 +34,55 @@ public:
 
 
     // Методы для работы с моделью параметров
-    BoardParametersListModel* getParametersModel() const;
+    BoardParametersListModel* getParametersModel() const { return m_parametersModel; }
     ChartViewModel* getChartViewModel() const { return m_chatsViewModel; }
-    BoardParameterHistoryStorage* getParametersStorage() const;
        
     // Методы для работы с моделью uplink параметров
-    UplinkParametersModel* getUplinkParametersModel() const;
+    UplinkParametersModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }
     
     // Методы для работы с моделью отладки
-    DebugViewModel* getDebugViewModel() const;
+    DebugViewModel* getDebugViewModel() const { return m_debugViewModel; }
     
     // Методы для работы с моделью сессий
-    SessionsListModel* getSessionsListModel() const;
+    SessionsListModel* getSessionsListModel() const { return m_sessionsListModel; }
        
     // Методы для работы с новыми uplink параметрами
     void loadUplinkParameters() const;
-    QList<BasicUplinkParameter*> getUplinkParameters() const;
     
     // Методы для работы с записью сообщений от борта
-    BoardMessagesSqliteWriter* getBoardMessagesWriter() const;
-    BoardMessagesSqliteReader* getBoardMessagesReader() const;
+
+	BoardMessagesSqliteWriter* getBoardMessagesWriter() const
+	{
+		return m_boardMessagesWriter;
+	}
+
+    BoardMessagesSqliteReader* getBoardMessagesReader() const { return m_boardMessagesReader; }
     QString getDatabasePath() const;
     
     // Методы для работы с драйвером
-    drv::IDriver* getDriver() const;
+    drv::IDriver* getDriver() const { return m_driver; }
+    DriverAdapter* getDriverAdapter() const { return m_driverAdapter; }
+
+    // Методы для работы с сессиями
+    LiveSession* getLiveSession() const { return m_liveSession; }
 
     DataPlayer* getDataPlayer() const { return m_dataPlayer; }
     
-    // Методы управления прослушиванием
-    void startListening();
-    void stopListening();
-    bool isListening() const;
-    
-    // Методы управления записью в базу данных
-    void startRecording();
-    void stopRecording();
-    bool isRecording() const;
-
+    // Сохранение живых данных в базу
     bool saveLiveData();
     
     // Метод для загрузки сессии в плеер
     void loadSession(int sessionId);
+    
+    // Метод для переключения на сессию
+    void switchToSession(int sessionIndex);
+    void switchToLiveSession();
       
     // Отправка параметров на борт
     void sendParametersToBoard();
     void sendSingleParameter(BasicUplinkParameter* parameter);
 
 private slots:
-    void onDataAvailable() const;
     void onParameterChanged(BasicUplinkParameter* parameter);
 
 private:
@@ -87,20 +90,20 @@ private:
     void connectSignals();
 
 private:
-	BoardParameterHistoryStorage* m_parametersStorage;
+    drv::IDriver *m_driver;
+    DriverAdapter *m_driverAdapter;
+    SessionsListModel *m_sessionsListModel;
+    LiveSession *m_liveSession;
+    DataPlayer* m_dataPlayer;
 	BoardParametersListModel* m_parametersModel;
 	ChartViewModel* m_chatsViewModel;
-    DataPlayer* m_dataPlayer;
 
-	BoardMessagesSqliteWriter* m_boardMessagesWriter;
-	BoardMessagesSqliteReader* m_boardMessagesReader;
 
     UplinkParametersModel *m_uplinkParametersModel;
     DebugViewModel *m_debugViewModel;
-    mutable QList<BasicUplinkParameter*> m_uplinkParameters;
-    SessionsListModel *m_sessionsListModel;
-    drv::IDriver *m_driver;
-    BoardParametersJsonParserNew *m_jsonReader;
+
+	BoardMessagesSqliteWriter* m_boardMessagesWriter;
+	BoardMessagesSqliteReader* m_boardMessagesReader;
 };
 
 #endif // BOARDSTATIONAPP_H

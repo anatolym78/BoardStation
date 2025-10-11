@@ -65,13 +65,6 @@ void QmlMainWindow::setApp(BoardStationApp *app)
         // Setup sessions list model
         setupSessionsListModel();
         
-        // Connect parameter update signals
-        if (m_app->getParametersStorage())
-        {
-            connect(m_app->getParametersStorage(), &BoardParameterHistoryStorage::parameterUpdated,
-                    this, &QmlMainWindow::onParameterUpdated);
-        }
-        
         // Connect driver signals
         if (m_app->getDriver())
         {
@@ -164,12 +157,12 @@ void QmlMainWindow::setupChartSeriesModel()
 {
     if (!m_app || !m_context) return;
     
-    // Create new simplified chart view model
-    auto chartViewModel = m_app->getChartViewModel();
-    chartViewModel->setParametersStorage(m_app->getParametersStorage());
-    
-    // Pass model to QML context
-    m_context->setContextProperty("chartViewModel", chartViewModel);
+    //// Create new simplified chart view model
+    //auto chartViewModel = m_app->getChartViewModel();
+    //chartViewModel->setParametersStorage(m_app->getParametersStorage());
+    //
+    //// Pass model to QML context
+    //m_context->setContextProperty("chartViewModel", chartViewModel);
 }
 
 void QmlMainWindow::setupSessionsListModel()
@@ -208,22 +201,6 @@ void QmlMainWindow::setupSessionsListModel()
     qDebug() << "QmlMainWindow: Session player and board messages writer created and added to context";
 }
 
-void QmlMainWindow::setupConnections()
-{
-}
-
-void QmlMainWindow::onParameterUpdated(const QString &label)
-{
-    // Update QML interface when parameter changes
-    //qDebug() << "QmlMainWindow: Parameter updated:" << label;
-    
-    // Can send signal to QML to update interface
-    if (m_context) 
-    {
-        // Код для работы с параметрами можно добавить здесь при необходимости
-    }
-}
-
 void QmlMainWindow::onDataSent(const QString &data)
 {
     //qDebug() << "QmlMainWindow: Data sent to board:" << data;
@@ -254,82 +231,54 @@ void QmlMainWindow::sendParametersToBoard()
     }
 }
 
-void QmlMainWindow::startListening()
-{
-    if (m_app)
-    {
-        m_app->startListening();
-        qDebug() << "QmlMainWindow: Started listening";
-    }
-    else
-    {
-        qWarning() << "QmlMainWindow: Application instance is not available";
-    }
-}
-
-void QmlMainWindow::stopListening()
-{
-    if (m_app)
-    {
-        m_app->stopListening();
-        qDebug() << "QmlMainWindow: Stopped listening";
-    }
-    else
-    {
-        qWarning() << "QmlMainWindow: Application instance is not available";
-    }
-}
-
-bool QmlMainWindow::isListening() const
-{
-    if (m_app)
-    {
-        return m_app->isListening();
-    }
-    return false;
-}
-
-void QmlMainWindow::startRecording()
-{
-    if (m_app)
-    {
-        m_app->startRecording();
-        qDebug() << "QmlMainWindow: Started recording";
-    }
-    else
-    {
-        qWarning() << "QmlMainWindow: Application instance is not available";
-    }
-}
-
-void QmlMainWindow::stopRecording()
-{
-    if (m_app)
-    {
-        m_app->stopRecording();
-        qDebug() << "QmlMainWindow: Stopped recording";
-    }
-    else
-    {
-        qWarning() << "QmlMainWindow: Application instance is not available";
-    }
-}
-
-bool QmlMainWindow::isRecording() const
-{
-    if (m_app)
-    {
-        return m_app->isRecording();
-    }
-    return false;
-}
-
 void QmlMainWindow::loadSession(int sessionId)
 {
     if (m_app)
     {
         m_app->loadSession(sessionId);
         qDebug() << "QmlMainWindow: Loading session" << sessionId;
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+void QmlMainWindow::switchToSession(int sessionIndex)
+{
+    if (m_app)
+    {
+        m_app->switchToSession(sessionIndex);
+        
+        // Обновляем плеер в QML контексте
+        auto dataPlayer = m_app->getDataPlayer();
+        if (dataPlayer && m_context)
+        {
+            m_context->setContextProperty("driverDataPlayer", dataPlayer);
+        }
+        
+        qDebug() << "QmlMainWindow: Switching to session at index" << sessionIndex;
+    }
+    else
+    {
+        qWarning() << "QmlMainWindow: Application instance is not available";
+    }
+}
+
+void QmlMainWindow::switchToLiveSession()
+{
+    if (m_app)
+    {
+        m_app->switchToLiveSession();
+        
+        // Обновляем плеер в QML контексте
+        auto dataPlayer = m_app->getDataPlayer();
+        if (dataPlayer && m_context)
+        {
+            m_context->setContextProperty("driverDataPlayer", dataPlayer);
+        }
+        
+        qDebug() << "QmlMainWindow: Switching to live session";
     }
     else
     {

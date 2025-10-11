@@ -22,6 +22,15 @@ void DataPlayer::setStorage(BoardParameterHistoryStorage* storage)
     m_storage = storage;
 }
 
+void DataPlayer::onParameterReceived(BoardParameterSingle* parameter)
+{
+    // Базовая реализация - просто эмитируем сигнал parameterPlayed
+    if (parameter)
+    {
+        emit parameterPlayed(parameter);
+    }
+}
+
 void DataPlayer::play()
 {
     if (!m_isPlaying)

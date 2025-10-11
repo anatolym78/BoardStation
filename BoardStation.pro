@@ -53,6 +53,7 @@ SOURCES += \
     Model/Parameters/BoardMessagesJsonWriterNew.cpp \
     Model/Parameters/BoardMessagesSqliteWriter.cpp \
     Model/Parameters/BoardMessagesSqliteReader.cpp \
+    Model/DriverAdapter.cpp \
     main.cpp \
     QmlMainWindow.cpp
 
@@ -102,6 +103,7 @@ HEADERS += \
     Model/Parameters/BoardMessagesJsonWriterNew.h \
     Model/Parameters/BoardMessagesSqliteWriter.h \
     Model/Parameters/BoardMessagesSqliteReader.h \
+    Model/DriverAdapter.h \
     Model/Parameters/Parameters.h \
     QmlMainWindow.h
 

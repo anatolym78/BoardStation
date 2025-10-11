@@ -71,15 +71,34 @@ void DriverDataPlayer::setPosition(QDateTime position)
 
 void DriverDataPlayer::setStorage(BoardParameterHistoryStorage* storage)
 {
+    // Отключаемся от старого хранилища
+    if (m_storage)
+    {
+        disconnect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
+                   this, &DriverDataPlayer::onNewParameterAdded);
+    }
+    
     // Вызываем базовую реализацию
     DataPlayer::setStorage(storage);
     
-    // Подключаемся к сигналу новых параметров
+    // Подключаемся к сигналу эмиссии параметров из нового хранилища
     if (storage)
     {
-        connect(storage, &BoardParameterHistoryStorage::newParameterAdded,
+        connect(storage, &BoardParameterHistoryStorage::parameterEmitted,
                 this, &DriverDataPlayer::onNewParameterAdded);
+        
+        // Сбрасываем состояние плеера при смене хранилища
+        resetState();
     }
+}
+
+void DriverDataPlayer::onParameterReceived(BoardParameterSingle* parameter)
+{
+    // Вызываем базовую реализацию для эмиссии сигнала parameterPlayed
+    DataPlayer::onParameterReceived(parameter);
+    
+    // Дополнительно обрабатываем параметр для живого потока
+    onNewParameterAdded(parameter);
 }
 
 void DriverDataPlayer::resetState()

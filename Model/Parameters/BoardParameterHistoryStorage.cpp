@@ -29,6 +29,9 @@ void BoardParameterHistoryStorage::addParameter(BoardParameterSingle *parameter)
     m_sessionParameters.append(parameter);
     
     emit newParameterAdded(parameter);
+    
+    // Эмитируем сигнал для плеера
+    emit parameterEmitted(parameter);
 }
 
 void BoardParameterHistoryStorage::loadSessionData(int sessionId, BoardMessagesSqliteReader* reader)

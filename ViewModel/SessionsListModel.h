@@ -61,10 +61,18 @@ public:
     void initializeLiveSession();
     void updateLiveSessionCounters();
     void resetLiveSessionCounters();
+    
+    // Методы для переключения между сессиями
+    Q_INVOKABLE void switchToSession(int sessionIndex);
+    Q_INVOKABLE void switchToLiveSession();
+    
+    // Получение текущей активной сессии
+    Session* getCurrentActiveSession() const { return m_currentActiveSession; }
 
 signals:
     void sessionsRefreshed();
     void errorOccurred(const QString &error);
+    void sessionSwitched(Session* session);
 
 private slots:
     void onRecordedSessionsCreated(const QList<Session*>& sessions);
@@ -93,6 +101,9 @@ private:
     
     // Указатель на живую сессию
     Session* m_liveSession;
+    
+    // Указатель на текущую активную сессию
+    Session* m_currentActiveSession;
 };
 
 #endif // SESSIONSLISTMODEL_H

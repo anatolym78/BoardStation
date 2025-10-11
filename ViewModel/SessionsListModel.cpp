@@ -8,6 +8,7 @@ SessionsListModel::SessionsListModel(QObject *parent)
     , m_recordedSessionsFactory(new RecordedSessionsFactory(this))
     , m_liveSessionFactory(new LiveSessionFactory(this))
     , m_liveSession(nullptr)
+    , m_currentActiveSession(nullptr)
 {
     // Подключаем сигналы фабрик
     connect(m_recordedSessionsFactory, &RecordedSessionsFactory::sessionsCreated,
@@ -307,7 +308,10 @@ void SessionsListModel::initializeLiveSession()
             connect(m_liveSession, &Session::parameterCountChanged,
                     this, &SessionsListModel::onParameterCountChanged);
             
-            qDebug() << "SessionsListModel: Live session initialized";
+            // Устанавливаем живую сессию как активную по умолчанию
+            m_currentActiveSession = m_liveSession;
+            
+            qDebug() << "SessionsListModel: Live session initialized and set as active";
         }
     }
 }
@@ -449,5 +453,68 @@ void SessionsListModel::updateSessionInList(Session* session)
         QModelIndex modelIndex = createIndex(index, 0);
         emit dataChanged(modelIndex, modelIndex);
     }
+}
+
+void SessionsListModel::switchToSession(int sessionIndex)
+{
+    if (sessionIndex < 0 || sessionIndex >= m_sessions.size())
+    {
+        qWarning() << "SessionsListModel: Invalid session index" << sessionIndex;
+        return;
+    }
+    
+    Session* session = m_sessions.at(sessionIndex);
+    if (!session)
+    {
+        qWarning() << "SessionsListModel: Session at index" << sessionIndex << "is null";
+        return;
+    }
+    
+    // Очищаем хранилища всех других RecordedSession
+    for (int i = 0; i < m_sessions.size(); ++i)
+    {
+        if (i != sessionIndex)
+        {
+            Session* otherSession = m_sessions.at(i);
+            if (otherSession && otherSession->getType() == Session::RecordedSession)
+            {
+                otherSession->clearStorage();
+            }
+        }
+    }
+    
+    // Устанавливаем текущую активную сессию
+    m_currentActiveSession = session;
+    
+    qDebug() << "SessionsListModel: Switched to session" << session->getName() << "at index" << sessionIndex;
+    
+    // Эмитируем сигнал о смене сессии
+    emit sessionSwitched(session);
+}
+
+void SessionsListModel::switchToLiveSession()
+{
+    if (!m_liveSession)
+    {
+        qWarning() << "SessionsListModel: Live session is not available";
+        return;
+    }
+    
+    // Очищаем хранилища всех RecordedSession
+    for (Session* session : m_sessions)
+    {
+        if (session && session->getType() == Session::RecordedSession)
+        {
+            session->clearStorage();
+        }
+    }
+    
+    // Устанавливаем текущую активную сессию
+    m_currentActiveSession = m_liveSession;
+    
+    qDebug() << "SessionsListModel: Switched to live session";
+    
+    // Эмитируем сигнал о смене сессии
+    emit sessionSwitched(m_liveSession);
 }
 

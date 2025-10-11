@@ -20,18 +20,12 @@ public:
 
 public slots:
     void sendParametersToBoard();
-    void startListening();
-    void stopListening();
-    bool isListening() const;
-    void startRecording();
-    void stopRecording();
-    bool isRecording() const;
     void loadSession(int sessionId);
-
+    void switchToSession(int sessionIndex);
+    void switchToLiveSession();
     bool saveLiveData();
 
 private slots:
-    void onParameterUpdated(const QString &label);
     void onDataSent(const QString &data);
 
 private:
@@ -40,7 +34,6 @@ private:
     void setupDebugViewModel();
     void setupChartSeriesModel();
     void setupSessionsListModel();
-    void setupConnections();
     void addTestDataToModel();
 
 private:

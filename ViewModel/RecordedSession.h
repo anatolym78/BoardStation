@@ -4,6 +4,8 @@
 #include "Session.h"
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
 
+class BoardParameterHistoryStorage;
+
 /**
  * @brief Класс для представления записанной сессии из базы данных
  */
@@ -26,6 +28,13 @@ public:
     SessionType getType() const override { return Session::RecordedSession; }
     bool isRecording() const override { return false; }
 
+    // Реализация методов для работы с хранилищем
+    BoardParameterHistoryStorage* getStorage() const override;
+    void clearStorage() override;
+
+    // Методы для загрузки данных из базы
+    void loadDataFromDatabase(BoardMessagesSqliteReader* reader);
+
     // Методы для обновления данных сессии
     void updateSessionInfo(const BoardMessagesSqliteReader::SessionInfo& sessionInfo);
     void updateMessageCount(int count);
@@ -36,6 +45,7 @@ public:
 
 private:
     BoardMessagesSqliteReader::SessionInfo m_sessionInfo;
+    BoardParameterHistoryStorage* m_storage;
 };
 
 #endif // RECORDEDSESSION_H

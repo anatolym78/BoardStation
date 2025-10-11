@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QString>
 
+class BoardParameterHistoryStorage;
+
 /**
  * @brief Базовый класс для представления сессии
  */
@@ -31,6 +33,10 @@ public:
     virtual int getParameterCount() const = 0;
     virtual SessionType getType() const = 0;
     virtual bool isRecording() const = 0;
+
+    // Методы для работы с хранилищем
+    virtual BoardParameterHistoryStorage* getStorage() const = 0;
+    virtual void clearStorage() = 0;
 
     // Методы для сравнения сессий (для сортировки)
     virtual bool operator<(const Session& other) const;

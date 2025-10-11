@@ -1,10 +1,12 @@
 #include "RecordedSession.h"
+#include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include <QDebug>
 
 RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& sessionInfo, 
                                QObject *parent)
     : Session(parent)
     , m_sessionInfo(sessionInfo)
+    , m_storage(new BoardParameterHistoryStorage(this))
 {
     qDebug() << "RecordedSession: Created session" << sessionInfo.id << "with name" << sessionInfo.name;
 }
@@ -61,4 +63,34 @@ void RecordedSession::updateParameterCount(int count)
         emit parameterCountChanged(count);
         emit sessionChanged();
     }
+}
+
+BoardParameterHistoryStorage* RecordedSession::getStorage() const
+{
+    return m_storage;
+}
+
+void RecordedSession::clearStorage()
+{
+    if (m_storage)
+    {
+        m_storage->clear();
+        qDebug() << "RecordedSession: Storage cleared for session" << m_sessionInfo.id;
+    }
+}
+
+void RecordedSession::loadDataFromDatabase(BoardMessagesSqliteReader* reader)
+{
+    if (!reader || !m_storage)
+    {
+        qWarning() << "RecordedSession: Reader or storage is not available";
+        return;
+    }
+    
+    qDebug() << "RecordedSession: Loading data from database for session" << m_sessionInfo.id;
+    
+    // Загружаем данные сессии из базы в хранилище
+    m_storage->loadSessionData(m_sessionInfo.id, reader);
+    
+    qDebug() << "RecordedSession: Data loaded for session" << m_sessionInfo.id;
 }

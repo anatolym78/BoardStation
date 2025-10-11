@@ -41,6 +41,9 @@ public:
     // Методы для работы с хранилищем
     virtual void setStorage(BoardParameterHistoryStorage* storage);
 
+public slots:
+    virtual void onParameterReceived(BoardParameterSingle* parameter);
+
 signals:
     void isPlayingChanged();
     void currentPositionChanged();

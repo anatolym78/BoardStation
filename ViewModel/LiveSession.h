@@ -3,6 +3,8 @@
 
 #include "Session.h"
 
+class BoardParameterHistoryStorage;
+
 /**
  * @brief Класс для представления живой сессии (поток данных от драйвера)
  */
@@ -23,6 +25,10 @@ public:
     int getParameterCount() const override { return m_parameterCount; }
     SessionType getType() const override { return Session::LiveSession; }
     bool isRecording() const override { return m_isRecording; }
+
+    // Реализация методов для работы с хранилищем
+    BoardParameterHistoryStorage* getStorage() const override;
+    void clearStorage() override;
 
     // Методы для управления живой сессией
     void startSession();
@@ -45,6 +51,7 @@ private:
     int m_messageCount;
     int m_parameterCount;
     bool m_isRecording;
+    BoardParameterHistoryStorage* m_storage;
 };
 
 #endif // LIVESESSION_H

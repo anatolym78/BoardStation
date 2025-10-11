@@ -41,6 +41,9 @@ signals:
     void parameterUpdated(const QString &label);
     void parametersCleared();
     void sessionDataLoaded(int sessionId);
+    
+    // Новый сигнал для эмиссии параметров в плеер
+    void parameterEmitted(BoardParameterSingle* parameter);
 
 private:
     QList<BoardParameterSingle*> m_sessionParameters; // Список всех параметров сессии
