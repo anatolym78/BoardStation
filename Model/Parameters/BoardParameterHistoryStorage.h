@@ -34,6 +34,9 @@ public:
     
     // Получение параметров в заданном временном диапазоне
     QList<BoardParameterSingle*> getParametersInTimeRange(const QDateTime &startTime, const QDateTime &endTime) const;
+    
+    // Подсчет количества сообщений (параметры с одинаковой временной меткой считаются одним сообщением)
+    int getMessagesCount() const;
 
 signals:
     void newParameterAdded(BoardParameterSingle* parameter);

@@ -168,6 +168,26 @@ Session* SessionsListModel::getSession(int index) const
     return nullptr;
 }
 
+Session* SessionsListModel::getSessionById(int sessionId) const
+{
+    for (auto session : m_sessions)
+    {
+        if (session->getId() == sessionId)
+        {
+            return session;
+        }
+    }
+
+    return nullptr;
+}
+
+LiveSession* SessionsListModel::liveSession() const
+{
+    if (m_sessions.isEmpty()) return nullptr;
+
+    return dynamic_cast<LiveSession*>(m_sessions[0]);
+}
+
 BoardMessagesSqliteReader::SessionInfo SessionsListModel::getSessionInfo(int index) const
 {
     if (index >= 0 && index < m_sessions.size()) 

@@ -49,6 +49,14 @@ Rectangle
             Layout.fillHeight: true
             spacing: 4
             clip: true
+            highlight: Rectangle
+            {
+                // width: 50
+                // height: 25
+                radius: 2
+                color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
+            }
+
             enabled: !sessionsListModel.isRecordingState()
             
             delegate: Rectangle 
@@ -57,18 +65,10 @@ Rectangle
                 width: sessionsList.width
                 height: 70
                 radius: 4
+                border.color: "transparent"
+                border.width: 2
                 anchors.margins: 2
-                color:
-                {
-                    if(index == currentIndex)
-                    {
-                        return Qt.hsva(0.6, 0.99, 0.99, 0.2)
-                    }
-                    else
-                    {
-                        return "white"
-                    }
-                }
+                color: "transparent"
                 
                 // Определяем цвета в зависимости от состояния
                 property bool isSelected: sessionsList.currentIndex === index
@@ -78,6 +78,7 @@ Rectangle
                 // Отладочная информация
                 Component.onCompleted:
                 {
+                    console.log(model)
                 }
                 
                 states:
@@ -88,20 +89,8 @@ Rectangle
                         PropertyChanges
                         {
                             target: listItemRect;
-                            color:
-                            {
-                                return Qt.hsva(0.6, 0.59, 0.99, 0.1)
-
-                                return
-                                if(isLiveSession)
-                                {
-                                    return Qt.hsva(0.6, 0.59, 0.99, 0.1)
-                                }
-                                else
-                                {
-                                    return Qt.hsva(0.6, 0.59, 0.99, 0.1)
-                                }
-                            }
+                            //border.color: Qt.hsva(0.6, 0.99, 0.99, 0.3)
+                            color: Qt.hsva(0.15, 0.99, 0.99, 0.3)
                         }
                     }
                 ]
@@ -114,20 +103,11 @@ Rectangle
                     
                     onClicked: 
                     {
-                        //currentIndex = index
+                        sessionsList.currentIndex = index
 
-                        //return
-                        // Не загружаем сессию, если это текущая записываемая сессия
-                        if (!isRecordingSession)
+                        if(qmlMainWindow)
                         {
-                            sessionsList.currentIndex = index
-                            sessionsPanel.sessionSelected(sessionId, sessionName)
-                            
-                            // Загружаем сессию через главное окно
-                            if (qmlMainWindow)
-                            {
-                                qmlMainWindow.loadSession(sessionId)
-                            }
+                            qmlMainWindow.changeSession(sessionId)
                         }
                     }
                     

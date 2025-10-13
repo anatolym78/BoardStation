@@ -18,47 +18,35 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_parametersModel(nullptr)
     , m_driver(nullptr)
     , m_driverAdapter(nullptr)
-    , m_liveSession(nullptr)
     , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
     , m_dataPlayer(new DriverDataPlayer(this))// По умолчанию используем DriverDataPlayer
 {
-    // Создаем живую сессию (она содержит свое хранилище)
-    m_liveSession = new LiveSession(this);
-
     // Создаем модель параметров
-	m_parametersModel = new BoardParametersListModel(m_boardMessagesReader, this);
+	m_parametersModel = new BoardParametersListModel(this);
 
-    // Создаем модель списка чартов
-    m_chatsViewModel = new ChartViewModel(this);
-       
-    // Настраиваем DriverDataPlayer с хранилищем из живой сессии
-    m_dataPlayer->setStorage(m_liveSession->getStorage());
-        
-    // Создаем модель uplink параметров
-    m_uplinkParametersModel = new UplinkParametersModel(this);
-    
-    // Подключаем сигнал изменения параметра к слоту
-    connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
-            this, &BoardStationApp::onParameterChanged);
-    
-    // Создаем модель отладки
-    m_debugViewModel = new DebugViewModel(this);
-        
     // Создаем модель списка сессий
     m_sessionsListModel = new SessionsListModel(this);
     m_sessionsListModel->setReader(m_boardMessagesReader);
+
+    // Настраиваем DriverDataPlayer с хранилищем из живой сессии
+    m_dataPlayer->setStorage(m_sessionsListModel->liveSession()->getStorage());
+
+    m_driver = new drv::BoardDataEmulator(this);
     
+    m_driverAdapter = new DriverAdapter(m_driver, this); 
+
+    // Создаем модель списка чартов
+    m_chatsViewModel = new ChartViewModel(this);
+             
+    // Создаем модель uplink параметров
+    m_uplinkParametersModel = new UplinkParametersModel(this);
+
     // Загружаем новые uplink параметры
     loadUplinkParameters();
-    
-    // Очищаем данные текущей сессии (вместо очистки файла)
-    //m_boardMessagesWriter->clearCurrentSession();
-    
-    // НЕ создаём сессию при старте - она будет создана при включении переключателя записи
-    
-    // Настраиваем драйвер
-    setupDriver();
+
+    // Создаем модель отладки
+    m_debugViewModel = new DebugViewModel(this);
     
     // Подключаем сигналы
     connectSignals(); 
@@ -66,68 +54,49 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 BoardStationApp::~BoardStationApp()
 {
-    qDebug() << "BoardStationApp: Application shutdown - сохранение данных...";
-    
-    // Принудительно сохраняем все данные перед закрытием
-    if (m_boardMessagesWriter) 
-    {
-        //m_boardMessagesWriter->forceSave();
-    }
-
-    m_dataPlayer->stop();
-    
-    //qDebug() << "BoardStationApp: Application shutdown";
-}
-
-void BoardStationApp::setupDriver()
-{
-    // Создаем эмулятор данных платы и присваиваем его интерфейсу
-    m_driver = new drv::BoardDataEmulator(this);
-    
-    // Создаем адаптер драйвера (он автоматически запустит прослушивание)
-    m_driverAdapter = new DriverAdapter(m_driver, this);
-    
-    //qDebug() << "BoardStationApp: Driver configured and listening started";
+    //m_dataPlayer->stop();
 }
 
 void BoardStationApp::connectSignals()
 {
+    // Передаем параметры от драйвера в хранилище
+    connect(m_driverAdapter, &DriverAdapter::parameterReceived,
+        liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
+
     // Подключаем адаптер драйвера к хранилищу живой сессии
-    if (m_driverAdapter && m_liveSession && m_liveSession->getStorage())
-    {
-        connect(m_driverAdapter, &DriverAdapter::parameterReceived,
-                m_liveSession->getStorage(), &BoardParameterHistoryStorage::addParameter);
-    }
+    //if (m_driverAdapter && m_liveSession && m_liveSession->getStorage())
+    //{
+    //    connect(m_driverAdapter, &DriverAdapter::parameterReceived,
+    //            m_liveSession->getStorage(), &BoardParameterHistoryStorage::addParameter);
+    //}
 
-    // Подключаем плеер к сигналам параметров из хранилища живой сессии
-    if (m_dataPlayer && m_liveSession && m_liveSession->getStorage())
-    {
-        connect(m_liveSession->getStorage(), &BoardParameterHistoryStorage::parameterEmitted,
-                m_dataPlayer, &DataPlayer::onParameterReceived);
-    }
+    //// Подключаем плеер к сигналам параметров из хранилища живой сессии
+    //if (m_dataPlayer && m_liveSession && m_liveSession->getStorage())
+    //{
+    //    connect(m_liveSession->getStorage(), &BoardParameterHistoryStorage::parameterEmitted,
+    //            m_dataPlayer, &DataPlayer::onParameterReceived);
+    //}
+    //
+    //// Подключаем плеер к модели параметров
+    //if (m_dataPlayer && m_parametersModel)
+    //{
+    //    connect(m_dataPlayer, &DataPlayer::parameterPlayed, 
+    //            m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
+    //}
+    //
+    //// Подключаем сигнал новых параметров к живой сессии для обновления счетчиков
+    //if (m_sessionsListModel && m_liveSession && m_liveSession->getStorage())
+    //{
+    //    connect(m_liveSession->getStorage(), &BoardParameterHistoryStorage::newParameterAdded,
+    //            m_sessionsListModel, &SessionsListModel::onNewParameterAdded);
+    //}
     
-    // Подключаем плеер к модели параметров
-    if (m_dataPlayer && m_parametersModel)
+    // Подключаем сигнал изменения параметра к адаптеру драйвера
+    if (m_uplinkParametersModel && m_driverAdapter)
     {
-        connect(m_dataPlayer, &DataPlayer::parameterPlayed, 
-                m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
+        connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
+                m_driverAdapter, &DriverAdapter::sendParameter);
     }
-    
-    // Подключаем сигнал новых параметров к живой сессии для обновления счетчиков
-    if (m_sessionsListModel && m_liveSession && m_liveSession->getStorage())
-    {
-        connect(m_liveSession->getStorage(), &BoardParameterHistoryStorage::newParameterAdded,
-                m_sessionsListModel, &SessionsListModel::onNewParameterAdded);
-    }
-}
-
-QString BoardStationApp::getDatabasePath() const
-{
-    if (m_boardMessagesWriter) 
-    {
-        return m_boardMessagesWriter->getDatabasePath();
-    }
-    return QString();
 }
 
 void BoardStationApp::sendParametersToBoard()
@@ -188,65 +157,20 @@ void BoardStationApp::sendParametersToBoard()
     }
 }
 
-void BoardStationApp::sendSingleParameter(BasicUplinkParameter* parameter)
-{
-    if (!parameter || !parameter->isValid())
-    {
-        qWarning() << "BoardStationApp: Invalid parameter for single send";
-        return;
-    }
-    
-    if (!m_driver)
-    {
-        qWarning() << "BoardStationApp: Driver is not available for single parameter send";
-        return;
-    }
-    
-    // Создаем JSON массив с одним параметром
-    QJsonArray parametersArray;
-    QJsonObject paramObj;
-    paramObj["label"] = parameter->getLabel();
-    paramObj["value"] = QJsonValue::fromVariant(parameter->getValue());
-    
-    parametersArray.append(paramObj);
-    
-    // Создаем JSON документ
-    QJsonDocument doc(parametersArray);
-    QString jsonString = doc.toJson(QJsonDocument::Indented);
-    
-    // Отправляем данные через драйвер
-    std::string data = jsonString.toStdString();
-    m_driver->write(data);
-    
-    qDebug() << "BoardStationApp: Single parameter sent:" << parameter->getLabel() << "=" << parameter->getValue();
-}
-
-void BoardStationApp::onParameterChanged(BasicUplinkParameter* parameter)
-{
-    if (!parameter)
-    {
-        qWarning() << "BoardStationApp: Received null parameter in onParameterChanged";
-        return;
-    }
-    
-    qDebug() << "BoardStationApp: Parameter changed:" << parameter->getLabel() << "=" << parameter->getValue();
-    
-    // Отправляем только этот параметр
-    sendSingleParameter(parameter);
-}
 
 bool BoardStationApp::saveLiveData()
 {
     qDebug() << "BoardStationApp: Starting to save live data to database";
     
-    if (!m_liveSession || !m_liveSession->getStorage() || !m_boardMessagesWriter || !m_boardMessagesReader)
+    auto liveSession = m_sessionsListModel->liveSession();
+    if (!liveSession || !liveSession->getStorage() || !m_boardMessagesWriter || !m_boardMessagesReader)
     {
         qWarning() << "BoardStationApp: Required components not available for saving live data";
         return false;
     }
     
     // Получаем все параметры из хранилища живой сессии
-    QList<BoardParameterSingle*> liveParameters = m_liveSession->getStorage()->getSessionParameters();
+    QList<BoardParameterSingle*> liveParameters = liveSession->getStorage()->getSessionParameters();
     
     if (liveParameters.isEmpty())
     {
@@ -315,7 +239,7 @@ bool BoardStationApp::saveLiveData()
     }
     
     // Очищаем хранилище живой сессии
-    m_liveSession->clearStorage();
+    liveSession->clearStorage();
     qDebug() << "BoardStationApp: Cleared live session storage";
     
     // Сбрасываем состояние DriverDataPlayer
@@ -337,7 +261,7 @@ bool BoardStationApp::saveLiveData()
     return true;
 }
 
-void BoardStationApp::loadSession(int sessionId)
+DataPlayer* BoardStationApp::loadSession(int sessionId)
 {
     if (m_sessionsListModel)
     {
@@ -345,7 +269,7 @@ void BoardStationApp::loadSession(int sessionId)
         int sessionIndex = m_sessionsListModel->findSessionIndex(sessionId);
         if (sessionIndex >= 0)
         {
-            switchToSession(sessionIndex);
+            return switchToSession(sessionIndex);
         }
         else
         {
@@ -356,21 +280,72 @@ void BoardStationApp::loadSession(int sessionId)
     {
         qWarning() << "BoardStationApp: SessionsListModel is not available";
     }
+
+    return nullptr;
 }
 
-void BoardStationApp::switchToSession(int sessionIndex)
+
+DataPlayer* BoardStationApp::changeSession(int sessionId)
+{
+    qInfo() << sessionId;
+
+	if (!m_sessionsListModel || !m_dataPlayer)
+	{
+		qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
+		return nullptr;
+	}
+
+	Session* session = m_sessionsListModel->getSessionById(sessionId);
+	if (!session)
+	{
+		qWarning() << "BoardStationApp: Session at index" << sessionId << "not found";
+		nullptr;
+	}
+
+	// Останавливаем текущее проигрывание
+	m_dataPlayer->stop();
+
+	// Если это RecordedSession, создаем SessionPlayer
+	RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
+	if (recordedSession)
+	{
+		// Создаем новый SessionPlayer для записанной сессии
+		SessionPlayer* sessionPlayer = new SessionPlayer(this);
+		sessionPlayer->setStorage(recordedSession->getStorage());
+		sessionPlayer->setReader(m_boardMessagesReader);
+
+		// Заменяем текущий плеер
+		m_dataPlayer->deleteLater();
+		m_dataPlayer = sessionPlayer;
+
+		// Загружаем данные из базы
+		recordedSession->loadDataFromDatabase(m_boardMessagesReader);
+
+		qDebug() << "BoardStationApp: Created SessionPlayer for recorded session";
+
+	}
+	else
+	{
+		// Для других типов сессий просто меняем хранилище
+		m_dataPlayer->setStorage(session->getStorage());
+	}
+
+	return m_dataPlayer;
+}
+
+DataPlayer* BoardStationApp::switchToSession(int sessionIndex)
 {
     if (!m_sessionsListModel || !m_dataPlayer)
     {
         qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
-        return;
+        return nullptr;
     }
     
     Session* session = m_sessionsListModel->getSession(sessionIndex);
     if (!session)
     {
         qWarning() << "BoardStationApp: Session at index" << sessionIndex << "not found";
-        return;
+        nullptr;
     }
     
     qDebug() << "BoardStationApp: Switching to session" << session->getName();
@@ -395,53 +370,56 @@ void BoardStationApp::switchToSession(int sessionIndex)
         recordedSession->loadDataFromDatabase(m_boardMessagesReader);
         
         qDebug() << "BoardStationApp: Created SessionPlayer for recorded session";
+
     }
     else
     {
         // Для других типов сессий просто меняем хранилище
         m_dataPlayer->setStorage(session->getStorage());
     }
+
+	return m_dataPlayer;
     
     qDebug() << "BoardStationApp: Switched to session" << session->getName();
 }
 
 void BoardStationApp::switchToLiveSession()
 {
-    if (!m_liveSession || !m_dataPlayer)
-    {
-        qWarning() << "BoardStationApp: LiveSession or DataPlayer is not available";
-        return;
-    }
-    
-    qDebug() << "BoardStationApp: Switching to live session";
-    
-    // Останавливаем текущее проигрывание
-    m_dataPlayer->stop();
-    
-    // Если текущий плеер не DriverDataPlayer, создаем новый
-    DriverDataPlayer* driverPlayer = qobject_cast<DriverDataPlayer*>(m_dataPlayer);
-    if (!driverPlayer)
-    {
-        // Создаем новый DriverDataPlayer для живой сессии
-        DriverDataPlayer* newDriverPlayer = new DriverDataPlayer(this);
-        newDriverPlayer->setStorage(m_liveSession->getStorage());
-        
-        // Заменяем текущий плеер
-        m_dataPlayer->deleteLater();
-        m_dataPlayer = newDriverPlayer;
-        
-        qDebug() << "BoardStationApp: Created DriverDataPlayer for live session";
-    }
-    else
-    {
-        // Просто меняем хранилище
-        m_dataPlayer->setStorage(m_liveSession->getStorage());
-    }
-    
-    // Для живой сессии автоматически запускаем проигрывание
-    m_dataPlayer->play();
-    
-    qDebug() << "BoardStationApp: Switched to live session and started playback";
+    //if (!m_liveSession || !m_dataPlayer)
+    //{
+    //    qWarning() << "BoardStationApp: LiveSession or DataPlayer is not available";
+    //    return;
+    //}
+    //
+    //qDebug() << "BoardStationApp: Switching to live session";
+    //
+    //// Останавливаем текущее проигрывание
+    //m_dataPlayer->stop();
+    //
+    //// Если текущий плеер не DriverDataPlayer, создаем новый
+    //DriverDataPlayer* driverPlayer = qobject_cast<DriverDataPlayer*>(m_dataPlayer);
+    //if (!driverPlayer)
+    //{
+    //    // Создаем новый DriverDataPlayer для живой сессии
+    //    DriverDataPlayer* newDriverPlayer = new DriverDataPlayer(this);
+    //    newDriverPlayer->setStorage(m_liveSession->getStorage());
+    //    
+    //    // Заменяем текущий плеер
+    //    m_dataPlayer->deleteLater();
+    //    m_dataPlayer = newDriverPlayer;
+    //    
+    //    qDebug() << "BoardStationApp: Created DriverDataPlayer for live session";
+    //}
+    //else
+    //{
+    //    // Просто меняем хранилище
+    //    m_dataPlayer->setStorage(m_liveSession->getStorage());
+    //}
+    //
+    //// Для живой сессии автоматически запускаем проигрывание
+    //m_dataPlayer->play();
+    //
+    //qDebug() << "BoardStationApp: Switched to live session and started playback";
 }
 
 void BoardStationApp::loadUplinkParameters() const

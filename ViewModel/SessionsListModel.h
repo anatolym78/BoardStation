@@ -53,6 +53,8 @@ public:
     
     // Получение информации о сессии
     Session* getSession(int index) const;
+	Session* getSessionById(int sessionId) const;
+    LiveSession* liveSession() const;
     BoardMessagesSqliteReader::SessionInfo getSessionInfo(int index) const;
     int getSessionId(int index) const;
     int findSessionIndex(int sessionId) const;

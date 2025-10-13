@@ -14,7 +14,7 @@ DataPlayer::DataPlayer(QObject *parent)
 
 DataPlayer::~DataPlayer()
 {
-    stop();
+    //stop();
 }
 
 void DataPlayer::setStorage(BoardParameterHistoryStorage* storage)

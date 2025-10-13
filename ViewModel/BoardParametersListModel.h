@@ -21,7 +21,7 @@ public:
         ColorRole,
 	};
 public:
-	explicit BoardParametersListModel(BoardMessagesSqliteReader* dbReader, QObject* parent = nullptr);
+	explicit BoardParametersListModel(QObject* parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -37,7 +37,6 @@ public slots :
 	void onParametersCleared();
 
 private:
-    BoardMessagesSqliteReader* m_pDbReader;
     QMap<QString, BoardParameterSingle*> m_values;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;

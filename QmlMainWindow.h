@@ -15,26 +15,20 @@ public:
     ~QmlMainWindow();
 
     // Методы для работы с приложением
-    void setApp(BoardStationApp *app);
-    BoardStationApp* getApp() const;
+    void setApp(BoardStationApp *app); 
+    BoardStationApp* app() { return m_app; }
+    QQmlContext* context() { return m_context; }
 
-public slots:
+public:
+    /// <summary>
+    /// Отправка всех параметров борту (нажание на кнопку в панели урпавления дроном)
+    /// </summary>
     void sendParametersToBoard();
-    void loadSession(int sessionId);
+    Q_INVOKABLE void changeSession(int sessionId);
+    Q_INVOKABLE void loadSession(int sessionId);
     void switchToSession(int sessionIndex);
     void switchToLiveSession();
-    bool saveLiveData();
-
-private slots:
-    void onDataSent(const QString &data);
-
-private:
-    void setupModel();
-    void setupUplinkParametersModel();
-    void setupDebugViewModel();
-    void setupChartSeriesModel();
-    void setupSessionsListModel();
-    void addTestDataToModel();
+    Q_INVOKABLE bool saveLiveData();
 
 private:
     BoardStationApp *m_app;

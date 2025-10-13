@@ -2,9 +2,8 @@
 
 #include <random>
 
-BoardParametersListModel::BoardParametersListModel(BoardMessagesSqliteReader* dbReader, QObject* parent /*= nullptr*/)
-	: QAbstractListModel{ parent },
-	m_pDbReader(dbReader)
+BoardParametersListModel::BoardParametersListModel(QObject* parent /*= nullptr*/)
+	: QAbstractListModel{ parent }
 {
 	makeRandomColors();
 }

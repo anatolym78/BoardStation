@@ -152,28 +152,28 @@ Item
                 onPlayClicked:
                 {
                     console.log("Play clicked")
-                    if (driverDataPlayer)
+                    if ( parametersPlayer)
                     {
-                        driverDataPlayer.play()
+                         parametersPlayer.play()
                     }
                 }
                 
                 onStopClicked:
                 {
                     console.log("Stop clicked")
-                    if (driverDataPlayer)
+                    if ( parametersPlayer)
                     {
-                        driverDataPlayer.stop()
+                         parametersPlayer.stop()
                     }
                 }
                 
                 onPositionChanged:
                 {
-                    if (driverDataPlayer)
+                    if ( parametersPlayer)
                     {
                         // Конвертируем секунды в QDateTime
-                        var newPosition = new Date(driverDataPlayer.sessionStartTime.getTime() + position * 1000)
-                        driverDataPlayer.setPosition(newPosition)
+                        var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
+                         parametersPlayer.setPosition(newPosition)
                     }
                 }
             }

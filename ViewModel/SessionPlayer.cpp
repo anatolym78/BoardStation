@@ -12,7 +12,7 @@ SessionPlayer::SessionPlayer(QObject *parent)
 
 SessionPlayer::~SessionPlayer()
 {
-    stop();
+    //stop();
 }
 
 void SessionPlayer::setStorage(BoardParameterHistoryStorage* storage)

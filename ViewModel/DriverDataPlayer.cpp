@@ -16,7 +16,7 @@ DriverDataPlayer::DriverDataPlayer(QObject *parent)
 
 DriverDataPlayer::~DriverDataPlayer()
 {
-    stop();
+    //stop();
 }
 
 void DriverDataPlayer::play()

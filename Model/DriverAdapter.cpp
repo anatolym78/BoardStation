@@ -1,6 +1,10 @@
 #include "DriverAdapter.h"
 #include "Model/Parameters/BoardParametersJsonParserNew.h"
 #include <QDebug>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
 
 DriverAdapter::DriverAdapter(drv::IDriver* driver, QObject *parent)
     : QObject(parent)
@@ -72,9 +76,7 @@ bool DriverAdapter::isListening() const
 }
 
 void DriverAdapter::onDriverDataAvailable()
-{
-    qDebug() << "DriverAdapter: Received data from driver";
-    
+{    
     if (!m_driver)
     {
         qWarning() << "DriverAdapter: Driver is not available";
@@ -83,7 +85,6 @@ void DriverAdapter::onDriverDataAvailable()
     
     // Читаем данные от драйвера
     QString data = QString::fromStdString(m_driver->read());
-    qDebug() << "DriverAdapter: Read data from driver:" << data;
     
     if (data.isEmpty())
     {
@@ -99,8 +100,6 @@ void DriverAdapter::onDriverDataAvailable()
         qDebug() << "DriverAdapter: Failed to extract parameters from driver data";
         return;
     }
-
-    qDebug() << "DriverAdapter: Parsed" << newParameters.size() << "parameters";
 
     // Эмитируем сигнал для каждого параметра отдельно
     for (BoardParameterSingle* parameter : newParameters)
@@ -135,4 +134,37 @@ void DriverAdapter::disconnectFromDriver()
         m_isConnected = false;
         qDebug() << "DriverAdapter: Disconnected from driver";
     }
+}
+
+void DriverAdapter::sendParameter(BasicUplinkParameter* parameter)
+{
+    if (!parameter || !parameter->isValid())
+    {
+        qWarning() << "DriverAdapter: Invalid parameter for sending";
+        return;
+    }
+    
+    if (!m_driver)
+    {
+        qWarning() << "DriverAdapter: Driver is not available for parameter sending";
+        return;
+    }
+    
+    // Создаем JSON массив с одним параметром
+    QJsonArray parametersArray;
+    QJsonObject paramObj;
+    paramObj["label"] = parameter->getLabel();
+    paramObj["value"] = QJsonValue::fromVariant(parameter->getValue());
+    
+    parametersArray.append(paramObj);
+    
+    // Создаем JSON документ
+    QJsonDocument doc(parametersArray);
+    QString jsonString = doc.toJson(QJsonDocument::Indented);
+    
+    // Отправляем данные через драйвер
+    std::string data = jsonString.toStdString();
+    m_driver->write(data);
+    
+    qDebug() << "DriverAdapter: Parameter sent:" << parameter->getLabel() << "=" << parameter->getValue();
 }

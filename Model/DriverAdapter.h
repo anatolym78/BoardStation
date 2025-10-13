@@ -4,6 +4,7 @@
 #include <QObject>
 #include "IDriver.h"
 #include "./Parameters/BoardParameterSingle.h"
+#include "./Parameters/BasicUplinkParameter.h"
 
 class BoardParametersJsonParserNew;
 
@@ -23,6 +24,9 @@ public:
     void startListening();
     void stopListening();
     bool isListening() const;
+    
+    // Метод для отправки параметра на борт
+    void sendParameter(BasicUplinkParameter* parameter);
 
 signals:
     // Сигнал для каждого отдельного параметра

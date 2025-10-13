@@ -21,8 +21,8 @@ Rectangle
     {
         target: playStopButton
         property: "isPlaying"
-        value: driverDataPlayer ? driverDataPlayer.isPlaying : false
-        when: driverDataPlayer !== null
+        value:  parametersPlayer ?  parametersPlayer.isPlaying : false
+        when:  parametersPlayer !== null
     }
     
     signal playClicked()
@@ -87,15 +87,19 @@ Rectangle
             id: positionSlider
             Layout.fillWidth: true
             Layout.fillHeight: true
+            //live: false
             
             from: 0
-            to: driverDataPlayer ? driverDataPlayer.sessionDuration : 100
-            value: driverDataPlayer ? driverDataPlayer.elapsedTime : 0
+            to:  parametersPlayer ?  parametersPlayer.sessionDuration : 100
+            value:  parametersPlayer ?  parametersPlayer.elapsedTime : 0
             stepSize: 0.1
             
             onValueChanged: 
             {
                 sessionPlayerPanel.positionChanged(value)
+                
+                //console.log("value ", value)
+                //console.log("max value ", to)
             }
         }
         

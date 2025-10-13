@@ -1,6 +1,7 @@
 #include "BoardParameterHistoryStorage.h"
 #include "BoardMessagesSqliteReader.h"
 #include <QDebug>
+#include <QSet>
 
 BoardParameterHistoryStorage::BoardParameterHistoryStorage(QObject *parent)
     : QObject(parent)
@@ -36,8 +37,6 @@ void BoardParameterHistoryStorage::addParameter(BoardParameterSingle *parameter)
 
 void BoardParameterHistoryStorage::loadSessionData(int sessionId, BoardMessagesSqliteReader* reader)
 {
-    return;
-
     if (!reader)
     {
         qWarning() << "BoardParameterHistoryStorage: Reader is not set";
@@ -78,4 +77,19 @@ QList<BoardParameterSingle*> BoardParameterHistoryStorage::getParametersInTimeRa
     }
     
     return result;
+}
+
+int BoardParameterHistoryStorage::getMessagesCount() const
+{
+    QSet<QDateTime> uniqueTimestamps;
+    
+    for (BoardParameterSingle* param : m_sessionParameters)
+    {
+        if (param)
+        {
+            uniqueTimestamps.insert(param->timestamp());
+        }
+    }
+    
+    return uniqueTimestamps.size();
 }

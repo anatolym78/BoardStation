@@ -11,7 +11,13 @@ LiveSession::LiveSession(QObject *parent)
     , m_isRecording(false)
     , m_storage(new BoardParameterHistoryStorage(this))
 {
-    qDebug() << "LiveSession: Created live session at" << m_startTime.toString();
+    connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
+        [this](BoardParameterSingle* parameter)
+        {
+            m_messageCount = m_storage->getMessagesCount();
+
+			emit messageCountChanged(m_messageCount);
+        });
 }
 
 void LiveSession::startSession()
