@@ -5,6 +5,8 @@
 #include <QDateTime>
 #include <QString>
 
+#include "DataPlayer.h"
+
 class BoardParameterHistoryStorage;
 
 /**
@@ -42,6 +44,8 @@ public:
     virtual bool operator<(const Session& other) const;
     virtual bool operator==(const Session& other) const;
 
+    DataPlayer* player() const { return m_player; }
+
 signals:
     void sessionChanged();
     void messageCountChanged(int count);
@@ -51,6 +55,9 @@ protected:
     // Защищенные методы для обновления данных
     void updateMessageCount(int count);
     void updateParameterCount(int count);
+
+protected:
+	DataPlayer* m_player;
 };
 
 #endif // SESSION_H

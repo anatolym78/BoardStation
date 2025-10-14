@@ -109,6 +109,17 @@ QHash<int, QByteArray> SessionsListModel::roleNames() const
     return roles;
 }
 
+Session* SessionsListModel::currentSession() const
+{
+    if (m_selectedIndex >= 0 && m_selectedIndex < m_sessions.count())
+    {
+        return m_sessions[m_selectedIndex];
+    }
+
+    return nullptr;
+}
+
+
 void SessionsListModel::setReader(BoardMessagesSqliteReader *reader)
 {
     if (m_reader != reader) 
@@ -170,6 +181,11 @@ Session* SessionsListModel::getSession(int index) const
 
 Session* SessionsListModel::getSessionById(int sessionId) const
 {
+    if (sessionId == -1)
+    {
+        return liveSession();
+    }
+
     for (auto session : m_sessions)
     {
         if (session->getId() == sessionId)
@@ -536,5 +552,76 @@ void SessionsListModel::switchToLiveSession()
     
     // Эмитируем сигнал о смене сессии
     emit sessionSwitched(m_liveSession);
+}
+
+void SessionsListModel::selectSession(int sessionIndex)
+{
+    if (sessionIndex < 0 || sessionIndex >= m_sessions.size())
+    {
+        qWarning() << "SessionsListModel: Invalid session index" << sessionIndex;
+        return;
+    }
+
+    Session* session = m_sessions.at(sessionIndex);
+    if (!session)
+    {
+        qWarning() << "SessionsListModel: Session at index" << sessionIndex << "is null";
+        return;
+    }
+
+    m_selectedIndex = sessionIndex;
+
+    // Если это RecordedSession, загружаем данные из базы при первом выборе
+    if (session->getType() == Session::RecordedSession)
+    {
+        RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
+        if (recordedSession && m_reader)
+        {
+            // Проверяем, загружены ли уже данные в хранилище
+            if (!recordedSession->isDataLoaded())
+            {
+                qDebug() << "SessionsListModel: Loading data for recorded session" << recordedSession->getId();
+                recordedSession->loadDataFromDatabase(m_reader);
+            }
+            else
+            {
+                qDebug() << "SessionsListModel: Data already loaded for session" << recordedSession->getId();
+            }
+            
+            // Инициализируем плеер для установки временного диапазона
+            SessionPlayer* sessionPlayer = qobject_cast<SessionPlayer*>(recordedSession->player());
+            if (sessionPlayer)
+            {
+                qDebug() << "SessionsListModel: Initializing SessionPlayer for recorded session" << recordedSession->getId();
+                
+                // Если данные уже загружены, инициализируем плеер принудительно
+                if (recordedSession->isDataLoaded())
+                {
+                    sessionPlayer->initializeWithLoadedData();
+                }
+                // Иначе плеер автоматически инициализируется при загрузке данных через сигнал sessionDataLoaded
+            }
+        }
+    }
+    //else if (session->getType() == Session::LiveSession)
+    //{
+    //    qDebug() << "SessionsListModel: Selected live session - no data loading needed";
+    //    
+    //    // Для живой сессии инициализируем DriverDataPlayer
+    //    LiveSession* liveSession = qobject_cast<LiveSession*>(session);
+    //    if (liveSession)
+    //    {
+    //        DriverDataPlayer* driverPlayer = qobject_cast<DriverDataPlayer*>(liveSession->player());
+    //        if (driverPlayer)
+    //        {
+    //            qDebug() << "SessionsListModel: Initializing DriverDataPlayer for live session";
+    //            // DriverDataPlayer инициализируется автоматически при получении первого параметра
+    //            // Но можем сбросить состояние для чистой инициализации
+    //            driverPlayer->resetState();
+    //        }
+    //    }
+    //}
+
+    qInfo() << "SessionsListModel: Selected session at index" << m_selectedIndex << ":" << session->getName();
 }
 

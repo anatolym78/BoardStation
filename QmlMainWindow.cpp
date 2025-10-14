@@ -6,6 +6,7 @@
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/SessionPlayer.h"
 #include <QQuickItem>
+#include <QCloseEvent>
 
 #include <QDebug>
 #include <QQmlContext>
@@ -26,6 +27,8 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	m_context = rootContext();
 	
 	m_context->setContextProperty("qmlMainWindow", this);
+
+    //connect(this, &QQuickWindow::closing, this, &QmlMainWindow::onClosing);
 }
 
 void QmlMainWindow::setApp(BoardStationApp *pApp)
@@ -74,16 +77,6 @@ void QmlMainWindow::changeSession(int sessionId)
 	context()->setContextProperty("parametersPlayer", player);
 }
 
-void QmlMainWindow::loadSession(int sessionId)
-{
-	if (m_app)
-	{
-		auto player = app()->loadSession(sessionId);
-
-		context()->setContextProperty("parametersPlayer", player);
-	}
-}
-
 void QmlMainWindow::switchToSession(int sessionIndex)
 {
 	return;
@@ -96,7 +89,7 @@ void QmlMainWindow::switchToSession(int sessionIndex)
 		auto dataPlayer = m_app->getDataPlayer();
 		if (dataPlayer && m_context)
 		{
-			m_context->setContextProperty(" parametersPlayer", dataPlayer);
+			m_context->setContextProperty("parametersPlayer", dataPlayer);
 		}
 		
 		qDebug() << "QmlMainWindow: Switching to session at index" << sessionIndex;
@@ -119,7 +112,7 @@ void QmlMainWindow::switchToLiveSession()
 		auto dataPlayer = m_app->getDataPlayer();
 		if (dataPlayer && m_context)
 		{
-			m_context->setContextProperty(" parametersPlayer", dataPlayer);
+			m_context->setContextProperty("parametersPlayer", dataPlayer);
 		}
 		
 		qDebug() << "QmlMainWindow: Switching to live session";
@@ -133,6 +126,12 @@ void QmlMainWindow::switchToLiveSession()
 bool QmlMainWindow::saveLiveData()
 {
 	return m_app->saveLiveData();
+}
+
+
+void QmlMainWindow::onClosing()
+{
+	app()->close();
 }
 
 QmlMainWindow::~QmlMainWindow()

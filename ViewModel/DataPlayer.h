@@ -18,13 +18,14 @@ class DataPlayer : public QObject
     Q_PROPERTY(QDateTime sessionEndTime READ sessionEndTime NOTIFY sessionEndTimeChanged)
     Q_PROPERTY(double sessionDuration READ sessionDuration NOTIFY sessionDurationChanged)
     Q_PROPERTY(double elapsedTime READ elapsedTime NOTIFY elapsedTimeChanged)
+	//Q_PROPERTY(bool isPlayable READ isPlayable NOTIFY playableChanged)
 
 public:
     explicit DataPlayer(QObject *parent = nullptr);
     virtual ~DataPlayer();
 
     // Свойства
-    bool isPlaying() const { return m_isPlaying; }
+    Q_INVOKABLE bool isPlaying() const { return m_isPlaying; }
     QDateTime currentPosition() const { return m_currentPosition; }
     QString currentSessionName() const { return m_currentSessionName; }
     QDateTime sessionStartTime() const { return m_sessionStartTime; }
@@ -37,9 +38,12 @@ public:
     Q_INVOKABLE virtual void stop();
     Q_INVOKABLE virtual void pause();
     Q_INVOKABLE virtual void setPosition(QDateTime position);
+    Q_INVOKABLE bool isPlayable() { return m_isPlayable; }
     
     // Методы для работы с хранилищем
     virtual void setStorage(BoardParameterHistoryStorage* storage);
+
+	virtual void resetState() = 0;
 
 public slots:
     virtual void onParameterReceived(BoardParameterSingle* parameter);
@@ -73,6 +77,8 @@ protected:
     QDateTime m_currentPosition; // Текущая позиция как время
     QDateTime m_sessionStartTime;
     QDateTime m_sessionEndTime;
+
+    bool m_isPlayable = true;
 };
 
 #endif // DATAPLAYER_H

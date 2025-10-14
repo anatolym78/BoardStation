@@ -17,7 +17,7 @@ Item
         droneControlPanel.uplinkParametersModel = uplinkParametersModel
         sessionsPanel.sessionsModel = sessionsListModel
     }
-    
+
     // Main frame
     Frame
     {
@@ -112,21 +112,21 @@ Item
                         }
                     }
 
-                    // Панель с отладкой/логами
-                    Rectangle
-                    {
-                        Layout.preferredHeight: 1.5
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: "#f0f0f0"
-                        radius: 4
+                    // // Панель с отладкой/логами
+                    // Rectangle
+                    // {
+                    //     Layout.preferredHeight: 1.5
+                    //     Layout.fillWidth: true
+                    //     Layout.fillHeight: true
+                    //     color: "#f0f0f0"
+                    //     radius: 4
 
-                        DebugLogsView
-                        {
-                            anchors.fill: parent
-                            model: debugViewModel
-                        }
-                    }
+                    //     DebugLogsView
+                    //     {
+                    //         anchors.fill: parent
+                    //         model: debugViewModel
+                    //     }
+                    // }
                 }
 
                  // Панель управления параметрами дрона

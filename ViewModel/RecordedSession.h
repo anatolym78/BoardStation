@@ -42,6 +42,9 @@ public:
 
     // Получение полной информации о сессии
     const BoardMessagesSqliteReader::SessionInfo& getSessionInfo() const { return m_sessionInfo; }
+    
+    // Проверка, загружены ли данные в хранилище
+    bool isDataLoaded() const;
 
 private:
     BoardMessagesSqliteReader::SessionInfo m_sessionInfo;

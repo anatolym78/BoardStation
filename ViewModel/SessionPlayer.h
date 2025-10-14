@@ -20,6 +20,13 @@ public:
     // Методы для работы с хранилищем
     void setStorage(BoardParameterHistoryStorage* storage) override;
     void setReader(BoardMessagesSqliteReader* reader);
+    void resetState() override {}
+    
+    // Метод для инициализации плеера с уже загруженными данными
+    void initializeWithLoadedData();
+
+private:
+    void updatePlaybackPosition() override;
 
 private slots:
     void onSessionDataLoaded(int sessionId);

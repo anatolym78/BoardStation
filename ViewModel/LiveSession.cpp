@@ -3,6 +3,8 @@
 #include <QDebug>
 #include <QDateTime>
 
+#include "DriverDataPlayer.h"
+
 LiveSession::LiveSession(QObject *parent)
     : Session(parent)
     , m_startTime(QDateTime::currentDateTime())
@@ -11,6 +13,9 @@ LiveSession::LiveSession(QObject *parent)
     , m_isRecording(false)
     , m_storage(new BoardParameterHistoryStorage(this))
 {
+    m_player = new DriverDataPlayer(this);
+    m_player->setStorage(m_storage);
+
     connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
         [this](BoardParameterSingle* parameter)
         {

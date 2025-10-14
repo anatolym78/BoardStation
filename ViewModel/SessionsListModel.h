@@ -10,6 +10,10 @@
 #include "LiveSessionFactory.h"
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
 #include "Model/Parameters/BoardParameterSingle.h"
+#include "RecordedSession.h"
+#include "SessionPlayer.h"
+#include "DriverDataPlayer.h"
+#include "LiveSession.h"
 
 class SessionsListModel : public QAbstractListModel
 {
@@ -58,6 +62,10 @@ public:
     BoardMessagesSqliteReader::SessionInfo getSessionInfo(int index) const;
     int getSessionId(int index) const;
     int findSessionIndex(int sessionId) const;
+
+    Q_INVOKABLE void selectSession(int sessionIndex);
+
+    Session* currentSession() const;
     
     // Методы для работы с живой сессией
     void initializeLiveSession();
@@ -96,6 +104,8 @@ private:
     BoardMessagesSqliteReader *m_reader;
     bool m_recording = false;
     QList<Session*> m_sessions;
+
+    int m_selectedIndex = -1;
     
     // Фабрики для создания сессий
     RecordedSessionsFactory *m_recordedSessionsFactory;

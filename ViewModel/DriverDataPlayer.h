@@ -24,7 +24,7 @@ public:
     void onParameterReceived(BoardParameterSingle* parameter) override;
     
     // Метод для сброса состояния плеера
-    void resetState();
+    void resetState() override;
 
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);
@@ -34,10 +34,12 @@ private:
     void extendTimeRange();
     void initializeTimeRange();
     void checkAndPlayParameters();
+    void emitTimeRangeSignals();
 
 private:
     bool m_isInitialized;
-    static const int TIME_RANGE_MINUTES = 10; // Расширение диапазона на 10 минут
+    static const int TIME_RANGE_MINUTES = 1; // Расширение диапазона на 10 минут
+    double TIME_RANGE = 600.0;
 };
 
 #endif // DRIVERDATAPLAYER_H

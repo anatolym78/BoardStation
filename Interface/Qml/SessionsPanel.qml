@@ -57,6 +57,11 @@ Rectangle
                 color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
             }
 
+            onCurrentIndexChanged:
+            {
+                sessionsListModel.selectSession(currentIndex)
+            }
+
             enabled: !sessionsListModel.isRecordingState()
             
             delegate: Rectangle 
@@ -94,7 +99,7 @@ Rectangle
                         }
                     }
                 ]
-                
+
                 MouseArea 
                 {
                     anchors.fill: parent
@@ -107,7 +112,7 @@ Rectangle
 
                         if(qmlMainWindow)
                         {
-                            qmlMainWindow.changeSession(sessionId)
+                            qmlMainWindow.changeSession(sessionsList.currentIndex)
                         }
                     }
                     
@@ -153,15 +158,96 @@ Rectangle
                             elide: Text.ElideRight
                         }
 
+                        // Кнопка Reset для живой сессии
                         Button
                         {
-                            id: deleteButton
-                            Layout.alignment: right
-                            visible: true//!isLiveSession
+                            id: resetButton
+                            Layout.alignment: Qt.AlignRight
+                            visible: isLiveSession
 
                             background: Rectangle
                             {
-                                id: deleteButtonBackground
+                                id: resetButtonBackground
+                                height: 24
+                                color: Qt.hsva(0.1, 0.8, 0.8, 0.7)
+                                opacity: 0.9
+                                radius: 3
+                                states:
+                                [
+                                    State
+                                    {
+                                        name: "resetButtonHovered"
+                                        PropertyChanges
+                                        {
+                                            target: resetButtonBackground
+                                            color: Qt.hsva(0.1, 0.8, 0.9, 0.9)
+                                            opacity: 1
+                                        }
+                                    },
+                                    State
+                                    {
+                                        name: "resetButtonPressed"
+                                        PropertyChanges
+                                        {
+                                            target: resetButtonBackground
+                                            color: Qt.hsva(0.1, 0.9, 0.7, 0.9)
+                                            opacity: 1
+                                        }
+                                    }
+                                ]
+
+                                MouseArea
+                                {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    onEntered:
+                                    {
+                                        resetButtonBackground.state = "resetButtonHovered"
+                                    }
+
+                                    onExited:
+                                    {
+                                        resetButtonBackground.state = ""
+                                    }
+
+                                    onPressed:
+                                    {
+                                        resetButtonBackground.state = "resetButtonPressed"
+                                    }
+
+                                    onReleased:
+                                    {
+                                        resetButtonBackground.state = "resetButtonHovered"
+                                    }
+                                    onClicked:
+                                    {
+                                        // Сбрасываем плеер живой сессии
+                                        if(parametersPlayer)
+                                        {
+                                            parametersPlayer.resetState()
+                                        }
+                                    }
+                                }
+                            }
+
+                            contentItem: Text
+                            {
+                                text: qsTr("reset")
+                                color: "white"
+                                font.bold: true
+                            }
+                        }
+
+                        // Кнопка Save/Delete
+                        Button
+                        {
+                            id: actionButton
+                            Layout.alignment: Qt.AlignRight
+                            visible: true
+
+                            background: Rectangle
+                            {
+                                id: actionButtonBackground
                                 height: 24
                                 color: Qt.hsva(0.6, 0.3, 0.4, 0.7)
                                 opacity: 0.9
@@ -170,20 +256,20 @@ Rectangle
                                 [
                                     State
                                     {
-                                        name: "deleteButtonHovered"
+                                        name: "actionButtonHovered"
                                         PropertyChanges
                                         {
-                                            target: deleteButtonBackground
+                                            target: actionButtonBackground
                                             color: "dimgray"
                                             opacity: 1
                                         }
                                     },
                                     State
                                     {
-                                        name: "deleteButtonPressed"
+                                        name: "actionButtonPressed"
                                         PropertyChanges
                                         {
-                                            target: deleteButtonBackground
+                                            target: actionButtonBackground
                                             color:
                                             {
                                                 if(isLiveSession)
@@ -206,22 +292,22 @@ Rectangle
                                     hoverEnabled: true
                                     onEntered:
                                     {
-                                        deleteButtonBackground.state = "deleteButtonHovered"
+                                        actionButtonBackground.state = "actionButtonHovered"
                                     }
 
                                     onExited:
                                     {
-                                        deleteButtonBackground.state = ""
+                                        actionButtonBackground.state = ""
                                     }
 
                                     onPressed:
                                     {
-                                         deleteButtonBackground.state = "deleteButtonPressed"
+                                        actionButtonBackground.state = "actionButtonPressed"
                                     }
 
                                     onReleased:
                                     {
-                                        deleteButtonBackground.state = "deleteButtonHovered"
+                                        actionButtonBackground.state = "actionButtonHovered"
                                     }
                                     onClicked:
                                     {
@@ -239,19 +325,17 @@ Rectangle
                                         }
                                     }
                                 }
-
                             }
 
                             contentItem: Text
                             {
                                 text:
                                 {
-                                    return isLiveSession ? qsTr("save session") : qsTr("delete")
+                                    return isLiveSession ? qsTr("save") : qsTr("delete")
                                 }
                                 color: "white"
                                 font.bold: true
                             }
-
                         }
                     }
 

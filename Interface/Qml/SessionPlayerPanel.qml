@@ -12,20 +12,21 @@ Rectangle
     //border.width: 1
     radius: 4
     
-    property alias isPlaying: playStopButton.isPlaying
+    property alias isPlaying: playPauseButton.isPlaying
     property alias currentPosition: positionSlider.value
     property alias maxPosition: positionSlider.to
     
     // Привязки к DriverDataPlayer
     Binding
     {
-        target: playStopButton
+        target: playPauseButton
         property: "isPlaying"
         value:  parametersPlayer ?  parametersPlayer.isPlaying : false
         when:  parametersPlayer !== null
     }
     
     signal playClicked()
+    signal pauseClicked()
     signal stopClicked()
     signal positionChanged(real position)
     
@@ -35,25 +36,27 @@ Rectangle
         anchors.margins: 15
         spacing: 15
         
-        // Кнопка воспроизведения/остановки
+        // Кнопка воспроизведения/паузы
         Button 
         {
-            id: playStopButton
+            id: playPauseButton
             property bool isPlaying: false
             
             Layout.preferredWidth: 80
             Layout.preferredHeight: 40
             
-            text: isPlaying ? qsTr("Stop") : qsTr("Play")
+            text: isPlaying ? qsTr("Pause") : qsTr("Play")
             font.pixelSize: 14
-            
+
+            visible: parametersPlayer ? parametersPlayer.isPlayable() : false
+
             background: Rectangle 
             {
                 color: parent.pressed ? 
-                       (playStopButton.isPlaying ? "#dc3545" : "#28a745") :
-                       (playStopButton.isPlaying ? "#dc3545" : "#28a745")
+                       (playPauseButton.isPlaying ? "#ffc107" : "#28a745") :
+                       (playPauseButton.isPlaying ? "#ffc107" : "#28a745")
                 radius: 5
-                border.color: playStopButton.isPlaying ? "#dc3545" : "#28a745"
+                border.color: playPauseButton.isPlaying ? "#ffc107" : "#28a745"
                 border.width: 1
             }
             
@@ -69,15 +72,51 @@ Rectangle
             
             onClicked: 
             {
-                isPlaying = !isPlaying
                 if (isPlaying) 
                 {
-                    sessionPlayerPanel.playClicked()
+                    sessionPlayerPanel.pauseClicked()
                 }
                 else 
                 {
-                    sessionPlayerPanel.stopClicked()
+                    sessionPlayerPanel.playClicked()
                 }
+            }
+        }
+        
+        // Кнопка остановки
+        Button 
+        {
+            id: stopButton
+            
+            Layout.preferredWidth: 80
+            Layout.preferredHeight: 40
+            
+            text: qsTr("Stop")
+            font.pixelSize: 14
+
+            visible: parametersPlayer ? parametersPlayer.isPlayable() : false
+
+            background: Rectangle 
+            {
+                color: parent.pressed ? "#dc3545" : "#dc3545"
+                radius: 5
+                border.color: "#dc3545"
+                border.width: 1
+            }
+            
+            contentItem: Text 
+            {
+                text: parent.text
+                color: "white"
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                font.pixelSize: parent.font.pixelSize
+                font.bold: true
+            }
+            
+            onClicked: 
+            {
+                sessionPlayerPanel.stopClicked()
             }
         }
         
@@ -97,9 +136,6 @@ Rectangle
             onValueChanged: 
             {
                 sessionPlayerPanel.positionChanged(value)
-                
-                //console.log("value ", value)
-                //console.log("max value ", to)
             }
         }
         

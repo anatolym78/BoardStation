@@ -20,7 +20,6 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     , m_driverAdapter(nullptr)
     , m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
     , m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
-    , m_dataPlayer(new DriverDataPlayer(this))// По умолчанию используем DriverDataPlayer
 {
     // Создаем модель параметров
 	m_parametersModel = new BoardParametersListModel(this);
@@ -28,9 +27,6 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     // Создаем модель списка сессий
     m_sessionsListModel = new SessionsListModel(this);
     m_sessionsListModel->setReader(m_boardMessagesReader);
-
-    // Настраиваем DriverDataPlayer с хранилищем из живой сессии
-    m_dataPlayer->setStorage(m_sessionsListModel->liveSession()->getStorage());
 
     m_driver = new drv::BoardDataEmulator(this);
     
@@ -50,6 +46,8 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
     
     // Подключаем сигналы
     connectSignals(); 
+
+    connect(this, &QApplication::aboutToQuit, [this]() {close(); });
 }
 
 BoardStationApp::~BoardStationApp()
@@ -157,6 +155,23 @@ void BoardStationApp::sendParametersToBoard()
     }
 }
 
+void BoardStationApp::close()
+{
+	for (auto i = 0; i < m_sessionsListModel->rowCount(); i++)
+	{
+		auto session = m_sessionsListModel->getSession(i);
+		session->player()->stop();
+	}
+}
+
+
+DataPlayer* BoardStationApp::getDataPlayer() const
+{
+    auto currentSession = m_sessionsListModel->currentSession();
+    if (currentSession == nullptr) return nullptr;
+
+    return currentSession->player();
+}
 
 bool BoardStationApp::saveLiveData()
 {
@@ -242,145 +257,80 @@ bool BoardStationApp::saveLiveData()
     liveSession->clearStorage();
     qDebug() << "BoardStationApp: Cleared live session storage";
     
-    // Сбрасываем состояние DriverDataPlayer
-    if (m_dataPlayer)
-    {
-        DriverDataPlayer* driverPlayer = qobject_cast<DriverDataPlayer*>(m_dataPlayer);
-        if (driverPlayer)
-        {
-            // Сбрасываем состояние плеера
-            driverPlayer->resetState();
-            qDebug() << "BoardStationApp: Reset DriverDataPlayer state";
-        }
-    }
-
-	//m_sessionsListModel->refreshSessions();
-    
-    qDebug() << "BoardStationApp: Successfully saved live data to session" << newSessionId;
+    liveSession->player()->resetState();
 
     return true;
 }
-
-DataPlayer* BoardStationApp::loadSession(int sessionId)
-{
-    if (m_sessionsListModel)
-    {
-        // Находим индекс сессии по ID
-        int sessionIndex = m_sessionsListModel->findSessionIndex(sessionId);
-        if (sessionIndex >= 0)
-        {
-            return switchToSession(sessionIndex);
-        }
-        else
-        {
-            qWarning() << "BoardStationApp: Session with ID" << sessionId << "not found";
-        }
-    }
-    else
-    {
-        qWarning() << "BoardStationApp: SessionsListModel is not available";
-    }
-
-    return nullptr;
-}
-
 
 DataPlayer* BoardStationApp::changeSession(int sessionId)
 {
     qInfo() << sessionId;
 
-	if (!m_sessionsListModel || !m_dataPlayer)
+	if (!m_sessionsListModel)
 	{
 		qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
 		return nullptr;
 	}
 
-	Session* session = m_sessionsListModel->getSessionById(sessionId);
+	Session* session = m_sessionsListModel->currentSession();
 	if (!session)
 	{
 		qWarning() << "BoardStationApp: Session at index" << sessionId << "not found";
 		nullptr;
 	}
 
-	// Останавливаем текущее проигрывание
-	m_dataPlayer->stop();
-
-	// Если это RecordedSession, создаем SessionPlayer
-	RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
-	if (recordedSession)
-	{
-		// Создаем новый SessionPlayer для записанной сессии
-		SessionPlayer* sessionPlayer = new SessionPlayer(this);
-		sessionPlayer->setStorage(recordedSession->getStorage());
-		sessionPlayer->setReader(m_boardMessagesReader);
-
-		// Заменяем текущий плеер
-		m_dataPlayer->deleteLater();
-		m_dataPlayer = sessionPlayer;
-
-		// Загружаем данные из базы
-		recordedSession->loadDataFromDatabase(m_boardMessagesReader);
-
-		qDebug() << "BoardStationApp: Created SessionPlayer for recorded session";
-
-	}
-	else
-	{
-		// Для других типов сессий просто меняем хранилище
-		m_dataPlayer->setStorage(session->getStorage());
-	}
-
-	return m_dataPlayer;
+    return session->player();
 }
 
 DataPlayer* BoardStationApp::switchToSession(int sessionIndex)
 {
-    if (!m_sessionsListModel || !m_dataPlayer)
-    {
-        qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
-        return nullptr;
-    }
-    
-    Session* session = m_sessionsListModel->getSession(sessionIndex);
-    if (!session)
-    {
-        qWarning() << "BoardStationApp: Session at index" << sessionIndex << "not found";
-        nullptr;
-    }
-    
-    qDebug() << "BoardStationApp: Switching to session" << session->getName();
-    
-    // Останавливаем текущее проигрывание
-    m_dataPlayer->stop();
-    
-    // Если это RecordedSession, создаем SessionPlayer
-    RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
-    if (recordedSession)
-    {
-        // Создаем новый SessionPlayer для записанной сессии
-        SessionPlayer* sessionPlayer = new SessionPlayer(this);
-        sessionPlayer->setStorage(recordedSession->getStorage());
-        sessionPlayer->setReader(m_boardMessagesReader);
-        
-        // Заменяем текущий плеер
-        m_dataPlayer->deleteLater();
-        m_dataPlayer = sessionPlayer;
-        
-        // Загружаем данные из базы
-        recordedSession->loadDataFromDatabase(m_boardMessagesReader);
-        
-        qDebug() << "BoardStationApp: Created SessionPlayer for recorded session";
+    return nullptr;
+ //   if (!m_sessionsListModel || !m_dataPlayer)
+ //   {
+ //       qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
+ //       return nullptr;
+ //   }
+ //   
+ //   Session* session = m_sessionsListModel->getSession(sessionIndex);
+ //   if (!session)
+ //   {
+ //       qWarning() << "BoardStationApp: Session at index" << sessionIndex << "not found";
+ //       nullptr;
+ //   }
+ //   
+ //   qDebug() << "BoardStationApp: Switching to session" << session->getName();
+ //   
+ //   // Останавливаем текущее проигрывание
+ //   m_dataPlayer->stop();
+ //   
+ //   // Если это RecordedSession, создаем SessionPlayer
+ //   RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
+ //   if (recordedSession)
+ //   {
+ //       // Создаем новый SessionPlayer для записанной сессии
+ //       SessionPlayer* sessionPlayer = new SessionPlayer(this);
+ //       sessionPlayer->setStorage(recordedSession->getStorage());
+ //       sessionPlayer->setReader(m_boardMessagesReader);
+ //       
+ //       // Заменяем текущий плеер
+ //       m_dataPlayer->deleteLater();
+ //       m_dataPlayer = sessionPlayer;
+ //       
+ //       // Загружаем данные из базы
+ //       recordedSession->loadDataFromDatabase(m_boardMessagesReader);
+ //       
+ //       qDebug() << "BoardStationApp: Created SessionPlayer for recorded session";
 
-    }
-    else
-    {
-        // Для других типов сессий просто меняем хранилище
-        m_dataPlayer->setStorage(session->getStorage());
-    }
+ //   }
+ //   else
+ //   {
+ //       // Для других типов сессий просто меняем хранилище
+ //       m_dataPlayer->setStorage(session->getStorage());
+ //   }
 
-	return m_dataPlayer;
-    
-    qDebug() << "BoardStationApp: Switched to session" << session->getName();
+	//return m_dataPlayer;
+ //   
+ //   qDebug() << "BoardStationApp: Switched to session" << session->getName();
 }
 
 void BoardStationApp::switchToLiveSession()
@@ -458,25 +408,5 @@ void BoardStationApp::loadUplinkParameters() const
     if (m_uplinkParametersModel)
     {
         m_uplinkParametersModel->setParameters(parsedUplinkParameters);
-    }
-    
-    qDebug() << "BoardStationApp: Successfully loaded" << parsedUplinkParameters.size() << "uplink parameters";
-    
-    // Выводим информацию о загруженных параметрах для отладки
-    for (BasicUplinkParameter *param : parsedUplinkParameters)
-    {
-        if (param)
-        {
-            qDebug() << "Uplink Parameter:" << param->getLabel() 
-                     << "Type:" << param->getControlType()
-                     << "Value:" << param->getValue()
-                     << "IsInt:" << param->isIntParameter()
-                     << "IsDouble:" << param->isDoubleParameter()
-                     << "IsString:" << param->isStringParameter()
-                     << "IsBool:" << param->isBoolParameter()
-                     << "HasRange:" << param->hasRange()
-                     << "HasStep:" << param->hasStep()
-                     << "IsList:" << param->isListParameter();
-        }
     }
 }

@@ -25,11 +25,11 @@ public:
     /// </summary>
     void sendParametersToBoard();
     Q_INVOKABLE void changeSession(int sessionId);
-    Q_INVOKABLE void loadSession(int sessionId);
     void switchToSession(int sessionIndex);
     void switchToLiveSession();
     Q_INVOKABLE bool saveLiveData();
 
+    void onClosing();
 private:
     BoardStationApp *m_app;
     QQmlContext *m_context;

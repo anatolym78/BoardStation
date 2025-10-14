@@ -35,9 +35,6 @@ public:
     // Сохранение живых данных в базу
     bool saveLiveData();
     
-    // Метод для загрузки сессии в плеер
-    DataPlayer* loadSession(int sessionId);
-
 	DataPlayer* changeSession(int sessionId);
     
     // Метод для переключения на сессию
@@ -46,6 +43,9 @@ public:
       
     // Отправка параметров на борт
     void sendParametersToBoard();
+    
+    // Метод для корректного закрытия приложения
+    void close();
 
     // Get methods
 public:
@@ -77,14 +77,13 @@ public:
     // Методы для работы с сессиями
     LiveSession* liveSession() const { return m_sessionsListModel->liveSession(); }
 
-    DataPlayer* getDataPlayer() const { return m_dataPlayer; }
+    DataPlayer* getDataPlayer() const;
    
     // 
 private:
     drv::IDriver *m_driver;
     DriverAdapter *m_driverAdapter;
     SessionsListModel *m_sessionsListModel;
-    DataPlayer* m_dataPlayer;
 	BoardParametersListModel* m_parametersModel;
 	ChartViewModel* m_chatsViewModel;
 

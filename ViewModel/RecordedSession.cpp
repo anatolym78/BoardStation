@@ -1,6 +1,7 @@
 #include "RecordedSession.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include <QDebug>
+#include "SessionPlayer.h"
 
 RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& sessionInfo, 
                                QObject *parent)
@@ -8,7 +9,8 @@ RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& s
     , m_sessionInfo(sessionInfo)
     , m_storage(new BoardParameterHistoryStorage(this))
 {
-    qDebug() << "RecordedSession: Created session" << sessionInfo.id << "with name" << sessionInfo.name;
+    m_player = new SessionPlayer(this);
+    m_player->setStorage(m_storage);
 }
 
 void RecordedSession::updateSessionInfo(const BoardMessagesSqliteReader::SessionInfo& sessionInfo)
@@ -93,4 +95,14 @@ void RecordedSession::loadDataFromDatabase(BoardMessagesSqliteReader* reader)
     m_storage->loadSessionData(m_sessionInfo.id, reader);
     
     qDebug() << "RecordedSession: Data loaded for session" << m_sessionInfo.id;
+}
+
+bool RecordedSession::isDataLoaded() const
+{
+    if (!m_storage)
+    {
+        return false;
+    }
+    
+    return !m_storage->getSessionParameters().isEmpty();
 }
