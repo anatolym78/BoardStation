@@ -58,7 +58,6 @@ void DataPlayer::stop()
     emit elapsedTimeChanged();
     
     // Очищаем хранилище
-    clearStorage();
 }
 
 void DataPlayer::pause()
@@ -84,9 +83,48 @@ void DataPlayer::setPosition(QDateTime position)
         position = m_sessionEndTime;
     }
     
+	// Проигрываем параметры, которые попадают в текущий временной интервал
+	if (m_storage && !m_isPlaying)
+	{
+		playParametersInTimeRange(m_currentPosition, position);
+	}
+
     m_currentPosition = position;
+
     emit currentPositionChanged();
     emit elapsedTimeChanged();
+}
+
+void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime)
+{
+	if (!m_storage)
+	{
+		return;
+	}
+
+    if (startTime == endTime) return;
+
+    auto _startTime = startTime;
+    auto _endTime = endTime;
+    auto isReverse = _startTime > _endTime;
+    if (isReverse)
+    {
+        std::swap(_startTime, _endTime);
+    }
+
+	auto paramsInRange = m_storage->getParametersInTimeRange(_startTime, _endTime);
+    if (isReverse)
+    {
+        std::reverse(paramsInRange.begin(), paramsInRange.end());
+    }
+
+	for (BoardParameterSingle* param : paramsInRange)
+	{
+		if (param)
+		{
+			emit parameterPlayed(param);
+		}
+	}
 }
 
 void DataPlayer::startPlayback()

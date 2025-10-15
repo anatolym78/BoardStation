@@ -35,6 +35,7 @@ private:
     BoardMessagesSqliteReader* m_reader;
     int m_currentSessionId;
     int m_lastPlayedIndex; // Индекс последнего проигранного параметра
+    QDateTime m_lastPlayedPosition; // Последняя проигранная позиция для отслеживания временного интервала
 };
 
 #endif // SESSIONPLAYER_H

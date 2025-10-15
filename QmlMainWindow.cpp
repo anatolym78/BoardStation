@@ -20,15 +20,12 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	qmlRegisterType<ChartViewModel>("BoardStation", 1, 0, "ChartViewModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
 	qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
-	//qmlRegisterType<Session>("BoardStation", 1, 0, "Session");
 	
 	setResizeMode(ResizeMode::SizeRootObjectToView);
 	
 	m_context = rootContext();
 	
 	m_context->setContextProperty("qmlMainWindow", this);
-
-    //connect(this, &QQuickWindow::closing, this, &QmlMainWindow::onClosing);
 }
 
 void QmlMainWindow::setApp(BoardStationApp *pApp)
@@ -52,7 +49,6 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());
 		}
 		
-		// Load QML file after setting up models
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));
 		
 		if (status() == QQuickView::Error) 
@@ -64,74 +60,26 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 
 void QmlMainWindow::sendParametersToBoard()
 {
-	app()->sendParametersToBoard();
-}
+	if (app())
+	{
+		app()->sendParametersToBoard();
 
+	}
+}
 
 void QmlMainWindow::changeSession(int sessionId)
 {
-	if (!app()) return;
-
-	auto player = app()->changeSession(sessionId);
-
-	context()->setContextProperty("parametersPlayer", player);
-}
-
-void QmlMainWindow::switchToSession(int sessionIndex)
-{
-	return;
-
-	if (m_app)
+	if (app())
 	{
-		m_app->switchToSession(sessionIndex);
-		
-		// Обновляем плеер в QML контексте
-		auto dataPlayer = m_app->getDataPlayer();
-		if (dataPlayer && m_context)
-		{
-			m_context->setContextProperty("parametersPlayer", dataPlayer);
-		}
-		
-		qDebug() << "QmlMainWindow: Switching to session at index" << sessionIndex;
-	}
-	else
-	{
-		qWarning() << "QmlMainWindow: Application instance is not available";
-	}
-}
+		auto player = app()->changeSession(sessionId);
 
-void QmlMainWindow::switchToLiveSession()
-{
-	return;
-
-	if (m_app)
-	{
-		m_app->switchToLiveSession();
-		
-		// Обновляем плеер в QML контексте
-		auto dataPlayer = m_app->getDataPlayer();
-		if (dataPlayer && m_context)
-		{
-			m_context->setContextProperty("parametersPlayer", dataPlayer);
-		}
-		
-		qDebug() << "QmlMainWindow: Switching to live session";
-	}
-	else
-	{
-		qWarning() << "QmlMainWindow: Application instance is not available";
+		context()->setContextProperty("parametersPlayer", player);
 	}
 }
 
 bool QmlMainWindow::saveLiveData()
 {
-	return m_app->saveLiveData();
-}
-
-
-void QmlMainWindow::onClosing()
-{
-	app()->close();
+	return app()->saveLiveData();
 }
 
 QmlMainWindow::~QmlMainWindow()

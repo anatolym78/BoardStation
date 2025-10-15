@@ -7,6 +7,7 @@ SessionPlayer::SessionPlayer(QObject *parent)
     , m_reader(nullptr)
     , m_currentSessionId(-1)
     , m_lastPlayedIndex(-1)
+    , m_lastPlayedPosition(QDateTime())
 {
 }
 
@@ -76,6 +77,7 @@ void SessionPlayer::onSessionDataLoaded(int sessionId)
     // Устанавливаем курсор на начало сессии (после определения временных границ)
     m_currentPosition = m_sessionStartTime;
     m_lastPlayedIndex = -1;
+    m_lastPlayedPosition = m_sessionStartTime;
     
     emit currentSessionNameChanged();
     emit sessionStartTimeChanged();
@@ -112,6 +114,7 @@ void SessionPlayer::initializeWithLoadedData()
         m_sessionEndTime = lastParam->timestamp();
         m_currentPosition = m_sessionStartTime;
         m_lastPlayedIndex = -1;
+        m_lastPlayedPosition = m_sessionStartTime;
         
         // Получаем информацию о сессии из первого параметра или используем текущее время
         m_currentSessionName = QString("Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
@@ -130,6 +133,9 @@ void SessionPlayer::initializeWithLoadedData()
 
 void SessionPlayer::updatePlaybackPosition()
 {
+    // Сохраняем предыдущую позицию для определения временного интервала
+    QDateTime previousPosition = m_currentPosition;
+    
     // Для SessionPlayer увеличиваем позицию на 100мс (0.1 секунды)
     m_currentPosition = m_currentPosition.addMSecs(100);
     
@@ -140,6 +146,13 @@ void SessionPlayer::updatePlaybackPosition()
         // Можно добавить логику завершения воспроизведения
     }
     
+    // Проигрываем параметры, которые попадают в текущий временной интервал
+    if (m_storage && m_isPlaying)
+    {
+        playParametersInTimeRange(previousPosition, m_currentPosition);
+    }
+    
     emit currentPositionChanged();
     emit elapsedTimeChanged();
 }
+

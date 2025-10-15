@@ -36,11 +36,7 @@ public:
     bool saveLiveData();
     
 	DataPlayer* changeSession(int sessionId);
-    
-    // Метод для переключения на сессию
-    DataPlayer* switchToSession(int sessionIndex);
-    void switchToLiveSession();
-      
+
     // Отправка параметров на борт
     void sendParametersToBoard();
     
@@ -86,6 +82,7 @@ private:
     SessionsListModel *m_sessionsListModel;
 	BoardParametersListModel* m_parametersModel;
 	ChartViewModel* m_chatsViewModel;
+    QMetaObject::Connection m_playerConnection;
 
     UplinkParametersModel *m_uplinkParametersModel;
     DebugViewModel *m_debugViewModel;

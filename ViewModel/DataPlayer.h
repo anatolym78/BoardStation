@@ -65,6 +65,7 @@ protected:
     virtual void updatePlaybackPosition();
     virtual void clearStorage();
     virtual void playbackLoop();
+	void playParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime);
 
 protected:
     BoardParameterHistoryStorage* m_storage;

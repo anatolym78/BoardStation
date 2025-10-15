@@ -151,20 +151,28 @@ Item
                 
                 onPlayClicked:
                 {
-                    console.log("Play clicked")
                     if ( parametersPlayer)
                     {
                          parametersPlayer.play()
                     }
                 }
+
+                onPauseClicked:
+                {
+                    if(parametersPlayer)
+                    {
+                        parametersPlayer.pause()
+                    }
+                }
                 
                 onStopClicked:
                 {
-                    console.log("Stop clicked")
-                    if ( parametersPlayer)
+                    if (parametersPlayer)
                     {
                          parametersPlayer.stop()
                     }
+
+                    parametersListModel.clearParameters()
                 }
                 
                 onPositionChanged:

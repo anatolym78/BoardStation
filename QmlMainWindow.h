@@ -14,22 +14,15 @@ public:
     QmlMainWindow(QWindow *parent = nullptr);
     ~QmlMainWindow();
 
-    // Методы для работы с приложением
     void setApp(BoardStationApp *app); 
     BoardStationApp* app() { return m_app; }
     QQmlContext* context() { return m_context; }
 
 public:
-    /// <summary>
-    /// Отправка всех параметров борту (нажание на кнопку в панели урпавления дроном)
-    /// </summary>
     void sendParametersToBoard();
     Q_INVOKABLE void changeSession(int sessionId);
-    void switchToSession(int sessionIndex);
-    void switchToLiveSession();
     Q_INVOKABLE bool saveLiveData();
 
-    void onClosing();
 private:
     BoardStationApp *m_app;
     QQmlContext *m_context;

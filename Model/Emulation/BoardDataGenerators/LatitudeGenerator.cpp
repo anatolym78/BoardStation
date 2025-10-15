@@ -3,7 +3,7 @@
 
 LatitudeGenerator::LatitudeGenerator(QObject *parent)
     : ParameterGenerator(parent)
-    , m_startLatitude(55.7558)  // Начальная широта (Москва)
+    , m_startLatitude(0)  // Начальная широта (Москва)
     , m_speed(0.0005)           // Скорость изменения (медленное движение)
 {
 }
