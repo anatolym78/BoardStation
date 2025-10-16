@@ -7,12 +7,9 @@ DriverDataPlayer::DriverDataPlayer(QObject *parent)
     , m_isInitialized(false)
 {
     m_isPlayable = false;
-    // Устанавливаем имя сессии для режима реального времени
+
     m_currentSessionName = "Live Data";
     emit currentSessionNameChanged();
-
-    // В режиме реального времени не запускаем таймер автоматически
-    // Позиция будет обновляться при получении новых параметров
 }
 
 DriverDataPlayer::~DriverDataPlayer()

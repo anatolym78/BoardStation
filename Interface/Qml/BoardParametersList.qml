@@ -19,7 +19,7 @@ Rectangle
 
     color: "#f0f0f0"
 
-    property var parametersListModel: null
+    //property var parametersListModel: null
 
     signal parameterSelected(string label, variant color)
 

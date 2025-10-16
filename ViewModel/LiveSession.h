@@ -41,6 +41,8 @@ public:
     // Получение времени начала сессии
     QDateTime getStartTime() const { return m_startTime; }
 
+	void open() override;
+
 signals:
     void sessionStarted();
     void sessionStopped();

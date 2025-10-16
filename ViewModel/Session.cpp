@@ -2,8 +2,13 @@
 #include <QDebug>
 
 Session::Session(QObject *parent)
-    : QObject(parent)
+    : QObject(parent),
+    m_parametersModel(new BoardParametersListModel(parent)),
+    m_chartsModel(new ChartViewModel(parent)),
+    m_opened(false),
+    m_player(nullptr)
 {
+
 }
 
 bool Session::operator<(const Session& other) const
@@ -16,6 +21,11 @@ bool Session::operator<(const Session& other) const
     
     // Для сессий одного типа сортируем по дате создания (убывание)
     return getCreatedAt() > other.getCreatedAt();
+}
+
+BoardParametersListModel* Session::parametersModel() const
+{
+	return m_parametersModel;
 }
 
 bool Session::operator==(const Session& other) const

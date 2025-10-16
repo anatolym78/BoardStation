@@ -20,7 +20,7 @@ public:
 
 public:
     void sendParametersToBoard();
-    Q_INVOKABLE void changeSession(int sessionId);
+    Q_INVOKABLE void changeSession();
     Q_INVOKABLE bool saveLiveData();
 
 private:

@@ -15,42 +15,24 @@
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
 	: QApplication(argc, argv)
-	, m_parametersModel(nullptr)
 	, m_driver(nullptr)
 	, m_driverAdapter(nullptr)
 	, m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
 	, m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
 {
-	// Создаем модель параметров
-	m_parametersModel = new BoardParametersListModel(this);
+	m_driver = new drv::BoardDataEmulator(this);
 
-	// Создаем модель списка сессий
 	m_sessionsListModel = new SessionsListModel(this);
 	m_sessionsListModel->setReader(m_boardMessagesReader);
-
-	m_driver = new drv::BoardDataEmulator(this);
 	
 	m_driverAdapter = new DriverAdapter(m_driver, this); 
-
-	// Создаем модель списка чартов
-	m_chatsViewModel = new ChartViewModel(this);
 			 
-	// Создаем модель uplink параметров
 	m_uplinkParametersModel = new UplinkParametersModel(this);
-
-	// Загружаем новые uplink параметры
 	loadUplinkParameters();
 
-	// Создаем модель отладки
 	m_debugViewModel = new DebugViewModel(this);
-	
 
-	m_sessionsListModel->selectSession(0);
-
-	// Подключаем сигналы
 	connectSignals(); 
-
-	connect(this, &QApplication::aboutToQuit, [this]() {close(); });
 }
 
 void BoardStationApp::connectSignals()
@@ -58,11 +40,10 @@ void BoardStationApp::connectSignals()
 	connect(m_driverAdapter, &DriverAdapter::parameterReceived,
 		liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
 
-	m_playerConnection = connect(m_sessionsListModel->currentSession()->player(), &DataPlayer::parameterPlayed,
-		m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
-  
 	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
 		m_driverAdapter, &DriverAdapter::sendParameter);
+
+	connect(this, &QApplication::aboutToQuit, this, &BoardStationApp::close);
 }
 
 void BoardStationApp::close()
@@ -75,7 +56,24 @@ void BoardStationApp::close()
 }
 
 
-DataPlayer* BoardStationApp::getDataPlayer() const
+BoardParametersListModel* BoardStationApp::parametersModel() const
+{
+	auto currentSession = m_sessionsListModel->currentSession();
+	if (currentSession == nullptr) return nullptr;
+
+	return currentSession->parametersModel();
+}
+
+
+ChartViewModel* BoardStationApp::getChartViewModel() const
+{
+	auto currentSession = m_sessionsListModel->currentSession();
+	if (currentSession == nullptr) return nullptr;
+
+	return currentSession->chartsModel();
+}
+
+DataPlayer* BoardStationApp::player() const
 {
 	auto currentSession = m_sessionsListModel->currentSession();
 	if (currentSession == nullptr) return nullptr;
@@ -170,39 +168,6 @@ bool BoardStationApp::saveLiveData()
 	liveSession->player()->resetState();
 
 	return true;
-}
-
-DataPlayer* BoardStationApp::changeSession(int sessionId)
-{
-	qInfo() << sessionId;
-
-	m_parametersModel->clearParameters();
-
-	if (!m_sessionsListModel)
-	{
-		qWarning() << "BoardStationApp: SessionsListModel or DataPlayer is not available";
-		return nullptr;
-	}
-
-	Session* session = m_sessionsListModel->currentSession();
-	if (!session)
-	{
-		qWarning() << "BoardStationApp: Session at index" << sessionId << "not found";
-		nullptr;
-	}
-
-
-	auto player = session->player();
-
-	if (m_playerConnection)
-	{
-		QObject::disconnect(m_playerConnection);
-	}
-
-	m_playerConnection = connect(player, &DataPlayer::parameterPlayed,
-		m_parametersModel, &BoardParametersListModel::onNewParameterAdded);
-
-	return player;
 }
 
 void BoardStationApp::loadUplinkParameters() const

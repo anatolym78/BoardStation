@@ -59,6 +59,19 @@ void BoardParameterHistoryStorage::clear()
     m_sessionParameters.clear();
 }
 
+bool BoardParameterHistoryStorage::containsParameter(const QString& label)
+{
+	for (BoardParameterSingle* param : m_sessionParameters)
+	{
+		if (param && param->label() == label)
+		{
+            return true;
+		}
+	}
+
+    return false;
+}
+
 QList<BoardParameterSingle*> BoardParameterHistoryStorage::getSessionParameters() const
 {
     return m_sessionParameters;

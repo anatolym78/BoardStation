@@ -46,6 +46,8 @@ public:
     // Проверка, загружены ли данные в хранилище
     bool isDataLoaded() const;
 
+	void open() override;
+
 private:
     BoardMessagesSqliteReader::SessionInfo m_sessionInfo;
     BoardParameterHistoryStorage* m_storage;

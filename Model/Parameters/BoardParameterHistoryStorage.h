@@ -28,6 +28,8 @@ public:
     
     // Очистка всех параметров
     void clear();
+
+    bool containsParameter(const QString& label);
     
     // Получение списка всех параметров сессии
     QList<BoardParameterSingle*> getSessionParameters() const;

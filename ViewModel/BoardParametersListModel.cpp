@@ -8,6 +8,29 @@ BoardParametersListModel::BoardParametersListModel(QObject* parent /*= nullptr*/
 	makeRandomColors();
 }
 
+void BoardParametersListModel::setPlayer(DataPlayer* dataPlayer)
+{
+	m_dataPlayer = dataPlayer;
+
+	if (m_playConnection)
+	{
+		QObject::disconnect(m_playConnection);
+	}
+
+	if (m_stopConnection)
+	{
+		QObject::disconnect(m_stopConnection);
+	}
+
+	clearParameters();
+
+	m_playConnection = connect(m_dataPlayer, &DataPlayer::parameterPlayed,
+		this, &BoardParametersListModel::onNewParameterAdded);
+
+	//m_stopConnection = connect(m_dataPlayer, &DataPlayer::stopped,
+	//	this, &BoardParametersListModel::clearParameters);
+}
+
 int BoardParametersListModel::rowCount(const QModelIndex& parent) const
 {
 	if (parent.isValid())
@@ -58,8 +81,8 @@ QHash<int, QByteArray> BoardParametersListModel::roleNames() const
 	rolesHash[(int)ParameterRole::ValueRole] = "value";
 	rolesHash[(int)ParameterRole::UntiRole] = "unit";
 	rolesHash[(int)ParameterRole::TimeRole] = "timestamp";
-    rolesHash[(int)ParameterRole::ChartVisibilityRole] = "chartVisibility";
-    rolesHash[(int)ParameterRole::ColorRole] = "parameterColor";
+	rolesHash[(int)ParameterRole::ChartVisibilityRole] = "chartVisibility";
+	rolesHash[(int)ParameterRole::ColorRole] = "parameterColor";
 
 	return rolesHash;
 }
@@ -71,7 +94,7 @@ int BoardParametersListModel::getCountParameters() const
 
 void BoardParametersListModel::clearParameters()
 {
-    onParametersCleared();
+	onParametersCleared();
 }
 
 void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* parameter)
@@ -99,21 +122,21 @@ void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* paramet
 void BoardParametersListModel::onParametersCleared()
 {
 	beginResetModel();
-    m_chartVisibilities.clear();
+	m_chartVisibilities.clear();
 	m_values.clear();
 	endResetModel();
 }
 
 bool BoardParametersListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(!index.isValid()) return false;
+	if(!index.isValid()) return false;
 
-    if(role == (int)ParameterRole::ChartVisibilityRole)
-    {
-        m_chartVisibilities[index.row()] = value.toBool();
-    }
+	if(role == (int)ParameterRole::ChartVisibilityRole)
+	{
+		m_chartVisibilities[index.row()] = value.toBool();
+	}
 
-    return false;
+	return false;
 }
 
 void BoardParametersListModel::makeRandomColors()

@@ -74,8 +74,9 @@ Rectangle
             {
                 id: chartView
                 property int chartIndex: index
-                width: Math.max(300, Math.min(400, chartsFlow.width / 3))
-                height: 240
+                width: 600
+                //width: Math.max(300, Math.min(400, chartsFlow.width / 3))
+                height: 480
                 backgroundColor: "white"
                 z: depth
                 theme: ChartView.ChartThemeLight

@@ -21,7 +21,8 @@ public:
     void setStorage(BoardParameterHistoryStorage* storage) override;
     void setReader(BoardMessagesSqliteReader* reader);
     void resetState() override {}
-    
+	void initialPlay() override;
+
     // Метод для инициализации плеера с уже загруженными данными
     void initializeWithLoadedData();
 

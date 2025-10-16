@@ -105,7 +105,7 @@ private:
     bool m_recording = false;
     QList<Session*> m_sessions;
 
-    int m_selectedIndex = -1;
+    int m_selectedIndex = 0;
     
     // Фабрики для создания сессий
     RecordedSessionsFactory *m_recordedSessionsFactory;

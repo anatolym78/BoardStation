@@ -36,7 +36,7 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 	{       
 		if (context())
 		{
-			context()->setContextProperty(QString("parametersListModel"), app()->getParametersModel());
+			context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
 		
 			context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
 
@@ -44,9 +44,11 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 
 			context()->setContextProperty("sessionsListModel", app()->getSessionsListModel());
 
-			context()->setContextProperty("parametersPlayer", app()->getDataPlayer());
+			context()->setContextProperty("parametersPlayer", app()->player());
 
 			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());
+			
+			context()->setContextProperty("chartViewModel", app()->getChartViewModel());
 		}
 		
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));
@@ -67,13 +69,13 @@ void QmlMainWindow::sendParametersToBoard()
 	}
 }
 
-void QmlMainWindow::changeSession(int sessionId)
+void QmlMainWindow::changeSession()
 {
 	if (app())
 	{
-		auto player = app()->changeSession(sessionId);
-
-		context()->setContextProperty("parametersPlayer", player);
+		context()->setContextProperty(QString("parametersPlayer"), app()->player());
+		context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
+		context()->setContextProperty(QString("chartViewModel"), app()->getChartViewModel());
 	}
 }
 

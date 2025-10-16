@@ -13,7 +13,6 @@ Item
       
     Component.onCompleted:
     {
-        boardParametersList.parametersListModel = parametersListModel
         droneControlPanel.uplinkParametersModel = uplinkParametersModel
         sessionsPanel.sessionsModel = sessionsListModel
     }
@@ -171,8 +170,6 @@ Item
                     {
                          parametersPlayer.stop()
                     }
-
-                    parametersListModel.clearParameters()
                 }
                 
                 onPositionChanged:
@@ -181,24 +178,13 @@ Item
                     {
                         // Конвертируем секунды в QDateTime
                         var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
-                         parametersPlayer.setPosition(newPosition)
+                        parametersPlayer.setPosition(newPosition)
                     }
                 }
             }
         }
-
  }
 
-    
-    // Альтернативные привязки с использованием Binding (если нужно)
-    Binding
-    {
-        target: boardParametersList
-        property: "parametersListModel"
-        value: boardParametersList
-        when: boardParametersList !== null
-    }
-    
     Binding
     {
         target: droneControlPanel

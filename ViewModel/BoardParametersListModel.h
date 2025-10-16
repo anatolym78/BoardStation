@@ -6,6 +6,8 @@
 
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
 
+#include "./DataPlayer.h"
+
 class BoardParametersListModel : public QAbstractListModel
 {
     Q_OBJECT
@@ -22,6 +24,8 @@ public:
 	};
 public:
 	explicit BoardParametersListModel(QObject* parent = nullptr);
+
+	void setPlayer(DataPlayer* dataPlayer);
 
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
@@ -40,6 +44,10 @@ private:
     QMap<QString, BoardParameterSingle*> m_values;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;
+
+	DataPlayer* m_dataPlayer = nullptr;
+	QMetaObject::Connection m_playConnection;
+	QMetaObject::Connection m_stopConnection;
 
 public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;

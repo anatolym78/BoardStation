@@ -25,6 +25,7 @@ public:
     
     // Метод для сброса состояния плеера
     void resetState() override;
+    void initialPlay() override {}
 
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);

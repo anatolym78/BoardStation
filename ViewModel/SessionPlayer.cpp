@@ -9,6 +9,10 @@ SessionPlayer::SessionPlayer(QObject *parent)
     , m_lastPlayedIndex(-1)
     , m_lastPlayedPosition(QDateTime())
 {
+	connect(this, &DataPlayer::stopped, this, [this]()
+		{
+			initialPlay();
+		});
 }
 
 SessionPlayer::~SessionPlayer()
@@ -86,6 +90,11 @@ void SessionPlayer::onSessionDataLoaded(int sessionId)
     
     emit sessionEndTimeChanged();
     emit sessionDurationChanged();
+}
+
+void SessionPlayer::initialPlay()
+{
+    playParametersInTimeRange(m_sessionStartTime, m_sessionStartTime.addMSecs(1));
 }
 
 void SessionPlayer::initializeWithLoadedData()

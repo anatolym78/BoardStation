@@ -44,6 +44,9 @@ public:
     virtual void setStorage(BoardParameterHistoryStorage* storage);
 
 	virtual void resetState() = 0;
+    virtual void initialPlay() = 0;
+
+    BoardParameterHistoryStorage* storage() const { return m_storage; }
 
 public slots:
     virtual void onParameterReceived(BoardParameterSingle* parameter);
@@ -58,6 +61,7 @@ signals:
     void elapsedTimeChanged();
     void playbackFinished();
     void parameterPlayed(BoardParameterSingle* parameter);
+    void stopped();
 
 protected:
     virtual void startPlayback();

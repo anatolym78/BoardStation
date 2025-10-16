@@ -112,7 +112,7 @@ Rectangle
 
                         if(qmlMainWindow)
                         {
-                            qmlMainWindow.changeSession(sessionsList.currentIndex)
+                            qmlMainWindow.changeSession()
                         }
                     }
                     
