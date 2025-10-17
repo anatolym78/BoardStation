@@ -23,6 +23,7 @@ public:
 	{
 		ChartRole = Qt::UserRole + 1,
 		ChartLabelRole,
+		LabelsRole,
 		ChartIndexRole,
 		HasDataRole,
 		DepthRole,
@@ -86,7 +87,7 @@ private:
 	QMetaObject::Connection m_playConnection;
 	QMetaObject::Connection m_stopConnection;
 	QList<QtCharts::QChart*> m_charts;
-	QList<QList<QString>> m_series;
+	QList<QStringList> m_series;
 	QList<int> m_depths;
 
 	// Вспомогательные методы

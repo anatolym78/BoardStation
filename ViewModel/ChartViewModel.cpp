@@ -73,6 +73,10 @@ QVariant ChartViewModel::data(const QModelIndex &index, int role) const
 	{
 		return m_depths[index.row()];
 	}
+	if (role == LabelsRole)
+	{
+		return m_series[index.row()];// QVariant::fromValue(m_series[index.row()]);
+	}
 	return m_series[index.row()].last();
 }
 
@@ -506,6 +510,7 @@ QHash<int, QByteArray> ChartViewModel::roleNames() const
 	QHash<int, QByteArray> roles;
 	roles[ChartRole] = "chart";
 	roles[ChartLabelRole] = "chartLabel";
+	roles[LabelsRole] = "labels";
 	roles[ChartIndexRole] = "chartIndex";
 	roles[HasDataRole] = "hasData";
 	roles[DepthRole] = "depth";

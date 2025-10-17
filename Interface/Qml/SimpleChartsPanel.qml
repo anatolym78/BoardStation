@@ -15,6 +15,8 @@ Rectangle
         {
             if(!chartViewModel.toggleParameter(label, color))
             {
+                return
+
                 for (let i = 0; i < repeater.count; i++)
                 {
                     const chartView = repeater.itemAt(i);
@@ -82,24 +84,23 @@ Rectangle
                 theme: ChartView.ChartThemeLight
                 
                 // Простая настройка осей
-                ValueAxis
+                DateTimeAxis
                 {
-                    id: xAxis
-                    min: 0
-                    max: 30
+                    id: timeAxis
+                    format: "hh:mm:ss"
                     tickCount: 3
                 }
 
                 ValueAxis
                 {
-                    id: yAxis
+                    id: valueAxis
                     min: -600
                     max: 600
                     tickCount: 3
                     visible: true
                 }
 
-                axes: [xAxis, yAxis]
+                axes: [timeAxis, valueAxis]
                 antialiasing: true
                 
                 // Карта для хранения серий по меткам параметров
@@ -117,48 +118,87 @@ Rectangle
                 
                 Connections
                 {
-                    target: chartViewModel
-                    
-                    function onNewParameterValueAdded(label, value, time)
-                    {
-                        if(label in seriesMap)
-                        {
-                            var series = seriesMap[label]
+                    target: parametersPlayer
 
-                            series.append(time, value)
+                    function onParameterPlayed(parameter)
+                    {
+                        var parameterLabel = parameter.label
+                        if(labels.indexOf(parameterLabel) < 0) return
+
+                        var parameterValue = parameter.value
+                        var parameterDate = new Date(parameter.timestamp)
+
+                        if(parameterLabel in seriesMap)
+                        {
+                            var series = seriesMap[parameterLabel];
+                            series.append(parameterDate.getTime(), parameterValue)
+
+                            var dt = timeAxis.max - timeAxis.min
+                            if(parameterDate > timeAxis.max)
+                            {
+                                axes[0].min = new Date(series.at(1).x)
+                                axes[0].max = new Date(axes[0].min.getTime() + 60*1000)
+                                series.remove(0)
+                            }
+                        }
+                        else
+                        {
+                            seriesMap[parameterLabel] = createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
 
                             if(!isStarted)
                             {
-                                axes[0].min = time
-                                axes[0].max = time + 30
+                                timeAxis.min = new Date(parameterDate.getTime());
+                                timeAxis.max = new Date(parameterDate.getTime() + 60*1000);
                             }
                             else
                             {
-                                if(time - axes[0].min > 30)
-                                {
-                                    // console.log(series.at(1).x)
-                                    // console.log(axes[0].min)
-                                    // console.log(axes[0].max)
-
-                                    axes[0].min = series.at(1).x
-                                    axes[0].max = axes[0].min + 30
-                                    series.remove(0)
-                                }
                             }
 
                             isStarted = true
                         }
                     }
-
-                    function onParameterAdded(label, color)
-                    {
-                        if(label !== chartLabel) return
-
-                        var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
-                        series.color = color
-                        seriesMap[label] = series
-                    }
                 }
+
+                // Connections
+                // {
+                //     target: chartViewModel
+                    
+                //     function onNewParameterValueAdded(label, value, time)
+                //     {
+                //         if(label in seriesMap)
+                //         {
+                //             var series = seriesMap[label]
+
+                //             series.append(time, value)
+
+                //             if(!isStarted)
+                //             {
+                //                 axes[0].min = time
+                //                 axes[0].max = time + 30
+                //             }
+                //             else
+                //             {
+                //                 if(time - axes[0].min > 30)
+                //                 {
+                //                     axes[0].min = series.at(1).x
+                //                     axes[0].max = axes[0].min + 30
+                //                     series.remove(0)
+                //                 }
+                //             }
+
+                //             isStarted = true
+                //         }
+                //     }
+
+                //     function onParameterAdded(label, color)
+                //     {
+                //         if(label !== chartLabel) return
+
+                //         var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
+                //         series.color = color
+                //         seriesMap[label] = series
+                //     }
+                // }
 
                 MouseArea
                 {
