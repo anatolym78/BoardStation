@@ -88,6 +88,8 @@ Rectangle
                 {
                     id: timeAxis
                     format: "hh:mm:ss"
+                    min: new Date(0)
+                    max: new Date(0)
                     tickCount: 3
                 }
 
@@ -115,7 +117,81 @@ Rectangle
 
                 property int timeX: 0
                 property bool isStarted: false
-                
+
+                function firstOf(series)
+                {
+                    return series.count > 0 ? series.at(0) : null
+                }
+
+                function lastOf(series)
+                {
+                    return series.count > 0 ? series.at(series.count - 1) : null
+                }
+
+                function initializeAxes(parameter, timeAxis, valueAxis)
+                {
+                    var parameterValue = parameter.value
+                    var parameterDate = new Date(parameter.timestamp)
+
+                    timeAxis.min = new Date(parameterDate.getTime());
+                    timeAxis.max = new Date(parameterDate.getTime() + 60*1000)
+
+                    valueAxis.min = parameterValue - 1
+                    valueAxis.max = parameterValue + 1
+                }
+
+                function fitAxes(parameter, timeAxis, valueAxis, series)
+                {
+                    // корректируем если более одной точки
+                    var countPoints = series.count
+                    if(countPoints < 2) return
+
+                    var parameterValue = parameter.value
+                    var parameterDate = new Date(parameter.timestamp)
+                    var parameterTime = parameterDate.getTime()
+
+                    // корректируем ось значений (сейчас логика такова, что диапазон может только расти, но не может сужаться)
+                    var valueMin = valueAxis.min
+                    var valueMax = valueAxis.max
+
+                    if(valueMax < parameterValue)
+                    {
+                        valueAxis.max = parameterValue + 1
+                    }
+
+                    if(valueMin > parameterValue)
+                    {
+                        valueAxis.min = parameterValue - 1
+                    }
+
+                    // корректируем временную шкалу
+                    var timeMin = timeAxis.min
+                    var timeMax = timeAxis.max
+                    var timeRange = timeMax - timeMin
+
+                    if(parameterDate > timeMax)
+                    {
+                        timeAxis.max = parameterDate
+                        timeAxis.min = new Date(parameterTime - timeRange)
+                    }
+
+                    if(parameterDate < timeMin)
+                    {
+                        timeAxis.min = parameterDate
+                        timeAxis.max = new Date(parameterTime + timeRange)
+                    }
+                }
+
+                function isChartHasLabel(chartLabels, label)
+                {
+                    return chartLabels.indexOf(label) >= 0
+                }
+
+                function seriesCreated(seriesMap, label)
+                {
+                    return label in seriesMap
+                }
+
                 Connections
                 {
                     target: parametersPlayer
@@ -123,82 +199,39 @@ Rectangle
                     function onParameterPlayed(parameter)
                     {
                         var parameterLabel = parameter.label
+
                         if(labels.indexOf(parameterLabel) < 0) return
 
                         var parameterValue = parameter.value
                         var parameterDate = new Date(parameter.timestamp)
+                        var parameterTimeMsec = parameterDate.getTime()
 
-                        if(parameterLabel in seriesMap)
+                        if(!(parameterLabel in seriesMap))
                         {
-                            var series = seriesMap[parameterLabel];
-                            series.append(parameterDate.getTime(), parameterValue)
+                            initializeAxes(parameter, timeAxis, valueAxis)
 
-                            var dt = timeAxis.max - timeAxis.min
-                            if(parameterDate > timeAxis.max)
-                            {
-                                axes[0].min = new Date(series.at(1).x)
-                                axes[0].max = new Date(axes[0].min.getTime() + 60*1000)
-                                series.remove(0)
-                            }
-                        }
-                        else
-                        {
                             seriesMap[parameterLabel] = createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
-
-                            if(!isStarted)
-                            {
-                                timeAxis.min = new Date(parameterDate.getTime());
-                                timeAxis.max = new Date(parameterDate.getTime() + 60*1000);
-                            }
-                            else
-                            {
-                            }
-
-                            isStarted = true
                         }
+
+                        seriesMap[parameterLabel].append(parameterTimeMsec, parameterValue)
+
+                        fitAxes(parameter, timeAxis, valueAxis, seriesMap[parameterLabel])
                     }
                 }
 
-                // Connections
-                // {
-                //     target: chartViewModel
-                    
-                //     function onNewParameterValueAdded(label, value, time)
-                //     {
-                //         if(label in seriesMap)
-                //         {
-                //             var series = seriesMap[label]
 
-                //             series.append(time, value)
 
-                //             if(!isStarted)
-                //             {
-                //                 axes[0].min = time
-                //                 axes[0].max = time + 30
-                //             }
-                //             else
-                //             {
-                //                 if(time - axes[0].min > 30)
-                //                 {
-                //                     axes[0].min = series.at(1).x
-                //                     axes[0].max = axes[0].min + 30
-                //                     series.remove(0)
-                //                 }
-                //             }
+                function addValue(value, dateTime, label)
+                {
+                    if(!(label in seriesMap))
+                    {
+                        seriesMap[parameterLabel] = createSeries(ChartView.SeriesTypeLine, label, timeAxis, valueAxis)
+                    }
 
-                //             isStarted = true
-                //         }
-                //     }
+                    var series = seriesMap[parameterLabel]
 
-                //     function onParameterAdded(label, color)
-                //     {
-                //         if(label !== chartLabel) return
 
-                //         var series = createSeries(ChartView.SeriesTypeLine, chartLabel, xAxis, yAxis)
-                //         series.color = color
-                //         seriesMap[label] = series
-                //     }
-                // }
+                }
 
                 MouseArea
                 {
