@@ -98,6 +98,88 @@ Rectangle
         }
     }
 
+    function insertBackPlayedPoint(parameterTimeMsec, parameterValue, timeAxis, series)
+    {
+        var timeMin = timeAxis.min
+        var timeMax = timeAxis.max
+
+        var firstPoint = series.at(0)
+        var firstPointTime = firstPoint.x
+        if(parameterTimeMsec < firstPointTime)
+        {
+            series.insert(0, parameterTimeMsec, parameterValue)
+        }
+
+        var lastPoint = series.at(series.count - 1)
+        if(lastPoint.x > timeMax)
+        {
+            series.remove(series.count - 1)
+        }
+    }
+
+    function insertForwardPlayedPoint(parameterTimeMsec, parameterValue, timeAxis, series)
+    {
+        if(series.count < 1)
+        {
+            series.append(parameterTimeMsec, parameterValue)
+
+            return
+        }
+
+        var timeMin = timeAxis.min.getTime()
+        var timeMax = timeAxis.max.getTime()
+
+        var lastPoint = series.at(series.count - 1)
+        var lastPointTime = lastPoint.x
+        if(parameterTimeMsec > lastPointTime)
+        {
+            series.append(parameterTimeMsec, parameterValue)
+        }
+
+        while (series.count > 0 && series.at(0).x < timeMin)
+        {
+            series.remove(0)
+        }
+    }
+
+    function removeLeftPoints(series, timeAxis)
+    {
+        var timeMin = timeAxis.min.getTime()
+        var timeMax = timeAxis.max.getTime()
+
+        while (series.count > 0 && series.at(0).x < timeMin)
+        {
+            series.remove(0)
+        }
+    }
+    function fitTimeAxes(parameter, timeAxis, valueAxis, series)
+    {
+        // корректируем если более одной точки
+        var countPoints = series.count
+        if(countPoints < 2) return
+
+        var parameterValue = parameter.value
+        var parameterDate = new Date(parameter.timestamp)
+        var parameterTime = parameterDate.getTime()
+
+        // корректируем временную шкалу
+        var timeMin = timeAxis.min
+        var timeMax = timeAxis.max
+        var timeRange = timeMax - timeMin
+    }
+
+    function canAddPoint(series, timeAxis, pointTime)
+    {
+        return true
+        var timeMin = timeAxis.min.getTime()
+        var timeMax = timeAxis.max.getTime()
+
+        var countPoints = series.count
+        if(countPoints < 1) return
+
+        return pointTime > timeMax || pointTime < timeMin
+    }
+
     function chartHasLabel(chartLabels, label)
     {
         return chartLabels.indexOf(label) >= 0
@@ -184,6 +266,7 @@ Rectangle
 
                         axes: [timeAxis, valueAxis]
                         antialiasing: true
+                        animationOptions: ChartView.NoAnimation
 
                         // Создаем серии при инициализации
                         Component.onCompleted:
@@ -197,9 +280,7 @@ Rectangle
 
                             function onParameterPlayed(parameter)
                             {
-
                                 var parameterLabel = parameter.label
-                                console.log(labels)
 
                                 if(!chartHasLabel(labels, parameterLabel)) return
 
@@ -207,19 +288,39 @@ Rectangle
                                 var parameterDate = new Date(parameter.timestamp)
                                 var parameterTimeMsec = parameterDate.getTime()
 
-                                updateTimeMarker(parameterTimeMsec)
-
-
                                 if(!seriesCreated(seriesMap, parameterLabel))
                                 {
                                     initializeAxes(parameter, timeAxis, valueAxis)
 
                                     seriesMap[parameterLabel] = chartView.createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
+                                    seriesMap[parameterLabel].useOpenGL = true
                                 }
 
-                                seriesMap[parameterLabel].append(parameterTimeMsec, parameterValue)
+                                fitAxes(parameter, timeAxis, valueAxis, seriesMap[parameterLabel])
+
+                                insertForwardPlayedPoint(parameterTimeMsec, parameterValue, timeAxis, seriesMap[parameterLabel])
+
+                                updateTimeMarker(parameterTimeMsec)
+                            }
+
+                            function onParameterBackPlayed(parameter)
+                            {
+                                var parameterLabel = parameter.label
+
+                                if(!chartHasLabel(labels, parameterLabel)) return
+
+                                var parameterValue = parameter.value
+                                var parameterDate = new Date(parameter.timestamp)
+                                var parameterTimeMsec = parameterDate.getTime()
+
+                                if(!seriesCreated(seriesMap, parameterLabel)) return
 
                                 fitAxes(parameter, timeAxis, valueAxis, seriesMap[parameterLabel])
+
+                                //
+                                insertBackPlayedPoint(parameterTimeMsec, parameterValue, timeAxis, seriesMap[parameterLabel])
+
+                                updateTimeMarker(parameterTimeMsec)
                             }
                         }
 
@@ -375,12 +476,12 @@ Rectangle
                     {
                         id: timeMarker
                         width: 2
-                        opacity: 0.75
+                        opacity: 0.5
                         z: 100
                         x: 0
                         y: 20
                         height: chartView.height - 40
-                        color: "dimgray"
+                        color: "gray"
                     }
 
                     function updateTimeMarker(timeMs)

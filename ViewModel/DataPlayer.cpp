@@ -121,7 +121,14 @@ void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDa
 	{
 		if (param)
 		{
-			emit parameterPlayed(param);
+			if (isReverse)
+			{
+				emit parameterBackPlayed(param);
+			}
+			else
+			{
+				emit parameterPlayed(param);
+			}
 		}
 	}
 }

@@ -48,7 +48,7 @@ Rectangle
             text: isPlaying ? qsTr("Pause") : qsTr("Play")
             font.pixelSize: 14
 
-            visible: parametersPlayer ? parametersPlayer.isPlayable() : false
+            visible: true // parametersPlayer ? parametersPlayer.isPlayable() : false
 
             background: Rectangle 
             {

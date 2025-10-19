@@ -61,6 +61,7 @@ signals:
     void elapsedTimeChanged();
     void playbackFinished();
     void parameterPlayed(BoardParameterSingle* parameter);
+	void parameterBackPlayed(BoardParameterSingle* parameter);
     void stopped();
 
 protected:
