@@ -75,6 +75,8 @@ public:
     // Методы для переключения между сессиями
     Q_INVOKABLE void switchToSession(int sessionIndex);
     Q_INVOKABLE void switchToLiveSession();
+
+    Q_INVOKABLE void resetLiveSession();
     
     // Получение текущей активной сессии
     Session* getCurrentActiveSession() const { return m_currentActiveSession; }

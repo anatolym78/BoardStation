@@ -58,6 +58,8 @@ int ChartViewModel::rowCount(const QModelIndex &parent) const
 	if (parent.isValid())
 		return 0;
 
+    auto count = m_series.count();
+
 	return m_series.count();
 }
 

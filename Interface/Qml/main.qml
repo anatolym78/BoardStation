@@ -51,12 +51,13 @@ Item
                     {
                         id: boardParametersList
                         Layout.fillWidth: true
-                         Layout.fillHeight: true
+                        Layout.fillHeight: true
                         Layout.preferredHeight: 3
 
                         onParameterSelected:
                         {
-                            simpleChartsPanel.toggleParameter(label, color)
+                            //simpleChartsPanel.toggleParameter(label, color)
+                            chartsView.toggleParameter(label, color)
                         }
                     }
 
@@ -103,12 +104,20 @@ Item
                         //border.color: "gainsboro"
                         radius: 4
 
-                        SimpleChartsPanel
+                        ChartsView
                         {
-                             id: simpleChartsPanel
-                             anchors.fill: parent
-                             anchors.margins: 5
+                            id: chartsView
+                            anchors.fill: parent
+                            anchors.margins: 5
+
                         }
+
+                        // SimpleChartsPanel
+                        // {
+                        //      id: simpleChartsPanel
+                        //      anchors.fill: parent
+                        //      anchors.margins: 5
+                        // }
                     }
 
                     // // Панель с отладкой/логами
@@ -176,14 +185,13 @@ Item
                 {
                     if ( parametersPlayer)
                     {
-                        // Конвертируем секунды в QDateTime
                         var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
                         parametersPlayer.setPosition(newPosition)
                     }
                 }
             }
         }
- }
+    }
 
     Binding
     {

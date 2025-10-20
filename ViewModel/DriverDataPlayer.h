@@ -27,6 +27,9 @@ public:
     void resetState() override;
     void initialPlay() override {}
 
+	Q_INVOKABLE void moveToBegin() override;
+    Q_INVOKABLE virtual void reset();
+
 private slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);
 

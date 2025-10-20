@@ -22,6 +22,7 @@ public:
     void setReader(BoardMessagesSqliteReader* reader);
     void resetState() override {}
 	void initialPlay() override;
+	Q_INVOKABLE void moveToBegin() override;
 
     // Метод для инициализации плеера с уже загруженными данными
     void initializeWithLoadedData();

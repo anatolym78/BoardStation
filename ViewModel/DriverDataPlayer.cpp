@@ -118,6 +118,16 @@ void DriverDataPlayer::resetState()
     qDebug() << "DriverDataPlayer: State reset - ready for new live session";
 }
 
+void DriverDataPlayer::moveToBegin()
+{
+
+}
+
+void DriverDataPlayer::reset()
+{
+    m_isInitialized = false;
+}
+
 void DriverDataPlayer::updatePlaybackPosition()
 {
     // В режиме реального времени обновляем позицию на текущее время

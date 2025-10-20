@@ -94,6 +94,11 @@ void DataPlayer::setPosition(QDateTime position)
 	emit elapsedTimeChanged();
 }
 
+void DataPlayer::moveToBegin()
+{
+	setPosition(m_sessionStartTime);
+}
+
 void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime)
 {
 	if (!m_storage)

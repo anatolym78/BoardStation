@@ -8,6 +8,7 @@ Rectangle
     id: simpleChartsPanel
     color: "transparent"
     radius: 4
+    clip: true
     
     function toggleParameter(label, color)
     {
@@ -142,50 +143,12 @@ Rectangle
         }
     }
 
-    function removeLeftPoints(series, timeAxis)
-    {
-        var timeMin = timeAxis.min.getTime()
-        var timeMax = timeAxis.max.getTime()
-
-        while (series.count > 0 && series.at(0).x < timeMin)
-        {
-            series.remove(0)
-        }
-    }
-    function fitTimeAxes(parameter, timeAxis, valueAxis, series)
-    {
-        // корректируем если более одной точки
-        var countPoints = series.count
-        if(countPoints < 2) return
-
-        var parameterValue = parameter.value
-        var parameterDate = new Date(parameter.timestamp)
-        var parameterTime = parameterDate.getTime()
-
-        // корректируем временную шкалу
-        var timeMin = timeAxis.min
-        var timeMax = timeAxis.max
-        var timeRange = timeMax - timeMin
-    }
-
-    function canAddPoint(series, timeAxis, pointTime)
-    {
-        return true
-        var timeMin = timeAxis.min.getTime()
-        var timeMax = timeAxis.max.getTime()
-
-        var countPoints = series.count
-        if(countPoints < 1) return
-
-        return pointTime > timeMax || pointTime < timeMin
-    }
-
     function chartHasLabel(chartLabels, label)
     {
         return chartLabels.indexOf(label) >= 0
     }
 
-    function seriesCreated(seriesMap, label)
+    function isSeriesCreated(seriesMap, label)
     {
         return label in seriesMap
     }
@@ -288,7 +251,7 @@ Rectangle
                                 var parameterDate = new Date(parameter.timestamp)
                                 var parameterTimeMsec = parameterDate.getTime()
 
-                                if(!seriesCreated(seriesMap, parameterLabel))
+                                if(!isSeriesCreated(seriesMap, parameterLabel))
                                 {
                                     initializeAxes(parameter, timeAxis, valueAxis)
 
@@ -313,7 +276,7 @@ Rectangle
                                 var parameterDate = new Date(parameter.timestamp)
                                 var parameterTimeMsec = parameterDate.getTime()
 
-                                if(!seriesCreated(seriesMap, parameterLabel)) return
+                                if(!isSeriesCreated(seriesMap, parameterLabel)) return
 
                                 fitAxes(parameter, timeAxis, valueAxis, seriesMap[parameterLabel])
 
@@ -332,9 +295,6 @@ Rectangle
                             {
                                 if(mouse.button == Qt.RightButton)
                                 {
-                                    //chartViewModel.splitSeries(chartIndex)
-
-                                    //splitSeries(seriesMap)
                                 }
                             }
                             onWheel:
@@ -348,19 +308,6 @@ Rectangle
                                     zoom(0.9)
                                 }
 
-                            }
-                        }
-
-                        function splitSeries(map)
-                        {
-                            for(var key in map)
-                            {
-                                 if(map.hasOwnProperty(key))
-                                 {
-                                     console.log(map[key])
-
-
-                                 }
                             }
                         }
 

@@ -554,6 +554,15 @@ void SessionsListModel::switchToLiveSession()
 	emit sessionSwitched(m_liveSession);
 }
 
+Q_INVOKABLE void SessionsListModel::resetLiveSession()
+{
+	if (liveSession() == nullptr) return;
+
+	liveSession()->getStorage()->clear();
+
+    liveSession()->player()->reset();
+}
+
 void SessionsListModel::selectSession(int sessionIndex)
 {
 	if (sessionIndex < 0 || sessionIndex >= m_sessions.size())

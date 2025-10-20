@@ -221,11 +221,11 @@ Rectangle
                                     }
                                     onClicked:
                                     {
-                                        // Сбрасываем плеер живой сессии
-                                        if(parametersPlayer)
+                                        if(sessionsListModel)
                                         {
-                                            parametersPlayer.resetState()
+                                            sessionsListModel.resetLiveSession()
                                         }
+
                                     }
                                 }
                             }

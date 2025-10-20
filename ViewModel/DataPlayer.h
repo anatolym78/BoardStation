@@ -38,6 +38,14 @@ public:
     Q_INVOKABLE virtual void stop();
     Q_INVOKABLE virtual void pause();
     Q_INVOKABLE virtual void setPosition(QDateTime position);
+    Q_INVOKABLE virtual void moveToBegin();
+    // Виртуальная функция, но имеет смысл только для плеера живых данных
+    // Начинает проигрывает от текущего положения курсора
+    Q_INVOKABLE virtual void reset()
+    {
+
+    }
+
     Q_INVOKABLE bool isPlayable() { return m_isPlayable; }
     
     // Методы для работы с хранилищем

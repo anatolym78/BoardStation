@@ -8,5 +8,6 @@
         <file>Interface/Qml/SessionPlayerPanel.qml</file>
         <file>Interface/Qml/Colors.qml</file>
         <file>Interface/Qml/DebugLogsView.qml</file>
+        <file>Interface/Qml/ChartsView.qml</file>
     </qresource>
 </RCC>
