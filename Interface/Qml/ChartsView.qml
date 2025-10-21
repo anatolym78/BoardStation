@@ -10,24 +10,72 @@ Rectangle
     radius: 4
     clip: true
 
-    ListView
+    ColumnLayout
     {
-        model: chartViewModel
-        id: repeater
-        orientation: ListView.Vertical
         anchors.fill: parent
-        spacing: 10
-
-        Component.onCompleted:
+        spacing: 40
+        TextEdit
         {
-            console.log(chartViewModel)
+            text: "Charts"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: 0
+            font.pointSize: 13
+            font.bold: true
         }
 
-        delegate: Rectangle
+        TableView
         {
-            //width: 45
-            height: 45
-            color: "red"
+            model: chartViewModel
+            id: repeater
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            columnSpacing: 20
+            rowSpacing: 20
+
+            columnWidthProvider: function() { return repeater.width/2 - 40 }
+            rowHeightProvider: function() { return 300 }
+
+            Component.onCompleted:
+            {
+                console.log(chartViewModel)
+            }
+
+            delegate: Rectangle
+            {
+                color: "red"
+                visible: exists
+                TextEdit
+                {
+                    text: label
+                }
+            }
+        }
+    }
+
+
+    function toggleParameter(label, color)
+    {
+        if(chartViewModel)
+        {
+            if(!chartViewModel.toggleParameter(label, color))
+            {
+                return
+
+                for (let i = 0; i < repeater.count; i++)
+                {
+                    const chartView = repeater.itemAt(i);
+
+                    if(chartView.seriesMap.hasOwnProperty(label))
+                    {
+                        var series = chartView.seriesMap[label]
+
+                        chartView.removeSeries(series)
+
+                        delete chartView.seriesMap.label
+                    }
+                }
+            }
         }
     }
 }

@@ -7,19 +7,13 @@
 #include <QtCharts/QChartView>
 #include <QDateTime>
 
-ChartViewModel::ChartViewModel(QObject *parent)
-	: QAbstractListModel(parent)
+ChartViewModel::ChartViewModel(QObject *parent) : QAbstractTableModel(parent)
 {
 }
 
 void ChartViewModel::setPlayer(DataPlayer* dataPlayer)
 {
 	m_dataPlayer = dataPlayer;
-
-	if (m_playConnection)
-	{
-		QObject::disconnect(m_playConnection);
-	}
 
 	if (m_stopConnection)
 	{
@@ -28,58 +22,85 @@ void ChartViewModel::setPlayer(DataPlayer* dataPlayer)
 
 	clearCharts();
 
-	m_playConnection = connect(m_dataPlayer, &DataPlayer::parameterPlayed,
-		this, &ChartViewModel::onNewParameterAdded);
-
 	m_stopConnection = connect(m_dataPlayer, &DataPlayer::stopped,
 		this, &ChartViewModel::clearCharts);
 }
 
-void ChartViewModel::onNewParameterAdded(BoardParameterSingle* parameter)
-{
-	auto label = parameter->label();
-	
-	if (label.isEmpty())
-	{
-		return;
-	}
-
-	if(!hasSeries(label)) return;
-
-	auto timeValue = (qreal)parameter->timestamp().toMSecsSinceEpoch() / 1000.0;
-	auto time = parameter->timestamp();
-	auto dataValue = parameter->value().toDouble();
-
-	emit newParameterValueAdded(label, dataValue, timeValue);
-}
 
 int ChartViewModel::rowCount(const QModelIndex &parent) const
 {
-	if (parent.isValid())
-		return 0;
+	if (parent.isValid()) return 0;
 
-    auto count = m_series.count();
+	auto countSeries = m_series.count();
 
-	return m_series.count();
+	if (countSeries == 0) return 0;
+
+	if (countSeries % m_columnCount == 0)
+	{
+		return countSeries / m_columnCount;
+	}
+	else
+	{
+		return countSeries / m_columnCount + 1;
+	}
+}
+
+int ChartViewModel::columnCount(const QModelIndex& parent /* = QModelIndex() */) const
+{
+	return m_columnCount;
+}
+
+int ChartViewModel::cellToIndex(int cellRow, int cellCol) const
+{
+	return cellRow * columnCount(QModelIndex()) + cellCol;
+}
+
+int ChartViewModel::cellToIndex(const QModelIndex& modelIndex) const
+{
+	return cellToIndex(modelIndex.row(), modelIndex.column());
+}
+
+QModelIndex ChartViewModel::indexToCell(int index) const
+{
+	auto column = index % columnCount(QModelIndex());
+	auto row = index / columnCount(QModelIndex());
+
+	return this->createIndex(row, column);
 }
 
 QVariant ChartViewModel::data(const QModelIndex &index, int role) const
 {
-	if(!index.isValid()) return {};
+	if(!index.isValid())
+		return {};
 
-	if(index.row() >= m_series.count()) return {};
+	auto cellIndex = cellToIndex(index);
+	if (role == IsExists)
+	{
+		return cellIndex < m_series.count();
+	}
 
-	if(m_series.isEmpty()) return {};
+	if(cellIndex >= m_series.count()) 
+		return {};
+
+	if(m_series.isEmpty()) 
+		return {};
 
 	if(role == DepthRole)
 	{
-		return m_depths[index.row()];
+		return m_depths[cellIndex];
 	}
 	if (role == LabelsRole)
 	{
-		return m_series[index.row()];// QVariant::fromValue(m_series[index.row()]);
+		return m_series[cellIndex];
 	}
-	return m_series[index.row()].last();
+
+	if (role == LabelRole)
+	{
+		return m_series[cellIndex].last();
+	}
+	if(role == LabelsRole)
+
+	return m_series[cellIndex].last();
 }
 
 bool ChartViewModel::toggleParameter(const QString &label, const QColor &color)
@@ -100,7 +121,6 @@ bool ChartViewModel::toggleParameter(const QString &label, const QColor &color)
 
 void ChartViewModel::addChart(const QString &label, const QColor& color)
 {
-
 	// Проверяем, существует ли параметр в истории
 	if (!parameterExistsInHistory(label))
 	{
@@ -114,7 +134,7 @@ void ChartViewModel::addChart(const QString &label, const QColor& color)
 		return;
 	}
 
-	beginInsertRows(QModelIndex(), m_series.size(), m_series.size());
+	beginInsertRows(QModelIndex(), 0, rowCount(QModelIndex()));// QModelIndex(), m_series.size(), m_series.size());
 	m_series.append(QList<QString>() << label);
 	resetDepths();
 	endInsertRows();
@@ -122,24 +142,17 @@ void ChartViewModel::addChart(const QString &label, const QColor& color)
 	emit parameterAdded(label, color);
 }
 
-bool ChartViewModel::parameterExistsInHistory(const QString &label) const
-{
-	return m_dataPlayer->storage()->containsParameter(label);  
-}
-
 void ChartViewModel::removeChart(int index)
 {
-	if (index < 0 || index >= m_series.size())
-	{
-		qWarning() << "ChartViewModel: Invalid index" << index;
-		return;
-	}
+	if (index < 0 || index >= m_series.count()) return;
+
+	auto cell = indexToCell(index);
+
+	if (!cell.isValid()) return;
 	
-	beginRemoveRows(QModelIndex(), index, index);
-
+	beginResetModel();
 	m_series.removeAt(index);
-
-	endRemoveRows();
+	endResetModel();
 }
 
 void ChartViewModel::removeLabel(const QString &label)
@@ -160,8 +173,14 @@ void ChartViewModel::removeLabel(const QString &label)
 	}
 }
 
+bool ChartViewModel::parameterExistsInHistory(const QString& label) const
+{
+	return m_dataPlayer->storage()->containsParameter(label);
+}
 void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
 {
+	return; // not realized
+
 	if (movedIndex < 0 || movedIndex >= m_series.size())
 	{
 		qWarning() << "ChartViewModel: Invalid moved index" << movedIndex;
@@ -187,6 +206,8 @@ void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
 
 void ChartViewModel::splitSeries(int chartIndex)
 {
+	return; // not realized
+
 	if(chartIndex >= 0 && chartIndex < m_series.count())
 	{
 		auto series = m_series[chartIndex];
@@ -210,6 +231,7 @@ void ChartViewModel::clearCharts()
 		
 	beginResetModel();
 	m_series.clear();
+	m_depths.clear();
 	endResetModel();
 }
 
@@ -242,71 +264,6 @@ void ChartViewModel::resetDepths()
 	}
 }
 
-void ChartViewModel::addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
-								  double x, double y, const QDateTime &timestamp, const QVariant &value)
-{
-	QtCharts::QChart* chart = findChart(chartLabel);
-	if (!chart)
-	{
-		//qWarning() << "ChartViewModel: Chart not found:" << chartLabel;
-		return;
-	}
-	
-	QtCharts::QLineSeries* series = getOrCreateSeries(chart, parameterLabel);
-	if (!series)
-	{
-		//qWarning() << "ChartViewModel: Failed to create series for parameter:" << parameterLabel;
-		return;
-	}
-	
-	// Добавляем точку в серию
-	series->append(x, y);
-	
-	// Ограничиваем количество точек для производительности
-	if (series->count() > 100)
-	{
-		series->removePoints(0, 1);
-	}
-	
-	// Обновляем оси
-	QtCharts::QValueAxis* xAxis = qobject_cast<QtCharts::QValueAxis*>(chart->axes(Qt::Horizontal).first());
-	if (xAxis)
-	{
-		xAxis->setMin(x - 50);
-		xAxis->setMax(x + 10);
-	}
-	
-	emit chartDataAdded(chartLabel, parameterLabel);
-	
-	//qDebug() << "ChartViewModel: Added point to chart" << chartLabel << "parameter" << parameterLabel;
-}
-
-void ChartViewModel::addDataPoint(const QString &chartLabel, const QString &parameterLabel, 
-								  double x, double y)
-{
-	addDataPoint(chartLabel, parameterLabel, x, y, QDateTime::currentDateTime(), QVariant());
-}
-
-QtCharts::QChart* ChartViewModel::getChart(int index) const
-{
-	if (index >= 0 && index < m_charts.size())
-	{
-		return m_charts.at(index);
-	}
-	return nullptr;
-}
-
-QtCharts::QChart* ChartViewModel::getChart(const QString &label) const
-{
-	for (QtCharts::QChart* chart : m_charts)
-	{
-		if (chart->title() == label)
-		{
-			return chart;
-		}
-	}
-	return nullptr;
-}
 
 QStringList ChartViewModel::chartLabels() const
 {
@@ -342,179 +299,16 @@ int ChartViewModel::findChartIndex(const QString &label) const
 	return -1;
 }
 
-QtCharts::QChart* ChartViewModel::findChart(const QString &label)
-{
-	for (QtCharts::QChart* chart : m_charts)
-	{
-		if (chart->title() == label)
-		{
-			return chart;
-		}
-	}
-	return nullptr;
-}
-
-QtCharts::QLineSeries* ChartViewModel::getOrCreateSeries(QtCharts::QChart* chart, const QString &parameterLabel)
-{
-	if (!chart)
-		return nullptr;
-	
-	// Проверяем, есть ли уже серия для этого параметра
-	for (QtCharts::QAbstractSeries* series : chart->series())
-	{
-		if (series->name() == parameterLabel)
-		{
-			return qobject_cast<QtCharts::QLineSeries*>(series);
-		}
-	}
-	
-	// Создаем новую серию
-	QtCharts::QLineSeries* series = new QtCharts::QLineSeries();
-	series->setName(parameterLabel);
-	
-	// Устанавливаем цвет серии
-	static QList<QColor> colors = {Qt::red, Qt::blue, Qt::green, Qt::yellow, Qt::magenta, Qt::cyan};
-	int colorIndex = chart->series().size() % colors.size();
-	series->setColor(colors[colorIndex]);
-	
-	// Добавляем серию в график
-	chart->addSeries(series);
-	
-	// Получаем оси из графика
-	QList<QtCharts::QAbstractAxis*> axes = chart->axes();
-	QtCharts::QValueAxis* xAxis = nullptr;
-	QtCharts::QValueAxis* yAxis = nullptr;
-	
-	for (QtCharts::QAbstractAxis* axis : axes)
-	{
-		if (axis->orientation() == Qt::Horizontal)
-			xAxis = qobject_cast<QtCharts::QValueAxis*>(axis);
-		else if (axis->orientation() == Qt::Vertical)
-			yAxis = qobject_cast<QtCharts::QValueAxis*>(axis);
-	}
-	
-	if (xAxis && yAxis)
-	{
-		series->attachAxis(xAxis);
-		series->attachAxis(yAxis);
-	}
-	
-	//qDebug() << "ChartViewModel: Created series for parameter:" << parameterLabel;
-	return series;
-}
-
-void ChartViewModel::setupChart(QtCharts::QChart* chart, const QString &label)
-{
-	if (!chart)
-		return;
-	
-	chart->setTitle(label);
-	
-	// Создаем и настраиваем оси
-	QtCharts::QValueAxis* xAxis = new QtCharts::QValueAxis();
-	xAxis->setTitleText("Время (сек)");
-	xAxis->setMin(0);
-	xAxis->setMax(50);
-	
-	QtCharts::QValueAxis* yAxis = new QtCharts::QValueAxis();
-	yAxis->setTitleText("Значение");
-	yAxis->setMin(-750);
-	yAxis->setMax(750);
-	
-	chart->addAxis(xAxis, Qt::AlignBottom);
-	chart->addAxis(yAxis, Qt::AlignLeft);
-}
-
-QVariantList ChartViewModel::getSeriesData(const QString &chartLabel, const QString &parameterLabel) const
-{
-	QVariantList result;
-	
-	QtCharts::QChart* chart = const_cast<ChartViewModel*>(this)->findChart(chartLabel);
-	if (!chart)
-	{
-		return result;
-	}
-	
-	// Ищем серию по имени
-	QtCharts::QLineSeries* series = nullptr;
-	for (QtCharts::QAbstractSeries* s : chart->series())
-	{
-		if (s->name() == parameterLabel)
-		{
-			series = qobject_cast<QtCharts::QLineSeries*>(s);
-			break;
-		}
-	}
-	
-	if (!series)
-	{
-		return result;
-	}
-	
-	// Преобразуем точки серии в QVariantList
-	for (int i = 0; i < series->count(); ++i)
-	{
-		QPointF point = series->at(i);
-		QVariantMap pointData;
-		pointData["x"] = point.x();
-		pointData["y"] = point.y();
-		result.append(pointData);
-	}
-	
-	return result;
-}
-
-QStringList ChartViewModel::getParameterLabels(const QString &chartLabel) const
-{
-	QStringList result;
-	
-	QtCharts::QChart* chart = const_cast<ChartViewModel*>(this)->findChart(chartLabel);
-	if (!chart)
-	{
-		return result;
-	}
-	
-	for (QtCharts::QAbstractSeries* series : chart->series())
-	{
-		result.append(series->name());
-	}
-	
-	return result;
-}
-
-int ChartViewModel::getSeriesPointCount(const QString &chartLabel, const QString &parameterLabel) const
-{
-	QtCharts::QChart* chart = const_cast<ChartViewModel*>(this)->findChart(chartLabel);
-	if (!chart)
-	{
-		return 0;
-	}
-	
-	// Ищем серию по имени
-	for (QtCharts::QAbstractSeries* s : chart->series())
-	{
-		if (s->name() == parameterLabel)
-		{
-			QtCharts::QLineSeries* series = qobject_cast<QtCharts::QLineSeries*>(s);
-			if (series)
-			{
-				return series->count();
-			}
-		}
-	}
-	
-	return 0;
-}
-
-
 QHash<int, QByteArray> ChartViewModel::roleNames() const
 {
 	QHash<int, QByteArray> roles;
 	roles[ChartRole] = "chart";
 	roles[ChartLabelRole] = "chartLabel";
 	roles[LabelsRole] = "labels";
+	roles[LabelRole] = "label";
 	roles[ChartIndexRole] = "chartIndex";
 	roles[HasDataRole] = "hasData";
 	roles[DepthRole] = "depth";
+	roles[IsExists] = "exists";
 	return roles;
 }
