@@ -4,7 +4,7 @@
 Session::Session(QObject *parent)
     : QObject(parent),
     m_parametersModel(new BoardParametersListModel(parent)),
-    m_chartsModel(new ChartViewModel(parent)),
+    m_chartsModel(new ChatViewGridModel(parent)),
     m_opened(false),
     m_player(nullptr)
 {

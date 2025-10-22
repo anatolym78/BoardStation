@@ -30,6 +30,7 @@ SOURCES += \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
     ViewModel/BoardParametersListModel.cpp \
     ViewModel/ChartViewModel.cpp \
+    ViewModel/ChatViewGridModel.cpp \
     ViewModel/UplinkParametersModel.cpp \
     ViewModel/DebugViewModel.cpp \
     ViewModel/SessionsListModel.cpp \
@@ -77,6 +78,7 @@ HEADERS += \
     Model/Parameters/BoardParameterHistoryStorage.h \
     ViewModel/BoardParametersListModel.h \
     ViewModel/ChartViewModel.h \
+    ViewModel/ChatViewGridModel.h \
     ViewModel/UplinkParametersModel.h \
     ViewModel/DebugViewModel.h \
     ViewModel/SessionsListModel.h \

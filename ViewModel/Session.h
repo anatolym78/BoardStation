@@ -7,7 +7,8 @@
 
 #include "./DataPlayer.h"
 #include "./BoardParametersListModel.h"
-#include "./ChartViewModel.h"
+//#include "./ChartViewModel.h"
+#include "./ChatViewGridModel.h"
 
 class BoardParameterHistoryStorage;
 
@@ -48,7 +49,7 @@ public:
 
 	DataPlayer* player() const { return m_player; }
 	BoardParametersListModel* parametersModel()  const;
-	ChartViewModel* chartsModel() const { return m_chartsModel; }
+	ChatViewGridModel* chartsModel() const { return m_chartsModel; }
 
 	virtual void open() { m_opened = true; }
 
@@ -66,7 +67,7 @@ protected:
 
 protected:
 	BoardParametersListModel* m_parametersModel;
-	ChartViewModel* m_chartsModel;
+	ChatViewGridModel* m_chartsModel;
 	DataPlayer* m_player;
 	bool m_opened;
 

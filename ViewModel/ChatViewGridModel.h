@@ -1,5 +1,5 @@
-#ifndef CHARTVIEWMODEL_H
-#define CHARTVIEWMODEL_H
+#ifndef CHATVIEWGRIDMODEL_H
+#define CHATVIEWGRIDMODEL_H
 
 #include <QAbstractListModel>
 #include <QAbstractTableModel>
@@ -15,7 +15,7 @@
 
 #include "./DataPlayer.h"
 
-class ChartViewModel : public QAbstractTableModel
+class ChatViewGridModel : public QAbstractListModel
 {
 	Q_OBJECT
 
@@ -34,20 +34,13 @@ public:
 		HoverRole,
 	};
 
-	explicit ChartViewModel(QObject *parent = nullptr);
+	explicit ChatViewGridModel(QObject *parent = nullptr);
 
 	void setPlayer(DataPlayer* dataPlayer);
 
-	// QAbstractListModel interface
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex& parent /* = QModelIndex() */) const override;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	QHash<int, QByteArray> roleNames() const override;
-
-	int cellToIndex(int row, int col) const;
-	int cellToIndex(const QModelIndex& modelIndex) const;
-	QModelIndex indexToCell(int index) const;
-
 
 	// Методы для работы с графиками
 	Q_INVOKABLE bool toggleParameter(const QString& label, const QColor& color = Qt::red);
@@ -68,16 +61,13 @@ public:
 	Q_INVOKABLE bool hasSeries(const QString &label) const;
 	Q_INVOKABLE int countSeries() const { return m_series.size(); }
 
-	Q_INVOKABLE bool selectElement(int row, int column, bool keepSelection);
+	Q_INVOKABLE bool selectElement(int index, bool keepSelection);
 	Q_INVOKABLE void clearSelection();
 
-	Q_INVOKABLE bool hoverElement(int row, int column);
+	Q_INVOKABLE bool hoverElement(int index);
 	Q_INVOKABLE void clearHover();
 
 	void updateAllCells();
-
-	Q_INVOKABLE void setCountColumns(int columntCount);
-	Q_INVOKABLE int getColumnCount() const { return m_columnCount; }
 	
 signals:
 	void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
@@ -91,11 +81,11 @@ private:
 	QList<int> m_depths;
 	QList<bool> m_selectedIndices;
 	int m_hoverIndex = -1;
-	int m_columnCount = 2;
+	QList<int> m_elements;
 
 	// Вспомогательные методы
 	int findChartIndex(const QString &label) const;
 	bool parameterExistsInHistory(const QString &label) const;
 };
 
-#endif // CHARTVIEWMODEL_H
+#endif // CHATVIEWGRIDMODEL_H

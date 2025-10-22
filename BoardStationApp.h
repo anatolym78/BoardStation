@@ -15,7 +15,8 @@
 #include "Model/Parameters/BoardMessagesSqliteReader.h"
 #include "ViewModel/BoardParametersListModel.h"
 #include "ViewModel/SessionsListModel.h"
-#include "ViewModel/ChartViewModel.h"
+//#include "ViewModel/ChartViewModel.h"
+#include "ViewModel/ChatViewGridModel.h"
 #include "ViewModel/DataPlayer.h"
 #include "ViewModel/SessionPlayer.h"
 #include "ViewModel/DriverDataPlayer.h"
@@ -45,7 +46,7 @@ public:
 public:
 	// Методы для работы с моделью параметров
 	BoardParametersListModel* parametersModel() const;
-	ChartViewModel* getChartViewModel() const;
+	ChatViewGridModel* getChartViewModel() const;
 	   
 	// Методы для работы с моделью uplink параметров
 	UplinkParametersModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }

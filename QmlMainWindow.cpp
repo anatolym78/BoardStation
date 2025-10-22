@@ -3,6 +3,7 @@
 #include "Model/Parameters/BoardParameterSingle.h"
 #include "Model/Parameters/BoardParameterValue.h"
 #include "ViewModel/ChartViewModel.h"
+#include "ViewModel/ChatViewGridModel.h"
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/SessionPlayer.h"
 #include <QQuickItem>
@@ -17,7 +18,7 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	qmlRegisterType<BoardParameterValue>("BoardStation", 1, 0, "BoardParameterValue");
 	qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
 
-	qmlRegisterType<ChartViewModel>("BoardStation", 1, 0, "ChartViewModel");
+	qmlRegisterType<ChatViewGridModel>("BoardStation", 1, 0, "ChatViewGridModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
 	qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
 	

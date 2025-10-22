@@ -65,7 +65,7 @@ BoardParametersListModel* BoardStationApp::parametersModel() const
 }
 
 
-ChartViewModel* BoardStationApp::getChartViewModel() const
+ChatViewGridModel* BoardStationApp::getChartViewModel() const
 {
 	auto currentSession = m_sessionsListModel->currentSession();
 	if (currentSession == nullptr) return nullptr;

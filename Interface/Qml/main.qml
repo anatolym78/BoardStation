@@ -100,7 +100,7 @@ Item
                         Layout.preferredHeight: 3
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "#f0f0f0"
+                        color: "aliceblue"
                         //border.color: "gainsboro"
                         radius: 4
 

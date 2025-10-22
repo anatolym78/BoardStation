@@ -1,4 +1,4 @@
-#include "ChartViewModel.h"
+#include "ChatViewGridModel.h"
 #include "../Model/Parameters/BoardParameterSingle.h"
 #include <QDebug>
 #include <QtCharts/QChart>
@@ -7,11 +7,11 @@
 #include <QtCharts/QChartView>
 #include <QDateTime>
 
-ChartViewModel::ChartViewModel(QObject *parent) : QAbstractTableModel(parent)
+ChatViewGridModel::ChatViewGridModel(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
-void ChartViewModel::setPlayer(DataPlayer* dataPlayer)
+void ChatViewGridModel::setPlayer(DataPlayer* dataPlayer)
 {
 	m_dataPlayer = dataPlayer;
 
@@ -23,57 +23,23 @@ void ChartViewModel::setPlayer(DataPlayer* dataPlayer)
 	clearCharts();
 
 	m_stopConnection = connect(m_dataPlayer, &DataPlayer::stopped,
-		this, &ChartViewModel::clearCharts);
+		this, &ChatViewGridModel::clearCharts);
 }
 
 
-int ChartViewModel::rowCount(const QModelIndex &parent) const
+int ChatViewGridModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid()) return 0;
 
-	auto countSeries = m_series.count();
-
-	if (countSeries == 0) return 0;
-
-	if (countSeries % m_columnCount == 0)
-	{
-		return countSeries / m_columnCount;
-	}
-	else
-	{
-		return countSeries / m_columnCount + 1;
-	}
+	return m_series.count();
 }
 
-int ChartViewModel::columnCount(const QModelIndex& parent /* = QModelIndex() */) const
-{
-	return m_columnCount;
-}
-
-int ChartViewModel::cellToIndex(int cellRow, int cellCol) const
-{
-	return cellRow * columnCount(QModelIndex()) + cellCol;
-}
-
-int ChartViewModel::cellToIndex(const QModelIndex& modelIndex) const
-{
-	return cellToIndex(modelIndex.row(), modelIndex.column());
-}
-
-QModelIndex ChartViewModel::indexToCell(int index) const
-{
-	auto column = index % columnCount(QModelIndex());
-	auto row = index / columnCount(QModelIndex());
-
-	return this->createIndex(row, column);
-}
-
-QVariant ChartViewModel::data(const QModelIndex &index, int role) const
+QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 {
 	if(!index.isValid())
 		return {};
 
-	auto cellIndex = cellToIndex(index);
+	auto cellIndex = index.row();// cellToIndex(index);
 	if (role == IsExists)
 	{
 		return cellIndex < m_series.count();
@@ -116,7 +82,7 @@ QVariant ChartViewModel::data(const QModelIndex &index, int role) const
 	return m_series[cellIndex].last();
 }
 
-bool ChartViewModel::toggleParameter(const QString &label, const QColor &color)
+bool ChatViewGridModel::toggleParameter(const QString &label, const QColor &color)
 {
 	if(hasSeries(label))
 	{
@@ -132,38 +98,44 @@ bool ChartViewModel::toggleParameter(const QString &label, const QColor &color)
 	}
 }
 
-void ChartViewModel::addChart(const QString &label, const QColor& color)
+void ChatViewGridModel::addChart(const QString &label, const QColor& color)
 {
+	//beginInsertRows(QModelIndex(), m_elements.count(), m_elements.count());
+	//m_elements.append(0);
+
+	//endInsertRows();
+
+	//return;
+
 	// Проверяем, существует ли параметр в истории
 	if (!parameterExistsInHistory(label))
 	{
-		qWarning() << "ChartViewModel: Parameter" << label << "does not exist in history";
+		qWarning() << "ChatViewGridModel: Parameter" << label << "does not exist in history";
 		return;
 	}
 	
 	if (hasSeries(label))
 	{
-		//qDebug() << "ChartViewModel: Chart with label" << label << "already exists";
+		//qDebug() << "ChatViewGridModel: Chart with label" << label << "already exists";
 		return;
 	}
 
-	beginInsertRows(QModelIndex(), 0, rowCount(QModelIndex()));// QModelIndex(), m_series.size(), m_series.size());
+	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));// QModelIndex(), m_series.size(), m_series.size());
 	m_series.append(QList<QString>() << label);
-	resetDepths();
-
 	m_selectedIndices.append(false);
+	resetDepths();
 	endInsertRows();
 
 	emit parameterAdded(label, color);
 }
 
-void ChartViewModel::removeChart(int index)
+void ChatViewGridModel::removeChart(int index)
 {
 	if (index < 0 || index >= m_series.count()) return;
 
-	auto cell = indexToCell(index);
+	//auto cell = indexToCell(index);
 
-	if (!cell.isValid()) return;
+	//if (!cell.isValid()) return;
 	
 	beginResetModel();
 	m_series.removeAt(index);
@@ -171,7 +143,7 @@ void ChartViewModel::removeChart(int index)
 	endResetModel();
 }
 
-void ChartViewModel::removeLabel(const QString &label)
+void ChatViewGridModel::removeLabel(const QString &label)
 {
 	for(auto i=0;i<m_series.count();i++)
 	{
@@ -189,23 +161,23 @@ void ChartViewModel::removeLabel(const QString &label)
 	}
 }
 
-bool ChartViewModel::parameterExistsInHistory(const QString& label) const
+bool ChatViewGridModel::parameterExistsInHistory(const QString& label) const
 {
 	return m_dataPlayer->storage()->containsParameter(label);
 }
-void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
+void ChatViewGridModel::mergeCharts(int movedIndex, int targetIndex)
 {
 	return; // not realized
 
 	if (movedIndex < 0 || movedIndex >= m_series.size())
 	{
-		qWarning() << "ChartViewModel: Invalid moved index" << movedIndex;
+		qWarning() << "ChatViewGridModel: Invalid moved index" << movedIndex;
 		return;
 	}
 
 	if (targetIndex < 0 || targetIndex >= m_series.size())
 	{
-		qWarning() << "ChartViewModel: Invalid target index" << targetIndex;
+		qWarning() << "ChatViewGridModel: Invalid target index" << targetIndex;
 		return;
 	}
 
@@ -220,7 +192,7 @@ void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
 	endRemoveRows();
 }
 
-void ChartViewModel::splitSeries(int chartIndex)
+void ChatViewGridModel::splitSeries(int chartIndex)
 {
 	return; // not realized
 
@@ -240,7 +212,7 @@ void ChartViewModel::splitSeries(int chartIndex)
 	endInsertRows();
 }
 
-void ChartViewModel::clearCharts()
+void ChatViewGridModel::clearCharts()
 {
 	if (m_series.isEmpty())
 		return;
@@ -252,14 +224,14 @@ void ChartViewModel::clearCharts()
 	endResetModel();
 }
 
-QStringList ChartViewModel::getChartSeriesLabels(int chartIndex) const
+QStringList ChatViewGridModel::getChartSeriesLabels(int chartIndex) const
 {
 	if(chartIndex < 0 || chartIndex >= rowCount()) return QStringList();
 
 	return m_series[chartIndex];
 }
 
-void ChartViewModel::reorderChartsBeforeDrag(int dragIndex)
+void ChatViewGridModel::reorderChartsBeforeDrag(int dragIndex)
 {
 	resetDepths();
 
@@ -271,7 +243,7 @@ void ChartViewModel::reorderChartsBeforeDrag(int dragIndex)
 	emit dataChanged(topLeft, bottomRight);
 }
 
-void ChartViewModel::resetDepths()
+void ChatViewGridModel::resetDepths()
 {
 	m_depths.clear();
 
@@ -282,7 +254,7 @@ void ChartViewModel::resetDepths()
 }
 
 
-QStringList ChartViewModel::chartLabels() const
+QStringList ChatViewGridModel::chartLabels() const
 {
 	QStringList labels;
 	for(auto s : m_series)
@@ -293,7 +265,7 @@ QStringList ChartViewModel::chartLabels() const
 	return labels;
 }
 
-bool ChartViewModel::hasSeries(const QString &label) const
+bool ChatViewGridModel::hasSeries(const QString &label) const
 {
 	for(auto s : m_series)
 	{
@@ -303,19 +275,16 @@ bool ChartViewModel::hasSeries(const QString &label) const
 	return false;
 }
 
-bool ChartViewModel::selectElement(int row, int column, bool keepSelection)
+bool ChatViewGridModel::selectElement(int index, bool keepSelection)
 {
 	if (keepSelection == false)
 	{
 		clearSelection();
 	}
 
-	auto index = cellToIndex(row, column);
-
 	if (index >= 0 && index < m_selectedIndices.count())
 	{
-		auto currentSelection = m_selectedIndices[index];
-		m_selectedIndices[index] = keepSelection ? true : !currentSelection;
+		m_selectedIndices[index] =  !m_selectedIndices[index];
 	}
 
 	updateAllCells();
@@ -323,7 +292,7 @@ bool ChartViewModel::selectElement(int row, int column, bool keepSelection)
 	return true;
 }
 
-void ChartViewModel::clearSelection()
+void ChatViewGridModel::clearSelection()
 {
 	for (auto& selection : m_selectedIndices)
 	{
@@ -333,49 +302,29 @@ void ChartViewModel::clearSelection()
 	updateAllCells();
 }
 
-bool ChartViewModel::hoverElement(int row, int column)
+bool ChatViewGridModel::hoverElement(int index)
 {
-	m_hoverIndex = cellToIndex(row, column);
-
+	m_hoverIndex = index;
 	updateAllCells();
-
 	return true;
 }
 
-void ChartViewModel::clearHover()
+void ChatViewGridModel::clearHover()
 {
 	m_hoverIndex = -1;
 
 	updateAllCells();
 }
 
-void ChartViewModel::updateAllCells()
+void ChatViewGridModel::updateAllCells()
 {
 	for (auto i = 0; i < m_series.count(); i++)
 	{
-		emit dataChanged(indexToCell(i), indexToCell(i));
+		emit dataChanged(this->createIndex(i, 0), this->createIndex(i, 0));
 	}
 }
 
-void ChartViewModel::setCountColumns(int columntCount)
-{
-	m_columnCount = columntCount;
-
-	updateAllCells();
-	emit layoutAboutToBeChanged();
-	emit layoutChanged();
-
-	return;
-	beginRemoveColumns(QModelIndex(), m_columnCount - 1, m_columnCount-1);
-	m_columnCount--;
-	endInsertColumns();
-	return;
-	beginInsertColumns(QModelIndex(), m_columnCount, m_columnCount);
-	m_columnCount++;
-	endInsertColumns();
-}
-
-int ChartViewModel::findChartIndex(const QString &label) const
+int ChatViewGridModel::findChartIndex(const QString &label) const
 { 
 	for (auto i=0;i<countSeries();i++)
 	{
@@ -388,7 +337,7 @@ int ChartViewModel::findChartIndex(const QString &label) const
 	return -1;
 }
 
-QHash<int, QByteArray> ChartViewModel::roleNames() const
+QHash<int, QByteArray> ChatViewGridModel::roleNames() const
 {
 	QHash<int, QByteArray> roles;
 
