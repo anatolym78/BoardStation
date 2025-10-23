@@ -26,41 +26,30 @@ Rectangle
                 font.bold: true
             }
 
-            Slider
-            {
-                from: 240
-                to: 640
-                value: 320
-
-                onPositionChanged:
-                {
-                    gridView.cellWidth = value
-                    gridView.cellHeight = value
-
-                    to = chartsView.width - 20
-                }
-            }
-
             Switch
             {
                 id: rowsCountSwitch
                 onToggled:
                 {
-                    console.log("swi")
-                    console.log(gridView)
                     var k = checked ? 2 : 1
-                    if(checked)
-                    {
-
-                    }
 
                     gridView.cellWidth = gridView.width/k
                     gridView.cellHeight = gridView.width/k
                 }
+                checked: true
 
-                // position: 0.5
-                // visualPosition: 0.5
-                // text: "2"
+                Connections
+                {
+                    target: qmlMainWindow
+
+                    onWidthChanged:
+                    {
+                        var k = rowsCountSwitch.checked ? 2 : 1
+
+                        gridView.cellWidth = gridView.width/k
+                        gridView.cellHeight = gridView.width/k
+                    }
+                }
             }
         }
 
@@ -126,8 +115,6 @@ Rectangle
                         onWidthChanged:
                         {
                             updateTimeMarker(markerTimeMs)
-                            console.log(markerTimeMs)
-                            console.log("width changed")
                         }
 
                         Connections

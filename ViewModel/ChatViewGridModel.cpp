@@ -131,6 +131,7 @@ void ChatViewGridModel::addChart(const QString &label, const QColor& color)
 
 void ChatViewGridModel::removeChart(int index)
 {
+	return; // !!!
 	if (index < 0 || index >= m_series.count()) return;
 
 	//auto cell = indexToCell(index);
@@ -214,6 +215,7 @@ void ChatViewGridModel::splitSeries(int chartIndex)
 
 void ChatViewGridModel::clearCharts()
 {
+	return; // !!!
 	if (m_series.isEmpty())
 		return;
 		
