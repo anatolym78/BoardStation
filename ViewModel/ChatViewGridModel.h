@@ -36,8 +36,8 @@ public:
 	{
 		QStringList series;
 		QColor color = Qt::darkGray;
-		int depth = 0;
 		bool isSelected = false;
+		QMap<QString, QPointer<QtCharts::QLineSeries>> seriesMap;
 	};
 
 	explicit ChatViewGridModel(QObject *parent = nullptr);
@@ -55,9 +55,7 @@ public:
 	Q_INVOKABLE void removeLabel(const QString& label);
 	Q_INVOKABLE void clearCharts();
 	Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
-
-	Q_INVOKABLE void reorderChartsBeforeDrag(int dragIndex);
-	Q_INVOKABLE void resetDepths();
+	Q_INVOKABLE void addSeriesToChart(int chartIndex, const QString& label, QtCharts::QLineSeries* series);
 
 	Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
 	Q_INVOKABLE void splitSeries(int chartIndex);

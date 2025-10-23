@@ -29,6 +29,7 @@ public:
 
 	int rowCount(const QModelIndex &parent) const override;
 	QVariant data(const QModelIndex &index, int role) const override;
+	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 	QHash<int, QByteArray> roleNames() const override;
 
 	Q_INVOKABLE int getCountParameters() const;
@@ -48,9 +49,6 @@ private:
 	DataPlayer* m_dataPlayer = nullptr;
 	QMetaObject::Connection m_playConnection;
 	QMetaObject::Connection m_stopConnection;
-
-public:
-	bool setData(const QModelIndex &index, const QVariant &value, int role) override;
 
 private:
 	void makeRandomColors();

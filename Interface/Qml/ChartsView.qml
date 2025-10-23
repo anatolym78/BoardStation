@@ -131,7 +131,6 @@ Rectangle
                             {
                                 id: chartView
                                 anchors.fill: parent
-                                z: depth
                                 theme: ChartView.ChartThemeLight
 
                                 DateTimeAxis

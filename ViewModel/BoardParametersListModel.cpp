@@ -74,6 +74,20 @@ QVariant BoardParametersListModel::data(const QModelIndex& index, int role) cons
 	return {};
 }
 
+bool BoardParametersListModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+	if (!index.isValid()) return false;
+
+	if (role == (int)ParameterRole::ChartVisibilityRole)
+	{
+		m_chartVisibilities[index.row()] = value.toBool();
+
+		emit dataChanged(index, index, QVector<int>() << (int)ParameterRole::ChartVisibilityRole);
+	}
+		
+	return true;
+}
+
 QHash<int, QByteArray> BoardParametersListModel::roleNames() const
 {
 	QHash<int, QByteArray> rolesHash;
@@ -114,8 +128,9 @@ void BoardParametersListModel::onNewParameterAdded(BoardParameterSingle* paramet
 	{
 		m_values[label] = parameter;
 
-		emit dataChanged(index(0, 0), index(m_values.count() - 1, 0));
 	}
+
+	emit dataChanged(index(0, 0), index(m_values.count() - 1, 0));
 }
 
 
@@ -125,18 +140,6 @@ void BoardParametersListModel::onParametersCleared()
 	m_chartVisibilities.clear();
 	m_values.clear();
 	endResetModel();
-}
-
-bool BoardParametersListModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-	if(!index.isValid()) return false;
-
-	if(role == (int)ParameterRole::ChartVisibilityRole)
-	{
-		m_chartVisibilities[index.row()] = value.toBool();
-	}
-
-	return false;
 }
 
 void BoardParametersListModel::makeRandomColors()
