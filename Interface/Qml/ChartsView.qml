@@ -177,7 +177,7 @@ Rectangle
 
                                             seriesMap[parameterLabel] = chartView.createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
                                             seriesMap[parameterLabel].useOpenGL = true
-                                            //seriesMap[parameterLabel].color =
+                                            seriesMap[parameterLabel].color = parameterColor
                                         }
 
                                         fitAxes(parameter, timeAxis, valueAxis, seriesMap[parameterLabel])
@@ -233,7 +233,7 @@ Rectangle
                                     anchors.bottom: parent.bottom
                                     width: 1
                                     color: "transparent"
-                                    border.color: "red"
+                                    border.color: "brown"
                                 }
                             }
                         }
@@ -251,7 +251,7 @@ Rectangle
                         {
                             id: hoverRect
                             anchors.fill: parent
-                            color: hover ? Qt.hsva(0.15, 0.9, 0.7, 0.2) : "transparent"
+                            color: hover ? Qt.hsva(0.15, 0.7, 0.9, 0.1) : "transparent"
                             radius: 2
                         }
 

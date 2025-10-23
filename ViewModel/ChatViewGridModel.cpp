@@ -21,7 +21,7 @@ int ChatViewGridModel::rowCount(const QModelIndex &parent) const
 {
 	if (parent.isValid()) return 0;
 
-	return m_series.count();
+	return m_charts.count();
 }
 
 QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
@@ -31,30 +31,30 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 
 	auto cellIndex = index.row();// cellToIndex(index);
 
-	if(cellIndex >= m_series.count()) 
+	if(cellIndex >= m_charts.count()) 
 		return {};
 
-	if(m_series.isEmpty()) 
+	if(m_charts.isEmpty()) 
 		return {};
 
 	if(role == DepthRole)
 	{
-		return m_depths[cellIndex];
+		return m_charts[cellIndex].depth;
 	}
 
 	if (role == LabelsRole)
 	{
-		return m_series[cellIndex];
+		return m_charts[cellIndex].series;
 	}
 
 	if (role == LabelRole)
 	{
-		return m_series[cellIndex].last();
+		return m_charts[cellIndex].series.last();
 	}
 
 	if (role == SelectionRole)
 	{
-		return m_selectedIndices[cellIndex];
+		return m_charts[cellIndex].isSelected;
 	}
 
 	if (role == HoverRole)
@@ -62,7 +62,13 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 		return m_hoverIndex == cellIndex;
 	}
 
-	return m_series[cellIndex].last();
+	if (role == ColorRole)
+	{
+		return QVariant::fromValue(m_charts[cellIndex].color);
+	}
+
+
+	return m_charts[cellIndex].series.last();
 }
 
 bool ChatViewGridModel::toggleParameter(const QString &label, const QColor &color)
@@ -95,8 +101,12 @@ void ChatViewGridModel::addChart(const QString &label, const QColor& color)
 	}
 
 	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));// QModelIndex(), m_series.size(), m_series.size());
-	m_series.append(QList<QString>() << label);
-	m_selectedIndices.append(false);
+	ChartInfo info;
+	info.series = QList<QString>() << label;
+	info.color = color;
+	info.depth = 0;
+	info.isSelected = false;
+	m_charts.append(info);
 	resetDepths();
 	endInsertRows();
 
@@ -106,27 +116,26 @@ void ChatViewGridModel::addChart(const QString &label, const QColor& color)
 void ChatViewGridModel::removeChart(int index)
 {
 	return; // !!!
-	if (index < 0 || index >= m_series.count()) return;
+	if (index < 0 || index >= m_charts.count()) return;
 
 	//auto cell = indexToCell(index);
 
 	//if (!cell.isValid()) return;
 	
 	beginResetModel();
-	m_series.removeAt(index);
-	m_selectedIndices.removeAt(index);
+	m_charts.removeAt(index);
 	endResetModel();
 }
 
 void ChatViewGridModel::removeLabel(const QString &label)
 {
-	for(auto i=0;i<m_series.count();i++)
+	for(auto i=0;i<m_charts.count();i++)
 	{
-		if(m_series[i].contains(label))
+		if(m_charts[i].series.contains(label))
 		{
-			m_series[i].removeAll(label);
+			m_charts[i].series.removeAll(label);
 
-			if(m_series[i].isEmpty())
+			if(m_charts[i].series.isEmpty())
 			{
 				removeChart(i);
 
@@ -144,13 +153,13 @@ void ChatViewGridModel::mergeCharts(int movedIndex, int targetIndex)
 {
 	return; // not realized
 
-	if (movedIndex < 0 || movedIndex >= m_series.size())
+	if (movedIndex < 0 || movedIndex >= m_charts.size())
 	{
 		qWarning() << "ChatViewGridModel: Invalid moved index" << movedIndex;
 		return;
 	}
 
-	if (targetIndex < 0 || targetIndex >= m_series.size())
+	if (targetIndex < 0 || targetIndex >= m_charts.size())
 	{
 		qWarning() << "ChatViewGridModel: Invalid target index" << targetIndex;
 		return;
@@ -158,9 +167,9 @@ void ChatViewGridModel::mergeCharts(int movedIndex, int targetIndex)
 
 	beginRemoveRows(QModelIndex(), movedIndex, movedIndex);
 
-	auto seriesLabels = m_series[movedIndex];
-	m_series[targetIndex].append(seriesLabels);
-	m_series.removeAt(movedIndex);
+	auto seriesLabels = m_charts[movedIndex].series;
+	m_charts[targetIndex].series.append(seriesLabels);
+	m_charts.removeAt(movedIndex);
 
 	resetDepths();
 
@@ -171,18 +180,23 @@ void ChatViewGridModel::splitSeries(int chartIndex)
 {
 	return; // not realized
 
-	if(chartIndex >= 0 && chartIndex < m_series.count())
+	if(chartIndex >= 0 && chartIndex < m_charts.count())
 	{
-		auto series = m_series[chartIndex];
+		auto series = m_charts[chartIndex].series;
 
-		m_series.removeAt(chartIndex);
+		m_charts.removeAt(chartIndex);
 		for(auto s : series)
 		{
-			m_series.append(QStringList()<<s);
+			ChartInfo info;
+			info.series = QStringList() << s;
+			info.color = Qt::darkGray; // или взять из оригинала, если нужно
+			info.depth = 0;
+			info.isSelected = false;
+			m_charts.append(info);
 		}
 	}
 
-	beginInsertRows(QModelIndex(), m_series.size(), m_series.size());
+	beginInsertRows(QModelIndex(), m_charts.size(), m_charts.size());
 	resetDepths();
 	endInsertRows();
 }
@@ -190,13 +204,11 @@ void ChatViewGridModel::splitSeries(int chartIndex)
 void ChatViewGridModel::clearCharts()
 {
 	return; // !!!
-	if (m_series.isEmpty())
+	if (m_charts.isEmpty())
 		return;
 		
 	beginResetModel();
-	m_series.clear();
-	m_depths.clear();
-	m_selectedIndices.clear();
+	m_charts.clear();
 	endResetModel();
 }
 
@@ -204,14 +216,14 @@ QStringList ChatViewGridModel::getChartSeriesLabels(int chartIndex) const
 {
 	if(chartIndex < 0 || chartIndex >= rowCount()) return QStringList();
 
-	return m_series[chartIndex];
+	return m_charts[chartIndex].series;
 }
 
 void ChatViewGridModel::reorderChartsBeforeDrag(int dragIndex)
 {
 	resetDepths();
 
-	m_depths[dragIndex] = 0;
+	m_charts[dragIndex].depth = 0;
 
 	auto topLeft = this->index(0, 0);
 	auto bottomRight = this->index(rowCount() - 1, 0);
@@ -221,11 +233,9 @@ void ChatViewGridModel::reorderChartsBeforeDrag(int dragIndex)
 
 void ChatViewGridModel::resetDepths()
 {
-	m_depths.clear();
-
-	for(auto i=0;i<m_series.count();i++)
+	for(auto i=0;i<m_charts.count();i++)
 	{
-		m_depths.append(i + 1);
+		m_charts[i].depth = i + 1;
 	}
 }
 
@@ -233,9 +243,9 @@ void ChatViewGridModel::resetDepths()
 QStringList ChatViewGridModel::chartLabels() const
 {
 	QStringList labels;
-	for(auto s : m_series)
+	for(auto& chart : m_charts)
 	{
-		labels.append(s);
+		labels.append(chart.series);
 	}
 
 	return labels;
@@ -243,9 +253,9 @@ QStringList ChatViewGridModel::chartLabels() const
 
 bool ChatViewGridModel::hasSeries(const QString &label) const
 {
-	for(auto s : m_series)
+	for(auto& chart : m_charts)
 	{
-		if(s.contains(label)) return true;
+		if(chart.series.contains(label)) return true;
 	}
 
 	return false;
@@ -258,9 +268,9 @@ bool ChatViewGridModel::selectElement(int index, bool keepSelection)
 		clearSelection();
 	}
 
-	if (index >= 0 && index < m_selectedIndices.count())
+	if (index >= 0 && index < m_charts.count())
 	{
-		m_selectedIndices[index] =  !m_selectedIndices[index];
+		m_charts[index].isSelected =  !m_charts[index].isSelected;
 	}
 
 
@@ -273,9 +283,9 @@ bool ChatViewGridModel::selectElement(int index, bool keepSelection)
 
 void ChatViewGridModel::clearSelection()
 {
-	for (auto& selection : m_selectedIndices)
+	for (auto& chart : m_charts)
 	{
-		selection = false;
+		chart.isSelected = false;
 	}
 
 	emit isCanMergeChartsChanged();
@@ -300,9 +310,9 @@ void ChatViewGridModel::clearHover()
 bool ChatViewGridModel::isCanMergeCharts() const
 {
 	auto countSelectedCharts = 0;
-	for (auto isSelected : m_selectedIndices)
+	for (auto& chart : m_charts)
 	{
-		countSelectedCharts += (int)(isSelected == true);
+		countSelectedCharts += (int)(chart.isSelected == true);
 	}
 
 	return countSelectedCharts > 1;
@@ -310,7 +320,7 @@ bool ChatViewGridModel::isCanMergeCharts() const
 
 void ChatViewGridModel::updateAllCells()
 {
-	for (auto i = 0; i < m_series.count(); i++)
+	for (auto i = 0; i < m_charts.count(); i++)
 	{
 		emit dataChanged(this->createIndex(i, 0), this->createIndex(i, 0));
 	}
@@ -318,9 +328,9 @@ void ChatViewGridModel::updateAllCells()
 
 int ChatViewGridModel::findChartIndex(const QString &label) const
 { 
-	for (auto i=0;i<countSeries();i++)
+	for (auto i=0;i<m_charts.count();i++)
 	{
-		if (m_series[i].contains(label))
+		if (m_charts[i].series.contains(label))
 		{
 			return i;
 		}
@@ -339,6 +349,7 @@ QHash<int, QByteArray> ChatViewGridModel::roleNames() const
 	roles[DepthRole] = "depth";
 	roles[SelectionRole] = "selection";
 	roles[HoverRole] = "hover";
+	roles[ColorRole] = "parameterColor";
 
 	return roles;
 }

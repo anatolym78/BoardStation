@@ -30,6 +30,14 @@ public:
 		DepthRole,
 		SelectionRole,
 		HoverRole,
+		ColorRole,
+	};
+	struct ChartInfo
+	{
+		QStringList series;
+		QColor color = Qt::darkGray;
+		int depth = 0;
+		bool isSelected = false;
 	};
 
 	explicit ChatViewGridModel(QObject *parent = nullptr);
@@ -57,8 +65,8 @@ public:
 	Q_INVOKABLE QStringList chartLabels() const;
 
 	Q_INVOKABLE bool hasSeries(const QString &label) const;
-	Q_INVOKABLE int countSeries() const { return m_series.size(); }
-	Q_INVOKABLE bool isEmpty() const { return m_series.isEmpty(); }
+	Q_INVOKABLE int countSeries() const { return m_charts.count(); }
+	Q_INVOKABLE bool isEmpty() const { return m_charts.isEmpty(); }
 
 	Q_INVOKABLE bool selectElement(int index, bool keepSelection);
 	Q_INVOKABLE void clearSelection();
@@ -75,22 +83,14 @@ signals:
 	void parameterAdded(const QString& label, const QColor& color);
 	void isCanMergeChartsChanged();
 
-	struct ChartInfo
-	{
-		QStringList series;
-		QColor color = Qt::darkGray;
-		int depth = 0;
-		bool isSelected = false;
-	};
-
 private:
 	DataPlayer* m_dataPlayer = nullptr;
 	//QMetaObject::Connection m_playConnection;
 	//QMetaObject::Connection m_stopConnection;
 	QList<ChartInfo> m_charts;
-	QList<QStringList> m_series;
-	QList<int> m_depths;
-	QList<bool> m_selectedIndices;
+	//QList<QStringList> m_series;
+	//QList<int> m_depths;
+	//QList<bool> m_selectedIndices;
 	int m_hoverIndex = -1;
 
 	// Вспомогательные методы
