@@ -14,16 +14,6 @@ ChatViewGridModel::ChatViewGridModel(QObject *parent) : QAbstractListModel(paren
 void ChatViewGridModel::setPlayer(DataPlayer* dataPlayer)
 {
 	m_dataPlayer = dataPlayer;
-
-	if (m_stopConnection)
-	{
-		QObject::disconnect(m_stopConnection);
-	}
-
-	clearCharts();
-
-	m_stopConnection = connect(m_dataPlayer, &DataPlayer::stopped,
-		this, &ChatViewGridModel::clearCharts);
 }
 
 
@@ -40,10 +30,6 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 		return {};
 
 	auto cellIndex = index.row();// cellToIndex(index);
-	if (role == IsExists)
-	{
-		return cellIndex < m_series.count();
-	}
 
 	if(cellIndex >= m_series.count()) 
 		return {};
@@ -55,6 +41,7 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 	{
 		return m_depths[cellIndex];
 	}
+
 	if (role == LabelsRole)
 	{
 		return m_series[cellIndex];
@@ -63,10 +50,6 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 	if (role == LabelRole)
 	{
 		return m_series[cellIndex].last();
-	}
-	if (role == LabelsRole)
-	{
-		return m_series[cellIndex];
 	}
 
 	if (role == SelectionRole)
@@ -87,26 +70,17 @@ bool ChatViewGridModel::toggleParameter(const QString &label, const QColor &colo
 	if(hasSeries(label))
 	{
 		removeLabel(label);
-
 		return false;
 	}
 	else
 	{
 		addChart(label, color);
-
 		return true;
 	}
 }
 
 void ChatViewGridModel::addChart(const QString &label, const QColor& color)
 {
-	//beginInsertRows(QModelIndex(), m_elements.count(), m_elements.count());
-	//m_elements.append(0);
-
-	//endInsertRows();
-
-	//return;
-
 	// Проверяем, существует ли параметр в истории
 	if (!parameterExistsInHistory(label))
 	{
@@ -289,6 +263,9 @@ bool ChatViewGridModel::selectElement(int index, bool keepSelection)
 		m_selectedIndices[index] =  !m_selectedIndices[index];
 	}
 
+
+	emit isCanMergeChartsChanged();
+
 	updateAllCells();
 
 	return true;
@@ -300,6 +277,8 @@ void ChatViewGridModel::clearSelection()
 	{
 		selection = false;
 	}
+
+	emit isCanMergeChartsChanged();
 
 	updateAllCells();
 }
@@ -316,6 +295,17 @@ void ChatViewGridModel::clearHover()
 	m_hoverIndex = -1;
 
 	updateAllCells();
+}
+
+bool ChatViewGridModel::isCanMergeCharts() const
+{
+	auto countSelectedCharts = 0;
+	for (auto isSelected : m_selectedIndices)
+	{
+		countSelectedCharts += (int)(isSelected == true);
+	}
+
+	return countSelectedCharts > 1;
 }
 
 void ChatViewGridModel::updateAllCells()
@@ -343,14 +333,10 @@ QHash<int, QByteArray> ChatViewGridModel::roleNames() const
 {
 	QHash<int, QByteArray> roles;
 
-	roles[ChartRole] = "chart";
-	roles[ChartLabelRole] = "chartLabel";
 	roles[LabelsRole] = "labels";
 	roles[LabelRole] = "label";
 	roles[ChartIndexRole] = "chartIndex";
-	roles[HasDataRole] = "hasData";
 	roles[DepthRole] = "depth";
-	roles[IsExists] = "exists";
 	roles[SelectionRole] = "selection";
 	roles[HoverRole] = "hover";
 

@@ -18,18 +18,16 @@
 class ChatViewGridModel : public QAbstractListModel
 {
 	Q_OBJECT
+		
+	Q_PROPERTY(bool isCanMergeCharts READ isCanMergeCharts NOTIFY isCanMergeChartsChanged)
 
 public:
 	enum ChartViewRoles
 	{
-		ChartRole = Qt::UserRole + 1,
-		ChartLabelRole,
-		LabelsRole,
+		LabelsRole = Qt::UserRole + 1,
 		LabelRole,
 		ChartIndexRole,
-		HasDataRole,
 		DepthRole,
-		IsExists,
 		SelectionRole,
 		HoverRole,
 	};
@@ -60,6 +58,7 @@ public:
 
 	Q_INVOKABLE bool hasSeries(const QString &label) const;
 	Q_INVOKABLE int countSeries() const { return m_series.size(); }
+	Q_INVOKABLE bool isEmpty() const { return m_series.isEmpty(); }
 
 	Q_INVOKABLE bool selectElement(int index, bool keepSelection);
 	Q_INVOKABLE void clearSelection();
@@ -67,21 +66,32 @@ public:
 	Q_INVOKABLE bool hoverElement(int index);
 	Q_INVOKABLE void clearHover();
 
+	Q_INVOKABLE bool isCanMergeCharts() const;
+
 	void updateAllCells();
 	
 signals:
 	void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
 	void parameterAdded(const QString& label, const QColor& color);
+	void isCanMergeChartsChanged();
+
+	struct ChartInfo
+	{
+		QStringList series;
+		QColor color = Qt::darkGray;
+		int depth = 0;
+		bool isSelected = false;
+	};
 
 private:
 	DataPlayer* m_dataPlayer = nullptr;
-	QMetaObject::Connection m_playConnection;
-	QMetaObject::Connection m_stopConnection;
+	//QMetaObject::Connection m_playConnection;
+	//QMetaObject::Connection m_stopConnection;
+	QList<ChartInfo> m_charts;
 	QList<QStringList> m_series;
 	QList<int> m_depths;
 	QList<bool> m_selectedIndices;
 	int m_hoverIndex = -1;
-	QList<int> m_elements;
 
 	// Вспомогательные методы
 	int findChartIndex(const QString &label) const;
