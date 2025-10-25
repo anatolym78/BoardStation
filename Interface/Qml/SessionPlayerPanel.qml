@@ -2,6 +2,8 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "./MaterialDesign.js" as MD
+
 Rectangle 
 {
     id: sessionPlayerPanel
@@ -55,18 +57,17 @@ Rectangle
                 color: parent.pressed ? 
                        (playPauseButton.isPlaying ? "#ffc107" : "#28a745") :
                        (playPauseButton.isPlaying ? "#ffc107" : "#28a745")
-                radius: 5
-                border.color: playPauseButton.isPlaying ? "#ffc107" : "#28a745"
-                border.width: 1
+                radius: 4
             }
             
             contentItem: Text 
             {
-                text: parent.text
+                text: MD.icons.play_circle_outline
                 color: "white"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: parent.font.pixelSize
+                //font.pixelSize: 20// parent.font.pixelSize
+                font.pointSize: 22
                 font.bold: true
             }
             
@@ -98,19 +99,17 @@ Rectangle
 
             background: Rectangle 
             {
-                color: parent.pressed ? "#dc3545" : "#dc3545"
-                radius: 5
-                border.color: "#dc3545"
-                border.width: 1
+                color: parent.pressed ? "steelblue" : "slategray"
+                radius: 4
             }
             
             contentItem: Text 
             {
-                text: parent.text
+                text: MD.icons.stop
                 color: "white"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font.pixelSize: parent.font.pixelSize
+                font.pointSize: 22
                 font.bold: true
             }
             

@@ -27,7 +27,7 @@ void DataPlayer::onParameterReceived(BoardParameterSingle* parameter)
 	// Базовая реализация - просто эмитируем сигнал parameterPlayed
 	if (parameter)
 	{
-		emit parameterPlayed(parameter);
+		emit parameterPlayed(parameter, false);
 	}
 }
 
@@ -126,14 +126,7 @@ void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDa
 	{
 		if (param)
 		{
-			if (isReverse)
-			{
-				emit parameterBackPlayed(param);
-			}
-			else
-			{
-				emit parameterPlayed(param);
-			}
+			emit parameterPlayed(param, isReverse);
 		}
 	}
 }

@@ -15,6 +15,9 @@ Item
     {
         droneControlPanel.uplinkParametersModel = uplinkParametersModel
         sessionsPanel.sessionsModel = sessionsListModel
+
+        for (var i = 0; i < Qt.fontFamilies().length; ++i)
+            console.log(Qt.fontFamilies()[i])
     }
 
     // Main frame
@@ -56,8 +59,7 @@ Item
 
                         onParameterSelected:
                         {
-                            //simpleChartsPanel.toggleParameter(label, color)
-                            chartsView.toggleParameter(label, color)
+                            chartViewModel.toggleParameter(label, color)
                         }
                     }
 
@@ -68,22 +70,6 @@ Item
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.preferredHeight: 2
-                        
-                        // Передаем состояние записи и ID текущей сессии
-                        isRecording: qmlMainWindow.isRecording()
-                        currentRecordingSessionId: qmlMainWindow.isRecording() ? 
-                            (boardMessagesWriter ? boardMessagesWriter.getCurrentSessionId() : -1) : -1
-
-                        onSessionSelected:
-                        {
-                            //console.log("Выбрана сессия:", sessionId, sessionName)
-                        }
-
-                        onRefreshRequested:
-                        {
-                            //console.log("Запрос на обновление сессий")
-                            sessionsListModel.refreshSessions()
-                        }
                     }
                 }
 
@@ -120,6 +106,47 @@ Item
                         // }
                     }
 
+                    // Панель плеера сессий в самом низу
+                    SessionPlayerPanel
+                    {
+                        id: sessionPlayerPanel
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 80
+
+                        onPlayClicked:
+                        {
+                            if ( parametersPlayer)
+                            {
+                                 parametersPlayer.play()
+                            }
+                        }
+
+                        onPauseClicked:
+                        {
+                            if(parametersPlayer)
+                            {
+                                parametersPlayer.pause()
+                            }
+                        }
+
+                        onStopClicked:
+                        {
+                            if (parametersPlayer)
+                            {
+                                 parametersPlayer.stop()
+                            }
+                        }
+
+                        onPositionChanged:
+                        {
+                            if ( parametersPlayer)
+                            {
+                                var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
+                                parametersPlayer.setPosition(newPosition)
+                            }
+                        }
+                    }
+
                     // // Панель с отладкой/логами
                     // Rectangle
                     // {
@@ -148,47 +175,6 @@ Item
                  }
              }
 
-            }
-            
-            // Панель плеера сессий в самом низу
-            SessionPlayerPanel
-            {
-                id: sessionPlayerPanel
-                Layout.fillWidth: true
-                Layout.preferredHeight: 80
-                
-                onPlayClicked:
-                {
-                    if ( parametersPlayer)
-                    {
-                         parametersPlayer.play()
-                    }
-                }
-
-                onPauseClicked:
-                {
-                    if(parametersPlayer)
-                    {
-                        parametersPlayer.pause()
-                    }
-                }
-                
-                onStopClicked:
-                {
-                    if (parametersPlayer)
-                    {
-                         parametersPlayer.stop()
-                    }
-                }
-                
-                onPositionChanged:
-                {
-                    if ( parametersPlayer)
-                    {
-                        var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
-                        parametersPlayer.setPosition(newPosition)
-                    }
-                }
             }
         }
     }

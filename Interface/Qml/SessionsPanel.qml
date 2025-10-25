@@ -12,7 +12,6 @@ Rectangle
     
     property alias sessionsModel: sessionsList.model
     property alias currentIndex: sessionsList.currentIndex
-    property bool isRecording: false
     property int currentRecordingSessionId: -1
     
     signal sessionSelected(int sessionId, string sessionName)
@@ -61,8 +60,6 @@ Rectangle
             {
                 sessionsListModel.selectSession(currentIndex)
             }
-
-            enabled: !sessionsListModel.isRecordingState()
             
             delegate: Rectangle 
             {
@@ -77,8 +74,6 @@ Rectangle
                 
                 // Определяем цвета в зависимости от состояния
                 property bool isSelected: sessionsList.currentIndex === index
-                property bool isRecordingSession: sessionId === sessionsPanel.currentRecordingSessionId
-                property bool isDisabled: sessionsPanel.isRecording && !isRecordingSession
                 
                 // Отладочная информация
                 Component.onCompleted:

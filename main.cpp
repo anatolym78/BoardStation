@@ -6,10 +6,17 @@
 
 #include <QLocale>
 #include <QTranslator>
+#include <QFontDatabase>
 
 int main(int argc, char *argv[])
 {
     BoardStationApp app(argc, argv);
+
+    int id = QFontDatabase::addApplicationFont(":/Interface/Qml/MaterialSymbolsRounded-Regular.ttf");
+    if (id == -1)
+        qWarning() << "Failed to load MaterialSymbolsRounded-Regular.ttf";
+    else
+        qDebug() << "Loaded fonts:" << QFontDatabase::applicationFontFamilies(id);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

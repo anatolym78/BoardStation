@@ -18,6 +18,7 @@ LiveSession::LiveSession(QObject *parent)
 
 	m_parametersModel->setPlayer(m_player);
 	m_chartsModel->setPlayer(m_player);
+	m_chartsModel->setStorage(m_storage);
 
 	connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
 		[this](BoardParameterSingle*)

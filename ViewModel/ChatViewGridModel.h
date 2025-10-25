@@ -9,6 +9,7 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QDateTimeAxis>
 #include <QDateTime>
 #include <QVariant>
 #include <QColor>
@@ -31,6 +32,7 @@ public:
 		SelectionRole,
 		HoverRole,
 		ColorRole,
+		seriesMapRole,
 	};
 	struct ChartInfo
 	{
@@ -38,24 +40,25 @@ public:
 		QColor color = Qt::darkGray;
 		bool isSelected = false;
 		QMap<QString, QPointer<QtCharts::QLineSeries>> seriesMap;
+		QPointer<QtCharts::QDateTimeAxis> timeAxis = nullptr;
+		QPointer<QtCharts::QValueAxis> valueAxis = nullptr;
 	};
 
 	explicit ChatViewGridModel(QObject *parent = nullptr);
 
 	void setPlayer(DataPlayer* dataPlayer);
+	void setStorage(BoardParameterHistoryStorage* pStorage);
 
 	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 	QHash<int, QByteArray> roleNames() const override;
 
 	// Методы для работы с графиками
-	Q_INVOKABLE bool toggleParameter(const QString& label, const QColor& color = Qt::red);
-	Q_INVOKABLE void addChart(const QString &label, const QColor& color = Qt::red);
-	Q_INVOKABLE void removeChart(int index);
-	Q_INVOKABLE void removeLabel(const QString& label);
+	Q_INVOKABLE void toggleParameter(const QString& label, const QColor& color = Qt::red);
+	Q_INVOKABLE void addSeries(const QString &label, const QColor& color = Qt::red);
+	Q_INVOKABLE void removeSeries(const QString& label);
 	Q_INVOKABLE void clearCharts();
 	Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
-	Q_INVOKABLE void addSeriesToChart(int chartIndex, const QString& label, QtCharts::QLineSeries* series);
 
 	Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
 	Q_INVOKABLE void splitSeries(int chartIndex);
@@ -74,16 +77,23 @@ public:
 
 	Q_INVOKABLE bool isCanMergeCharts() const;
 
+	// new (move charts logic to c++ code)
+	Q_INVOKABLE void addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis);
+		
+	Q_INVOKABLE bool isSeriesCreated(const QString& label) const;
+
 	void updateAllCells();
+
+	void initializeSeries(int index, const QString& label);
 	
 signals:
-	void chartDataAdded(const QString &chartLabel, const QString &parameterLabel);
-	void parameterAdded(const QString& label, const QColor& color);
+	void parameterAdded(int chartIndex, const QString& label, const QColor& color);
 	void isCanMergeChartsChanged();
 
 private:
 	DataPlayer* m_dataPlayer = nullptr;
-	//QMetaObject::Connection m_playConnection;
+	BoardParameterHistoryStorage* m_pStorage = nullptr;
+	QMetaObject::Connection m_playConnection;
 	//QMetaObject::Connection m_stopConnection;
 	QList<ChartInfo> m_charts;
 	//QList<QStringList> m_series;
@@ -94,6 +104,13 @@ private:
 	// Вспомогательные методы
 	int findChartIndex(const QString &label) const;
 	bool parameterExistsInHistory(const QString &label) const;
+
+private:
+	DataPlayer* player() const { return m_dataPlayer; }
+	BoardParameterHistoryStorage* storage() const { return m_pStorage; }
+
+private:
+	const qint64 minuteIntervalMsec() { return 60 * 1000; }
 };
 
 #endif // CHATVIEWGRIDMODEL_H

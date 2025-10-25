@@ -174,7 +174,7 @@ void DriverDataPlayer::checkAndPlayParameters()
     {
         if (param && param->timestamp() <= m_currentPosition)
         {
-            emit parameterPlayed(param);
+            emit parameterPlayed(param, false);
         }
     }
 }

@@ -9,5 +9,7 @@
         <file>Interface/Qml/Colors.qml</file>
         <file>Interface/Qml/DebugLogsView.qml</file>
         <file>Interface/Qml/ChartsView.qml</file>
+        <file>Interface/Qml/MaterialDesign.js</file>
+        <file>Interface/Qml/MaterialSymbolsRounded-Regular.ttf</file>
     </qresource>
 </RCC>
