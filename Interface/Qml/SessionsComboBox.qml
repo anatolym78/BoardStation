@@ -2,36 +2,37 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
-Rectangle 
+Rectangle
 {
-    id: sessionsPanel
+    id: sessionsComboBox
     width: parent.width
     height: 200
     color: "#f0f0f0"
     radius: 5
-    
+
     property alias sessionsModel: sessionsList.model
     property alias currentIndex: sessionsList.currentIndex
     property int currentRecordingSessionId: -1
-    
+
     signal sessionSelected(int sessionId, string sessionName)
     signal refreshRequested()
-    
+    signal sessionChanged(int index)
+
     // Диалог подтверждения удаления
     property alias deleteDialog: deleteConfirmationDialog
-    
-    ColumnLayout 
+
+    ColumnLayout
     {
         anchors.fill: parent
         anchors.margins: 10
         spacing: 10
-        
+
         // Заголовок панели
-        RowLayout 
+        RowLayout
         {
             Layout.fillWidth: true
-            
-            Text 
+
+            Text
             {
                 text: qsTr("Sessions")
                 font.pixelSize: 16
@@ -39,30 +40,43 @@ Rectangle
                 color: "dimgray"
             }
         }
-        
+
         // Список сессий
         //ListView ComboBox
-        ListView
+        ComboBox
         {
             id: sessionsList
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 4
             clip: true
-            highlight: Rectangle
-            {
-                // width: 50
-                // height: 25
-                radius: 2
-                color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
-            }
+            model: sessionsListModel
+            //popup.closePolicy: Popup.CloseOnEscape
+            //popup.modal: true
+            // highlight: Rectangle
+            // {
+            //     // width: 50
+            //     // height: 25
+            //     radius: 2
+            //     color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
+            // }
 
             onCurrentIndexChanged:
             {
                 sessionsListModel.selectSession(currentIndex)
             }
-            
-            delegate: Rectangle 
+
+            contentItem: Text
+            {
+                height: 30
+                text: "Current session"// sessionsList.displayText
+                font: sessionsList.font
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+            }
+
+            delegate:  Rectangle
             {
                 id: listItemRect
                 width: sessionsList.width
@@ -72,16 +86,16 @@ Rectangle
                 border.width: 2
                 anchors.margins: 2
                 color: "transparent"
-                
+
                 // Определяем цвета в зависимости от состояния
                 property bool isSelected: sessionsList.currentIndex === index
-                
+
                 // Отладочная информация
                 Component.onCompleted:
                 {
                     console.log(model)
                 }
-                
+
                 states:
                 [
                     State
@@ -101,7 +115,7 @@ Rectangle
                     anchors.fill: parent
                     hoverEnabled: true
                     enabled: !isDisabled
-                    
+
                     onClicked:
                     {
                         sessionsList.currentIndex = index
@@ -110,25 +124,27 @@ Rectangle
                         {
                             qmlMainWindow.changeSession()
                         }
+
+                        sessionChanged(index)
                     }
-                    
+
                     onEntered:
                     {
                         listItemRect.state = "hovered"
                     }
-                    
+
                     onExited:
                     {
                         listItemRect.state = ""
                     }
                 }
-                
-                ColumnLayout 
+
+                ColumnLayout
                 {
                     anchors.fill: parent
                     anchors.margins: 16
                     spacing: 8
-                    
+
                     RowLayout
                     {
                         Layout.fillWidth: true
@@ -335,23 +351,23 @@ Rectangle
                         // }
                     }
 
-                    RowLayout 
+                    RowLayout
                     {
                         Layout.fillWidth: true
-                        
-                        Text 
+
+                        Text
                         {
                             text: qsTr("Created: ") + createdAtFormatted
                             font.pixelSize: 11
                             color: isDisabled ? "#bbbbbb" : "#666666"
                         }
-                        
-                        Item 
+
+                        Item
                         {
                             Layout.fillWidth: true
                         }
-                        
-                        Text 
+
+                        Text
                         {
                             text: messageCount + " " + qsTr("messages")
                             font.pixelSize: 11
@@ -360,14 +376,14 @@ Rectangle
                     }
                 }
             }
-            
-            ScrollBar.vertical: ScrollBar 
+
+            ScrollBar.vertical: ScrollBar
             {
                 active: true
             }
         }
     }
-    
+
     // Диалог подтверждения удаления
     Dialog
     {
@@ -376,15 +392,15 @@ Rectangle
         width: 400
         height: 200
         modal: true
-        
+
         property int sessionIndex: -1
         property string sessionName: ""
-        
+
         ColumnLayout
         {
             anchors.fill: parent
             spacing: 20
-            
+
             Text
             {
                 Layout.fillWidth: true
@@ -393,7 +409,7 @@ Rectangle
                 font.pixelSize: 14
                 color: "#333333"
             }
-            
+
             Text
             {
                 Layout.fillWidth: true
@@ -402,18 +418,18 @@ Rectangle
                 font.pixelSize: 12
                 color: "#666666"
             }
-            
+
             RowLayout
             {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignRight
                 spacing: 10
-                
+
                 Button
                 {
                     text: qsTr("Отмена")
                     onClicked: deleteConfirmationDialog.close()
-                    
+
                     background: Rectangle
                     {
                         color: parent.pressed ? "#e0e0e0" : "#f0f0f0"
@@ -421,7 +437,7 @@ Rectangle
                         border.color: "#cccccc"
                         border.width: 1
                     }
-                    
+
                     contentItem: Text
                     {
                         text: parent.text
@@ -430,7 +446,7 @@ Rectangle
                         verticalAlignment: Text.AlignVCenter
                     }
                 }
-                
+
                 Button
                 {
                     text: qsTr("Удалить")
@@ -442,13 +458,13 @@ Rectangle
                         }
                         deleteConfirmationDialog.close()
                     }
-                    
+
                     background: Rectangle
                     {
                         color: parent.pressed ? "#d32f2f" : "#f44336"
                         radius: 4
                     }
-                    
+
                     contentItem: Text
                     {
                         text: parent.text

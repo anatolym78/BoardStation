@@ -17,10 +17,19 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 {
 	qmlRegisterType<BoardParameterValue>("BoardStation", 1, 0, "BoardParameterValue");
 	qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
+	qmlRegisterType<BoardParametersListModel>("BoardStation", 1, 0, "BoardParametersListModel");
 
 	qmlRegisterType<ChatViewGridModel>("BoardStation", 1, 0, "ChatViewGridModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
-	qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
+
+	qmlRegisterUncreatableType<DataPlayer>("BoardStation", 1, 0, "DataPlayer",
+		"DataPlayer cannot be created in QML");
+	qmlRegisterUncreatableType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer",
+		"SessionPlayer cannot be created in QML");
+	qmlRegisterUncreatableType<DriverDataPlayer>("BoardStation", 1, 0, "DriverDataPlayer",
+		"DriverDataPlayer cannot be created in QML");
+
+	//qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
 	
 	setResizeMode(ResizeMode::SizeRootObjectToView);
 	
@@ -37,19 +46,20 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 	{       
 		if (context())
 		{
-			context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
+			context()->setContextProperty("sessionsListModel", app()->getSessionsListModel());
+			
+			//context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
 		
 			context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
 
 			context()->setContextProperty("debugViewModel", app()->getDebugViewModel());
 
-			context()->setContextProperty("sessionsListModel", app()->getSessionsListModel());
 
-			context()->setContextProperty("parametersPlayer", app()->player());
+			//context()->setContextProperty("parametersPlayer", app()->player());
 
 			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());
 			
-			context()->setContextProperty("chartViewModel", app()->getChartViewModel());
+			//context()->setContextProperty("chartViewModel", app()->getChartViewModel());
 		}
 		
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));
@@ -74,9 +84,9 @@ void QmlMainWindow::changeSession()
 {
 	if (app())
 	{
-		context()->setContextProperty(QString("parametersPlayer"), app()->player());
-		context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
-		context()->setContextProperty(QString("chartViewModel"), app()->getChartViewModel());
+		//context()->setContextProperty(QString("parametersPlayer"), app()->player());
+		//context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
+		//context()->setContextProperty(QString("chartViewModel"), app()->getChartViewModel());
 	}
 }
 

@@ -10,189 +10,161 @@ Item
     id: mainWindow
     width: 1400
     height: 960
-      
-    Component.onCompleted:
-    {
-        droneControlPanel.uplinkParametersModel = uplinkParametersModel
-        sessionsPanel.sessionsModel = sessionsListModel
 
-        for (var i = 0; i < Qt.fontFamilies().length; ++i)
-            console.log(Qt.fontFamilies()[i])
-    }
-
-    // Main frame
-    Frame
+    RowLayout
     {
         anchors.fill: parent
+        anchors.margins: 10
+        spacing: 10
 
-        ColumnLayout
+        // LeftPanel
+        Rectangle
         {
-            anchors.fill: parent
-            spacing: 8
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 3
+            color: "aliceblue"
 
-            Rectangle
+            StackLayout
             {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                //color:"#f7f7f7"
-                radius: 4
+                id: sessionsDocumentList
+                //Layout.fillWidth: true
+                //Layout.fillHeight: true
+                anchors.fill: parent
+                currentIndex: 0
 
-                RowLayout
+                Connections
                 {
-                    anchors.fill: parent
-                    spacing: 8
+                    target: sessionsComboBox
 
-                ColumnLayout
-                {
-                    Layout.preferredWidth: 1.7
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    spacing: 8
-
-                    // Отображает список параметров, полученных от дрона
-                    BoardParametersList
+                    function onSessionChanged(index)
                     {
-                        id: boardParametersList
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredHeight: 3
-
-                        onParameterSelected:
-                        {
-                            chartViewModel.toggleParameter(label, color)
-                        }
-                    }
-
-                    // Панель управления сессиями
-                    SessionsPanel
-                    {
-                        id: sessionsPanel
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredHeight: 2
+                        sessionsDocumentList.currentIndex = index// index
                     }
                 }
 
-                ColumnLayout
+                Repeater
                 {
-                    Layout.preferredWidth: 5
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    spacing: 8
-
-                    // Панель с графиками
-                    Rectangle
+                    model: sessionsListModel
+                    delegate: Item
                     {
-                        Layout.preferredHeight: 3
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        color: "aliceblue"
-                        //border.color: "gainsboro"
-                        radius: 4
-
-                        ChartsView
+                        ColumnLayout
                         {
-                            id: chartsView
                             anchors.fill: parent
-                            anchors.margins: 5
+                            RowLayout
+                            {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                Layout.preferredHeight: 300
 
+                                BoardParametersList
+                                {
+                                    id: boardParametersList
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 1
+                                    //Layout.preferredHeight: 200
+
+                                    // onParameterSelected:
+                                    // {
+                                    //     chartViewModel.toggleParameter(label, color)
+                                    // }
+                                }
+
+
+                                ChartsView
+                                {
+                                    id: chartsView
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 3
+                                }
+                            }
+
+                            SessionPlayerPanel
+                            {
+                                id: sessionPlayerPanel
+                                Layout.fillWidth: true
+                                Layout.fillHeight: false
+                                Layout.preferredHeight: implicitHeight
+                                Layout.minimumHeight: 70
+
+                                // onPlayClicked:
+                                // {
+                                //     if ( parametersPlayer)
+                                //     {
+                                //          parametersPlayer.play()
+                                //     }
+                                // }
+
+                                // onPauseClicked:
+                                // {
+                                //     if(parametersPlayer)
+                                //     {
+                                //         parametersPlayer.pause()
+                                //     }
+                                // }
+
+                                // onStopClicked:
+                                // {
+                                //     if (parametersPlayer)
+                                //     {
+                                //          parametersPlayer.stop()
+                                //     }
+                                // }
+
+                                // onPositionChanged:
+                                // {
+                                //     if ( parametersPlayer)
+                                //     {
+                                //         var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
+                                //         parametersPlayer.setPosition(newPosition)
+                                //     }
+                                // }
+                            }
                         }
 
-                        // SimpleChartsPanel
-                        // {
-                        //      id: simpleChartsPanel
-                        //      anchors.fill: parent
-                        //      anchors.margins: 5
-                        // }
+
                     }
-
-                    // Панель плеера сессий в самом низу
-                    SessionPlayerPanel
-                    {
-                        id: sessionPlayerPanel
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 80
-
-                        onPlayClicked:
-                        {
-                            if ( parametersPlayer)
-                            {
-                                 parametersPlayer.play()
-                            }
-                        }
-
-                        onPauseClicked:
-                        {
-                            if(parametersPlayer)
-                            {
-                                parametersPlayer.pause()
-                            }
-                        }
-
-                        onStopClicked:
-                        {
-                            if (parametersPlayer)
-                            {
-                                 parametersPlayer.stop()
-                            }
-                        }
-
-                        onPositionChanged:
-                        {
-                            if ( parametersPlayer)
-                            {
-                                var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
-                                parametersPlayer.setPosition(newPosition)
-                            }
-                        }
-                    }
-
-                    // // Панель с отладкой/логами
-                    // Rectangle
-                    // {
-                    //     Layout.preferredHeight: 1.5
-                    //     Layout.fillWidth: true
-                    //     Layout.fillHeight: true
-                    //     color: "#f0f0f0"
-                    //     radius: 4
-
-                    //     DebugLogsView
-                    //     {
-                    //         anchors.fill: parent
-                    //         model: debugViewModel
-                    //     }
-                    // }
                 }
-
-                 // Панель управления параметрами дрона
-                 DroneControlPanel
-                 {
-                     id: droneControlPanel
-                     Layout.preferredWidth: 2.5
-                     Layout.fillWidth: true
-                     Layout.fillHeight: true
-
-                 }
-             }
 
             }
         }
-    }
 
-    Binding
-    {
-        target: droneControlPanel
-        property: "uplinkParametersModel"
-        value: uplinkParametersModel
-        when: uplinkParametersModel !== null
-    }
-    
-    Binding
-    {
-        target: sessionsPanel
-        property: "sessionsModel"
-        value: sessionsListModel
-        when: sessionsListModel !== null
+        // Right panel
+        Rectangle
+        {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: 1
+            color: "transparent"
+
+            ColumnLayout
+            {
+                anchors.fill: parent
+                // Выпадающий список сессий
+                SessionsComboBox
+                {
+                    id: sessionsComboBox
+                    Layout.preferredHeight: 1
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                }
+
+                // Панель управления параметрами дрона
+                DroneControlPanel
+                {
+                    id: droneControlPanel
+                    Layout.preferredHeight: 10
+                    //Layout.preferredWidth: 2.5
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+
+                }
+            }
+        }
     }
 }
 

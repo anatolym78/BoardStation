@@ -42,39 +42,22 @@ public:
 	// Метод для корректного закрытия приложения
 	void close();
 
-	// Get methods
-public:
-	// Методы для работы с моделью параметров
-	BoardParametersListModel* parametersModel() const;
-	ChatViewGridModel* getChartViewModel() const;
-	   
-	// Методы для работы с моделью uplink параметров
+public:	   
+	SessionsListModel* getSessionsListModel() const { return m_sessionsListModel; }
+
 	UplinkParametersModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }
 	
-	// Методы для работы с моделью отладки
 	DebugViewModel* getDebugViewModel() const { return m_debugViewModel; }
-	
-	// Методы для работы с моделью сессий
-	SessionsListModel* getSessionsListModel() const { return m_sessionsListModel; }
-	   
-	// Методы для работы с новыми uplink параметрами
-	
-	// Методы для работы с записью сообщений от борта
-
+	  
 	BoardMessagesSqliteWriter* getBoardMessagesWriter() const { return m_boardMessagesWriter;}
 
 	BoardMessagesSqliteReader* getBoardMessagesReader() const { return m_boardMessagesReader; }
 	
-	// Методы для работы с драйвером
 	drv::IDriver* getDriver() const { return m_driver; }
 	DriverAdapter* getDriverAdapter() const { return m_driverAdapter; }
 
-	// Методы для работы с сессиями
 	LiveSession* liveSession() const { return m_sessionsListModel->liveSession(); }
-
-	DataPlayer* player() const;
    
-	// 
 private:
 	drv::IDriver *m_driver;
 	DriverAdapter *m_driverAdapter;

@@ -55,32 +55,6 @@ void BoardStationApp::close()
 	}
 }
 
-
-BoardParametersListModel* BoardStationApp::parametersModel() const
-{
-	auto currentSession = m_sessionsListModel->currentSession();
-	if (currentSession == nullptr) return nullptr;
-
-	return currentSession->parametersModel();
-}
-
-
-ChatViewGridModel* BoardStationApp::getChartViewModel() const
-{
-	auto currentSession = m_sessionsListModel->currentSession();
-	if (currentSession == nullptr) return nullptr;
-
-	return currentSession->chartsModel();
-}
-
-DataPlayer* BoardStationApp::player() const
-{
-	auto currentSession = m_sessionsListModel->currentSession();
-	if (currentSession == nullptr) return nullptr;
-
-	return currentSession->player();
-}
-
 bool BoardStationApp::saveLiveData()
 {
 	qDebug() << "BoardStationApp: Starting to save live data to database";

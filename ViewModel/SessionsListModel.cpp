@@ -86,6 +86,16 @@ QVariant SessionsListModel::data(const QModelIndex &index, int role) const
 			return static_cast<int>(session->getType());
 		case IsLiveSessionRole:
 			return session->getType() == Session::LiveSession;
+		case ParametersModelRole:
+			return QVariant::fromValue(session->parametersModel());
+		case PlayerModelRole:
+			return QVariant::fromValue(session->player());
+		case ChartsModelRole:
+			return QVariant::fromValue(session->chartsModel());
+		//case TestColorRole:
+		//	return index.row() > 1 ?  
+		//		QVariant::fromValue(QColor::fromRgb(255, 0, 0)) :
+		//		QVariant::fromValue(QColor::fromRgb(255, 225, 0));
 		default:
 			return QVariant();
 	}
@@ -105,6 +115,10 @@ QHash<int, QByteArray> SessionsListModel::roleNames() const
 	roles[RecordedSessionRole] = "recordedSession";
 	roles[SessionTypeRole] = "sessionType";
 	roles[IsLiveSessionRole] = "isLiveSession";
+	roles[ParametersModelRole] = "parametersModel";
+	roles[PlayerModelRole] = "playerModel";
+	roles[ChartsModelRole] = "chartModel";
+	roles[TestColorRole] = "testColorRole";
 
 	return roles;
 }

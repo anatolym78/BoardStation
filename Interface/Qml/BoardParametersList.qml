@@ -17,6 +17,13 @@ Rectangle
 
     radius: 4
 
+    Component.onCompleted:
+    {
+        console.log(parametersModel)
+        console.log(testColorRole)
+        var k = 0
+    }
+
     color: "#f0f0f0"
 
     //property var parametersListModel: null
@@ -46,7 +53,7 @@ Rectangle
             Layout.alignment: Qt.AlignHCenter
             clip: false
 
-            model: parametersListModel
+            model: parametersModel
 
             // Data delegate
             delegate: Rectangle

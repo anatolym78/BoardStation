@@ -52,13 +52,13 @@ Rectangle
                 id: mergeChartsButton
                 text: "Merge charts"
                 font.pointSize: 13
-                visible: chartViewModel.isCanMergeCharts
+                visible: chartModel.isCanMergeCharts
                 Layout.alignment: Qt.AlignRight
             }
 
             Connections
             {
-                target: chartViewModel
+                target: chartModel
                 onIsCanMergeChartsChanged:
                 {
                     chartTitleLayout.forceLayout()
@@ -82,7 +82,7 @@ Rectangle
                 Repeater
                 {
                     id: repeater
-                    model: chartViewModel
+                    model: chartModel
 
                     delegate: Item
                     {
@@ -141,17 +141,17 @@ Rectangle
 
                                 Connections
                                 {
-                                    target: chartViewModel
+                                    target: chartModel
                                     function onParameterAdded(chartIndex, parameterLabel, parameterColor)
                                     {
                                         console.log(chartIndex)
                                         console.log(parameterLabel)
                                         if(chartIndex === index)
                                         {
-                                            if(!chartViewModel.isSeriesCreated(parameterLabel))
+                                            if(!chartModel.isSeriesCreated(parameterLabel))
                                             {
                                                 var series = chartView.createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
-                                                chartViewModel.addSeriesToChart(index, parameterLabel, parameterColor, series, timeAxis, valueAxis)
+                                                chartModel.addSeriesToChart(index, parameterLabel, parameterColor, series, timeAxis, valueAxis)
                                                 updateTimeMarker(parametersPlayer.currentPosition.getTime())
                                             }
                                         }
@@ -216,15 +216,15 @@ Rectangle
 
                             onClicked:
                             {
-                                chartViewModel.selectElement(index, true)
+                                chartModel.selectElement(index, true)
                             }
                             onEntered:
                             {
-                                chartViewModel.hoverElement(index)
+                                chartModel.hoverElement(index)
                             }
                             onExited:
                             {
-                                chartViewModel.clearHover()
+                                chartModel.clearHover()
                             }
                         }
                     }

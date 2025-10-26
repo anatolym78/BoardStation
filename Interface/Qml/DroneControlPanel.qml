@@ -8,18 +8,7 @@ Rectangle
 
     color: "#f0f0f0"  // Тот же фон, что и у левой панели
     radius: 4
-    
-    property var uplinkParametersModel: null
-    
-    // Сигнал для добавления графика
-    signal addChart(string parameterLabel)
 
-    Component.onCompleted:
-    {
-        console.log("model: ", uplinkParametersModel)
-        console.log("count parameters: ", uplinkParametersModel.countParameters())
-    }
-     
     ColumnLayout
     {
         anchors.fill: parent
@@ -115,9 +104,6 @@ Rectangle
                         id: labelComponent
                         Item
                         {
-                            //anchors.fill: parent
-                            //color: "transparent"
-                            //border.color: "transparent"
                             Text
                             {
                                 anchors.centerIn: parent
@@ -138,22 +124,7 @@ Rectangle
 
                                 elide: Text.ElideRight
                             }
-
-                            // Text
-                            // {
-                            //     anchors.right: parent.right
-                            //     anchors.bottom: parent.bottom
-                            //     // horizontalAlignment: Text.right
-                            //     // verticalAlignment: Text.bottom
-                            //     font.pointSize: 8
-                            //     color: "gainsboro"
-                            //     text: valueType
-
-                            //     elide: Text.ElideRight
-                            // }
                         }
-
-
                     }
 
                     Component
@@ -320,8 +291,6 @@ Rectangle
                 }
 
             }
-
-            // Data delegate with custom controls
         }
         
         // Кнопки управления (перемещены под таблицу)

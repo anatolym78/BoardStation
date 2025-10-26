@@ -8,7 +8,8 @@ Rectangle
 {
     id: sessionPlayerPanel
     width: parent.width
-    height: 75
+    //height: 75
+    implicitHeight: playPauseButton.implicitHeight
     color: "#f8f9fa"
     border.color: "transparent"
     //border.width: 1
@@ -23,8 +24,8 @@ Rectangle
     {
         target: playPauseButton
         property: "isPlaying"
-        value:  parametersPlayer ?  parametersPlayer.isPlaying : false
-        when:  parametersPlayer !== null
+        value:  playerModel ?  playerModel.isPlaying : false
+        when:  playerModel !== null
     }
     
     signal playClicked()
@@ -50,7 +51,7 @@ Rectangle
             text: isPlaying ? qsTr("Pause") : qsTr("Play")
             font.pixelSize: 14
 
-            visible: true // parametersPlayer ? parametersPlayer.isPlayable() : false
+            visible: true // playerModel ? playerModel.isPlayable() : false
 
             background: Rectangle 
             {
@@ -95,7 +96,7 @@ Rectangle
             text: qsTr("Stop")
             font.pixelSize: 14
 
-            visible: parametersPlayer ? parametersPlayer.isPlayable() : false
+            visible: playerModel ? playerModel.isPlayable() : false
 
             background: Rectangle 
             {
@@ -128,8 +129,8 @@ Rectangle
             //live: false
             
             from: 0
-            to:  parametersPlayer ?  parametersPlayer.sessionDuration : 100
-            value:  parametersPlayer ?  parametersPlayer.elapsedTime : 0
+            to:  playerModel ?  playerModel.sessionDuration : 100
+            value:  playerModel ?  playerModel.elapsedTime : 0
             stepSize: 0.1
             
             onValueChanged: 

@@ -33,6 +33,10 @@ public:
         RecordedSessionRole,
         SessionTypeRole,
         IsLiveSessionRole,
+        ParametersModelRole,
+        PlayerModelRole,
+        ChartsModelRole,
+        TestColorRole,
     };
 
     explicit SessionsListModel(QObject *parent = nullptr);
