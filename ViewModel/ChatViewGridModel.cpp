@@ -114,19 +114,41 @@ void ChatViewGridModel::initializeSeries(int index, const QString& label)
 	auto beginTime = playerPos;
 	auto endTime = playerPos.addMSecs(minuteIntervalMsec());
 
+	auto leftTime = parameters.first();
+	auto rightTime = parameters.last();
 
-	timeAxis->setMin(beginTime);
-	timeAxis->setMax(endTime);
-
-	valueAxis->setMax(500);
-	valueAxis->setMin(-400);
 
 	auto series = seriesMap[label];
 
+	auto minValue = std::numeric_limits<double>::max();
+	auto maxValue = std::numeric_limits<double>::min();
+	auto minTime = playerPos;
+	auto maxTime = playerPos;
 	for (auto p : parameters)
 	{
-		series->append(p->timestamp().toMSecsSinceEpoch(), p->value().toReal());
+		bool ok;
+		auto v = p->value().toDouble(&ok);
+
+		auto value = p->value().toReal();
+
+		series->append(p->timestamp().toMSecsSinceEpoch(), value);
+
+		if (value < minValue)
+		{
+			minValue = value;
+		}
+
+		if (value > maxValue)
+		{
+			maxValue = value;	
+		}
 	}
+	timeAxis->setMin(startPos);
+	timeAxis->setMax(endPos);
+
+	valueAxis->setMax(maxValue);
+	valueAxis->setMin(minValue);
+
 }
 
 bool ChatViewGridModel::isSeriesCreated(const QString& label) const

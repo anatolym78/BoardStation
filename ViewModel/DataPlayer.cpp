@@ -94,9 +94,20 @@ void DataPlayer::setPosition(QDateTime position)
 	emit elapsedTimeChanged();
 }
 
+void DataPlayer::setElapsedTime(double position)
+{
+	setPosition(m_sessionStartTime.addSecs(position));
+}
+
 void DataPlayer::moveToBegin()
 {
 	setPosition(m_sessionStartTime);
+}
+
+void DataPlayer::onMoved(double value)
+{
+	setPosition(m_sessionStartTime.addMSecs(value));
+
 }
 
 void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime)

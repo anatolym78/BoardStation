@@ -97,7 +97,6 @@ Rectangle
                             return chartsView.width/ (rowsCountSwitch.checked ? 2 : 1)
                         }
 
-                        property real markerTimeMs: 0
                         function updateTimeMarker(timeMs)
                         {
                             var pos = chartView.mapToPosition(Qt.point(timeMs, 0))
@@ -136,7 +135,7 @@ Rectangle
 
                                 onWidthChanged:
                                 {
-                                    updateTimeMarker(markerTimeMs)
+                                    updateTimeMarker(playerModel.currentPosition.getTime())
                                 }
 
                                 Connections
@@ -154,8 +153,6 @@ Rectangle
                                                 chartModel.addSeriesToChart(index, parameterLabel, parameterColor, series, timeAxis, valueAxis)
                                                 updateTimeMarker(playerModel.currentPosition.getTime())
                                             }
-
-                                            console.log(playerModel)
                                         }
                                     }
                                 }
@@ -163,7 +160,7 @@ Rectangle
                                 Connections
                                 {
                                     target: playerModel
-                                    function onCurrentPositionChanged()
+                                    function onElapsedTimeChanged()
                                     {
                                         updateTimeMarker(playerModel.currentPosition.getTime())
                                     }

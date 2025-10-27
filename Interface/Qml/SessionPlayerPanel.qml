@@ -140,6 +140,13 @@ Rectangle
                 //playerModel.setPosition(value)
                 //sessionPlayerPanel.positionChanged(value)
             }
+
+            onMoved:
+            {
+                playerModel.setElapsedTime(value)
+                console.log(value)
+                console.log(playerModel.elapsedTime)
+            }
         }
         
         // Временные метки

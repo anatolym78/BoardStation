@@ -25,7 +25,7 @@ public:
 	virtual ~DataPlayer();
 
 	// Свойства
-	Q_INVOKABLE bool isPlaying() const { return m_isPlaying; }
+	bool isPlaying() const { return m_isPlaying; }
 	QDateTime currentPosition() const { return m_currentPosition; }
 	QString currentSessionName() const { return m_currentSessionName; }
 	QDateTime sessionStartTime() const { return m_sessionStartTime; }
@@ -38,7 +38,9 @@ public:
 	Q_INVOKABLE virtual void stop();
 	Q_INVOKABLE virtual void pause();
 	Q_INVOKABLE virtual void setPosition(QDateTime position);
+	Q_INVOKABLE virtual void setElapsedTime(double position);
 	Q_INVOKABLE virtual void moveToBegin();
+	Q_INVOKABLE virtual void onMoved(double value);
 	// Виртуальная функция, но имеет смысл только для плеера живых данных
 	// Начинает проигрывает от текущего положения курсора
 	Q_INVOKABLE virtual void reset()
