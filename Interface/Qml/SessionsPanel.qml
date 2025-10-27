@@ -105,11 +105,6 @@ Rectangle
                     onClicked:
                     {
                         sessionsList.currentIndex = index
-
-                        if(qmlMainWindow)
-                        {
-                            qmlMainWindow.changeSession()
-                        }
                     }
                     
                     onEntered:

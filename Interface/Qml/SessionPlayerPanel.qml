@@ -76,11 +76,13 @@ Rectangle
             {
                 if (isPlaying) 
                 {
-                    sessionPlayerPanel.pauseClicked()
+                    playerModel.pause()
+                    //sessionPlayerPanel.pauseClicked()
                 }
                 else 
                 {
-                    sessionPlayerPanel.playClicked()
+                    //sessionPlayerPanel.playClicked()
+                    playerModel.play()
                 }
             }
         }
@@ -135,7 +137,8 @@ Rectangle
             
             onValueChanged: 
             {
-                sessionPlayerPanel.positionChanged(value)
+                //playerModel.setPosition(value)
+                //sessionPlayerPanel.positionChanged(value)
             }
         }
         
@@ -150,11 +153,6 @@ Rectangle
                 font.pointSize: 11
                 color: "dimgray"
             }
-            
-            // Item
-            // {
-            //     Layout.fillWidth: true
-            // }
             
             Text 
             {

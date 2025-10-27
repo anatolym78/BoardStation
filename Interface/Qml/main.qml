@@ -23,13 +23,11 @@ Item
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredWidth: 3
-            color: "aliceblue"
+            color: "transparent"
 
             StackLayout
             {
                 id: sessionsDocumentList
-                //Layout.fillWidth: true
-                //Layout.fillHeight: true
                 anchors.fill: parent
                 currentIndex: 0
 
@@ -67,10 +65,10 @@ Item
                                     Layout.preferredWidth: 1
                                     //Layout.preferredHeight: 200
 
-                                    // onParameterSelected:
-                                    // {
-                                    //     chartViewModel.toggleParameter(label, color)
-                                    // }
+                                    onParameterSelected:
+                                    {
+                                        chartModel.toggleParameter(label, color)
+                                    }
                                 }
 
 

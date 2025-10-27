@@ -19,7 +19,7 @@ public:
     QQmlContext* context() { return m_context; }
 
 public:
-    void sendParametersToBoard();
+    Q_INVOKABLE void sendParametersToBoard();
     Q_INVOKABLE void changeSession();
     Q_INVOKABLE bool saveLiveData();
 

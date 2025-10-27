@@ -152,18 +152,20 @@ Rectangle
                                             {
                                                 var series = chartView.createSeries(ChartView.SeriesTypeLine, parameterLabel, timeAxis, valueAxis)
                                                 chartModel.addSeriesToChart(index, parameterLabel, parameterColor, series, timeAxis, valueAxis)
-                                                updateTimeMarker(parametersPlayer.currentPosition.getTime())
+                                                updateTimeMarker(playerModel.currentPosition.getTime())
                                             }
+
+                                            console.log(playerModel)
                                         }
                                     }
                                 }
 
                                 Connections
                                 {
-                                    target: parametersPlayer
+                                    target: playerModel
                                     function onCurrentPositionChanged()
                                     {
-                                        updateTimeMarker(parametersPlayer.currentPosition.getTime())
+                                        updateTimeMarker(playerModel.currentPosition.getTime())
                                     }
                                 }
                             }

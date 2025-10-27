@@ -28,8 +28,6 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 		"SessionPlayer cannot be created in QML");
 	qmlRegisterUncreatableType<DriverDataPlayer>("BoardStation", 1, 0, "DriverDataPlayer",
 		"DriverDataPlayer cannot be created in QML");
-
-	//qmlRegisterType<SessionPlayer>("BoardStation", 1, 0, "SessionPlayer");
 	
 	setResizeMode(ResizeMode::SizeRootObjectToView);
 	
@@ -47,19 +45,12 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 		if (context())
 		{
 			context()->setContextProperty("sessionsListModel", app()->getSessionsListModel());
-			
-			//context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
-		
+				
 			context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
 
 			context()->setContextProperty("debugViewModel", app()->getDebugViewModel());
 
-
-			//context()->setContextProperty("parametersPlayer", app()->player());
-
-			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());
-			
-			//context()->setContextProperty("chartViewModel", app()->getChartViewModel());
+			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());	
 		}
 		
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));
@@ -76,18 +67,12 @@ void QmlMainWindow::sendParametersToBoard()
 	if (app())
 	{
 		app()->sendParametersToBoard();
-
 	}
 }
 
 void QmlMainWindow::changeSession()
 {
-	if (app())
-	{
-		//context()->setContextProperty(QString("parametersPlayer"), app()->player());
-		//context()->setContextProperty(QString("parametersListModel"), app()->parametersModel());
-		//context()->setContextProperty(QString("chartViewModel"), app()->getChartViewModel());
-	}
+	return;
 }
 
 bool QmlMainWindow::saveLiveData()

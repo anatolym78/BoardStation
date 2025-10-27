@@ -42,7 +42,6 @@ Rectangle
         }
 
         // Список сессий
-        //ListView ComboBox
         ComboBox
         {
             id: sessionsList
