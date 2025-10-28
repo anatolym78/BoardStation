@@ -54,6 +54,10 @@ Rectangle
                 font.pointSize: 13
                 visible: chartModel.isCanMergeCharts
                 Layout.alignment: Qt.AlignRight
+                onClicked:
+                {
+                    chartModel.mergeSelectedCharts()
+                }
             }
 
             Connections
@@ -143,8 +147,6 @@ Rectangle
                                     target: chartModel
                                     function onParameterAdded(chartIndex, parameterLabel, parameterColor)
                                     {
-                                        console.log(chartIndex)
-                                        console.log(parameterLabel)
                                         if(chartIndex === index)
                                         {
                                             if(!chartModel.isSeriesCreated(parameterLabel))
@@ -154,6 +156,22 @@ Rectangle
                                                 updateTimeMarker(playerModel.currentPosition.getTime())
                                             }
                                         }
+                                    }
+
+                                    function onParametersNeedToMove(targetChartIndex, parameterLabels)
+                                    {
+                                        if(targetChartIndex === index)
+                                        {
+                                            console.log(targetChartIndex)
+                                            console.log(parameterLabels)
+
+                                            for(var label of parameterLabels)
+                                            {
+                                                var series = chartView.createSeries(ChartView.SeriesTypeLine, label, timeAxis, valueAxis)
+                                                chartModel.moveSeriesToChart(targetChartIndex, label, series)
+                                            }
+                                        }
+
                                     }
                                 }
 

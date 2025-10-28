@@ -61,7 +61,13 @@ public:
 	Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
 
 	Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
+	Q_INVOKABLE void mergeSelectedCharts();
+	QList<int> selectedIndices() const;
+	int countSelectedIndices() const;
+	int countEmptyCharts() const;
+	int firstEmptyChart() const;
 	Q_INVOKABLE void splitSeries(int chartIndex);
+	void removeEmptyCharts();
 	
 	Q_INVOKABLE QStringList chartLabels() const;
 
@@ -79,7 +85,8 @@ public:
 
 	// new (move charts logic to c++ code)
 	Q_INVOKABLE void addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis);
-		
+	Q_INVOKABLE void moveSeriesToChart(int chartIndex, const QString& label, QtCharts::QLineSeries* series);
+	
 	Q_INVOKABLE bool isSeriesCreated(const QString& label) const;
 
 	void updateAllCells();
@@ -88,6 +95,7 @@ public:
 	
 signals:
 	void parameterAdded(int chartIndex, const QString& label, const QColor& color);
+	void parametersNeedToMove(int chartIndex, QStringList labels);
 	void isCanMergeChartsChanged();
 
 private:
@@ -110,6 +118,7 @@ private:
 	BoardParameterHistoryStorage* storage() const { return m_pStorage; }
 
 private:
+	void onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
 	const qint64 minuteIntervalMsec() { return 60 * 1000; }
 };
 
