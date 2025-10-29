@@ -60,7 +60,13 @@ public:
 	Q_INVOKABLE void clearCharts();
 	Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
 
-	Q_INVOKABLE void mergeCharts(int movedIndex, int targetIndex);
+	/// <summary>
+	/// Вызывается по кнопке объединения графиков
+	/// Подготавливает названия серий, который должны быть перемещены
+	/// Вызывает сигнал, обрабатываемый на стороне qml, в который передеются
+	/// индекс графика, в которй нужно переместить серии и названия этих серий
+	/// </summary>
+	/// <returns></returns>
 	Q_INVOKABLE void mergeSelectedCharts();
 	QList<int> selectedIndices() const;
 	int countSelectedIndices() const;
@@ -91,11 +97,13 @@ public:
 
 	void updateAllCells();
 
-	void initializeSeries(int index, const QString& label);
+	void fillSeries(const QString& label, QColor color, bool isInitialFill);
+	QColor labelColor(QString label);
 	
 signals:
 	void parameterAdded(int chartIndex, const QString& label, const QColor& color);
 	void parametersNeedToMove(int chartIndex, QStringList labels);
+	void parameterNeedToRemove(int chartIndex, const QString& label);
 	void isCanMergeChartsChanged();
 
 private:

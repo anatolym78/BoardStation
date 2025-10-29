@@ -64,42 +64,40 @@ void ChatViewGridModel::addSeries(const QString &label, const QColor& color)
 
 void ChatViewGridModel::removeSeries(const QString &label)
 {
-	for(auto i=0;i<m_charts.count();i++)
-	{
-		if(m_charts[i].series.contains(label))
-		{
-			m_charts[i].series.removeAll(label);
+	auto chartIndex = findChartIndex(label);
+	if (chartIndex == -1) return;
 
-			if(m_charts[i].series.isEmpty())
-			{
-				beginRemoveRows(QModelIndex(), i, i);
-				m_charts.removeAt(i);
-				endRemoveRows();
+	auto& chart = m_charts[chartIndex];
 
-				return;
-			}
-		}
-	}
+	// remove sereis
+	emit parameterNeedToRemove(chartIndex, label);
+
+	if (chart.seriesMap.count() > 0) return;
+
+	// remove empty chart
+
 }
 
 void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis)
 {
 	if (chartIndex < 0 || chartIndex >= m_charts.count()) return;
 
-	//if (!isSeriesCreated(label)) return;
-
 	series->setColor(color);
 	m_charts[chartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
 	m_charts[chartIndex].timeAxis = timeAxis;
 	m_charts[chartIndex].valueAxis = valueAxis;
 
-	initializeSeries(chartIndex, label);
+	fillSeries(label, color, true);
 }
 
 void ChatViewGridModel::moveSeriesToChart(int targetChartIndex, const QString& label, QtCharts::QLineSeries* series)
 {
+	auto color = labelColor(label);
+
 	// add series to target chart
 	m_charts[targetChartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
+
+	fillSeries(label, color, false);
 
 	// remove moved series from chart
 	for (auto index = 0; index < m_charts.count(); index++)
@@ -147,20 +145,21 @@ void ChatViewGridModel::removeEmptyCharts()
 	}
 }
 
-void ChatViewGridModel::initializeSeries(int index, const QString& label)
+void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isInitialFill)
 {
-	auto seriesMap = m_charts[index].seriesMap;
+	auto chartIndex = findChartIndex(label);
+	if (chartIndex == -1) return;
 
-	if (!seriesMap.contains(label)) return;
-
-	auto timeAxis = m_charts[index].timeAxis;
-	auto valueAxis = m_charts[index].valueAxis;
+	auto seriesMap = m_charts[chartIndex].seriesMap;
+	auto timeAxis = m_charts[chartIndex].timeAxis;
+	auto valueAxis = m_charts[chartIndex].valueAxis;
 
 	// extract parameters in [-1, 1] minute range
 	auto playerTime = player()->currentPosition();
 	auto startPos = playerTime.addMSecs(-minuteIntervalMsec());
 	auto endPos = playerTime.addMSecs(minuteIntervalMsec());
 	auto parameters = storage()->getParametersInTimeRange(startPos, endPos, label);
+
 	if (parameters.isEmpty()) return;
 
 	// fill sereis with extracted parameters
@@ -176,15 +175,47 @@ void ChatViewGridModel::initializeSeries(int index, const QString& label)
 		}
 	}
 
+	// set color
+	series->setColor(color);
+
+	// calc time range
+	if (isInitialFill)
+	{
+		QDateTime firstTime = playerTime;	// начальная точка это плеер
+		QDateTime firstParameterTime = parameters.first()->timestamp();
+		QDateTime lastParameterTime = parameters.last()->timestamp();
+		for (auto p : parameters)
+		{
+			// Если до плеера меньше пол минуты, то это начальная точка
+			if (p->timestamp().msecsTo(playerTime) < minuteIntervalMsec()/2)
+			{
+				firstTime = p->timestamp();
+
+				break;
+			}
+
+			// Если до конца серии меньше минуты, то это начальная точка
+			if (p->timestamp().msecsTo(lastParameterTime) >= minuteIntervalMsec())
+			{
+				firstTime = p->timestamp();
+
+				break;
+			}
+		}
+
+		timeAxis->setMin(firstTime);
+		timeAxis->setMax(firstTime.addMSecs(minuteIntervalMsec()));
+	}
+
 	// calc value range
-	auto minValue = std::numeric_limits<double>::max();
-	auto maxValue = std::numeric_limits<double>::min();
+	auto minValue = isInitialFill ? std::numeric_limits<double>::max() : valueAxis->min();
+	auto maxValue = isInitialFill ? std::numeric_limits<double>::min() : valueAxis->max();
 	for (auto p : parameters)
 	{
 		bool ok;
 		auto value = p->value().toDouble(&ok);
 
-		if(!ok) continue;
+		if (!ok) continue;
 
 		if (value < minValue)
 		{
@@ -193,38 +224,20 @@ void ChatViewGridModel::initializeSeries(int index, const QString& label)
 
 		if (value > maxValue)
 		{
-			maxValue = value;	
+			maxValue = value;
 		}
 	}
 	valueAxis->setMax(maxValue);
 	valueAxis->setMin(minValue);
+}
 
-	// calc time range
-	// начальная точка это плеер
-	QDateTime firstTime = playerTime;
-	QDateTime firstParameterTime = parameters.first()->timestamp();
-	QDateTime lastParameterTime = parameters.last()->timestamp();
-	for (auto p : parameters)
-	{
-		// Если до плеера меньше пол минуты, то это начальная точка
-		if (p->timestamp().msecsTo(playerTime) < minuteIntervalMsec()/2)
-		{
-			firstTime = p->timestamp();
+QColor ChatViewGridModel::labelColor(QString label)
+{
+	auto chartIndex = findChartIndex(label);
 
-			break;
-		}
+	if (chartIndex == -1) return QColor().black();
 
-		// Если до конца серии меньше минуты, то это начальная точка
-		if (p->timestamp().msecsTo(lastParameterTime) >= minuteIntervalMsec())
-		{
-			firstTime = p->timestamp();
-
-			break;
-		}
-	}
-
-	timeAxis->setMin(firstTime);
-	timeAxis->setMax(firstTime.addMSecs(minuteIntervalMsec()));
+	return m_charts[chartIndex].seriesMap[label]->color();
 }
 
 void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying)
@@ -235,104 +248,108 @@ void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool 
 	auto parameterTime = parameter->timestamp();
 	auto parameterValue = parameter->value().toDouble();
 
-auto chartIndex = findChartIndex(parameterLabel);
+	auto chartIndex = findChartIndex(parameterLabel);
 
-if (chartIndex == -1) return;
+	if (chartIndex == -1) return;
 
-auto timeAxis = m_charts[chartIndex].timeAxis;
-auto valueAxis = m_charts[chartIndex].valueAxis;
+	auto timeAxis = m_charts[chartIndex].timeAxis;
+	auto valueAxis = m_charts[chartIndex].valueAxis;
 
-if (timeAxis == nullptr || valueAxis == nullptr) return;
+	if (timeAxis == nullptr || valueAxis == nullptr) return;
 
-auto series = m_charts[chartIndex].seriesMap[parameterLabel];
+	auto series = m_charts[chartIndex].seriesMap[parameterLabel];
 
-auto countSeries = series->count();
+	auto countPoints = series->count();
 
-if (countSeries == 0) return;
-
-auto seriesLeftTime = series->at(0).x();
-auto seriesRightTime = series->at(countSeries - 1).x();
-
-auto timeRangeChaned = false;
-if (isBackPlaying)
-{
-	if (parameterTime.toMSecsSinceEpoch() < seriesLeftTime)
-	{
-		series->insert(0, QPointF(parameterTime.toMSecsSinceEpoch(), parameterValue));
-		seriesLeftTime = parameterTime.toMSecsSinceEpoch();
-		timeRangeChaned = true;
-	}
-
-	// remove right points
-	bool intervalReached = false;
-	while (!intervalReached)
-	{
-		auto countSeries = series->count();
-		if (countSeries == 0) break;
-
-		auto pointTime = series->at(countSeries - 1).x();
-		if (pointTime - seriesLeftTime > minuteIntervalMsec())
-		{
-			series->remove(countSeries - 1);
-		}
-		else
-		{
-			intervalReached = true;
-		}
-	}
-}
-else
-{
-	if (parameterTime.toMSecsSinceEpoch() > seriesRightTime)
+	if (countPoints == 0)
 	{
 		series->append(QPointF(parameterTime.toMSecsSinceEpoch(), parameterValue));
-		seriesRightTime = parameterTime.toMSecsSinceEpoch();
 
-		timeRangeChaned = true;
+		return;
 	}
 
-	// remove left points
-	bool intervalReached = false;
-	while (!intervalReached)
+	auto seriesLeftTime = series->at(0).x();
+	auto seriesRightTime = series->at(countPoints - 1).x();
+
+	auto timeRangeChaned = false;
+	if (isBackPlaying)
 	{
-		if (series->count() == 0) break;
+		if (parameterTime.toMSecsSinceEpoch() < seriesLeftTime)
+		{
+			series->insert(0, QPointF(parameterTime.toMSecsSinceEpoch(), parameterValue));
+			seriesLeftTime = parameterTime.toMSecsSinceEpoch();
+			timeRangeChaned = true;
+		}
 
-		auto pointTime = series->at(0).x();
-		if (seriesRightTime - pointTime > minuteIntervalMsec())
+		// remove right points
+		bool intervalReached = false;
+		while (!intervalReached)
 		{
-			series->remove(0);
+			auto countSeries = series->count();
+			if (countSeries == 0) break;
+
+			auto pointTime = series->at(countSeries - 1).x();
+			if (pointTime - seriesLeftTime > minuteIntervalMsec())
+			{
+				series->remove(countSeries - 1);
+			}
+			else
+			{
+				intervalReached = true;
+			}
 		}
-		else
+	}
+	else
+	{
+		if (parameterTime.toMSecsSinceEpoch() > seriesRightTime)
 		{
-			intervalReached = true;
+			series->append(QPointF(parameterTime.toMSecsSinceEpoch(), parameterValue));
+			seriesRightTime = parameterTime.toMSecsSinceEpoch();
+
+			timeRangeChaned = true;
 		}
+
+		// remove left points
+		bool intervalReached = false;
+		while (!intervalReached)
+		{
+			if (series->count() == 0) break;
+
+			auto pointTime = series->at(0).x();
+			if (seriesRightTime - pointTime > minuteIntervalMsec())
+			{
+				series->remove(0);
+			}
+			else
+			{
+				intervalReached = true;
+			}
+		}
+	}
+
+	if (timeRangeChaned && series->count() > 0)
+	{
+		auto beginTime = series->at(0).x();
+		auto endTime = series->at(series->count() - 1).x();
+		timeAxis->setMin(QDateTime::fromMSecsSinceEpoch(beginTime));
+		timeAxis->setMax(QDateTime::fromMSecsSinceEpoch(endTime));
+
+		auto minValue = valueAxis->min();
+		auto maxValue = valueAxis->max();
+
+		valueAxis->setMin(std::min(minValue, parameterValue));
+		valueAxis->setMax(std::max(maxValue, parameterValue));
 	}
 }
 
-if (timeRangeChaned && series->count() > 0)
-{
-	auto beginTime = series->at(0).x();
-	auto endTime = series->at(series->count() - 1).x();
-	timeAxis->setMin(QDateTime::fromMSecsSinceEpoch(beginTime));
-	timeAxis->setMax(QDateTime::fromMSecsSinceEpoch(endTime));
-
-	auto minValue = valueAxis->min();
-	auto maxValue = valueAxis->max();
-
-	valueAxis->setMin(std::min(minValue, parameterValue));
-	valueAxis->setMax(std::max(maxValue, parameterValue));
-}
-}
 void ChatViewGridModel::mergeSelectedCharts()
 {
 	auto indices = selectedIndices();
-	auto indicesToRemove = QList(indices.begin() + 1, indices.end());
-
 
 	auto targetChartIndex = indices.first();
+	auto indicesToRemove = QList(indices.begin() + 1, indices.end());
+
 	QStringList labelsToMove;
-	auto targetChart = m_charts[indices.first()];
-	QList<ChartInfo> chartsToRemove;
 	for (auto index : indicesToRemove)
 	{
 		auto chart = m_charts[index];
@@ -431,33 +448,6 @@ bool ChatViewGridModel::parameterExistsInHistory(const QString& label) const
 	return m_dataPlayer->storage()->containsParameter(label);
 }
 
-void ChatViewGridModel::mergeCharts(int movedIndex, int targetIndex)
-{
-	return; // not realized
-
-	if (movedIndex < 0 || movedIndex >= m_charts.size())
-	{
-		qWarning() << "ChatViewGridModel: Invalid moved index" << movedIndex;
-		return;
-	}
-
-	if (targetIndex < 0 || targetIndex >= m_charts.size())
-	{
-		qWarning() << "ChatViewGridModel: Invalid target index" << targetIndex;
-		return;
-	}
-
-	beginRemoveRows(QModelIndex(), movedIndex, movedIndex);
-
-	auto seriesLabels = m_charts[movedIndex].series;
-	m_charts[targetIndex].series.append(seriesLabels);
-	m_charts.removeAt(movedIndex);
-
-
-	endRemoveRows();
-}
-
-
 void ChatViewGridModel::splitSeries(int chartIndex)
 {
 	return; // not realized
@@ -510,7 +500,7 @@ bool ChatViewGridModel::hasSeries(const QString &label) const
 {
 	for(auto& chart : m_charts)
 	{
-		if(chart.series.contains(label)) return true;
+		if(chart.seriesMap.contains(label)) return true;
 	}
 
 	return false;
@@ -585,7 +575,7 @@ int ChatViewGridModel::findChartIndex(const QString &label) const
 { 
 	for (auto i=0;i<m_charts.count();i++)
 	{
-		if (m_charts[i].series.contains(label))
+		if (m_charts[i].seriesMap.contains(label))
 		{
 			return i;
 		}

@@ -162,9 +162,6 @@ Rectangle
                                     {
                                         if(targetChartIndex === index)
                                         {
-                                            console.log(targetChartIndex)
-                                            console.log(parameterLabels)
-
                                             for(var label of parameterLabels)
                                             {
                                                 var series = chartView.createSeries(ChartView.SeriesTypeLine, label, timeAxis, valueAxis)
@@ -172,6 +169,14 @@ Rectangle
                                             }
                                         }
 
+                                    }
+
+                                    function onParameterNeedToRemove(targetChartIndex, parameterLabel)
+                                    {
+                                        if(targetChartIndex === index)
+                                        {
+
+                                        }
                                     }
                                 }
 
