@@ -30,8 +30,8 @@ Rectangle
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.alignment: Qt.AlignHCenter
-            anchors.left: parent.left
-            anchors.right: parent.right
+            //anchors.left: parent.left
+            //anchors.right: parent.right
             clip: true
             
             model: uplinkParametersModel

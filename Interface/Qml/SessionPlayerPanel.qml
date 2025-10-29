@@ -77,11 +77,9 @@ Rectangle
                 if (isPlaying) 
                 {
                     playerModel.pause()
-                    //sessionPlayerPanel.pauseClicked()
                 }
                 else 
                 {
-                    //sessionPlayerPanel.playClicked()
                     playerModel.play()
                 }
             }

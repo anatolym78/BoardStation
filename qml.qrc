@@ -12,5 +12,7 @@
         <file>Interface/Qml/ChartsView.qml</file>
         <file>Interface/Qml/MaterialDesign.js</file>
         <file>Interface/Qml/MaterialSymbolsRounded-Regular.ttf</file>
+        <file>Interface/Qml/SessionDelegate.qml</file>
+        <file>Interface/Qml/SessionListComboBox.qml</file>
     </qresource>
 </RCC>

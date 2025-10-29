@@ -123,6 +123,19 @@ QHash<int, QByteArray> SessionsListModel::roleNames() const
 	return roles;
 }
 
+QVariantMap SessionsListModel::get(int index) const
+{
+	QVariantMap result;
+	if (index < 0 || index >= rowCount())
+		return result;
+
+	QModelIndex modelIndex = this->index(index, 0);
+	for (int role : roleNames().keys()) {
+		result[roleNames().value(role)] = data(modelIndex, role);
+	}
+	return result;
+}
+
 Session* SessionsListModel::currentSession() const
 {
 	if (m_selectedIndex >= 0 && m_selectedIndex < m_sessions.count())
@@ -574,7 +587,7 @@ Q_INVOKABLE void SessionsListModel::resetLiveSession()
 
 	liveSession()->getStorage()->clear();
 
-    liveSession()->player()->reset();
+	liveSession()->player()->reset();
 }
 
 void SessionsListModel::selectSession(int sessionIndex)

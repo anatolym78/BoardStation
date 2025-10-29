@@ -37,13 +37,13 @@ Rectangle
                 id: rowsCountSwitch
                 checked: true
 
-                Connections
-                {
-                    target: qmlMainWindow
-                    onWidthChanged:
-                    {
-                    }
-                }
+                // Connections
+                // {
+                //     target: qmlMainWindow
+                //     onWidthChanged:
+                //     {
+                //     }
+                // }
                 text: checked ? "make one column" : "make two columns"
                 font.pointSize: 13
                 visible: repeater.count > 0
@@ -65,7 +65,7 @@ Rectangle
             Connections
             {
                 target: chartModel
-                onIsCanMergeChartsChanged:
+                function onIsCanMergeChartsChanged()
                 {
                     chartTitleLayout.forceLayout()
                 }

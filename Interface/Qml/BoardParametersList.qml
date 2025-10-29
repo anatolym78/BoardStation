@@ -5,23 +5,12 @@ import BoardStation 1.0
 
 Rectangle
 {
-    // QtObject
-    // {
-    //     property var parameterLabelColor: Qt.hsva(0.6, 0.5, 0.5, 0.7)
-    //     property color parameterSelectionColor: Qt.hsva(0.6, 0.99, 0.99, 0.2)
-    //     property color parameterLabelSelectionColor: Qt.hsva(0.6, 0.99, 0.99, 1.0)
-    //     property color parameterValueSelectionColorText: "midnightblue"
-    // }
-
     id: boardParemetersList
 
     radius: 4
 
     Component.onCompleted:
     {
-        console.log(parametersModel)
-        console.log(testColorRole)
-        var k = 0
     }
 
     color: "#f0f0f0"
@@ -167,16 +156,6 @@ Rectangle
                             color: "midnightblue"
                         }
                     }
-
-                    // State
-                    // {
-                    //     name: "charted"
-                    //     PropertyChanges
-                    //     {
-                    //         target: object
-                    //         color: "red"
-                    //     }
-                    // }
                 ]
 
                 transitions: Transition

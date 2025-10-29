@@ -49,51 +49,38 @@ Rectangle
             Layout.fillHeight: true
             spacing: 4
             clip: true
-            model: sessionsListModel
-            //popup.closePolicy: Popup.CloseOnEscape
-            //popup.modal: true
-            // highlight: Rectangle
+            // indicator: null
+            // popup: Popup
             // {
-            //     // width: 50
-            //     // height: 25
-            //     radius: 2
-            //     color: Qt.hsva(0.6, 0.99, 0.99, 0.2)
+            //     height: 100
             // }
+
+            // background: Rectangle
+            // {
+            //     color: "lightgray"
+            //     radius: 4
+            //     height: 100  // теперь можем задать высоту
+            // }
+            model: sessionsListModel
 
             onCurrentIndexChanged:
             {
                 sessionsListModel.selectSession(currentIndex)
             }
 
-            contentItem: Text
-            {
-                height: 30
-                text: "Current session"// sessionsList.displayText
-                font: sessionsList.font
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                elide: Text.ElideRight
-            }
-
-            delegate:  Rectangle
+            delegate: Rectangle
             {
                 id: listItemRect
-                width: sessionsList.width
-                height: 70
-                radius: 4
+                //width: sessionsList.width
+                height: 100
+                radius: 16
                 border.color: "transparent"
                 border.width: 2
                 anchors.margins: 2
-                color: "transparent"
+                color: "red"
 
                 // Определяем цвета в зависимости от состояния
                 property bool isSelected: sessionsList.currentIndex === index
-
-                // Отладочная информация
-                Component.onCompleted:
-                {
-                    console.log(model)
-                }
 
                 states:
                 [
@@ -103,7 +90,6 @@ Rectangle
                         PropertyChanges
                         {
                             target: listItemRect;
-                            //border.color: Qt.hsva(0.6, 0.99, 0.99, 0.3)
                             color: Qt.hsva(0.15, 0.99, 0.99, 0.3)
                         }
                     }
@@ -113,7 +99,7 @@ Rectangle
                 {
                     anchors.fill: parent
                     hoverEnabled: true
-                    enabled: !isDisabled
+                    enabled: true
 
                     onClicked:
                     {
@@ -144,11 +130,12 @@ Rectangle
                     anchors.margins: 16
                     spacing: 8
 
+                    // Название и состоянии сессии
                     RowLayout
                     {
                         Layout.fillWidth: true
 
-                        // Красный кружок для текущей записываемой сессии
+                        // Красный кружок для живой сессии
                         Rectangle
                         {
                             id: recordingIndicator
@@ -159,206 +146,29 @@ Rectangle
                             visible: isLiveSession
                         }
 
+                        // Название сесии
                         Text
                         {
                             Layout.fillWidth: true
                             text: sessionName
                             font.pixelSize: 14
                             font.bold: true
-                            color: isDisabled ? "#999999" : "#333333"
+                            color: "gainsboro" // isDisabled ? "#999999" : "#333333"
                             elide: Text.ElideRight
                         }
-
-                        // // Кнопка Reset для живой сессии
-                        // Button
-                        // {
-                        //     id: resetButton
-                        //     Layout.alignment: Qt.AlignRight
-                        //     visible: isLiveSession
-
-                        //     background: Rectangle
-                        //     {
-                        //         id: resetButtonBackground
-                        //         height: 24
-                        //         color: Qt.hsva(0.1, 0.8, 0.8, 0.7)
-                        //         opacity: 0.9
-                        //         radius: 3
-                        //         states:
-                        //         [
-                        //             State
-                        //             {
-                        //                 name: "resetButtonHovered"
-                        //                 PropertyChanges
-                        //                 {
-                        //                     target: resetButtonBackground
-                        //                     color: Qt.hsva(0.1, 0.8, 0.9, 0.9)
-                        //                     opacity: 1
-                        //                 }
-                        //             },
-                        //             State
-                        //             {
-                        //                 name: "resetButtonPressed"
-                        //                 PropertyChanges
-                        //                 {
-                        //                     target: resetButtonBackground
-                        //                     color: Qt.hsva(0.1, 0.9, 0.7, 0.9)
-                        //                     opacity: 1
-                        //                 }
-                        //             }
-                        //         ]
-
-                        //         MouseArea
-                        //         {
-                        //             anchors.fill: parent
-                        //             hoverEnabled: true
-                        //             onEntered:
-                        //             {
-                        //                 resetButtonBackground.state = "resetButtonHovered"
-                        //             }
-
-                        //             onExited:
-                        //             {
-                        //                 resetButtonBackground.state = ""
-                        //             }
-
-                        //             onPressed:
-                        //             {
-                        //                 resetButtonBackground.state = "resetButtonPressed"
-                        //             }
-
-                        //             onReleased:
-                        //             {
-                        //                 resetButtonBackground.state = "resetButtonHovered"
-                        //             }
-                        //             onClicked:
-                        //             {
-                        //                 if(sessionsListModel)
-                        //                 {
-                        //                     sessionsListModel.resetLiveSession()
-                        //                 }
-
-                        //             }
-                        //         }
-                        //     }
-
-                        //     contentItem: Text
-                        //     {
-                        //         text: qsTr("reset")
-                        //         color: "white"
-                        //         font.bold: true
-                        //     }
-                        // }
-
-                        // // Кнопка Save/Delete
-                        // Button
-                        // {
-                        //     id: actionButton
-                        //     Layout.alignment: Qt.AlignRight
-                        //     visible: true
-
-                        //     background: Rectangle
-                        //     {
-                        //         id: actionButtonBackground
-                        //         height: 24
-                        //         color: Qt.hsva(0.6, 0.3, 0.4, 0.7)
-                        //         opacity: 0.9
-                        //         radius: 3
-                        //         states:
-                        //         [
-                        //             State
-                        //             {
-                        //                 name: "actionButtonHovered"
-                        //                 PropertyChanges
-                        //                 {
-                        //                     target: actionButtonBackground
-                        //                     color: "dimgray"
-                        //                     opacity: 1
-                        //                 }
-                        //             },
-                        //             State
-                        //             {
-                        //                 name: "actionButtonPressed"
-                        //                 PropertyChanges
-                        //                 {
-                        //                     target: actionButtonBackground
-                        //                     color:
-                        //                     {
-                        //                         if(isLiveSession)
-                        //                         {
-                        //                             return Qt.hsva(0.35, 0.90, 0.80, 0.9)
-                        //                         }
-                        //                         else
-                        //                         {
-                        //                             return Qt.hsva(0.025, 0.90, 0.80, 0.9)
-                        //                         }
-                        //                     }
-                        //                     opacity: 1
-                        //                 }
-                        //             }
-                        //         ]
-
-                        //         MouseArea
-                        //         {
-                        //             anchors.fill: parent
-                        //             hoverEnabled: true
-                        //             onEntered:
-                        //             {
-                        //                 actionButtonBackground.state = "actionButtonHovered"
-                        //             }
-
-                        //             onExited:
-                        //             {
-                        //                 actionButtonBackground.state = ""
-                        //             }
-
-                        //             onPressed:
-                        //             {
-                        //                 actionButtonBackground.state = "actionButtonPressed"
-                        //             }
-
-                        //             onReleased:
-                        //             {
-                        //                 actionButtonBackground.state = "actionButtonHovered"
-                        //             }
-                        //             onClicked:
-                        //             {
-                        //                 if(isLiveSession)
-                        //                 {
-                        //                     console.log(qmlMainWindow)
-                        //                     qmlMainWindow.saveLiveData()
-                        //                 }
-                        //                 else
-                        //                 {
-                        //                     // Показываем диалог подтверждения
-                        //                     deleteConfirmationDialog.sessionIndex = index
-                        //                     deleteConfirmationDialog.sessionName = sessionName
-                        //                     deleteConfirmationDialog.open()
-                        //                 }
-                        //             }
-                        //         }
-                        //     }
-
-                        //     contentItem: Text
-                        //     {
-                        //         text:
-                        //         {
-                        //             return isLiveSession ? qsTr("save") : qsTr("delete")
-                        //         }
-                        //         color: "white"
-                        //         font.bold: true
-                        //     }
-                        // }
                     }
 
+                    // Информация о сессии
                     RowLayout
                     {
                         Layout.fillWidth: true
 
+                        // Время создания сессии
                         Text
                         {
                             text: qsTr("Created: ") + createdAtFormatted
                             font.pixelSize: 11
-                            color: isDisabled ? "#bbbbbb" : "#666666"
+                            color: "gainsboro"// isDisabled ? "#bbbbbb" : "#666666"
                         }
 
                         Item
@@ -366,19 +176,15 @@ Rectangle
                             Layout.fillWidth: true
                         }
 
+                        // Количество сообщения в сессии
                         Text
                         {
                             text: messageCount + " " + qsTr("messages")
                             font.pixelSize: 11
-                            color: isDisabled ? "#bbbbbb" : "#666666"
+                            color:"gainsboro"// isDisabled ? "#bbbbbb" : "#666666"
                         }
                     }
                 }
-            }
-
-            ScrollBar.vertical: ScrollBar
-            {
-                active: true
             }
         }
     }

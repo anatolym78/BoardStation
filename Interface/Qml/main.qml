@@ -29,7 +29,19 @@ Item
             {
                 id: sessionsDocumentList
                 anchors.fill: parent
-                currentIndex: 0
+                //currentIndex: 1
+
+                // Connections
+                // {
+                //     target: sessionsList
+
+                //     onCurrentIndexChanged:
+                //     {
+                //         sessionsDocumentList.currentIndex = sessionsList.currentIndex
+                //         qmlMainWindow.changeSession()
+                //         console.log(sessionsDocumentList.currentIndex)
+                //     }
+                // }
 
                 Connections
                 {
@@ -37,10 +49,10 @@ Item
 
                     function onSessionChanged(index)
                     {
-                        sessionsDocumentList.currentIndex = index// index
+                        sessionsDocumentList.currentIndex = sessionsList.currentIndex
+                        qmlMainWindow.changeSession()
                     }
                 }
-
                 Repeater
                 {
                     model: sessionsListModel
@@ -88,46 +100,11 @@ Item
                                 Layout.fillHeight: false
                                 Layout.preferredHeight: implicitHeight
                                 Layout.minimumHeight: 70
-
-                                // onPlayClicked:
-                                // {
-                                //     if ( parametersPlayer)
-                                //     {
-                                //          parametersPlayer.play()
-                                //     }
-                                // }
-
-                                // onPauseClicked:
-                                // {
-                                //     if(parametersPlayer)
-                                //     {
-                                //         parametersPlayer.pause()
-                                //     }
-                                // }
-
-                                // onStopClicked:
-                                // {
-                                //     if (parametersPlayer)
-                                //     {
-                                //          parametersPlayer.stop()
-                                //     }
-                                // }
-
-                                // onPositionChanged:
-                                // {
-                                //     if ( parametersPlayer)
-                                //     {
-                                //         var newPosition = new Date( parametersPlayer.sessionStartTime.getTime() + position * 1000)
-                                //         parametersPlayer.setPosition(newPosition)
-                                //     }
-                                // }
                             }
                         }
 
-
                     }
                 }
-
             }
         }
 
@@ -142,6 +119,15 @@ Item
             ColumnLayout
             {
                 anchors.fill: parent
+
+                // SessionListComboBox
+                // {
+                //     id: sessionsList
+                //     //Layout.preferredHeight: 1
+                //     Layout.fillWidth: true
+                //     //Layout.fillHeight: true
+                // }
+
                 // Выпадающий список сессий
                 SessionsComboBox
                 {
@@ -156,7 +142,6 @@ Item
                 {
                     id: droneControlPanel
                     Layout.preferredHeight: 10
-                    //Layout.preferredWidth: 2.5
                     Layout.fillWidth: true
                     Layout.fillHeight: true
 
