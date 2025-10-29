@@ -120,6 +120,7 @@ private:
 	// Вспомогательные методы
 	int findChartIndex(const QString &label) const;
 	bool parameterExistsInHistory(const QString &label) const;
+	void updateValueAxisRange(int chartIndex);
 
 private:
 	DataPlayer* player() const { return m_dataPlayer; }

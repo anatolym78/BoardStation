@@ -67,15 +67,23 @@ void ChatViewGridModel::removeSeries(const QString &label)
 	auto chartIndex = findChartIndex(label);
 	if (chartIndex == -1) return;
 
-	auto& chart = m_charts[chartIndex];
-
-	// remove sereis
+	// remove sereis from qml
 	emit parameterNeedToRemove(chartIndex, label);
 
-	if (chart.seriesMap.count() > 0) return;
+	// remove series from cpp model
+	m_charts[chartIndex].seriesMap.remove(label);
 
 	// remove empty chart
-
+	if (m_charts[chartIndex].seriesMap.isEmpty())
+	{
+		this->beginRemoveRows(QModelIndex(), chartIndex, chartIndex);
+		m_charts.removeAt(chartIndex);
+		this->endRemoveRows();
+	}
+	else
+	{
+		updateValueAxisRange(chartIndex);
+	}
 }
 
 void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis)
@@ -181,12 +189,12 @@ void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isIn
 	// calc time range
 	if (isInitialFill)
 	{
-		QDateTime firstTime = playerTime;	// начальная точка это плеер
+		QDateTime firstTime = playerTime;	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 		QDateTime firstParameterTime = parameters.first()->timestamp();
 		QDateTime lastParameterTime = parameters.last()->timestamp();
 		for (auto p : parameters)
 		{
-			// Если до плеера меньше пол минуты, то это начальная точка
+			// пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 			if (p->timestamp().msecsTo(playerTime) < minuteIntervalMsec()/2)
 			{
 				firstTime = p->timestamp();
@@ -194,7 +202,7 @@ void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isIn
 				break;
 			}
 
-			// Если до конца серии меньше минуты, то это начальная точка
+			// пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 			if (p->timestamp().msecsTo(lastParameterTime) >= minuteIntervalMsec())
 			{
 				firstTime = p->timestamp();
@@ -207,28 +215,7 @@ void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isIn
 		timeAxis->setMax(firstTime.addMSecs(minuteIntervalMsec()));
 	}
 
-	// calc value range
-	auto minValue = isInitialFill ? std::numeric_limits<double>::max() : valueAxis->min();
-	auto maxValue = isInitialFill ? std::numeric_limits<double>::min() : valueAxis->max();
-	for (auto p : parameters)
-	{
-		bool ok;
-		auto value = p->value().toDouble(&ok);
-
-		if (!ok) continue;
-
-		if (value < minValue)
-		{
-			minValue = value;
-		}
-
-		if (value > maxValue)
-		{
-			maxValue = value;
-		}
-	}
-	valueAxis->setMax(maxValue);
-	valueAxis->setMin(minValue);
+	updateValueAxisRange(chartIndex);
 }
 
 QColor ChatViewGridModel::labelColor(QString label)
@@ -238,6 +225,66 @@ QColor ChatViewGridModel::labelColor(QString label)
 	if (chartIndex == -1) return QColor().black();
 
 	return m_charts[chartIndex].seriesMap[label]->color();
+}
+
+void ChatViewGridModel::updateValueAxisRange(int chartIndex)
+{
+	if (chartIndex < 0 || chartIndex >= m_charts.count())
+	{
+		return;
+	}
+
+	auto& chart = m_charts[chartIndex];
+	auto valueAxis = chart.valueAxis;
+
+	if (valueAxis == nullptr)
+	{
+		return;
+	}
+
+	if (chart.seriesMap.isEmpty())
+	{
+		valueAxis->setMin(0);
+		valueAxis->setMax(10);
+		return;
+	}
+
+	double minValue = std::numeric_limits<double>::max();
+	double maxValue = std::numeric_limits<double>::min();
+	bool hasPoints = false;
+
+	for (auto series : chart.seriesMap)
+	{
+		if (series)
+		{
+			for (const auto& point : series->points())
+			{
+				minValue = std::min(minValue, point.y());
+				maxValue = std::max(maxValue, point.y());
+				hasPoints = true;
+			}
+		}
+	}
+
+	if (hasPoints)
+	{
+		auto range = maxValue - minValue;
+		if (qFuzzyCompare(range, 0.0))
+		{
+			valueAxis->setMin(minValue - 1);
+			valueAxis->setMax(maxValue + 1);
+		}
+		else
+		{
+			valueAxis->setMin(minValue - range * 0.1);
+			valueAxis->setMax(maxValue + range * 0.1);
+		}
+	}
+	else
+	{
+		valueAxis->setMin(0);
+		valueAxis->setMax(10);
+	}
 }
 
 void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying)
@@ -357,6 +404,8 @@ void ChatViewGridModel::mergeSelectedCharts()
 	}
 
 	emit parametersNeedToMove(targetChartIndex, labelsToMove);
+
+	clearSelection();
 }
 
 QList<int> ChatViewGridModel::selectedIndices() const

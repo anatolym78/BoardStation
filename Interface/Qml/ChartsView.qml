@@ -6,7 +6,7 @@ import QtCharts 2.15
 Rectangle
 {
     id: chartsView
-    color: "transparent"
+    color: "aliceblue"
     radius: 4
     clip: true
 
@@ -18,14 +18,16 @@ Rectangle
         RowLayout
         {
             id: chartTitleLayout
+            Layout.margins: 10
             Layout.fillWidth: true
 
             TextEdit
             {
                 id: chartsPanelTitle
+                Layout.alignment: Qt.AlignHCenter
                 text: "Charts"
                 color: "gray"
-                font.pointSize: 13
+                font.pointSize: 12
                 font.bold: true
                 visible: true
             }
@@ -44,7 +46,7 @@ Rectangle
                 }
                 text: checked ? "make one column" : "make two columns"
                 font.pointSize: 13
-                visible: repeater.count > 1
+                visible: repeater.count > 0
             }
 
             Button
@@ -175,7 +177,15 @@ Rectangle
                                     {
                                         if(targetChartIndex === index)
                                         {
-
+                                            for (var i = 0; i < chartView.count; i++)
+                                            {
+                                                var s = chartView.series(i);
+                                                if (s.name === parameterLabel)
+                                                {
+                                                    chartView.removeSeries(s);
+                                                    break;
+                                                }
+                                            }
                                         }
                                     }
                                 }
