@@ -19,13 +19,13 @@ SOURCES += \
     Model/Emulation/BoardDataGenerators/LongitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/LatitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/ThrottleAdjustmentValuesGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
     Model/Parameters/BoardParameterHistory.cpp \
     Model/Parameters/BoardParametersJsonParser.cpp \
     Model/Parameters/BoardParametersJsonParserNew.cpp \
     Model/Parameters/BoardParameterValue.cpp \
     Model/Parameters/BoardParameterSingle.cpp \
-    Model/Parameters/BoardParameter.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
     ViewModel/BoardParametersListModel.cpp \
@@ -67,11 +67,11 @@ HEADERS += \
     Model/Emulation/BoardDataGenerators/LongitudeGenerator.h \
     Model/Emulation/BoardDataGenerators/LatitudeGenerator.h \
     Model/Emulation/BoardDataGenerators/SpeedGenerator.h \
+    Model/Emulation/BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.h \
     Model/IDriver.h \
     Model/Parameters/BoardParametersJsonParser.h \
     Model/Parameters/BoardParametersJsonParserNew.h \
-    Model/Parameters/BoardParameter.h \
     Model/Parameters/BoardParameterSingle.h \
     Model/Parameters/BoardParameterValue.h \
     Model/Parameters/BoardParametersStorage.h \

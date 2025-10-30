@@ -1,5 +1,6 @@
 #include "LatitudeGenerator.h"
 #include <QDebug>
+#include "./../../Parameters/BoardParameterSingle.h"
 
 LatitudeGenerator::LatitudeGenerator(QObject *parent)
     : ParameterGenerator(parent)
@@ -8,13 +9,13 @@ LatitudeGenerator::LatitudeGenerator(QObject *parent)
 {
 }
 
-BoardParameter* LatitudeGenerator::generate(double time)
+BoardParameterSingle* LatitudeGenerator::generate(double time)
 {
     // Генерируем широту по линейному закону
     double latitude = m_startLatitude + m_speed * time;
     
     // Создаем параметр с названием, значением и единицей измерения
-    BoardParameter *param = new BoardParameter(tr("Latitude"), QString::number(latitude, 'f', 6), tr("°"));
+    BoardParameterSingle *param = new BoardParameterSingle(tr("Latitude"), latitude, QDateTime::currentDateTime(), tr("°"));
     
     return param;
 }

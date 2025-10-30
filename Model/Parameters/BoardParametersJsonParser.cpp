@@ -2,15 +2,16 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDebug>
+#include "BoardParameterSingle.h"
 
 BoardParametersJsonParser::BoardParametersJsonParser(QObject *parent)
     : QObject(parent)
 {
 }
 
-QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromString(const QString &jsonString)
+QList<BoardParameterSingle*> BoardParametersJsonParser::parseParametersFromString(const QString &jsonString)
 {
-    QList<BoardParameter*> parameters;
+    QList<BoardParameterSingle*> parameters;
     
     if (jsonString.isEmpty()) {
         m_lastError = "JSON строка пуста";
@@ -36,25 +37,21 @@ QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromString(cons
     
     parameters = parseParametersFromJsonArray(doc.array());
     
-    if (parameters.isEmpty()) {
-        m_lastError = "Не удалось извлечь параметры из JSON";
-        emit parsingError(m_lastError);
-    } else {
+    if (m_lastError.isEmpty())
+    {
         emit parsingSuccess(parameters);
     }
     
     return parameters;
 }
 
-QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromFile(const QString &filePath)
+QList<BoardParameterSingle*> BoardParametersJsonParser::parseParametersFromFile(const QString &filePath)
 {
-    QList<BoardParameter*> parameters;
-    
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         m_lastError = QString("Не удалось открыть файл: %1").arg(filePath);
         emit parsingError(m_lastError);
-        return parameters;
+        return {};
     }
     
     QTextStream in(&file);
@@ -64,9 +61,10 @@ QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromFile(const 
     return parseParametersFromString(jsonString);
 }
 
-QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromJsonArray(const QJsonArray &jsonArray)
+QList<BoardParameterSingle*> BoardParametersJsonParser::parseParametersFromJsonArray(const QJsonArray &jsonArray)
 {
-    QList<BoardParameter*> parameters;
+    QList<BoardParameterSingle*> parameters;
+    m_lastError.clear();
     
     for (const QJsonValue &value : jsonArray) {
         if (!value.isObject()) {
@@ -77,10 +75,9 @@ QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromJsonArray(c
         QJsonObject obj = value.toObject();
         if (isValidParameterStructure(obj)) {
             QString label = obj["label"].toString();
-            QVariant value = obj["value"].toVariant();
-            QString unit = obj["unit"].toString();
+            QVariant valueData = obj["value"].toVariant();
+            QString unit = obj.contains("unit") ? obj["unit"].toString() : QString();
             
-            // Парсим timestamp, если он есть
             QDateTime timestamp = QDateTime::currentDateTime();
             if (obj.contains("timestamp")) {
                 timestamp = QDateTime::fromString(obj["timestamp"].toString(), Qt::ISODate);
@@ -89,14 +86,19 @@ QList<BoardParameter*> BoardParametersJsonParser::parseParametersFromJsonArray(c
                 }
             }
             
-            BoardParameter *param = new BoardParameter(label, unit);
-            param->addValue(value, timestamp);
-            parameters.append(param);
+            parameters.append(new BoardParameterSingle(label, valueData, timestamp, unit));
         } else {
-            qWarning() << "Пропускаем невалидный параметр в JSON";
+            qWarning() << "Пропускаем невалидный параметр в JSON:" << obj;
+            m_lastError = "Один или более параметров в JSON имеют неверную структуру";
+            // Не выходим, просто продолжаем парсить остальные
         }
     }
     
+    if (!m_lastError.isEmpty())
+    {
+        emit parsingError(m_lastError);
+    }
+
     return parameters;
 }
 

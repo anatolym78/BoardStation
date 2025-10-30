@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QMap>
 #include <QString>
-#include "BoardParameter.h"
+#include "BoardParameterSingle.h"
 
 class BoardParametersStorage : public QObject
 {
@@ -14,16 +14,16 @@ public:
     explicit BoardParametersStorage(QObject *parent = nullptr);
     
     // Добавление параметров - раскидывает по словарю по метке
-    void addParameters(const QList<BoardParameter*> &parameters);
+    void addParameters(const QList<BoardParameterSingle*> &parameters);
     
     // Добавление одного параметра
-    void addParameter(BoardParameter *parameter);
+    void addParameter(BoardParameterSingle *parameter);
     
     // Получение последнего значения параметра по метке
-    BoardParameter* lastValue(const QString &label) const;
+    BoardParameterSingle* lastValue(const QString &label) const;
     
     // Получение параметра по метке
-    BoardParameter* getParameter(const QString &label) const;
+    BoardParameterSingle* getParameter(const QString &label) const;
     
     // Получение всех меток параметров
     QStringList getParameterLabels() const;
@@ -38,7 +38,7 @@ public:
     void clear();
     
     // Получение всех параметров как список
-    QList<BoardParameter*> getAllParameters() const;
+    QList<BoardParameterSingle*> getAllParameters() const;
 
 signals:
     void parameterAdded(const QString &label);
@@ -46,7 +46,7 @@ signals:
     void parametersCleared();
 
 private:
-    QMap<QString, BoardParameter*> m_parameters;
+    QMap<QString, BoardParameterSingle*> m_parameters;
 };
 
 #endif // BOARDPARAMETERSSTORAGE_H

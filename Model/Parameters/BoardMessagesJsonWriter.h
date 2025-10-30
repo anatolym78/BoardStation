@@ -20,7 +20,7 @@ public:
     ~BoardMessagesJsonWriter();
     
     // Добавление сообщения в очередь
-    void addMessage(const QList<BoardParameter*> &parameters, 
+    void addMessage(const QList<BoardParameterSingle*> &parameters, 
                    const QDateTime &timestamp = QDateTime::currentDateTime());
     
     // Очистка файла (вызывается при запуске приложения)

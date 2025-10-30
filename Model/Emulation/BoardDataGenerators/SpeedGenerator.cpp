@@ -1,5 +1,6 @@
 #include "SpeedGenerator.h"
 #include <QDebug>
+#include "./../../Parameters/BoardParameterSingle.h"
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -12,13 +13,13 @@ SpeedGenerator::SpeedGenerator(QObject *parent)
 {
 }
 
-BoardParameter* SpeedGenerator::generate(double time)
+BoardParameterSingle* SpeedGenerator::generate(double time)
 {
     // Генерируем скорость с колебаниями по синусоидальному закону
     double speed = m_baseSpeed + m_amplitude * sin(2.0 * M_PI * time / m_period);
     
     // Создаем параметр с названием, значением и единицей измерения
-    BoardParameter *param = new BoardParameter(tr("Speed"), QString::number(speed, 'f', 1), tr("m/s"));
+    BoardParameterSingle *param = new BoardParameterSingle(tr("Speed"), speed, QDateTime::currentDateTime(), tr("m/s"));
     
     return param;
 }

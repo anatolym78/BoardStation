@@ -1,5 +1,6 @@
 #include "LongitudeGenerator.h"
 #include <QDebug>
+#include "./../../Parameters/BoardParameterSingle.h"
 
 LongitudeGenerator::LongitudeGenerator(QObject *parent)
     : ParameterGenerator(parent)
@@ -8,13 +9,13 @@ LongitudeGenerator::LongitudeGenerator(QObject *parent)
 {
 }
 
-BoardParameter* LongitudeGenerator::generate(double time)
+BoardParameterSingle* LongitudeGenerator::generate(double time)
 {
     // Генерируем долготу по линейному закону
     double longitude = m_startLongitude + m_speed * time;
     
     // Создаем параметр с названием, значением и единицей измерения
-    BoardParameter *param = new BoardParameter(tr("Longitude"), QString::number(longitude, 'f', 6), tr("°"));
+    BoardParameterSingle *param = new BoardParameterSingle(tr("Longitude"), longitude, QDateTime::currentDateTime(), tr("°"));
     
     return param;
 }

@@ -6,9 +6,9 @@ BoardParametersStorage::BoardParametersStorage(QObject *parent)
 {
 }
 
-void BoardParametersStorage::addParameters(const QList<BoardParameter*> &parameters)
+void BoardParametersStorage::addParameters(const QList<BoardParameterSingle*> &parameters)
 {
-    for (BoardParameter *param : parameters)
+    for (BoardParameterSingle *param : parameters)
     {
         if (param) 
         {
@@ -17,46 +17,37 @@ void BoardParametersStorage::addParameters(const QList<BoardParameter*> &paramet
     }
 }
 
-void BoardParametersStorage::addParameter(BoardParameter *parameter)
+void BoardParametersStorage::addParameter(BoardParameterSingle *parameter)
 {
     if (!parameter || parameter->label().isEmpty()) 
     {
-        //qWarning() << "BoardParametersStorage: Попытка добавить параметр с пустой меткой или nullptr";
         return;
     }
 
-	// Серия еще не существует, создаем её
     if (!m_parameters.contains(parameter->label())) 
     {
 		m_parameters.insert(parameter->label(), parameter);
 		emit parameterAdded(parameter->label());
     }
-
-	// Параметр уже существует - добавляем новое значение
-	BoardParameter* existingParam = m_parameters[parameter->label()];
-	if (parameter->hasValues())
-	{
-		existingParam->addValue(parameter->lastValueData(), parameter->lastTimestamp());
-	}
+    else
+    {
+        // Replace the old parameter with the new one.
+        // The old parameter object will be deleted if this storage object owns it.
+        delete m_parameters[parameter->label()];
+        m_parameters[parameter->label()] = parameter;
+    }
+	
 	emit parameterUpdated(parameter->label());
 }
 
-BoardParameter* BoardParametersStorage::lastValue(const QString &label) const
+BoardParameterSingle* BoardParametersStorage::lastValue(const QString &label) const
 {
-    if (m_parameters.contains(label)) 
-    {
-        return m_parameters[label];
-    }
-    return nullptr;
+    return m_parameters.value(label, nullptr);
 }
 
-BoardParameter* BoardParametersStorage::getParameter(const QString &label) const
+BoardParameterSingle* BoardParametersStorage::getParameter(const QString &label) const
 {
-    if (m_parameters.contains(label)) 
-    {
-        return m_parameters[label];
-    }
-    return nullptr;
+    return m_parameters.value(label, nullptr);
 }
 
 QStringList BoardParametersStorage::getParameterLabels() const
@@ -77,7 +68,7 @@ bool BoardParametersStorage::hasParameter(const QString &label) const
 void BoardParametersStorage::clear()
 {
     if (!m_parameters.isEmpty()) {
-        // Удаляем все объекты перед очисткой
+        // qDeleteAll takes care of deleting all the pointed-to objects
         qDeleteAll(m_parameters);
         m_parameters.clear();
         emit parametersCleared();
@@ -85,7 +76,7 @@ void BoardParametersStorage::clear()
     }
 }
 
-QList<BoardParameter*> BoardParametersStorage::getAllParameters() const
+QList<BoardParameterSingle*> BoardParametersStorage::getAllParameters() const
 {
     return m_parameters.values();
 }

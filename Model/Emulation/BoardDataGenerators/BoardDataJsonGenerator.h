@@ -6,7 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QList>
-#include "../../Parameters/BoardParameter.h"
+#include "../../Parameters/BoardParameterSingle.h"
 
 class BoardDataJsonGenerator : public QObject
 {
@@ -16,13 +16,13 @@ public:
     explicit BoardDataJsonGenerator(QObject *parent = nullptr);
     
     // Создание JSON строки из списка параметров
-    QString createJsonString(const QList<BoardParameter*> &parameters);
+    QString createJsonString(const QList<BoardParameterSingle*> &parameters);
     
     // Создание JSON документа из списка параметров
-    QJsonDocument createJsonDocument(const QList<BoardParameter*> &parameters);
+    QJsonDocument createJsonDocument(const QList<BoardParameterSingle*> &parameters);
     
     // Создание JSON массива из списка параметров
-    QJsonArray createJsonArray(const QList<BoardParameter*> &parameters);
+    QJsonArray createJsonArray(const QList<BoardParameterSingle*> &parameters);
 
 signals:
     void writingError(const QString &error);
@@ -30,7 +30,7 @@ signals:
 
 private:
     // Преобразование параметра в JSON объект
-    QJsonObject parameterToJsonObject(const BoardParameter &parameter);
+    QJsonObject parameterToJsonObject(const BoardParameterSingle &parameter);
 };
 
 #endif // BOARDDATAJSONGENERATOR_H

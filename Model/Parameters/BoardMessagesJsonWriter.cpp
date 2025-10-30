@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMutexLocker>
 #include <QApplication>
+#include "BoardParameterSingle.h"
 
 BoardMessagesJsonWriter::BoardMessagesJsonWriter(const QString &filename, QObject *parent)
     : QObject(parent)
@@ -30,16 +31,26 @@ BoardMessagesJsonWriter::~BoardMessagesJsonWriter()
     }
 }
 
-void BoardMessagesJsonWriter::addMessage(const QList<BoardParameter*> &parameters, 
+void BoardMessagesJsonWriter::addMessage(const QList<BoardParameterSingle*> &parameters, 
                                          const QDateTime &timestamp)
 {
     if (parameters.isEmpty()) {
-        qDebug() << "BoardMessagesJsonWriter: Skipping empty message";
+        //qDebug() << "BoardMessagesJsonWriter: Skipping empty message";
         return;
     }
     
     QMutexLocker locker(&m_queueMutex);
-    BoardMessage *message = new BoardMessage(parameters, timestamp, this);
+    // We need to create copies of the parameters because the original ones might be deleted elsewhere
+    QList<BoardParameterSingle*> paramCopies;
+    for(BoardParameterSingle* p : parameters)
+    {
+        if(p)
+        {
+            paramCopies.append(new BoardParameterSingle(p->label(), p->value(), p->timestamp(), p->unit(), this));
+        }
+    }
+
+    BoardMessage *message = new BoardMessage(paramCopies, timestamp, this);
     m_messageQueue.enqueue(message);
 
     m_blockCounter++;

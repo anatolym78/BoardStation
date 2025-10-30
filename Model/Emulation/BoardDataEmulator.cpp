@@ -3,6 +3,7 @@
 #include "BoardDataGenerators/LongitudeGenerator.h"
 #include "BoardDataGenerators/LatitudeGenerator.h"
 #include "BoardDataGenerators/SpeedGenerator.h"
+#include "BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h"
 #include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QDebug>
 #include <QFile>
@@ -142,6 +143,7 @@ void BoardDataEmulator::onDataTimerTimeout()
 
 void BoardDataEmulator::setupGenerators()
 {
+    /*
     // Создаем и настраиваем генератор высоты
     AltitudeGenerator *altitudeGen = new AltitudeGenerator(this);
     altitudeGen->setBaseAltitude(0);
@@ -167,20 +169,26 @@ void BoardDataEmulator::setupGenerators()
     longitudeGen->setStartLongitude(37.6173);  // Москва
     longitudeGen->setSpeed(0.05);             // Медленное движение
     m_generators.append(longitudeGen);
+    */
 
+    ThrottleAdjustmentValuesGenerator* throttleGen = new ThrottleAdjustmentValuesGenerator(this);
+    throttleGen->setupThrottleParameter(0, 10, 5, 0);
+    throttleGen->setupThrottleParameter(1, 15, 7, M_PI / 2);
+    throttleGen->setupThrottleParameter(2, 20, 10, M_PI);
+    throttleGen->setupThrottleParameter(3, 12, 4, 3 * M_PI / 2);
+    m_generators.append(throttleGen);
 
-    
     //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
 }
 
 void BoardDataEmulator::generateParameters()
 {
-    QList<BoardParameter*> parameters;
+    QList<BoardParameterSingle*> parameters;
     
     // Генерируем параметры от всех генераторов
     for (ParameterGenerator *generator : m_generators)
     {
-        BoardParameter *param = generator->generate(m_time);
+        BoardParameterSingle *param = generator->generate(m_time);
         if (param) {
             parameters.append(param);
         }
@@ -188,6 +196,7 @@ void BoardDataEmulator::generateParameters()
     
     if (parameters.isEmpty()) {
         //qDebug() << "BoardDataEmulator: Не удалось сгенерировать параметры";
+        qDeleteAll(parameters);
         return;
     }
     
@@ -204,6 +213,8 @@ void BoardDataEmulator::generateParameters()
         
         //qDebug() << "BoardDataEmulator: Сгенерированы параметры, JSON:" << jsonString;
     }
+
+    qDeleteAll(parameters);
 }
 
 void BoardDataEmulator::saveSentParametersToFile(const QString &jsonString)

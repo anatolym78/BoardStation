@@ -13,7 +13,7 @@ public:
     ~SpeedGenerator() override = default;
 
     // ParameterGenerator interface
-    BoardParameter* generate(double time) override;
+    BoardParameterSingle* generate(double time) override;
     QString getName() const override;
 
     // Настройка параметров генерации

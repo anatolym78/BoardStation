@@ -6,7 +6,7 @@ BoardDataJsonGenerator::BoardDataJsonGenerator(QObject *parent)
 {
 }
 
-QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter*> &parameters)
+QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameterSingle*> &parameters)
 {
     QJsonDocument doc = createJsonDocument(parameters);
     QString jsonString = doc.toJson(QJsonDocument::Compact);
@@ -20,17 +20,17 @@ QString BoardDataJsonGenerator::createJsonString(const QList<BoardParameter*> &p
     return jsonString;
 }
 
-QJsonDocument BoardDataJsonGenerator::createJsonDocument(const QList<BoardParameter*> &parameters)
+QJsonDocument BoardDataJsonGenerator::createJsonDocument(const QList<BoardParameterSingle*> &parameters)
 {
     QJsonArray array = createJsonArray(parameters);
     return QJsonDocument(array);
 }
 
-QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter*> &parameters)
+QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameterSingle*> &parameters)
 {
     QJsonArray array;
     
-    for (BoardParameter *param : parameters) {
+    for (BoardParameterSingle *param : parameters) {
         if (param) {
             QJsonObject obj = parameterToJsonObject(*param);
             array.append(obj);
@@ -40,31 +40,18 @@ QJsonArray BoardDataJsonGenerator::createJsonArray(const QList<BoardParameter*> 
     return array;
 }
 
-QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameter &parameter)
+QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameterSingle &parameter)
 {
     QJsonObject obj;
     obj["label"] = parameter.label();
-    obj["unit"] = parameter.unit();
     
-    // Добавляем последнее значение и время
-    if (parameter.hasValues()) {
-        obj["value"] = QJsonValue::fromVariant(parameter.lastValueData());
-        obj["timestamp"] = parameter.lastTimestamp().toString(Qt::ISODate);
-    }
+    QJsonValue val = QJsonValue::fromVariant(parameter.value());
+    obj["value"] = val;
     
-    // Добавляем историю значений, если она есть
-    if (parameter.valueCount() > 1) {
-        QJsonArray valuesArray;
-        for (BoardParameterValue *value : parameter.values()) {
-            if (value) {
-                QJsonObject valueObj;
-                valueObj["value"] = QJsonValue::fromVariant(value->value());
-                valueObj["timestamp"] = value->timestamp().toString(Qt::ISODate);
-                valuesArray.append(valueObj);
-            }
-        }
-        obj["values"] = valuesArray;
-    }
+    // The unit and timestamp are not part of the required JSON structure for emulation output
+    // but if they were, they'd be added here.
+    // obj["unit"] = parameter.unit();
+    // obj["timestamp"] = parameter.timestamp().toString(Qt::ISODate);
     
     return obj;
 }

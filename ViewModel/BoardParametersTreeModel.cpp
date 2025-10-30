@@ -5,10 +5,11 @@
 class TreeItem
 {
 public:
-    explicit TreeItem(QString label, TreeItem* parentItem = nullptr, BoardParameterSingle* parameter = nullptr)
+    explicit TreeItem(QString label, TreeItem* parentItem = nullptr, BoardParameterSingle* parameter = nullptr, const QVariant& itemValue = QVariant())
         : m_label(label)
         , m_parentItem(parentItem)
         , m_parameter(parameter)
+        , m_itemValue(itemValue)
     {
     }
 
@@ -34,9 +35,22 @@ public:
         return m_childItems.count();
     }
 
+    const QList<TreeItem*>& children() const { return m_childItems; }
+    QList<TreeItem*>& children() { return m_childItems; }
+
+    void clearChildren()
+    {
+        m_childItems.clear();
+    }
+
     BoardParameterSingle* parameter() const
     {
         return m_parameter;
+    }
+
+    QVariant itemValue() const
+    {
+        return m_itemValue;
     }
 
     void setParameter(BoardParameterSingle* p)
@@ -71,6 +85,7 @@ private:
     QList<TreeItem*> m_childItems;
     TreeItem* m_parentItem;
     BoardParameterSingle* m_parameter;
+    QVariant m_itemValue;
 };
 
 BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
@@ -171,6 +186,10 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
         return item->label();
     case ParameterRole::ValueRole:
     {
+        if (item->itemValue().isValid())
+        {
+            return item->itemValue();
+        }
         if (!parameter) return {};
         bool ok;
         auto doubleValue = parameter->value().toDouble(&ok);
@@ -235,13 +254,11 @@ void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* paramet
     QStringList parts = label.split('.');
 
     TreeItem* parentItem = m_rootItem;
-    QString currentPath;
-
-    for (int i = 0; i < parts.size(); ++i)
+    
+    // Find or create parent items
+    for (int i = 0; i < parts.size() - 1; ++i)
     {
-        currentPath += (i > 0 ? "." : "") + parts[i];
         TreeItem* childItem = nullptr;
-
         bool found = false;
         for (int j = 0; j < parentItem->childCount(); ++j)
         {
@@ -255,33 +272,73 @@ void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* paramet
 
         if (!found)
         {
-            bool isLeaf = (i == parts.size() - 1);
             beginInsertRows(parent(createIndex(parentItem->row(), 0, parentItem)), parentItem->childCount(), parentItem->childCount());
-            childItem = new TreeItem(parts[i], parentItem, isLeaf ? parameter : nullptr);
+            childItem = new TreeItem(parts[i], parentItem);
             parentItem->appendChild(childItem);
-            if (isLeaf)
-            {
-                m_parameterCount++;
-                emit countParametersChanged();
-                m_chartVisibilities.append(false);
-            }
             endInsertRows();
         }
-        else if (i == parts.size() - 1) // Existing node, just update parameter
-        {
-            childItem->setParameter(parameter);
-            QModelIndex itemIndex = createIndex(childItem->row(), 0, childItem);
-            emit dataChanged(itemIndex, itemIndex);
-            return;
-        }
-
         parentItem = childItem;
     }
 
-    QModelIndex rootIndex;
-    if (rowCount(rootIndex) > 0)
+
+    // Find or create the parameter item itself
+    const QString paramShortName = parts.last();
+    TreeItem* paramItem = nullptr;
+    int paramRow = -1;
+    for (int i = 0; i < parentItem->childCount(); ++i)
     {
-         emit dataChanged(index(0, 0, rootIndex), index(rowCount(rootIndex) - 1, columnCount(rootIndex) - 1, rootIndex));
+        TreeItem* child = parentItem->child(i);
+        if (child->label() == paramShortName)
+        {
+            paramItem = child;
+            paramRow = i;
+            break;
+        }
+    }
+
+    if (!paramItem)
+    {
+        paramRow = parentItem->childCount();
+        beginInsertRows(parent(createIndex(parentItem->row(), 0, parentItem)), paramRow, paramRow);
+        paramItem = new TreeItem(paramShortName, parentItem, parameter);
+        parentItem->appendChild(paramItem);
+        m_parameterCount++;
+        emit countParametersChanged();
+        m_chartVisibilities.append(false);
+        endInsertRows();
+    }
+    else
+    {
+        paramItem->setParameter(parameter);
+        QModelIndex itemIndex = createIndex(paramItem->row(), 0, paramItem);
+        emit dataChanged(itemIndex, itemIndex, { ValueRole, TimeRole, UnitRole });
+    }
+
+    // Handle array values
+    if (parameter->value().canConvert<QVariantList>())
+    {
+        QVariantList list = parameter->value().toList();
+
+        // Clear old array elements
+        if (paramItem->childCount() > 0)
+        {
+            beginRemoveRows(createIndex(paramRow, 0, paramItem), 0, paramItem->childCount() - 1);
+            qDeleteAll(paramItem->children());
+            paramItem->clearChildren();
+            endRemoveRows();
+        }
+
+        // Add new array elements
+        if (!list.isEmpty())
+        {
+            beginInsertRows(createIndex(paramRow, 0, paramItem), 0, list.count() - 1);
+            for (int i = 0; i < list.count(); ++i)
+            {
+                TreeItem* arrayElementItem = new TreeItem(QString("[%1]").arg(i), paramItem, nullptr, list.at(i));
+                paramItem->appendChild(arrayElementItem);
+            }
+            endInsertRows();
+        }
     }
 }
 
