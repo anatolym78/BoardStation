@@ -7,46 +7,83 @@ import "./MaterialDesign.js" as MD
 ComboBox
 {
     id: comboBox
-    //currentIndex: 1
     model: sessionsListModel
 
-    //property var sessionName: null
     background: null
     contentItem: null
-    //contentItem: null
-    // contentItem: ItemDelegate
-    // {
-    //     Rectangle
-    //     {
-    //         anchors.fill: parent
-    //         color: "aliceblue"
-    //         radius: 8
-    //     }
-    // }
-
-        // onCurrentIndexChanged: function(index)
-        // {
-        //     console.log(index)
-        // }
-
-    Component.onCompleted:
-    {
-        //sessionName = sessionName
-    }
 
     delegate: ItemDelegate
     {
         width: comboBox.width
         highlighted: index === comboBox.currentIndex
-        height: 100
+        height: 72
+        spacing: 10
         Rectangle
         {
-            anchors.margins: 10
             anchors.fill: parent
-            color: "transparent"
-            Text
+            radius: 4
+            color: "aliceblue"
+            RowLayout
             {
-                text: sessionName
+                anchors.fill: parent
+                spacing: 10
+                // content
+                ColumnLayout
+                {
+                    spacing: 10
+                    // top row (name + live indicator)
+                    RowLayout
+                    {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        // live session indicator (hidded for recorded session)
+                        Text
+                        {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: isLiveSession ? MD.icons.fiber_smart_record : MD.icons.bookmark
+                            color: isLiveSession ? "red" : "steelblue"
+                            font.pointSize: 20
+                        }
+
+                        // session name
+                        Text
+                        {
+                            text: sessionName
+                            font.pointSize: 12
+                            font.bold: true
+                            color: "dimgray"
+                        }
+                        Item
+                        {
+                            Layout.fillWidth: true
+                        }
+
+                    }
+                    // bottom layout (creation date + messages count)
+                    RowLayout
+                    {
+                        spacing: 10
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Text
+                        {
+                            text: createdAtFormatted
+                            font.pointSize: 11
+                            color: "dimgray"
+                        }
+                        Item
+                        {
+                            Layout.fillWidth: true
+                        }
+                        Text
+                        {
+                            text: qsTr("Count messages: ") + messageCount
+                            font.pointSize: 11
+                            color: "dimgray"
+
+                        }
+                    }
+                }
             }
         }
     }
@@ -54,47 +91,85 @@ ComboBox
     indicator: Item
     {
         anchors.fill: parent
-        implicitHeight: 64// parent.height
+        implicitHeight: 72// parent.height
 
         Rectangle
         {
             anchors.fill: parent
             radius: 4
-            color: "gold"
+            color: "gainsboro"
             RowLayout
             {
                 anchors.fill: parent
-                Text
+                spacing: 10
+                // content
+                ColumnLayout
                 {
-                    Layout.alignment: Qt.AlignLeft
-                    // anchors.left: parent.left
-                    // anchors.verticalCenter: parent.verticalCenter
-                    text: model.get(comboBox.currentIndex).sessionName
-                    font.pointSize: 12
-
-                    Component.onCompleted:
+                    spacing: 10
+                    // top row (name + live indicator)
+                    RowLayout
                     {
-                        console.log(comboBox.currentIndex)
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        // live session indicator (hidded for recorded session)
+                        Text
+                        {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: sessionsListModel.get(comboBox.currentIndex).isLiveSession ?
+                                      MD.icons.fiber_smart_record : MD.icons.bookmark
+                            color: sessionsListModel.get(comboBox.currentIndex).isLiveSession ? "red" : "steelblue"
+                            font.pointSize: 20
+                        }
+
+                        // session name
+                        Text
+                        {
+                            text: sessionsListModel.get(comboBox.currentIndex).sessionName
+                            font.pointSize: 12
+                            font.bold: true
+                            color: "dimgray"
+                        }
+                        Item
+                        {
+                            Layout.fillWidth: true
+                        }
+
+                    }
+                    // bottom layout (creation date + messages count)
+                    RowLayout
+                    {
+                        spacing: 10
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        Text
+                        {
+                            text: sessionsListModel.get(comboBox.currentIndex).createdAtFormatted
+                            font.pointSize: 11
+                            color: "dimgray"
+                        }
+                        Item
+                        {
+                            Layout.fillWidth: true
+                        }
+                        Text
+                        {
+                            text: qsTr("Count messages: ") + sessionsListModel.get(comboBox.currentIndex).messageCount
+                            font.pointSize: 11
+                            color: "dimgray"
+
+                        }
                     }
                 }
 
-                // Item {
-                //     id: name
-                // }
-
+                // pupup button
                 Text
                 {
                     Layout.alignment: Qt.AlignRight
-
-                    // anchors.right: parent.right
-                    // anchors.verticalCenter: parent.verticalCenter
-                    text: MD.icons.expand_more
+                    text: popup.opened ? MD.icons.expand_less : MD.icons.expand_more
                     font.pointSize: 24
                     color: "dimgray"
                 }
             }
-
-
         }
     }
 }

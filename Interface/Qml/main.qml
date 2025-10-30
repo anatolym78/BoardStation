@@ -29,30 +29,18 @@ Item
             {
                 id: sessionsDocumentList
                 anchors.fill: parent
-                //currentIndex: 1
-
-                // Connections
-                // {
-                //     target: sessionsList
-
-                //     onCurrentIndexChanged:
-                //     {
-                //         sessionsDocumentList.currentIndex = sessionsList.currentIndex
-                //         qmlMainWindow.changeSession()
-                //         console.log(sessionsDocumentList.currentIndex)
-                //     }
-                // }
+                currentIndex: sessionsList.currentIndex
 
                 Connections
                 {
-                    target: sessionsComboBox
+                    target: sessionsList
 
-                    function onSessionChanged(index)
+                    onCurrentIndexChanged:
                     {
-                        sessionsDocumentList.currentIndex = sessionsList.currentIndex
-                        qmlMainWindow.changeSession()
+                        sessionsListModel.selectSession(sessionsList.currentIndex)
                     }
                 }
+
                 Repeater
                 {
                     model: sessionsListModel
@@ -120,21 +108,10 @@ Item
             {
                 anchors.fill: parent
 
-                // SessionListComboBox
-                // {
-                //     id: sessionsList
-                //     //Layout.preferredHeight: 1
-                //     Layout.fillWidth: true
-                //     //Layout.fillHeight: true
-                // }
-
-                // Выпадающий список сессий
-                SessionsComboBox
+                SessionListComboBox
                 {
-                    id: sessionsComboBox
-                    Layout.preferredHeight: 1
+                    id: sessionsList
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
                 }
 
                 // Панель управления параметрами дрона

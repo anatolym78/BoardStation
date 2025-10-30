@@ -70,8 +70,6 @@ public:
 	int findSessionIndex(int sessionId) const;
 
 	Q_INVOKABLE void selectSession(int sessionIndex);
-
-	Session* currentSession() const;
 	
 	// Методы для работы с живой сессией
 	void initializeLiveSession();

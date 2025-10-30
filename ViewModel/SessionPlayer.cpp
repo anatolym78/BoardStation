@@ -152,7 +152,7 @@ void SessionPlayer::updatePlaybackPosition()
 	
 	// Для SessionPlayer увеличиваем позицию на 100мс (0.1 секунды)
 	m_currentPosition = m_currentPosition.addMSecs(100);
-	
+	 
 	// Проверяем, не достигли ли конца сессии
 	if (m_currentPosition >= m_sessionEndTime)
 	{

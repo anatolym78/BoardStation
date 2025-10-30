@@ -92,10 +92,10 @@ QVariant SessionsListModel::data(const QModelIndex &index, int role) const
 			return QVariant::fromValue(session->player());
 		case ChartsModelRole:
 			return QVariant::fromValue(session->chartsModel());
-		//case TestColorRole:
-		//	return index.row() > 1 ?  
-		//		QVariant::fromValue(QColor::fromRgb(255, 0, 0)) :
-		//		QVariant::fromValue(QColor::fromRgb(255, 225, 0));
+		case TestColorRole:
+			return index.row() > 1 ?
+				QVariant::fromValue(QColor::fromRgb(255, 0, 0)) :
+				QVariant::fromValue(QColor::fromRgb(255, 225, 0));
 		default:
 			return QVariant();
 	}
@@ -135,17 +135,6 @@ QVariantMap SessionsListModel::get(int index) const
 	}
 	return result;
 }
-
-Session* SessionsListModel::currentSession() const
-{
-	if (m_selectedIndex >= 0 && m_selectedIndex < m_sessions.count())
-	{
-		return m_sessions[m_selectedIndex];
-	}
-
-	return nullptr;
-}
-
 
 void SessionsListModel::setReader(BoardMessagesSqliteReader *reader)
 {
@@ -604,9 +593,6 @@ void SessionsListModel::selectSession(int sessionIndex)
 		qWarning() << "SessionsListModel: Session at index" << sessionIndex << "is null";
 		return;
 	}
-
-	m_selectedIndex = sessionIndex;
-
 
 	// Если это RecordedSession, загружаем данные из базы при первом выборе
 	if (session->getType() == Session::RecordedSession && !session->isOpened())

@@ -11,6 +11,8 @@ Rectangle
 
     Component.onCompleted:
     {
+        console.log(parametersModel)
+        console.log(parametersModel.getCountParameters())
     }
 
     color: "#f0f0f0"
@@ -32,6 +34,10 @@ Rectangle
             font.bold: true
             color: "gray"
             Layout.alignment: Qt.AlignHCenter
+
+            Component.onCompleted:
+            {
+            }
         }
 
         ListView
@@ -56,6 +62,11 @@ Rectangle
                 border.color: "transparent"
                 color: "transparent"
                 z: 10
+
+                Component.onCompleted:
+                {
+                    console.log(parameterColor)
+                }
 
                 RowLayout
                 {
