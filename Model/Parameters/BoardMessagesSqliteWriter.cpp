@@ -108,9 +108,18 @@ void BoardMessagesSqliteWriter::createNewSession(const QString &sessionName)
 {
     QMutexLocker locker(&m_databaseMutex);
     
-    QString name = sessionName.isEmpty() ? 
-        QString("Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss")) : 
-        sessionName;
+    QString name = sessionName;
+    if (name.isEmpty())
+    {
+        QSqlQuery countQuery(m_database);
+        countQuery.exec("SELECT COUNT(*) FROM sessions");
+        int sessionCount = 0;
+        if (countQuery.next())
+        {
+            sessionCount = countQuery.value(0).toInt();
+        }
+        name = QString("Session %1").arg(sessionCount + 1);
+    }
     
     int sessionId = createSessionRecord(name);
     if (sessionId > 0) 
