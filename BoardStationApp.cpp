@@ -37,8 +37,8 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 void BoardStationApp::connectSignals()
 {
-	//connect(m_driverAdapter, &DriverAdapter::parameterReceived,
-	//    liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
+	connect(m_driverAdapter, &DriverAdapter::parameterReceived,
+	    liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
 
 	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
 		m_driverAdapter, &DriverAdapter::sendParameter);

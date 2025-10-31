@@ -7,6 +7,7 @@
 
 #include "./DataPlayer.h"
 #include "./BoardParametersListModel.h"
+#include "./BoardParametersTreeModel.h"
 //#include "./ChartViewModel.h"
 #include "./ChatViewGridModel.h"
 
@@ -48,7 +49,7 @@ public:
 	virtual bool operator==(const Session& other) const;
 
 	DataPlayer* player() const { return m_player; }
-	BoardParametersListModel* parametersModel()  const;
+	BoardParametersTreeModel* parametersModel()  const;
 	ChatViewGridModel* chartsModel() const { return m_chartsModel; }
 
 	virtual void open() { m_opened = true; }
@@ -66,7 +67,7 @@ protected:
 	void updateParameterCount(int count);
 
 protected:
-	BoardParametersListModel* m_parametersModel;
+	BoardParametersTreeModel* m_parametersModel;
 	ChatViewGridModel* m_chartsModel;
 	DataPlayer* m_player;
 	bool m_opened;

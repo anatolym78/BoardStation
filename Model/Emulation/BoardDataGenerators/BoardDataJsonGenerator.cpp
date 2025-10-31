@@ -47,11 +47,6 @@ QJsonObject BoardDataJsonGenerator::parameterToJsonObject(const BoardParameterSi
     
     QJsonValue val = QJsonValue::fromVariant(parameter.value());
     obj["value"] = val;
-    
-    // The unit and timestamp are not part of the required JSON structure for emulation output
-    // but if they were, they'd be added here.
-    // obj["unit"] = parameter.unit();
-    // obj["timestamp"] = parameter.timestamp().toString(Qt::ISODate);
-    
+
     return obj;
 }

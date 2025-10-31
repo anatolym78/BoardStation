@@ -18,6 +18,7 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	qmlRegisterType<BoardParameterValue>("BoardStation", 1, 0, "BoardParameterValue");
 	qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
 	qmlRegisterType<BoardParametersListModel>("BoardStation", 1, 0, "BoardParametersListModel");
+	qmlRegisterType<BoardParametersTreeModel>("BoardStation", 1, 0, "BoardParametersTreeModel");
 
 	qmlRegisterType<ChatViewGridModel>("BoardStation", 1, 0, "ChatViewGridModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");

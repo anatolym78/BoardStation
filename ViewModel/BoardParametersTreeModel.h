@@ -7,7 +7,7 @@
 #include "Model/Parameters/BoardParameterSingle.h"
 #include "DataPlayer.h"
 
-class TreeItem;
+class BoardParameterTreeItem;
 
 class BoardParametersTreeModel : public QAbstractItemModel
 {
@@ -23,6 +23,7 @@ public:
         TimeRole,
         ChartVisibilityRole,
         ColorRole,
+        FullPathRole
     };
     Q_ENUM(ParameterRole)
 
@@ -54,8 +55,8 @@ public slots:
 private:
     void makeRandomColors();
 
-    TreeItem* m_rootItem;
-    QMap<QString, TreeItem*> m_topLevelItems;
+    BoardParameterTreeItem* m_rootItem;
+    QMap<QString, BoardParameterTreeItem*> m_topLevelItems;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;
     int m_parameterCount = 0;

@@ -14,5 +14,6 @@
         <file>Interface/Qml/MaterialSymbolsRounded-Regular.ttf</file>
         <file>Interface/Qml/SessionDelegate.qml</file>
         <file>Interface/Qml/SessionListComboBox.qml</file>
+        <file>Interface/Qml/BoardParametersTree.qml</file>
     </qresource>
 </RCC>
