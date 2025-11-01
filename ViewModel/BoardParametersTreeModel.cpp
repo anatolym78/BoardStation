@@ -8,10 +8,14 @@ BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 {
     m_rootItem = new BoardParameterTreeItem("root");
     makeRandomColors();
+
+    m_topLevelItems.insert("param", new BoardParameterTreeItem("label"));
 }
 
 void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* parameter)
 {
+    return;
+
     if (parameter == nullptr) return;
 
     QString label = parameter->label();
@@ -161,6 +165,12 @@ QModelIndex BoardParametersTreeModel::parent(const QModelIndex& index) const
 
 int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
 {
+    auto count = m_topLevelItems.count();
+
+    return 1;
+
+    return m_topLevelItems.count();
+
     BoardParameterTreeItem* parentItem;
     if (parent.column() > 0)
         return 0;

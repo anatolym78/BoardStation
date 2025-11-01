@@ -4,6 +4,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT += charts
 QT += quick
 QT += sql
+QT += quickcontrols2
+#QT += quick_templates2
 
 CONFIG += c++17
 
@@ -28,6 +30,7 @@ SOURCES += \
     Model/Parameters/BoardParameterSingle.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
+    ViewModel/BoardParameterTreeItem.cpp \
     ViewModel/BoardParametersListModel.cpp \
     ViewModel/BoardParametersTreeModel.cpp \
     ViewModel/ChartViewModel.cpp \
@@ -43,6 +46,8 @@ SOURCES += \
     ViewModel/SessionPlayer.cpp \
     ViewModel/DataPlayer.cpp \
     ViewModel/DriverDataPlayer.cpp \
+    ViewModel/SimpleTreeItem.cpp \
+    ViewModel/SimpleTreeModel.cpp \
     Model/Parameters/BasicUplinkParameter.cpp \
     Model/Parameters/IntUplinkParameter.cpp \
     Model/Parameters/DoubleUplinkParameter.cpp \
@@ -77,6 +82,7 @@ HEADERS += \
     Model/Parameters/BoardParametersStorage.h \
     Model/Parameters/BoardParameterHistory.h \
     Model/Parameters/BoardParameterHistoryStorage.h \
+    ViewModel/BoardParameterTreeItem.h \
     ViewModel/BoardParametersListModel.h \
     ViewModel/BoardParametersTreeModel.h \
     ViewModel/ChartViewModel.h \
@@ -92,6 +98,8 @@ HEADERS += \
     ViewModel/SessionPlayer.h \
     ViewModel/DataPlayer.h \
     ViewModel/DriverDataPlayer.h \
+    ViewModel/SimpleTreeItem.h \
+    ViewModel/SimpleTreeModel.h \
     Model/Parameters/BasicUplinkParameter.h \
     Model/Parameters/TypedUplinkParameter.h \
     Model/Parameters/Range.h \

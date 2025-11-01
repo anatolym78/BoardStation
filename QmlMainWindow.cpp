@@ -6,6 +6,9 @@
 #include "ViewModel/ChatViewGridModel.h"
 #include "ViewModel/SessionsListModel.h"
 #include "ViewModel/SessionPlayer.h"
+#include "ViewModel/BoardParametersListModel.h"
+#include "ViewModel/BoardParametersTreeModel.h"
+#include "ViewModel/SimpleTreeModel.h"
 #include <QQuickItem>
 #include <QCloseEvent>
 
@@ -19,6 +22,8 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	qmlRegisterType<BoardParameterSingle>("BoardStation", 1, 0, "BoardParameterSingle");
 	qmlRegisterType<BoardParametersListModel>("BoardStation", 1, 0, "BoardParametersListModel");
 	qmlRegisterType<BoardParametersTreeModel>("BoardStation", 1, 0, "BoardParametersTreeModel");
+	
+	qmlRegisterType<SimpleTreeModel>("BoardStation", 1, 0, "SimpleTreeModel");
 
 	qmlRegisterType<ChatViewGridModel>("BoardStation", 1, 0, "ChatViewGridModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");

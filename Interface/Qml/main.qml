@@ -57,19 +57,33 @@ Item
                                 Layout.fillHeight: true
                                 Layout.preferredHeight: 300
 
-                                BoardParametersList
-                                {
-                                    id: boardParametersList
-                                    Layout.fillWidth: true
-                                    Layout.fillHeight: true
-                                    Layout.preferredWidth: 1
+                                // BoardParametersList
+                                // {
+                                //     id: boardParametersList
+                                //     Layout.fillWidth: true
+                                //     Layout.fillHeight: true
+                                //     Layout.preferredWidth: 1
 
-                                    onParameterSelected:
-                                    {
-                                        chartModel.toggleParameter(label, color)
-                                    }
-                                }
+                                //     onParameterSelected:
+                                //     {
+                                //         chartModel.toggleParameter(label, color)
+                                //     }
+                                // }
 
+                                // BoardParametersTree
+                                // {
+                                //     id: boardParametersList
+                                //     Layout.fillWidth: true
+                                //     Layout.fillHeight: true
+                                //     Layout.preferredWidth: 1
+
+                                //     treeModel: parametersModel
+
+                                //     // onParameterSelected:
+                                //     // {
+                                //     //     chartModel.toggleParameter(label, color)
+                                //     // }
+                                // }
 
                                 ChartsView
                                 {
@@ -103,26 +117,34 @@ Item
             Layout.preferredWidth: 1
             color: "transparent"
 
-            ColumnLayout
+
+            SimpleTreeView
             {
-                anchors.fill: parent
-
-                SessionListComboBox
-                {
-                    id: sessionsList
-                    Layout.fillWidth: true
-                }
-
-                // Панель управления параметрами дрона
-                DroneControlPanel
-                {
-                    id: droneControlPanel
-                    Layout.preferredHeight: 10
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-
-                }
+                Layout.preferredHeight: 10
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
+
+            // ColumnLayout
+            // {
+            //     anchors.fill: parent
+
+            //     SessionListComboBox
+            //     {
+            //         id: sessionsList
+            //         Layout.fillWidth: true
+            //     }
+
+            //     // Панель управления параметрами дрона
+            //     DroneControlPanel
+            //     {
+            //         id: droneControlPanel
+            //         Layout.preferredHeight: 10
+            //         Layout.fillWidth: true
+            //         Layout.fillHeight: true
+
+            //     }
+            // }
         }
     }
 }
