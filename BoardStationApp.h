@@ -23,6 +23,8 @@
 #include "Model/DriverAdapter.h"
 #include "ViewModel/LiveSession.h"
 
+#include "ViewModel/SimpleTreeModel.h"
+
 class BoardParametersJsonParserNew;
 
 class BoardStationApp : public QApplication
@@ -69,9 +71,15 @@ private:
 	BoardMessagesSqliteWriter* m_boardMessagesWriter;
 	BoardMessagesSqliteReader* m_boardMessagesReader;
 
+	SimpleTreeModel* m_simpleTreeModel;
+
 private:
 	void loadUplinkParameters() const;
 	void connectSignals();
+
+	// test
+public:
+	SimpleTreeModel* simpleTreeModel() const { return m_simpleTreeModel; }
 };
 
 #endif // BOARDSTATIONAPP_H

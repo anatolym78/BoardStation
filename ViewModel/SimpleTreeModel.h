@@ -9,42 +9,53 @@ class SimpleTreeItem;
 
 class SimpleTreeModel : public QAbstractItemModel
 {
-    Q_OBJECT
+	Q_OBJECT
+		
+public:
+
+	enum ParameterRole
+	{
+		LabelRole = Qt::UserRole + 1,
+		ValueRole,
+	};
+	Q_ENUM(ParameterRole)
 
 public:
-    explicit SimpleTreeModel(QObject *parent = nullptr);
-    ~SimpleTreeModel();
+	explicit SimpleTreeModel(QObject *parent = nullptr);
+	~SimpleTreeModel();
 
-    // --- ОБЯЗАТЕЛЬНЫЕ ВИРТУАЛЬНЫЕ ФУНКЦИИ ДЛЯ ПЕРЕОПРЕДЕЛЕНИЯ ---
+	// --- ОБЯЗАТЕЛЬНЫЕ ВИРТУАЛЬНЫЕ ФУНКЦИИ ДЛЯ ПЕРЕОПРЕДЕЛЕНИЯ ---
 
-    // Возвращает QModelIndex для элемента по родителю, строке и колонке
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	// Возвращает QModelIndex для элемента по родителю, строке и колонке
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
-    // Возвращает родителя для заданного QModelIndex
-    QModelIndex parent(const QModelIndex &index) const override;
+	// Возвращает родителя для заданного QModelIndex
+	QModelIndex parent(const QModelIndex &index) const override;
 
-    // Возвращает количество строк (дочерних элементов) у родителя
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	// Возвращает количество строк (дочерних элементов) у родителя
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    // Возвращает количество колонок у родителя
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	// Возвращает количество колонок у родителя
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    // Возвращает данные для заданного QModelIndex и роли
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+	// Возвращает данные для заданного QModelIndex и роли
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    // --- КОНЕЦ ОБЯЗАТЕЛЬНЫХ ФУНКЦИЙ ---
+	QHash<int, QByteArray> roleNames() const override;
+
+	// --- КОНЕЦ ОБЯЗАТЕЛЬНЫХ ФУНКЦИЙ ---
 
 
-    // (Опционально) Для редактируемых моделей
-    // Qt::ItemFlags flags(const QModelIndex &index) const override;
-    // bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+	// (Опционально) Для редактируемых моделей
+	// Qt::ItemFlags flags(const QModelIndex &index) const override;
+	// bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
-    // (Опционально) Для заголовков
-    // QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	// (Опционально) Для заголовков
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 private:
-    void setupModelData(const QStringList &lines, SimpleTreeItem *parent);
-    SimpleTreeItem *rootItem;
+	void setupModelData(const QStringList &lines, SimpleTreeItem *parent);
+	SimpleTreeItem *rootItem;
 };
 
 #endif // SIMPLETREEMODEL_H

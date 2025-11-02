@@ -20,6 +20,10 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 	, m_boardMessagesWriter(new BoardMessagesSqliteWriter("BoardStationData.db", this))
 	, m_boardMessagesReader(new BoardMessagesSqliteReader("BoardStationData.db", this))
 {
+	// test
+	m_simpleTreeModel = new SimpleTreeModel(this);
+	// test
+
 	m_driver = new drv::BoardDataEmulator(this);
 
 	m_sessionsListModel = new SessionsListModel(this);
@@ -37,8 +41,8 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 void BoardStationApp::connectSignals()
 {
-	connect(m_driverAdapter, &DriverAdapter::parameterReceived,
-	    liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
+	//connect(m_driverAdapter, &DriverAdapter::parameterReceived,
+	//    liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
 
 	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
 		m_driverAdapter, &DriverAdapter::sendParameter);

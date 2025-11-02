@@ -23,7 +23,6 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 	qmlRegisterType<BoardParametersListModel>("BoardStation", 1, 0, "BoardParametersListModel");
 	qmlRegisterType<BoardParametersTreeModel>("BoardStation", 1, 0, "BoardParametersTreeModel");
 	
-	qmlRegisterType<SimpleTreeModel>("BoardStation", 1, 0, "SimpleTreeModel");
 
 	qmlRegisterType<ChatViewGridModel>("BoardStation", 1, 0, "ChatViewGridModel");
 	qmlRegisterType<SessionsListModel>("BoardStation", 1, 0, "SessionsListModel");
@@ -36,6 +35,9 @@ QmlMainWindow::QmlMainWindow(QWindow *parent) : QQuickView(parent), m_app(nullpt
 		"DriverDataPlayer cannot be created in QML");
 	
 	setResizeMode(ResizeMode::SizeRootObjectToView);
+
+	// test
+	qmlRegisterType<SimpleTreeModel>("BoardStation", 1, 0, "SimpleTreeModel");
 	
 	m_context = rootContext();
 	
@@ -57,6 +59,11 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 			context()->setContextProperty("debugViewModel", app()->getDebugViewModel());
 
 			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());	
+		
+		
+			// test
+			context()->setContextProperty("simpleTreeModel", app()->simpleTreeModel());
+
 		}
 		
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));

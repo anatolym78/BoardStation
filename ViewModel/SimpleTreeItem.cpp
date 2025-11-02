@@ -11,13 +11,15 @@ SimpleTreeItem::~SimpleTreeItem()
 
 void SimpleTreeItem::appendChild(SimpleTreeItem *item)
 {
+    item->m_parentItem = this;
+
     m_childItems.append(item);
 }
 
 SimpleTreeItem *SimpleTreeItem::child(int row)
 {
-    if (row < 0 || row >= m_childItems.size())
-        return nullptr;
+    if (row < 0 || row >= m_childItems.size()) return nullptr;
+
     return m_childItems.at(row);
 }
 
@@ -33,8 +35,8 @@ int SimpleTreeItem::columnCount() const
 
 QVariant SimpleTreeItem::data(int column) const
 {
-    if (column < 0 || column >= m_itemData.size())
-        return QVariant();
+    if (column < 0 || column >= m_itemData.size()) return QVariant();
+
     return m_itemData.at(column);
 }
 
@@ -49,3 +51,4 @@ int SimpleTreeItem::row() const
         return m_parentItem->m_childItems.indexOf(const_cast<SimpleTreeItem*>(this));
     return 0;
 }
+

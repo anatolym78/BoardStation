@@ -16,6 +16,7 @@ void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* paramet
 {
     return;
 
+
     if (parameter == nullptr) return;
 
     QString label = parameter->label();
