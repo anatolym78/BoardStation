@@ -70,20 +70,20 @@ Item
                                 //     }
                                 // }
 
-                                // BoardParametersTree
-                                // {
-                                //     id: boardParametersList
-                                //     Layout.fillWidth: true
-                                //     Layout.fillHeight: true
-                                //     Layout.preferredWidth: 1
+                                BoardParametersTree
+                                {
+                                    id: boardParametersList
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 1
 
-                                //     treeModel: parametersModel
+                                    treeModel: parametersModel
 
-                                //     // onParameterSelected:
-                                //     // {
-                                //     //     chartModel.toggleParameter(label, color)
-                                //     // }
-                                // }
+                                    // onParameterSelected:
+                                    // {
+                                    //     chartModel.toggleParameter(label, color)
+                                    // }
+                                }
 
                                 ChartsView
                                 {

@@ -55,8 +55,12 @@ public slots:
 private:
     void makeRandomColors();
 
+    QString indexToLabel(int row) const;
+private:
+
+
+    //QMap<QString, BoardParameterSingle*> m_parameters;
     BoardParameterTreeItem* m_rootItem;
-    QMap<QString, BoardParameterTreeItem*> m_topLevelItems;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;
     int m_parameterCount = 0;

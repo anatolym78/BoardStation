@@ -94,7 +94,7 @@ QModelIndex SimpleTreeModel::parent(const QModelIndex &index) const
 
 	// Создаем индекс для родителя. `parentItem->row()` вернет,
 	// каким по счету дочерним элементом он является у своего родителя.
-	return createIndex(parentItem->row(), 1, parentItem);
+	return createIndex(parentItem->row(), 0, parentItem);
 }
 
 int SimpleTreeModel::rowCount(const QModelIndex &parent) const
@@ -132,23 +132,15 @@ QVariant SimpleTreeModel::data(const QModelIndex &index, int role) const
 		return QVariant();
 	}
 
-	//// Нас интересуют только данные для отображения
-	//if (role != Qt::DisplayRole)
-	//{
-	//	return QVariant();
-	//}
-
 	SimpleTreeItem* item = static_cast<SimpleTreeItem*>(index.internalPointer());
 	if (role == (int)ParameterRole::LabelRole)
 	{
 		return item->data(0);
-		//return "label";
 	}
 
 	if (role == (int)ParameterRole::ValueRole)
 	{
 		return item->data(1);
-		//return "value";
 	}
 
 	return QVariant();
