@@ -119,6 +119,7 @@ int SimpleTreeModel::rowCount(const QModelIndex &parent) const
 
 int SimpleTreeModel::columnCount(const QModelIndex &parent) const
 {
+	return 2;
 	Q_UNUSED(parent);
 	// Количество колонок в нашей модели постоянно.
 	auto count = rootItem->columnCount();

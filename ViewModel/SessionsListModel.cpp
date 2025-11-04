@@ -161,24 +161,21 @@ void SessionsListModel::refreshSessions()
 	qDeleteAll(m_sessions);
 	m_sessions.clear();
 	
-	// Создаем живую сессию, если она еще не создана
-	if (!m_liveSession)
+	// Создаем живую сессию, если она еще не создана и добавляем в список
+	createLiveSession();
+	
+	// Пока не создаем
+	if (false)
 	{
-		initializeLiveSession();
+		// Создаем записанные сессии через фабрику
+		QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
+	
+
+		m_sessions.append(recordedSessions);
+	
+		// Сортируем сессии
+		sortSessions();
 	}
-	
-	// Создаем записанные сессии через фабрику
-	QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
-	
-	// Добавляем все сессии в список
-	if (m_liveSession)
-	{
-		m_sessions.append(m_liveSession);
-	}
-	m_sessions.append(recordedSessions);
-	
-	// Сортируем сессии
-	sortSessions();
 	
 	qDebug() << "SessionsListModel: Загружено" << m_sessions.size() << "сессий";
 	
@@ -345,27 +342,27 @@ int SessionsListModel::findSessionIndex(int sessionId) const
 	return -1;
 }
 
-void SessionsListModel::initializeLiveSession()
+bool SessionsListModel::createLiveSession()
 {
-	if (!m_liveSession)
+	if (m_liveSession) return true;
+
+	m_liveSession = m_liveSessionFactory->createLiveSession();
+	if (m_liveSession)
 	{
-		m_liveSession = m_liveSessionFactory->createLiveSession();
-		if (m_liveSession)
-		{
-			// Подключаем сигналы живой сессии
-			connect(m_liveSession, &Session::sessionChanged,
-					this, &SessionsListModel::onSessionChanged);
-			connect(m_liveSession, &Session::messageCountChanged,
-					this, &SessionsListModel::onMessageCountChanged);
-			connect(m_liveSession, &Session::parameterCountChanged,
-					this, &SessionsListModel::onParameterCountChanged);
+		// Подключаем сигналы живой сессии
+		connect(m_liveSession, &Session::sessionChanged,
+				this, &SessionsListModel::onSessionChanged);
+		connect(m_liveSession, &Session::messageCountChanged,
+				this, &SessionsListModel::onMessageCountChanged);
+		connect(m_liveSession, &Session::parameterCountChanged,
+				this, &SessionsListModel::onParameterCountChanged);
 			
-			// Устанавливаем живую сессию как активную по умолчанию
-			m_currentActiveSession = m_liveSession;
+		m_currentActiveSession = m_liveSession;
 			
-			qDebug() << "SessionsListModel: Live session initialized and set as active";
-		}
+		m_sessions.append(m_liveSession);
 	}
+
+	return m_liveSession;
 }
 
 void SessionsListModel::updateLiveSessionCounters()

@@ -50,7 +50,7 @@ Rectangle
             {
                 role: "label"
                 title: "label"
-                width: 175
+                width: 150
             }
 
             TableViewColumn

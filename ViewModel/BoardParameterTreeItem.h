@@ -10,34 +10,47 @@ class BoardParameterSingle;
 class BoardParameterTreeItem
 {
 public:
-    void append(BoardParameterSingle* parameter);
-    explicit BoardParameterTreeItem(QString label, BoardParameterTreeItem* parentItem = nullptr, BoardParameterSingle* parameter = nullptr, const QVariant& itemValue = QVariant());
-    ~BoardParameterTreeItem();
+	BoardParameterTreeItem();
 
-    void appendChild(BoardParameterTreeItem* child);
-    BoardParameterTreeItem* child(int row);
-    int childCount() const;
-    //const QList<BoardParameterTreeItem*>& children() const;
-    //QList<BoardParameterTreeItem*>& children();
-    //void clearChildren();
-    //BoardParameterSingle* parameter() const;
-    //QVariant itemValue() const;
-    //void setParameter(BoardParameterSingle* p);
-    //QString label() const;
-    //QString fullPath() const;
-    //BoardParameterTreeItem* parentItem();
-    int row() const;
+protected:
+	explicit BoardParameterTreeItem(BoardParameterTreeItem* parentItem, BoardParameterSingle* parameter);
+	explicit BoardParameterTreeItem(BoardParameterTreeItem* parentItem, BoardParameterSingle* parameter, int valueIndex);
 
-    bool isRoot() const { return m_parentItem == nullptr; }
-    bool isLeaf() const { return m_childItems.count() == 0; }
-    BoardParameterTreeItem* parent() const { return m_parentItem; }
+public:
+	void addParameter(BoardParameterSingle* parameter);
+	BoardParameterTreeItem* updateParameter(BoardParameterSingle* parameter);
+
+	BoardParameterTreeItem* child(int row);
+	int childCount() const;
+	int row() const;
+
+	bool isRoot() const { return m_parentItem == nullptr; }
+	bool isLeaf() const { return m_childItems.count() == 0; }
+	int level() const { return m_level; }
+	BoardParameterTreeItem* parent() const { return m_parentItem; }
+	BoardParameterSingle* parameter() const { return m_parameter; }
+
+	QString label() const;
+	QVariant value() const;
+
+	bool hasParameter(BoardParameterSingle* parameter);
+	BoardParameterTreeItem* findItem(BoardParameterSingle* parameter);
+
 
 private:
-    QString m_label;
-    QVariant m_itemValue;
-    QList<BoardParameterTreeItem*> m_childItems;
-    BoardParameterTreeItem* m_parentItem = nullptr;
-    BoardParameterSingle* m_parameter;
+	bool isLastLevel() const;
+
+private:
+	QString m_itemLabel;
+	QVariant m_itemValue;
+	QList<BoardParameterTreeItem*> m_childItems;
+	BoardParameterTreeItem* m_parentItem = nullptr;
+	BoardParameterSingle* m_parameter = nullptr;
+	int m_level = -1;
+	bool m_indexLabel = false;
+
+public:
+	~BoardParameterTreeItem();
 };
 
 #endif // BOARDPARAMETERTREEITEM_H

@@ -6,22 +6,8 @@
 BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	: QAbstractItemModel(parent)
 {
-	m_rootItem = new BoardParameterTreeItem("root");
+	m_rootItem = new BoardParameterTreeItem();
 	makeRandomColors();
-
-	//m_topLevelItems.insert("param", new BoardParameterTreeItem("label"));
-
-	//m_parameters.insert("ok", nullptr);
-}
-
-void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* parameter)
-{
-	if (m_rootItem->childCount() > 0) return; // заглушка
-
-	this->beginInsertRows(QModelIndex(), m_rootItem->childCount(), m_rootItem->childCount());
-	m_rootItem->append(parameter);
-	this->endInsertRows();
-	return;
 }
 
 void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
@@ -44,6 +30,24 @@ void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
 		this, &BoardParametersTreeModel::onNewParameterAdded);
 }
 
+void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* parameter)
+{
+	if (parameter == nullptr) return;
+
+	if (m_rootItem->hasParameter(parameter))
+	{
+		m_rootItem->updateParameter(parameter);
+
+		emit dataChanged(index(0, 0), index(1, 0));
+	}
+	else
+	{
+		this->beginInsertRows(QModelIndex(), m_rootItem->childCount(), m_rootItem->childCount());
+		m_rootItem->addParameter(parameter);
+		this->endInsertRows();
+	}
+}
+
 int BoardParametersTreeModel::columnCount(const QModelIndex& parent) const
 {
 	return 2;
@@ -51,30 +55,47 @@ int BoardParametersTreeModel::columnCount(const QModelIndex& parent) const
 
 int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
 {
-	if (parent.column() > 0)
+	BoardParameterTreeItem* parentItem;
+	if (!parent.isValid())
+	{
+		parentItem = m_rootItem;
+	}
+	else
+	{
+		parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+	}
+
+	if (parentItem == nullptr) 
 		return 0;
 
-	auto parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+	auto rowCount = parentItem->childCount();
 
-	if (parentItem == nullptr) return 0;
-
-	return parentItem->childCount();
+	return rowCount;
 }
 
 QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
-	return QModelIndex();
+	BoardParameterTreeItem* parentItem;
+	if (!parent.isValid())
+	{
+		parentItem = m_rootItem;
+	}
+	else
+	{
+		parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+	}
 
-	if (!this->hasIndex(row, column, parent)) return QModelIndex();
-
-	auto parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
-
-	if (parentItem == nullptr) return QModelIndex();
+	if (parentItem == nullptr)
+	{
+		return QModelIndex();
+	}
 
 	auto childItem = parentItem->child(row);
 
-	if (childItem) 
+	if (childItem)
+	{
 		return createIndex(row, column, childItem);
+	}
 
 	return QModelIndex();
 }
@@ -83,78 +104,42 @@ QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelInd
 
 QModelIndex BoardParametersTreeModel::parent(const QModelIndex& index) const
 {
-	return QModelIndex();
-
 	if (!index.isValid())
 		return QModelIndex();
 
-
 	auto childItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
+
+	if (!childItem) 
+		return QModelIndex();
+
 	auto parentItem = childItem->parent();
 
-	if (parentItem == nullptr) return QModelIndex();
+	if (!parentItem)
+		return QModelIndex();
+	if (!parentItem->parent()) 
+		return QModelIndex();
 
 	return createIndex(parentItem->row(), 0, parentItem);
 }
 
 QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) const
 {
-	if (!index.isValid()) return QVariant();
-
-	switch (static_cast<ParameterRole>(role))
-	{
-	case ParameterRole::LabelRole:
-		return "tralala";
-	case ParameterRole::ValueRole:
-		return "123";
-	default:
+	if (!index.isValid())
 		return QVariant();
-	}		
 
-	auto treeItem = static_cast<BoardParameterSingle*>(index.internalPointer());
+	auto treeItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
 	if (treeItem)
 	{
 		switch (static_cast<ParameterRole>(role))
 		{
 		case ParameterRole::LabelRole:
-			return "tralala";
+			return treeItem->label();
 		case ParameterRole::ValueRole:
-			return "123";
+			return treeItem->value();
+		default:
+			break;
 		}
 	}
-
-	return QVariant();
-
-	//BoardParameterTreeItem* item = static_cast<BoardParameterTreeItem*>(index.internalPointer());
-	//BoardParameterSingle* parameter = item->parameter();
-
-	//switch (static_cast<ParameterRole>(role))
-	//{
-	//case ParameterRole::LabelRole:
-	//    return item->label();
-	//case ParameterRole::ValueRole:
-	//{
-	//    if (item->itemValue().isValid())
-	//    {
-	//        return item->itemValue();
-	//    }
-	//    if (!parameter) return {};
-	//    bool ok;
-	//    auto doubleValue = parameter->value().toDouble(&ok);
-	//    if (!ok) return parameter->value();
-	//    return QString::number(doubleValue, 'g', 3);
-	//}
-	//case ParameterRole::UnitRole:
-	//    return parameter ? QVariant::fromValue(parameter->unit()) : QVariant();
-	//case ParameterRole::TimeRole:
-	//    return parameter ? QVariant::fromValue(parameter->timestamp()) : QVariant();
-	//case ParameterRole::ChartVisibilityRole:
-	//    return QVariant::fromValue(m_chartVisibilities.value(index.row())); // This is simplistic and might need adjustment for tree
-	//case ParameterRole::ColorRole:
-	//    return QVariant::fromValue(m_colors.value(index.row())); // This is simplistic and might need adjustment for tree
-	//case ParameterRole::FullPathRole:
-	//    return item->fullPath();
-	//}
 
 	return QVariant();
 }
@@ -181,11 +166,6 @@ QHash<int, QByteArray> BoardParametersTreeModel::roleNames() const
 	QHash<int, QByteArray> rolesHash;
 	rolesHash[(int)ParameterRole::LabelRole] = "label";
 	rolesHash[(int)ParameterRole::ValueRole] = "value";
-	//rolesHash[(int)ParameterRole::UnitRole] = "unit";
-	//rolesHash[(int)ParameterRole::TimeRole] = "timestamp";
-	//rolesHash[(int)ParameterRole::ChartVisibilityRole] = "chartVisibility";
-	//rolesHash[(int)ParameterRole::ColorRole] = "parameterColor";
-	//rolesHash[(int)ParameterRole::FullPathRole] = "fullPath";
 	return rolesHash;
 }
 
@@ -203,7 +183,7 @@ void BoardParametersTreeModel::onParametersCleared()
 {
 	beginResetModel();
 	delete m_rootItem;
-	m_rootItem = new BoardParameterTreeItem("root");
+	m_rootItem = new BoardParameterTreeItem();
 	m_chartVisibilities.clear();
 	endResetModel();
 	emit countParametersChanged();

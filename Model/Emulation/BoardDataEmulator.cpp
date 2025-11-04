@@ -4,6 +4,7 @@
 #include "BoardDataGenerators/LatitudeGenerator.h"
 #include "BoardDataGenerators/SpeedGenerator.h"
 #include "BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h"
+#include "BoardDataGenerators/GroundSpeedGenerator.h"
 #include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QDebug>
 #include <QFile>
@@ -154,6 +155,8 @@ namespace drv
         throttleGen->setupThrottleParameter(2, 20, 10, M_PI);
         throttleGen->setupThrottleParameter(3, 12, 4, 3 * M_PI / 2);
         m_generators.append(throttleGen);
+
+        m_generators.append(new GroundSpeedGenerator(this));
 
         //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
     }

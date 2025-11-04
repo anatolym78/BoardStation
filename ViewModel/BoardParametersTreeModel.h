@@ -57,13 +57,9 @@ private:
 
     QString indexToLabel(int row) const;
 private:
-
-
-    //QMap<QString, BoardParameterSingle*> m_parameters;
     BoardParameterTreeItem* m_rootItem;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;
-    int m_parameterCount = 0;
 
     DataPlayer* m_dataPlayer = nullptr;
     QMetaObject::Connection m_playConnection;

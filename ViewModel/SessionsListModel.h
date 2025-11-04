@@ -72,7 +72,7 @@ public:
 	Q_INVOKABLE void selectSession(int sessionIndex);
 	
 	// Методы для работы с живой сессией
-	void initializeLiveSession();
+	bool createLiveSession();
 	void updateLiveSessionCounters();
 	void resetLiveSessionCounters();
 	
