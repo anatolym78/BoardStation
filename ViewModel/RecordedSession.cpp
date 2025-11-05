@@ -1,14 +1,15 @@
 #include "RecordedSession.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
 #include <QDebug>
 #include "SessionPlayer.h"
 
-RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& sessionInfo, 
-							   QObject *parent)
+RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& sessionInfo, QObject *parent)
 	: Session(parent)
 	, m_sessionInfo(sessionInfo)
-	, m_storage(new BoardParameterHistoryStorage(this))
 {
+	m_storage = new BoardParameterHistoryStorage(this);
+
 	m_player = new SessionPlayer(this);
 	m_player->setStorage(m_storage);
 
@@ -81,17 +82,17 @@ void RecordedSession::updateParameterCount(int count)
 	}
 }
 
-BoardParameterHistoryStorage* RecordedSession::getStorage() const
-{
-	return m_storage;
-}
-
 void RecordedSession::clearStorage()
 {
 	if (m_storage)
 	{
 		m_storage->clear();
 		qDebug() << "RecordedSession: Storage cleared for session" << m_sessionInfo.id;
+	}
+	if (m_treeStorage)
+	{
+		delete m_treeStorage;
+		m_treeStorage = new ParameterTreeStorage(this);
 	}
 }
 

@@ -5,6 +5,7 @@
 #include <QColor>
 
 #include "Model/Parameters/BoardParameterSingle.h"
+#include "./Model/Parameters/Tree/ParameterTreeStorage.h"
 #include "DataPlayer.h"
 
 class BoardParameterTreeItem;
@@ -31,6 +32,7 @@ public:
     explicit BoardParametersTreeModel(QObject* parent = nullptr);
     ~BoardParametersTreeModel() override;
 
+    void setStorage(ParameterTreeStorage* storage);
     void setPlayer(DataPlayer* dataPlayer);
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -56,7 +58,9 @@ private:
     void makeRandomColors();
 
     QString indexToLabel(int row) const;
+
 private:
+    ParameterTreeStorage* m_parametersTreeStorage = nullptr;
     BoardParameterTreeItem* m_rootItem;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;

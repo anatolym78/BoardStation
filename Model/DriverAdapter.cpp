@@ -1,5 +1,7 @@
 #include "DriverAdapter.h"
 #include "Model/Parameters/BoardParametersJsonParserNew.h"
+#include "Model/Parameters/ParameterTreeJsonParser.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -10,6 +12,7 @@ DriverAdapter::DriverAdapter(drv::IDriver* driver, QObject *parent)
     : QObject(parent)
     , m_driver(driver)
     , m_jsonParser(new BoardParametersJsonParserNew(this))
+    , m_treeJsonParser(new ParameterTreeJsonParser(this))
     , m_isConnected(false)
 {
     if (m_driver)
@@ -91,10 +94,16 @@ void DriverAdapter::onDriverDataAvailable()
         qDebug() << "DriverAdapter: Driver data is empty";
         return;
     }
-    
+
+    //createParameters(data);
+    createTreeParameters(data);
+}
+
+void DriverAdapter::createParameters(const QString &data)
+{
     // Парсим JSON и получаем отдельные параметры
     QList<BoardParameterSingle*> newParameters = m_jsonParser->parseParametersFromString(data);
-    
+
     if (newParameters.isEmpty())
     {
         qDebug() << "DriverAdapter: Failed to extract parameters from driver data";
@@ -112,6 +121,21 @@ void DriverAdapter::onDriverDataAvailable()
 
     // Также эмитируем сигнал для всей группы параметров
     emit parametersReceived(newParameters);
+}
+
+void DriverAdapter::createTreeParameters(const QString &data)
+{
+    ParameterTreeStorage* snapshot = m_treeJsonParser->parseJson(data);
+    QString error = m_treeJsonParser->getLastError();
+    if (!error.isEmpty())
+    {
+        qDebug() << "DriverAdapter: " << error;
+        delete snapshot;
+    }
+    else
+    {
+        emit parameterTreeReceived(snapshot);
+    }
 }
 
 void DriverAdapter::connectToDriver()

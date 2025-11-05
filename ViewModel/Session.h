@@ -12,6 +12,7 @@
 #include "./ChatViewGridModel.h"
 
 class BoardParameterHistoryStorage;
+class ParameterTreeStorage;
 
 /**
  * @brief Базовый класс для представления сессии
@@ -41,7 +42,8 @@ public:
 	virtual bool isRecording() const = 0;
 
 	// Методы для работы с хранилищем
-	virtual BoardParameterHistoryStorage* getStorage() const = 0;
+	BoardParameterHistoryStorage* getStorage() const;
+	ParameterTreeStorage* getTreeStorage() const;
 	virtual void clearStorage() = 0;
 
 	// Методы для сравнения сессий (для сортировки)
@@ -70,6 +72,8 @@ protected:
 	BoardParametersTreeModel* m_parametersModel;
 	ChatViewGridModel* m_chartsModel;
 	DataPlayer* m_player;
+	BoardParameterHistoryStorage* m_storage;
+	ParameterTreeStorage* m_treeStorage;
 	bool m_opened;
 
 };

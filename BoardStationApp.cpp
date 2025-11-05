@@ -12,6 +12,9 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QDateTime>
+#include "ViewModel/LiveSession.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
+
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
 	: QApplication(argc, argv)
@@ -41,8 +44,14 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 void BoardStationApp::connectSignals()
 {
-	connect(m_driverAdapter, &DriverAdapter::parameterReceived,
-	    liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
+	//connect(m_driverAdapter, &DriverAdapter::parameterReceived,
+	//        liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
+
+	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+			liveSession()->getTreeStorage(), &ParameterTreeStorage::merge);
+
+	connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
+	        liveSession(), &LiveSession::incrementMessageCount);
 
 	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
 		m_driverAdapter, &DriverAdapter::sendParameter);

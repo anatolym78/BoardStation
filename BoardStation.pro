@@ -31,6 +31,11 @@ SOURCES += \
     Model/Parameters/BoardParameterSingle.cpp \
     Model/Parameters/BoardParametersStorage.cpp \
     Model/Parameters/BoardParameterHistoryStorage.cpp \
+    Model/Parameters/ParameterTreeJsonParser.cpp \
+    Model/Parameters/Tree/ParameterTreeGroupItem.cpp \
+    Model/Parameters/Tree/ParameterTreeHistoryItem.cpp \
+    Model/Parameters/Tree/ParameterTreeItem.cpp \
+    Model/Parameters/Tree/ParameterTreeStorage.cpp \
     ViewModel/BoardParameterTreeItem.cpp \
     ViewModel/BoardParametersListModel.cpp \
     ViewModel/BoardParametersTreeModel.cpp \
@@ -84,6 +89,11 @@ HEADERS += \
     Model/Parameters/BoardParametersStorage.h \
     Model/Parameters/BoardParameterHistory.h \
     Model/Parameters/BoardParameterHistoryStorage.h \
+    Model/Parameters/ParameterTreeJsonParser.h \
+    Model/Parameters/Tree/ParameterTreeGroupItem.h \
+    Model/Parameters/Tree/ParameterTreeHistoryItem.h \
+    Model/Parameters/Tree/ParameterTreeItem.h \
+    Model/Parameters/Tree/ParameterTreeStorage.h \
     ViewModel/BoardParameterTreeItem.h \
     ViewModel/BoardParametersListModel.h \
     ViewModel/BoardParametersTreeModel.h \

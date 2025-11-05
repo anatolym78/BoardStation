@@ -10,6 +10,11 @@ BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	makeRandomColors();
 }
 
+void BoardParametersTreeModel::setStorage(ParameterTreeStorage* storage)
+{
+	m_parametersTreeStorage = storage;
+}
+
 void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
 {
 	m_dataPlayer = dataPlayer;
