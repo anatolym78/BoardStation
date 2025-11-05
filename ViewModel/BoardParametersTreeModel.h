@@ -54,6 +54,11 @@ public slots:
     void onNewParameterAdded(BoardParameterSingle* parameter);
     void onParametersCleared();
 
+public:
+	void onParameterAdded(ParameterTreeItem* newItem);
+    void onValueAdded(ParameterTreeHistoryItem* updatedItem);
+    void onValueChanged(ParameterTreeHistoryItem* history);
+
 private:
     void makeRandomColors();
 

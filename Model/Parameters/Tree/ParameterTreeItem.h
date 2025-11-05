@@ -21,6 +21,7 @@ public:
     int childCount() const;
     int row() const;
     ParameterTreeItem *parentItem() const;
+    int level() const;
 
     QString label() const;
     QList<ParameterTreeItem*> children() const;

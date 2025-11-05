@@ -11,19 +11,44 @@ BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	makeRandomColors();
 
 	m_storage = new ParameterTreeStorage(this);
+
+	connect(m_storage, &ParameterTreeStorage::parameterAdded, this, &BoardParametersTreeModel::onParameterAdded);
+	connect(m_storage, &ParameterTreeStorage::valueAdded, this, &BoardParametersTreeModel::onValueAdded);
+	connect(m_storage, &ParameterTreeStorage::valueChanged, this, &BoardParametersTreeModel::onValueChanged);
 }
+
+void BoardParametersTreeModel::onParameterAdded(ParameterTreeItem* newItem)
+{
+	auto level = newItem->level();
+	if (newItem->level() == 1)
+	{
+		this->beginInsertRows(QModelIndex(), 0, m_storage->childCount());
+		this->endInsertRows();
+	}
+}
+
+void BoardParametersTreeModel::onValueAdded(ParameterTreeHistoryItem* updatedItem)
+{
+
+}
+
+void BoardParametersTreeModel::onValueChanged(ParameterTreeHistoryItem* history)
+{
+	auto path = m_storage->findPath(history);
+
+	if (path.isEmpty()) return;
+}
+
 
 void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage)
 {
-	if (m_storage->childCount() == 0)
-	{
-		this->beginInsertRows(QModelIndex(), m_storage->childCount(), m_storage->childCount());
-		m_storage->setSnapshot(storage);
-		this->endInsertRows();
+	m_storage->setSnapshot(storage);
 
-		m_storage->setSnapshot(storage);
-
-	}
+	//if (m_storage->childCount() == 0)
+	//{
+	//	this->beginInsertRows(QModelIndex(), m_storage->childCount(), m_storage->childCount());
+	//	this->endInsertRows();
+	//}
 }
 
 void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
@@ -202,7 +227,6 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		return QVariant();
 
 	auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
-	auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
 	if (treeItem)
 	{
 		switch (static_cast<ParameterRole>(role))
@@ -210,8 +234,10 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		case ParameterRole::LabelRole:
 			return treeItem->label();
 		case ParameterRole::ValueRole:
-			if (leafItem && leafItem->values().count() > 0)
+			if (treeItem->type() == ParameterTreeItem::ItemType::History)
 			{
+				auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+				
 				return leafItem->values().last();
 			}
 			else

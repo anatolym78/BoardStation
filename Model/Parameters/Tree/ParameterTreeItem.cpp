@@ -56,6 +56,18 @@ ParameterTreeItem *ParameterTreeItem::parentItem() const
     return m_parentItem;
 }
 
+int ParameterTreeItem::level() const
+{
+	auto level = 0;
+    auto parentItem = this;
+    while(parentItem = parentItem->parentItem())
+    {        
+        level++;
+    } 
+
+    return level;
+}
+
 QString ParameterTreeItem::label() const
 {
     return m_label;
