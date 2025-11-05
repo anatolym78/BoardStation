@@ -16,6 +16,9 @@ public:
 	explicit LiveSession(QObject *parent = nullptr);
 	~LiveSession() = default;
 
+	// временная функция для тестирования заполенния TreeView
+	void setSnapshot(ParameterTreeStorage* storage);
+
 	// Реализация виртуальных методов
 	int getId() const override { return -1; } // У живой сессии нет ID в БД
 	QString getName() const override { return "Live Data"; }

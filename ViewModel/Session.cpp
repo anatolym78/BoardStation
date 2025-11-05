@@ -10,7 +10,6 @@ Session::Session(QObject *parent)
     , m_opened(false)
 {
     m_parametersModel = new BoardParametersTreeModel(parent);
-    m_parametersModel->setStorage(m_treeStorage);
 }
 
 bool Session::operator<(const Session& other) const

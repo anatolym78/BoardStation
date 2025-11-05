@@ -8,7 +8,7 @@ ParameterTreeStorage::ParameterTreeStorage(QObject *parent)
     setParent(parent);
 }
 
-void ParameterTreeStorage::merge(ParameterTreeStorage* snapshot)
+void ParameterTreeStorage::appendSnapshot(ParameterTreeStorage* snapshot)
 {
     if (!snapshot)
     {
@@ -17,14 +17,30 @@ void ParameterTreeStorage::merge(ParameterTreeStorage* snapshot)
 
     for (ParameterTreeItem* incomingChild : snapshot->children())
     {
-        mergeNode(this, incomingChild);
+        appendNode(this, incomingChild);
     }
 
     // Снимок - это временный объект, который должен быть удален
     snapshot->deleteLater();
 }
 
-void ParameterTreeStorage::mergeNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode)
+void ParameterTreeStorage::setSnapshot(ParameterTreeStorage* snapshot)
+{
+    if (!snapshot)
+    {
+        return;
+    }
+
+    for (ParameterTreeItem* incomingChild : snapshot->children())
+    {
+        setNode(this, incomingChild);
+    }
+
+    // Снимок - это временный объект, который должен быть удален
+    snapshot->deleteLater();
+}
+
+void ParameterTreeStorage::appendNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode)
 {
     ParameterTreeItem* existingNode = localParent->findChildByLabel(incomingNode->label());
 
@@ -57,7 +73,7 @@ void ParameterTreeStorage::mergeNode(ParameterTreeItem* localParent, ParameterTr
 
             for(ParameterTreeItem* incomingChild : incomingNode->children())
             {
-                mergeNode(newGroupItem, incomingChild);
+                appendNode(newGroupItem, incomingChild);
             }
         }
     }
@@ -72,20 +88,79 @@ void ParameterTreeStorage::mergeNode(ParameterTreeItem* localParent, ParameterTr
             const auto& values = incomingHistory->values();
             const auto& timestamps = incomingHistory->timestamps();
             bool hasNewValues = false;
-            for(int i = 0; i < values.size(); ++i) {
+            for(int i = 0; i < values.size(); ++i)
+            {
                 existingHistory->addValue(values[i], timestamps[i]);
                 hasNewValues = true;
             }
 
-            if (hasNewValues) {
+            if (hasNewValues) 
+            {
                  emit valueAdded(existingHistory);
             }
+        }
+        else
+        {
+            if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
+			{
+				for (ParameterTreeItem* incomingChild : incomingNode->children())
+				{
+					appendNode(existingNode, incomingChild);
+				}
+			}
+        }
+    }
+}
+
+void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode)
+{
+    ParameterTreeItem* existingNode = localParent->findChildByLabel(incomingNode->label());
+
+    if (!existingNode)
+    {
+        // Узел не существует, создаем новый и копируем данные
+        if (incomingNode->type() == ItemType::History)
+        {
+            auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
+            auto newHistoryItem = new ParameterTreeHistoryItem(incomingHistory->label(), localParent);
+
+            newHistoryItem->setValues(incomingHistory->values(), incomingHistory->timestamps());
+
+            localParent->appendChild(newHistoryItem);
+            emit parameterAdded(newHistoryItem);
+            if (!incomingHistory->values().isEmpty())
+            {
+                emit valueAdded(newHistoryItem);
+            }
+        }
+        else if (incomingNode->type() == ItemType::Group)
+        {
+            auto newGroupItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
+            localParent->appendChild(newGroupItem);
+            emit parameterAdded(newGroupItem);
+
+            for(ParameterTreeItem* incomingChild : incomingNode->children())
+            {
+                setNode(newGroupItem, incomingChild);
+            }
+        }
+    }
+    else
+    {
+        // Узел существует
+        if (existingNode->type() == ItemType::History && incomingNode->type() == ItemType::History)
+        {
+            auto existingHistory = static_cast<ParameterTreeHistoryItem*>(existingNode);
+            auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
+
+            existingHistory->setValues(incomingHistory->values(), incomingHistory->timestamps());
+            emit valueAdded(existingHistory);
         }
         else if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
         {
             for(ParameterTreeItem* incomingChild : incomingNode->children())
             {
-                mergeNode(existingNode, incomingChild);
+                setNode(existingNode, incomingChild);
             }
         }
     }

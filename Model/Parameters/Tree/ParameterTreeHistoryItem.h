@@ -15,6 +15,7 @@ public:
     ItemType type() const override { return ItemType::History; }
 
     void addValue(const QVariant &value, const QDateTime &timestamp);
+    void setValues(const QList<QVariant>& values, const QList<QDateTime>& timestamps);
     QVariant lastValue() const;
 
     const QList<QVariant>& values() const;

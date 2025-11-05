@@ -1,5 +1,6 @@
 #include "BoardParametersTreeModel.h"
 #include "BoardParameterTreeItem.h"
+#include "./Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 #include <random>
 
@@ -8,11 +9,21 @@ BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 {
 	m_rootItem = new BoardParameterTreeItem();
 	makeRandomColors();
+
+	m_storage = new ParameterTreeStorage(this);
 }
 
-void BoardParametersTreeModel::setStorage(ParameterTreeStorage* storage)
+void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage)
 {
-	m_parametersTreeStorage = storage;
+	if (m_storage->childCount() == 0)
+	{
+		this->beginInsertRows(QModelIndex(), m_storage->childCount(), m_storage->childCount());
+		m_storage->setSnapshot(storage);
+		this->endInsertRows();
+
+		m_storage->setSnapshot(storage);
+
+	}
 }
 
 void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
@@ -60,34 +71,51 @@ int BoardParametersTreeModel::columnCount(const QModelIndex& parent) const
 
 int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
 {
-	BoardParameterTreeItem* parentItem;
+	ParameterTreeItem* parentItem;
 	if (!parent.isValid())
 	{
-		parentItem = m_rootItem;
+		parentItem = m_storage;
 	}
 	else
 	{
-		parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+		parentItem = static_cast<ParameterTreeItem*>(parent.internalPointer());
 	}
 
-	if (parentItem == nullptr) 
+	if (parentItem == nullptr)
 		return 0;
 
 	auto rowCount = parentItem->childCount();
 
 	return rowCount;
+
+	//BoardParameterTreeItem* parentItem;
+	//if (!parent.isValid())
+	//{
+	//	parentItem = m_rootItem;
+	//}
+	//else
+	//{
+	//	parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+	//}
+
+	//if (parentItem == nullptr) 
+	//	return 0;
+
+	//auto rowCount = parentItem->childCount();
+
+	//return rowCount;
 }
 
 QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
-	BoardParameterTreeItem* parentItem;
+	ParameterTreeItem* parentItem;
 	if (!parent.isValid())
 	{
-		parentItem = m_rootItem;
+		parentItem = m_storage;
 	}
 	else
 	{
-		parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+		parentItem = static_cast<ParameterTreeItem*>(parent.internalPointer());
 	}
 
 	if (parentItem == nullptr)
@@ -103,6 +131,30 @@ QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelInd
 	}
 
 	return QModelIndex();
+
+	//BoardParameterTreeItem* parentItem;
+	//if (!parent.isValid())
+	//{
+	//	parentItem = m_rootItem;
+	//}
+	//else
+	//{
+	//	parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
+	//}
+
+	//if (parentItem == nullptr)
+	//{
+	//	return QModelIndex();
+	//}
+
+	//auto childItem = parentItem->child(row);
+
+	//if (childItem)
+	//{
+	//	return createIndex(row, column, childItem);
+	//}
+
+	//return QModelIndex();
 }
 
 
@@ -112,19 +164,36 @@ QModelIndex BoardParametersTreeModel::parent(const QModelIndex& index) const
 	if (!index.isValid())
 		return QModelIndex();
 
-	auto childItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
+	auto childItem = static_cast<ParameterTreeItem*>(index.internalPointer());
 
-	if (!childItem) 
+	if (!childItem)
 		return QModelIndex();
 
-	auto parentItem = childItem->parent();
+	auto parentItem = childItem->parentItem();
 
 	if (!parentItem)
 		return QModelIndex();
-	if (!parentItem->parent()) 
+	if (!parentItem->parentItem())
 		return QModelIndex();
 
 	return createIndex(parentItem->row(), 0, parentItem);
+
+	//if (!index.isValid())
+	//	return QModelIndex();
+
+	//auto childItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
+
+	//if (!childItem) 
+	//	return QModelIndex();
+
+	//auto parentItem = childItem->parent();
+
+	//if (!parentItem)
+	//	return QModelIndex();
+	//if (!parentItem->parent()) 
+	//	return QModelIndex();
+
+	//return createIndex(parentItem->row(), 0, parentItem);
 }
 
 QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) const
@@ -132,7 +201,8 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 	if (!index.isValid())
 		return QVariant();
 
-	auto treeItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
+	auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
+	auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
 	if (treeItem)
 	{
 		switch (static_cast<ParameterRole>(role))
@@ -140,13 +210,39 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		case ParameterRole::LabelRole:
 			return treeItem->label();
 		case ParameterRole::ValueRole:
-			return treeItem->value();
+			if (leafItem && leafItem->values().count() > 0)
+			{
+				return leafItem->values().last();
+			}
+			else
+			{
+				return QVariant();
+			}
 		default:
 			break;
 		}
 	}
 
 	return QVariant();
+
+	//if (!index.isValid())
+	//	return QVariant();
+
+	//auto treeItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
+	//if (treeItem)
+	//{
+	//	switch (static_cast<ParameterRole>(role))
+	//	{
+	//	case ParameterRole::LabelRole:
+	//		return treeItem->label();
+	//	case ParameterRole::ValueRole:
+	//		return treeItem->value();
+	//	default:
+	//		break;
+	//	}
+	//}
+
+	//return QVariant();
 }
 
 bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -157,7 +253,6 @@ bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant&
 
 	if (role == (int)ParameterRole::ChartVisibilityRole)
 	{
-		// This is simplistic and might need adjustment for tree
 		m_chartVisibilities[index.row()] = value.toBool();
 		emit dataChanged(index, index, { role });
 		return true;
@@ -181,6 +276,8 @@ int BoardParametersTreeModel::getCountParameters() const
 
 void BoardParametersTreeModel::clearParameters()
 {
+	//m_storage->clear();
+
 	onParametersCleared();
 }
 

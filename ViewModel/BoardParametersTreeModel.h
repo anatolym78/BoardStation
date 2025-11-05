@@ -32,7 +32,7 @@ public:
     explicit BoardParametersTreeModel(QObject* parent = nullptr);
     ~BoardParametersTreeModel() override;
 
-    void setStorage(ParameterTreeStorage* storage);
+    void setSnapshot(ParameterTreeStorage* storage);
     void setPlayer(DataPlayer* dataPlayer);
 
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -60,7 +60,7 @@ private:
     QString indexToLabel(int row) const;
 
 private:
-    ParameterTreeStorage* m_parametersTreeStorage = nullptr;
+    ParameterTreeStorage* m_storage = nullptr;
     BoardParameterTreeItem* m_rootItem;
     QList<bool> m_chartVisibilities;
     QList<QColor> m_colors;

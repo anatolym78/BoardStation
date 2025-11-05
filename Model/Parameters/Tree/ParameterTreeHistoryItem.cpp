@@ -11,6 +11,12 @@ void ParameterTreeHistoryItem::addValue(const QVariant &value, const QDateTime &
     m_timestamps.append(timestamp);
 }
 
+void ParameterTreeHistoryItem::setValues(const QList<QVariant>& values, const QList<QDateTime>& timestamps)
+{
+    m_values = values;
+    m_timestamps = timestamps;
+}
+
 QVariant ParameterTreeHistoryItem::lastValue() const
 {
     return m_values.last();

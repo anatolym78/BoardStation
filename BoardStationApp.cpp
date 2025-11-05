@@ -48,7 +48,11 @@ void BoardStationApp::connectSignals()
 	//        liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
 
 	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
-			liveSession()->getTreeStorage(), &ParameterTreeStorage::merge);
+			liveSession()->getTreeStorage(), &ParameterTreeStorage::appendSnapshot);
+
+	// временное подключение к временной функции, которая передает параметры напрямую в TreeView
+	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+			liveSession(), &LiveSession::setSnapshot);
 
 	connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 	        liveSession(), &LiveSession::incrementMessageCount);

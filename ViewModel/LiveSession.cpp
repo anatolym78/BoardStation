@@ -31,6 +31,11 @@ LiveSession::LiveSession(QObject *parent)
 		});
 }
 
+void LiveSession::setSnapshot(ParameterTreeStorage* storage)
+{
+	m_parametersModel->setSnapshot(storage);
+}
+
 void LiveSession::open()
 {
 	Session::open();

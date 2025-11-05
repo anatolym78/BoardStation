@@ -13,14 +13,16 @@ public:
     ItemType type() const override { return ItemType::Root; }
 
 public slots:
-    void merge(ParameterTreeStorage* snapshot);
+    void appendSnapshot(ParameterTreeStorage* snapshot);
+    void setSnapshot(ParameterTreeStorage* snapshot);
 
 signals:
     void parameterAdded(ParameterTreeItem* newItem);
     void valueAdded(ParameterTreeHistoryItem* updatedItem);
 
 private:
-    void mergeNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
+    void appendNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
+    void setNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
 };
 
 #endif // PARAMETERTREESTORAGE_H
