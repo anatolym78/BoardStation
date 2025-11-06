@@ -1,25 +1,37 @@
 #include "ThrottleAdjustmentValuesGenerator.h"
 #include <QVariantList>
 #include "Model/Parameters/BoardParameterSingle.h"
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
+#include <cmath>
 
 ThrottleAdjustmentValuesGenerator::ThrottleAdjustmentValuesGenerator(QObject *parent)
     : ParameterGenerator(parent)
 {
-    m_params.resize(4);
 }
 
 BoardParameterSingle* ThrottleAdjustmentValuesGenerator::generate(double time)
 {
-    QVariantList values;
-    for(const auto& p : m_params)
+    const double period = 50.0;
+    const double amplitude = 500.0;
+
+    const double time_in_period = fmod(time, period);
+
+    double value;
+    if (time_in_period < period / 2.0)
     {
-        double value = p.amplitude * sin(2 * M_PI * time / p.period + p.phase);
-        values.append(value);
+        value = -amplitude + (2.0 * amplitude / (period / 2.0)) * time_in_period;
     }
+    else
+    {
+        value = amplitude - (2.0 * amplitude / (period / 2.0)) * (time_in_period - period / 2.0);
+    }
+
+    const int int_value = static_cast<int>(round(value));
+
+    QVariantList values;
+    values.append(-int_value); // motor 1 (right)
+    values.append(-int_value); // motor 2 (right)
+    values.append(int_value);  // motor 3 (left)
+    values.append(int_value);  // motor 4 (left)
 
     return new BoardParameterSingle("stabData.throttleAdjustmentValues", values, QDateTime::currentDateTime(), "", this);
 }
@@ -27,14 +39,4 @@ BoardParameterSingle* ThrottleAdjustmentValuesGenerator::generate(double time)
 QString ThrottleAdjustmentValuesGenerator::getName() const
 {
     return "stabData.throttleAdjustmentValues";
-}
-
-void ThrottleAdjustmentValuesGenerator::setupThrottleParameter(int index, double amplitude, double period, double phase)
-{
-    if (index >= 0 && index < m_params.size())
-    {
-        m_params[index].amplitude = amplitude;
-        m_params[index].period = period;
-        m_params[index].phase = phase;
-    }
 }

@@ -2,6 +2,7 @@
 #define PARAMETERTREESTORAGE_H
 
 #include "ParameterTreeItem.h"
+#include "ParameterTreeGroupItem.h"
 
 class ParameterTreeHistoryItem;
 
@@ -13,6 +14,7 @@ public:
 	ItemType type() const override { return ItemType::Root; }
 
 	QList<ParameterTreeItem*> findPath(ParameterTreeHistoryItem* item) const;
+	int topLevelItemIndex(ParameterTreeItem* item) const;
 
 public slots:
 	void appendSnapshot(ParameterTreeStorage* snapshot);

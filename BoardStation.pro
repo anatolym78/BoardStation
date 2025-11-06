@@ -16,6 +16,8 @@ CONFIG += c++17
 SOURCES += \
     BoardStationApp.cpp \
     Model/Emulation/BoardDataEmulator.cpp \
+    Model/Emulation/BoardDataGenerators/AccelerationGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/DesiredAngleRatesGenerator.cpp \
     Model/Emulation/BoardDataGenerators/GroundSpeedGenerator.cpp \
     Model/Emulation/BoardDataGenerators/ParameterGenerator.cpp \
     Model/Emulation/BoardDataGenerators/AltitudeGenerator.cpp \
@@ -73,6 +75,8 @@ SOURCES += \
 HEADERS += \
     BoardStationApp.h \
     Model/Emulation/BoardDataEmulator.h \
+    Model/Emulation/BoardDataGenerators/AccelerationGenerator.h \
+    Model/Emulation/BoardDataGenerators/DesiredAngleRatesGenerator.h \
     Model/Emulation/BoardDataGenerators/GroundSpeedGenerator.h \
     Model/Emulation/BoardDataGenerators/ParameterGenerator.h \
     Model/Emulation/BoardDataGenerators/AltitudeGenerator.h \

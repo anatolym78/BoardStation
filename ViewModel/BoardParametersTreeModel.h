@@ -63,6 +63,8 @@ private:
     void makeRandomColors();
 
     QString indexToLabel(int row) const;
+    QModelIndex findIndex(ParameterTreeHistoryItem* item);
+	bool findIndexRecursive(ParameterTreeItem* item, QModelIndex parentIndex, QModelIndex& foundedIndex);
 
 private:
     ParameterTreeStorage* m_storage = nullptr;

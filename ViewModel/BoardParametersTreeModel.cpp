@@ -19,26 +19,68 @@ BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 
 void BoardParametersTreeModel::onParameterAdded(ParameterTreeItem* newItem)
 {
-	auto level = newItem->level();
-	if (newItem->level() == 1)
-	{
-		this->beginInsertRows(QModelIndex(), 0, m_storage->childCount());
-		this->endInsertRows();
-	}
+	this->beginResetModel();
+	this->endResetModel();
 }
 
 void BoardParametersTreeModel::onValueAdded(ParameterTreeHistoryItem* updatedItem)
 {
-
 }
 
 void BoardParametersTreeModel::onValueChanged(ParameterTreeHistoryItem* history)
 {
-	auto path = m_storage->findPath(history);
+	QModelIndex foundedIndex;
+	if (findIndexRecursive(history, QModelIndex(), foundedIndex))
+	{
+		emit dataChanged(foundedIndex, foundedIndex);
+	}
+}
+bool BoardParametersTreeModel::findIndexRecursive(ParameterTreeItem* item, QModelIndex parentIndex, QModelIndex& foundedIndex)
+{
+	if (static_cast<ParameterTreeItem*>(parentIndex.internalPointer()) == item)
+	{
+		foundedIndex = QModelIndex(parentIndex);
 
-	if (path.isEmpty()) return;
+		return true;
+	}
+	for (auto i = 0; i < this->rowCount(parentIndex); i++)
+	{
+		auto nestedParentIndex = this->index(i, 0, parentIndex);
+
+		if (findIndexRecursive(item, nestedParentIndex, foundedIndex))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
+QModelIndex BoardParametersTreeModel::findIndex(ParameterTreeHistoryItem* item)
+{
+	auto currentParent = QModelIndex();
+	for (auto i = 0; i < this->rowCount(currentParent); i++)
+	{
+		auto child = this->index(i, 0, currentParent);
+
+		auto childItem = static_cast<ParameterTreeItem*>(child.internalPointer());
+
+		auto childOfChild = this->index(0, 0, child);
+
+		auto childOfChildItem = static_cast<ParameterTreeItem*>(childOfChild.internalPointer());
+
+		int k = 0;
+	}
+
+	return QModelIndex();
+
+	auto path = m_storage->findPath(item);
+
+	auto p = this->parent(QModelIndex());
+	auto treeItem = static_cast<ParameterTreeHistoryItem*>(p.internalPointer());
+
+	return QModelIndex();
+}
 
 void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage)
 {

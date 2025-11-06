@@ -5,6 +5,8 @@
 #include "BoardDataGenerators/SpeedGenerator.h"
 #include "BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h"
 #include "BoardDataGenerators/GroundSpeedGenerator.h"
+#include "BoardDataGenerators/AccelerationGenerator.h"
+#include "BoardDataGenerators/DesiredAngleRatesGenerator.h"
 #include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QDebug>
 #include <QFile>
@@ -149,14 +151,10 @@ namespace drv
 
     void BoardDataEmulator::setupGenerators()
     {
-        ThrottleAdjustmentValuesGenerator* throttleGen = new ThrottleAdjustmentValuesGenerator(this);
-        throttleGen->setupThrottleParameter(0, 10, 5, 0);
-        throttleGen->setupThrottleParameter(1, 15, 7, M_PI / 3);
-        throttleGen->setupThrottleParameter(2, 20, 10, M_PI);
-        throttleGen->setupThrottleParameter(3, 12, 4, 3 * M_PI / 2);
-        m_generators.append(throttleGen);
-
+        m_generators.append(new ThrottleAdjustmentValuesGenerator(this));
         m_generators.append(new GroundSpeedGenerator(this));
+        m_generators.append(new AccelerationGenerator(this));
+        m_generators.append(new DesiredAngleRatesGenerator(this));
 
         //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
     }

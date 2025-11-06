@@ -1,5 +1,4 @@
 #include "ParameterTreeStorage.h"
-#include "ParameterTreeGroupItem.h"
 #include "ParameterTreeHistoryItem.h"
 
 ParameterTreeStorage::ParameterTreeStorage(QObject *parent)
@@ -28,6 +27,16 @@ QList<ParameterTreeItem*> ParameterTreeStorage::findPath(ParameterTreeHistoryIte
 	std::reverse(path.begin(), path.end());
 
 	return path;
+}
+
+int ParameterTreeStorage::topLevelItemIndex(ParameterTreeItem* item) const
+{
+	for (auto i = 0; i < m_childItems.count(); i++)
+	{
+		if (m_childItems[i] == item) return i;
+	}
+
+	return -1;
 }
 
 void ParameterTreeStorage::appendSnapshot(ParameterTreeStorage* snapshot)
