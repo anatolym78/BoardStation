@@ -571,7 +571,7 @@ Q_INVOKABLE void SessionsListModel::resetLiveSession()
 {
 	if (liveSession() == nullptr) return;
 
-	liveSession()->getStorage()->clear();
+	liveSession()->storage()->clear();
 
 	liveSession()->player()->reset();
 }

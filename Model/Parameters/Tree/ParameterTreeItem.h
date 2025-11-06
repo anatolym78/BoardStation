@@ -24,6 +24,7 @@ public:
     int level() const;
 
     QString label() const;
+    QString fullName() const;
     QList<ParameterTreeItem*> children() const;
 
     enum class ItemType {

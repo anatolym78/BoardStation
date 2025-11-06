@@ -8,7 +8,7 @@ ThrottleAdjustmentValuesGenerator::ThrottleAdjustmentValuesGenerator(QObject *pa
 {
 }
 
-BoardParameterSingle* ThrottleAdjustmentValuesGenerator::generate(double time)
+QList<BoardParameterSingle*> ThrottleAdjustmentValuesGenerator::generate(double time)
 {
     const double period = 50.0;
     const double amplitude = 500.0;
@@ -33,7 +33,8 @@ BoardParameterSingle* ThrottleAdjustmentValuesGenerator::generate(double time)
     values.append(int_value);  // motor 3 (left)
     values.append(int_value);  // motor 4 (left)
 
-    return new BoardParameterSingle("stabData.throttleAdjustmentValues", values, QDateTime::currentDateTime(), "", this);
+    BoardParameterSingle* p = new BoardParameterSingle("stabData.throttleAdjustmentValues", values, QDateTime::currentDateTime(), "", this);
+    return {p};
 }
 
 QString ThrottleAdjustmentValuesGenerator::getName() const

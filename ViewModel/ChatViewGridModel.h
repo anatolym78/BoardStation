@@ -14,6 +14,8 @@
 #include <QVariant>
 #include <QColor>
 
+#include "./Model/Parameters/BoardParameterHistoryStorage.h"
+
 #include "./DataPlayer.h"
 
 class ChatViewGridModel : public QAbstractListModel

@@ -16,7 +16,7 @@ QString AccelerationGenerator::getName() const
     return "telemetry.acceleration";
 }
 
-BoardParameterSingle* AccelerationGenerator::generate(double time)
+QList<BoardParameterSingle*> AccelerationGenerator::generate(double time)
 {
     const double period = 10.0;
     const double amplitude = 3.0;
@@ -37,5 +37,6 @@ BoardParameterSingle* AccelerationGenerator::generate(double time)
     values.append(value);
     values.append(value);
 
-    return new BoardParameterSingle(getName(), values, QDateTime::currentDateTime());
+    BoardParameterSingle* p = new BoardParameterSingle(getName(), values, QDateTime::currentDateTime());
+    return {p};
 }

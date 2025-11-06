@@ -191,7 +191,8 @@ void ChartViewModel::removeLabel(const QString &label)
 
 bool ChartViewModel::parameterExistsInHistory(const QString& label) const
 {
-	return m_dataPlayer->storage()->containsParameter(label);
+	return false; // !!!
+	//return m_dataPlayer->storage()->containsParameter(label);
 }
 void ChartViewModel::mergeCharts(int movedIndex, int targetIndex)
 {

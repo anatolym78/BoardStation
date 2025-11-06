@@ -3,8 +3,6 @@
 
 #include "Session.h"
 
-class BoardParameterHistoryStorage;
-
 /**
  * @brief Класс для представления живой сессии (поток данных от драйвера)
  */

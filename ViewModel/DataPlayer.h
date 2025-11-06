@@ -5,7 +5,8 @@
 #include <QDateTime>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
-#include "Model/Parameters/BoardParameterHistoryStorage.h"
+#include "Model/Parameters/BoardParameterSingle.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
 
 class DataPlayer : public QObject
 {
@@ -18,7 +19,6 @@ class DataPlayer : public QObject
 	Q_PROPERTY(QDateTime sessionEndTime READ sessionEndTime NOTIFY sessionEndTimeChanged)
 	Q_PROPERTY(double sessionDuration READ sessionDuration NOTIFY sessionDurationChanged)
 	Q_PROPERTY(double elapsedTime READ elapsedTime NOTIFY elapsedTimeChanged)
-	//Q_PROPERTY(bool isPlayable READ isPlayable NOTIFY playableChanged)
 
 public:
 	explicit DataPlayer(QObject *parent = nullptr);
@@ -41,22 +41,17 @@ public:
 	Q_INVOKABLE virtual void setElapsedTime(double position);
 	Q_INVOKABLE virtual void moveToBegin();
 	Q_INVOKABLE virtual void onMoved(double value);
-	// Виртуальная функция, но имеет смысл только для плеера живых данных
-	// Начинает проигрывает от текущего положения курсора
-	Q_INVOKABLE virtual void reset()
-	{
-
-	}
+	Q_INVOKABLE virtual void reset() {}
 
 	Q_INVOKABLE bool isPlayable() { return m_isPlayable; }
 	
 	// Методы для работы с хранилищем
-	virtual void setStorage(BoardParameterHistoryStorage* storage);
+	virtual void setStorage(ParameterTreeStorage* storage);
 
 	virtual void resetState() = 0;
 	virtual void initialPlay() = 0;
 
-	BoardParameterHistoryStorage* storage() const { return m_storage; }
+	ParameterTreeStorage* storage() const { return m_storage; }
 
 public slots:
 	virtual void onParameterReceived(BoardParameterSingle* parameter);
@@ -71,6 +66,7 @@ signals:
 	void elapsedTimeChanged();
 	void playbackFinished();
 	void parameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
+	void played(ParameterTreeStorage* subStorage);
 	void stopped();
 
 protected:
@@ -82,7 +78,7 @@ protected:
 	void playParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime);
 
 protected:
-	BoardParameterHistoryStorage* m_storage;
+	ParameterTreeStorage* m_storage;
 	QFuture<void> m_playbackFuture;
 	QAtomicInt m_shouldStop;
 	

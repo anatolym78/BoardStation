@@ -1,48 +1,42 @@
 #include "Session.h"
-#include "Model/Parameters/BoardParameterHistoryStorage.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
 
 Session::Session(QObject *parent)
-    : QObject(parent)
+	: QObject(parent)
 	, m_treeStorage(new ParameterTreeStorage(this))
 	, m_chartsModel(new ChatViewGridModel(parent))
-    , m_player(nullptr)
-    , m_storage(nullptr)
-    , m_opened(false)
+	, m_player(nullptr)
+	, m_opened(false)
 {
-    m_parametersModel = new BoardParametersTreeModel(parent);
+	m_parametersModel = new BoardParametersTreeModel(parent);
 }
 
 bool Session::operator<(const Session& other) const
 {
-    return getCreatedAt() < other.getCreatedAt();
+	return getCreatedAt() < other.getCreatedAt();
 }
 
 bool Session::operator==(const Session& other) const
 {
-    return getId() == other.getId() && getType() == other.getType();
+	return getId() == other.getId() && getType() == other.getType();
 }
 
 BoardParametersTreeModel* Session::parametersModel() const
 {
-    return m_parametersModel;
+	return m_parametersModel;
 }
 
 void Session::updateMessageCount(int count)
 {
-    emit messageCountChanged(count);
+	emit messageCountChanged(count);
 }
 
 void Session::updateParameterCount(int count)
 {
-    emit parameterCountChanged(count);
+	emit parameterCountChanged(count);
 }
 
-BoardParameterHistoryStorage* Session::getStorage() const
+ParameterTreeStorage* Session::storage() const
 {
-    return m_storage;
-}
-
-ParameterTreeStorage* Session::getTreeStorage() const
-{
-    return m_treeStorage;
+	return m_treeStorage;
 }

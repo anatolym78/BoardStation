@@ -13,9 +13,10 @@ QString GroundSpeedGenerator::getName() const
     return "telemetry.groundSpeed";
 }
 
-BoardParameterSingle* GroundSpeedGenerator::generate(double time)
+QList<BoardParameterSingle*> GroundSpeedGenerator::generate(double time)
 {
     double value = m_averageSpeed + m_amplitude * std::sin(2 * M_PI * time / m_period);
     int int_value = static_cast<int>(round(value));
-    return new BoardParameterSingle(getName(), QVariant::fromValue(int_value));
+    BoardParameterSingle* p = new BoardParameterSingle(getName(), QVariant::fromValue(int_value));
+    return {p};
 }

@@ -20,17 +20,11 @@ SessionPlayer::~SessionPlayer()
 	//stop();
 }
 
-void SessionPlayer::setStorage(BoardParameterHistoryStorage* storage)
+void SessionPlayer::setStorage(ParameterTreeStorage* storage)
 {
-	// Вызываем базовую реализацию
+	// В новой архитектуре SessionPlayer также не подписывается на сигналы хранилища,
+	// а работает с данными, которые загружаются по запросу.
 	DataPlayer::setStorage(storage);
-	
-	// Подключаемся к сигналу загрузки данных сессии
-	if (storage)
-	{
-		connect(storage, &BoardParameterHistoryStorage::sessionDataLoaded,
-				this, &SessionPlayer::onSessionDataLoaded);
-	}
 }
 
 void SessionPlayer::setReader(BoardMessagesSqliteReader* reader)
@@ -57,7 +51,7 @@ void SessionPlayer::onSessionDataLoaded(int sessionId)
 	m_currentSessionName = sessionInfo.name;
 	
 	// Получаем параметры из хранилища для определения временных границ
-	QList<BoardParameterSingle*> sessionParams = m_storage->getSessionParameters();
+	QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
 	
 	if (!sessionParams.isEmpty())
 	{
@@ -111,7 +105,7 @@ void SessionPlayer::initializeWithLoadedData()
 	}
 	
 	// Получаем параметры из хранилища
-	QList<BoardParameterSingle*> sessionParams = m_storage->getSessionParameters();
+	QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
 	if (sessionParams.isEmpty())
 	{
 		qWarning() << "SessionPlayer: No data available for initialization";

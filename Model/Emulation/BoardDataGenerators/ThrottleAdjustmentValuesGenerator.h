@@ -10,7 +10,7 @@ class ThrottleAdjustmentValuesGenerator : public ParameterGenerator
 
 public:
     explicit ThrottleAdjustmentValuesGenerator(QObject *parent = nullptr);
-    BoardParameterSingle* generate(double time) override;
+    QList<BoardParameterSingle*> generate(double time) override;
     QString getName() const override;
 };
 

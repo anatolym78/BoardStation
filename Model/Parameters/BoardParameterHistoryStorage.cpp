@@ -110,6 +110,25 @@ QList<BoardParameterSingle*> BoardParameterHistoryStorage::getParametersInTimeRa
 	return result;
 }
 
+BoardParameterHistoryStorage* BoardParameterHistoryStorage::extractRange(const QDateTime& startTime, const QDateTime& endTime) const
+{
+	BoardParameterHistoryStorage* subStorage = new BoardParameterHistoryStorage();
+	QList<BoardParameterSingle*> paramsInRange = getParametersInTimeRange(startTime, endTime);
+	
+	// Мы не можем просто сделать subStorage->m_sessionParameters = paramsInRange,
+	// так как параметры будут удалены вместе с основным хранилищем.
+	// Поэтому нужно создать глубокие копии.
+	for (BoardParameterSingle* param : paramsInRange)
+	{
+		if (param)
+		{
+            //subStorage->addParameter(new BoardParameterSingle(*param));
+		}
+	}
+	
+	return subStorage;
+}
+
 int BoardParameterHistoryStorage::getMessagesCount() const
 {
 	QSet<QDateTime> uniqueTimestamps;

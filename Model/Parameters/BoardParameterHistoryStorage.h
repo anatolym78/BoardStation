@@ -38,6 +38,9 @@ public:
 	QList<BoardParameterSingle*> getParametersInTimeRange(const QDateTime &startTime, const QDateTime &endTime) const;
 	QList<BoardParameterSingle*> getParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime, const QString& label) const;
 	
+	// Извлечение хранилища в заданном временном диапазо-не
+	BoardParameterHistoryStorage* extractRange(const QDateTime& startTime, const QDateTime& endTime) const;
+
 	// Подсчет количества сообщений (параметры с одинаковой временной меткой считаются одним сообщением)
 	int getMessagesCount() const;
 

@@ -494,7 +494,8 @@ QVariant ChatViewGridModel::data(const QModelIndex &index, int role) const
 
 bool ChatViewGridModel::parameterExistsInHistory(const QString& label) const
 {
-	return m_dataPlayer->storage()->containsParameter(label);
+	return false; // !!!
+	//return m_dataPlayer->storage()->containsParameter(label);
 }
 
 void ChatViewGridModel::splitSeries(int chartIndex)

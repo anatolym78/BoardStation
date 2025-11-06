@@ -17,13 +17,14 @@ SOURCES += \
     BoardStationApp.cpp \
     Model/Emulation/BoardDataEmulator.cpp \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.cpp \
     Model/Emulation/BoardDataGenerators/DesiredAngleRatesGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/GpsLocationGenerator.cpp \
     Model/Emulation/BoardDataGenerators/GroundSpeedGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/GyroAngleRatesGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/IsArmedGenerator.cpp \
     Model/Emulation/BoardDataGenerators/ParameterGenerator.cpp \
-    Model/Emulation/BoardDataGenerators/AltitudeGenerator.cpp \
-    Model/Emulation/BoardDataGenerators/LongitudeGenerator.cpp \
-    Model/Emulation/BoardDataGenerators/LatitudeGenerator.cpp \
-    Model/Emulation/BoardDataGenerators/SpeedGenerator.cpp \
+    Model/Emulation/BoardDataGenerators/PositionAltitudeGenerator.cpp \
     Model/Emulation/BoardDataGenerators/ThrottleAdjustmentValuesGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.cpp \
     Model/Parameters/BoardParameterHistory.cpp \
@@ -76,13 +77,14 @@ HEADERS += \
     BoardStationApp.h \
     Model/Emulation/BoardDataEmulator.h \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.h \
+    Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.h \
     Model/Emulation/BoardDataGenerators/DesiredAngleRatesGenerator.h \
+    Model/Emulation/BoardDataGenerators/GpsLocationGenerator.h \
     Model/Emulation/BoardDataGenerators/GroundSpeedGenerator.h \
+    Model/Emulation/BoardDataGenerators/GyroAngleRatesGenerator.h \
+    Model/Emulation/BoardDataGenerators/IsArmedGenerator.h \
     Model/Emulation/BoardDataGenerators/ParameterGenerator.h \
-    Model/Emulation/BoardDataGenerators/AltitudeGenerator.h \
-    Model/Emulation/BoardDataGenerators/LongitudeGenerator.h \
-    Model/Emulation/BoardDataGenerators/LatitudeGenerator.h \
-    Model/Emulation/BoardDataGenerators/SpeedGenerator.h \
+    Model/Emulation/BoardDataGenerators/PositionAltitudeGenerator.h \
     Model/Emulation/BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h \
     Model/Emulation/BoardDataGenerators/BoardDataJsonGenerator.h \
     Model/IDriver.h \

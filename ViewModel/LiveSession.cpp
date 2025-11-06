@@ -1,5 +1,4 @@
 #include "LiveSession.h"
-#include "Model/Parameters/BoardParameterHistoryStorage.h"
 #include "Model/Parameters/Tree/ParameterTreeStorage.h"
 #include <QDebug>
 #include <QDateTime>
@@ -13,22 +12,20 @@ LiveSession::LiveSession(QObject *parent)
 	, m_parameterCount(0)
 	, m_isRecording(false)
 {
-	m_storage = new BoardParameterHistoryStorage(this);
-
 	m_player = new DriverDataPlayer(this);
-	m_player->setStorage(m_storage);
+	m_player->setStorage(m_treeStorage);
 
 	m_parametersModel->setPlayer(m_player);
 	m_chartsModel->setPlayer(m_player);
-	m_chartsModel->setStorage(m_storage);
+	//m_chartsModel->setStorage(m_treeStorage);
 
-	connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
-		[this](BoardParameterSingle*)
-		{
-			m_messageCount = m_storage->getMessagesCount();
-
-			emit messageCountChanged(m_messageCount);
-		});
+	// connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
+	// 	[this](BoardParameterSingle*)
+	// 	{
+	// 		m_messageCount = m_storage->getMessagesCount();
+	//
+	// 		emit messageCountChanged(m_messageCount);
+	// 	});
 }
 
 void LiveSession::setSnapshot(ParameterTreeStorage* storage)
@@ -99,14 +96,9 @@ void LiveSession::resetCounters()
 
 void LiveSession::clearStorage()
 {
-	if (m_storage)
-	{
-		m_storage->clear();
-	}
 	if (m_treeStorage)
 	{
-		delete m_treeStorage;
-		m_treeStorage = new ParameterTreeStorage(this);
+		m_treeStorage->clear();
 	}
 	resetCounters();
 }

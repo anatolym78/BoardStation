@@ -1,5 +1,6 @@
 #include "ParameterTreeStorage.h"
 #include "ParameterTreeHistoryItem.h"
+#include <QDebug>
 
 ParameterTreeStorage::ParameterTreeStorage(QObject *parent)
 	: ParameterTreeItem("root", nullptr)
@@ -27,6 +28,31 @@ QList<ParameterTreeItem*> ParameterTreeStorage::findPath(ParameterTreeHistoryIte
 	std::reverse(path.begin(), path.end());
 
 	return path;
+}
+
+ParameterTreeStorage* ParameterTreeStorage::extractRange(const QDateTime& startTime, const QDateTime& endTime) const
+{
+	auto subStorage = new ParameterTreeStorage();
+
+	for (ParameterTreeItem* child : m_childItems)
+	{
+		extractNode(subStorage, child, startTime, endTime);
+	}
+
+	return subStorage;
+}
+
+QList<BoardParameterSingle*> ParameterTreeStorage::getParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime) const
+{
+	QList<BoardParameterSingle*> params;
+	collectParameters(const_cast<ParameterTreeStorage*>(this), startTime, endTime, params);
+	return params;
+}
+
+void ParameterTreeStorage::clear()
+{
+	qDeleteAll(m_childItems);
+	m_childItems.clear();
 }
 
 int ParameterTreeStorage::topLevelItemIndex(ParameterTreeItem* item) const
@@ -194,5 +220,77 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 				setNode(existingNode, incomingChild);
 			}
 		}
+	}
+}
+
+void ParameterTreeStorage::extractNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode, const QDateTime& startTime, const QDateTime& endTime) const
+{
+	if (incomingNode->type() == ItemType::History)
+	{
+		auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
+		auto newHistoryItem = new ParameterTreeHistoryItem(incomingHistory->label(), localParent);
+
+		const auto& values = incomingHistory->values();
+		const auto& timestamps = incomingHistory->timestamps();
+		bool hasValuesInRange = false;
+		for (int i = 0; i < values.size(); ++i)
+		{
+			if (timestamps[i] >= startTime && timestamps[i] <= endTime)
+			{
+				newHistoryItem->addValue(values[i], timestamps[i]);
+				hasValuesInRange = true;
+			}
+		}
+
+		if (hasValuesInRange)
+		{
+			localParent->appendChild(newHistoryItem);
+		}
+		else
+		{
+			delete newHistoryItem;
+		}
+	}
+	else if (incomingNode->type() == ItemType::Group)
+	{
+		auto newGroupItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
+
+		for (ParameterTreeItem* incomingChild : incomingNode->children())
+		{
+			extractNode(newGroupItem, incomingChild, startTime, endTime);
+		}
+
+		if (newGroupItem->childCount() > 0)
+		{
+			localParent->appendChild(newGroupItem);
+		}
+		else
+		{
+			delete newGroupItem;
+		}
+	}
+}
+
+void ParameterTreeStorage::collectParameters(ParameterTreeItem* item, const QDateTime& startTime, const QDateTime& endTime, QList<BoardParameterSingle*>& params) const
+{
+	if (item->type() == ItemType::History)
+	{
+		auto historyItem = static_cast<ParameterTreeHistoryItem*>(item);
+		const auto& timestamps = historyItem->timestamps();
+		const auto& values = historyItem->values();
+		const QString& label = historyItem->fullName();
+
+		for (int i = 0; i < timestamps.size(); ++i)
+		{
+			if (timestamps[i] >= startTime && timestamps[i] <= endTime)
+			{
+				params.append(new BoardParameterSingle(label, values[i], timestamps[i]));
+			}
+		}
+	}
+
+	for (ParameterTreeItem* child : item->children())
+	{
+		collectParameters(child, startTime, endTime, params);
 	}
 }

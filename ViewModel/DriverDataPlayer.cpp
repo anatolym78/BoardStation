@@ -67,27 +67,15 @@ void DriverDataPlayer::setPosition(QDateTime position)
     emit elapsedTimeChanged();
 }
 
-void DriverDataPlayer::setStorage(BoardParameterHistoryStorage* storage)
+void DriverDataPlayer::setStorage(ParameterTreeStorage* storage)
 {
-    // Отключаемся от старого хранилища
-    if (m_storage)
-    {
-        disconnect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
-                   this, &DriverDataPlayer::onNewParameterAdded);
-    }
-    
-    // Вызываем базовую реализацию
+    // В новой архитектуре DriverDataPlayer не подписывается на сигналы хранилища,
+    // а получает данные через onParameterReceived.
+    // Поэтому здесь только вызываем базовую реализацию.
     DataPlayer::setStorage(storage);
     
-    // Подключаемся к сигналу эмиссии параметров из нового хранилища
-    if (storage)
-    {
-        connect(storage, &BoardParameterHistoryStorage::parameterEmitted,
-                this, &DriverDataPlayer::onNewParameterAdded);
-        
-        // Сбрасываем состояние плеера при смене хранилища
-        resetState();
-    }
+    // Сбрасываем состояние плеера при смене хранилища
+    resetState();
 }
 
 void DriverDataPlayer::onParameterReceived(BoardParameterSingle* parameter)
@@ -167,7 +155,7 @@ void DriverDataPlayer::checkAndPlayParameters()
     }
     
     // Получаем все параметры из хранилища
-    QList<BoardParameterSingle*> params = m_storage->getSessionParameters();
+    QList<BoardParameterSingle*> params = m_storage->getParametersInTimeRange(m_sessionStartTime, m_sessionEndTime);
     
     // Проигрываем параметры, время которых меньше или равно текущей позиции
     for (BoardParameterSingle* param : params)
@@ -220,7 +208,7 @@ void DriverDataPlayer::initializeTimeRange()
         return;
     }
     
-    QList<BoardParameterSingle*> params = m_storage->getSessionParameters();
+    QList<BoardParameterSingle*> params = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
     if (params.isEmpty())
     {
         return;

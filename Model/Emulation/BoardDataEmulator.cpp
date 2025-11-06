@@ -1,12 +1,13 @@
 #include "BoardDataEmulator.h"
-#include "BoardDataGenerators/AltitudeGenerator.h"
-#include "BoardDataGenerators/LongitudeGenerator.h"
-#include "BoardDataGenerators/LatitudeGenerator.h"
-#include "BoardDataGenerators/SpeedGenerator.h"
 #include "BoardDataGenerators/ThrottleAdjustmentValuesGenerator.h"
 #include "BoardDataGenerators/GroundSpeedGenerator.h"
 #include "BoardDataGenerators/AccelerationGenerator.h"
 #include "BoardDataGenerators/DesiredAngleRatesGenerator.h"
+#include "BoardDataGenerators/PositionAltitudeGenerator.h"
+#include "BoardDataGenerators/GpsLocationGenerator.h"
+#include "BoardDataGenerators/BatteryVoltageGenerator.h"
+#include "BoardDataGenerators/IsArmedGenerator.h"
+#include "BoardDataGenerators/GyroAngleRatesGenerator.h"
 #include "BoardDataGenerators/BoardDataJsonGenerator.h"
 #include <QDebug>
 #include <QFile>
@@ -33,8 +34,8 @@ namespace drv
         m_stateTimer->setInterval(30000);
         connect(m_stateTimer, &QTimer::timeout, this, &BoardDataEmulator::onStateTimerTimeout);
     
-        // Настройка таймера данных (каждую секунду)
-        m_dataTimer->setInterval(1000);
+        // Настройка таймера данных (30 раз в секунду)
+        m_dataTimer->setInterval(1000 / 30);
         connect(m_dataTimer, &QTimer::timeout, this, &BoardDataEmulator::onDataTimerTimeout);
     
         // Настраиваем генераторы параметров
@@ -146,7 +147,7 @@ namespace drv
         generateParameters();
     
         // Увеличиваем время
-        m_time += 1.0;
+        m_time += 1.0 / 30.0;
     }
 
     void BoardDataEmulator::setupGenerators()
@@ -155,6 +156,11 @@ namespace drv
         m_generators.append(new GroundSpeedGenerator(this));
         m_generators.append(new AccelerationGenerator(this));
         m_generators.append(new DesiredAngleRatesGenerator(this));
+        m_generators.append(new PositionAltitudeGenerator(this));
+        m_generators.append(new GpsLocationGenerator(this));
+        m_generators.append(new BatteryVoltageGenerator(this));
+        m_generators.append(new IsArmedGenerator(this));
+        m_generators.append(new GyroAngleRatesGenerator(this));
 
         //qDebug() << "BoardDataEmulator: Настроены генераторы параметров:" << m_generators.size();
     }
@@ -166,11 +172,7 @@ namespace drv
         // Генерируем параметры от всех генераторов
         for (ParameterGenerator *generator : m_generators)
         {
-            BoardParameterSingle *param = generator->generate(m_time);
-            if (param) 
-            {
-                parameters.append(param);
-            }
+            parameters.append(generator->generate(m_time));
         }
     
         if (parameters.isEmpty())

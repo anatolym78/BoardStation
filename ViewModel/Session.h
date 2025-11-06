@@ -42,8 +42,7 @@ public:
 	virtual bool isRecording() const = 0;
 
 	// Методы для работы с хранилищем
-	BoardParameterHistoryStorage* getStorage() const;
-	ParameterTreeStorage* getTreeStorage() const;
+	ParameterTreeStorage* storage() const;
 	virtual void clearStorage() = 0;
 
 	// Методы для сравнения сессий (для сортировки)
@@ -72,7 +71,6 @@ protected:
 	BoardParametersTreeModel* m_parametersModel;
 	ChatViewGridModel* m_chartsModel;
 	DataPlayer* m_player;
-	BoardParameterHistoryStorage* m_storage;
 	ParameterTreeStorage* m_treeStorage;
 	bool m_opened;
 

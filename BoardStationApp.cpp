@@ -48,7 +48,7 @@ void BoardStationApp::connectSignals()
 	//        liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
 
 	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
-			liveSession()->getTreeStorage(), &ParameterTreeStorage::appendSnapshot);
+			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
 	// временное подключение к временной функции, которая передает параметры напрямую в TreeView
 	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
@@ -74,89 +74,89 @@ void BoardStationApp::close()
 
 bool BoardStationApp::saveLiveData()
 {
-	qDebug() << "BoardStationApp: Starting to save live data to database";
-	
-	auto liveSession = m_sessionsListModel->liveSession();
-	if (!liveSession || !liveSession->getStorage() || !m_boardMessagesWriter || !m_boardMessagesReader)
-	{
-		qWarning() << "BoardStationApp: Required components not available for saving live data";
-		return false;
-	}
-	
-	// Получаем все параметры из хранилища живой сессии
-	QList<BoardParameterSingle*> liveParameters = liveSession->getStorage()->getSessionParameters();
-	
-	if (liveParameters.isEmpty())
-	{
-		qWarning() << "BoardStationApp: No live data to save";
-		return false;
-	}
-	
-	qDebug() << "BoardStationApp: Found" << liveParameters.size() << "parameters to save";
-	
-	// Создаем новую сессию для сохранения живых данных
-	QString sessionName = QString("Live Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-	m_boardMessagesWriter->createNewSession(sessionName);
-	
-	int newSessionId = m_boardMessagesWriter->getCurrentSessionId();
-	if (newSessionId <= 0)
-	{
-		qWarning() << "BoardStationApp: Failed to create new session for live data";
-		return false;
-	}
-	
-	qDebug() << "BoardStationApp: Created new session" << newSessionId << "with name" << sessionName;
-	
-	// Группируем параметры по временным меткам для записи как сообщения
-	QMap<QDateTime, QList<BoardParameterSingle*>> parametersByTimestamp;
-	
-	for (BoardParameterSingle* param : liveParameters)
-	{
-		if (param)
-		{
-			parametersByTimestamp[param->timestamp()].append(param);
-		}
-	}
-	
-	// Записываем параметры в базу данных группами по времени
-	int messagesWritten = 0;
-	for (auto it = parametersByTimestamp.begin(); it != parametersByTimestamp.end(); ++it)
-	{
-		const QDateTime& timestamp = it.key();
-		const QList<BoardParameterSingle*>& params = it.value();
-		
-		// Добавляем сообщение в очередь записи
-		m_boardMessagesWriter->addMessage(params, timestamp);
-		messagesWritten++;
-	}
-	
-	// Принудительно записываем все данные из очереди
-	m_boardMessagesWriter->flushQueue();
-	
-	qDebug() << "BoardStationApp: Written" << messagesWritten << "messages to database";
-	
-	// Получаем информацию о созданной сессии из базы данных
-	BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(newSessionId);
-	
-	// Сбрасываем счетчики живой сессии ПЕРЕД добавлением новой сессии
-	if (m_sessionsListModel)
-	{
-		m_sessionsListModel->resetLiveSessionCounters();
-		qDebug() << "BoardStationApp: Reset live session counters";
-	}
-	
-	// Добавляем новую сессию в модель списка сессий
-	if (m_sessionsListModel)
-	{
-		m_sessionsListModel->addRecordedSession(sessionInfo);
-		qDebug() << "BoardStationApp: Added new session to sessions list model";
-	}
-	
-	// Очищаем хранилище живой сессии
-	liveSession->clearStorage();
-	qDebug() << "BoardStationApp: Cleared live session storage";
-	
-	liveSession->player()->resetState();
+	//qDebug() << "BoardStationApp: Starting to save live data to database";
+	//
+	//auto liveSession = m_sessionsListModel->liveSession();
+	//if (!liveSession || !liveSession->getStorage() || !m_boardMessagesWriter || !m_boardMessagesReader)
+	//{
+	//	qWarning() << "BoardStationApp: Required components not available for saving live data";
+	//	return false;
+	//}
+	//
+	//// Получаем все параметры из хранилища живой сессии
+	//QList<BoardParameterSingle*> liveParameters = liveSession->getStorage()->getSessionParameters();
+	//
+	//if (liveParameters.isEmpty())
+	//{
+	//	qWarning() << "BoardStationApp: No live data to save";
+	//	return false;
+	//}
+	//
+	//qDebug() << "BoardStationApp: Found" << liveParameters.size() << "parameters to save";
+	//
+	//// Создаем новую сессию для сохранения живых данных
+	//QString sessionName = QString("Live Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+	//m_boardMessagesWriter->createNewSession(sessionName);
+	//
+	//int newSessionId = m_boardMessagesWriter->getCurrentSessionId();
+	//if (newSessionId <= 0)
+	//{
+	//	qWarning() << "BoardStationApp: Failed to create new session for live data";
+	//	return false;
+	//}
+	//
+	//qDebug() << "BoardStationApp: Created new session" << newSessionId << "with name" << sessionName;
+	//
+	//// Группируем параметры по временным меткам для записи как сообщения
+	//QMap<QDateTime, QList<BoardParameterSingle*>> parametersByTimestamp;
+	//
+	//for (BoardParameterSingle* param : liveParameters)
+	//{
+	//	if (param)
+	//	{
+	//		parametersByTimestamp[param->timestamp()].append(param);
+	//	}
+	//}
+	//
+	//// Записываем параметры в базу данных группами по времени
+	//int messagesWritten = 0;
+	//for (auto it = parametersByTimestamp.begin(); it != parametersByTimestamp.end(); ++it)
+	//{
+	//	const QDateTime& timestamp = it.key();
+	//	const QList<BoardParameterSingle*>& params = it.value();
+	//	
+	//	// Добавляем сообщение в очередь записи
+	//	m_boardMessagesWriter->addMessage(params, timestamp);
+	//	messagesWritten++;
+	//}
+	//
+	//// Принудительно записываем все данные из очереди
+	//m_boardMessagesWriter->flushQueue();
+	//
+	//qDebug() << "BoardStationApp: Written" << messagesWritten << "messages to database";
+	//
+	//// Получаем информацию о созданной сессии из базы данных
+	//BoardMessagesSqliteReader::SessionInfo sessionInfo = m_boardMessagesReader->getSessionInfo(newSessionId);
+	//
+	//// Сбрасываем счетчики живой сессии ПЕРЕД добавлением новой сессии
+	//if (m_sessionsListModel)
+	//{
+	//	m_sessionsListModel->resetLiveSessionCounters();
+	//	qDebug() << "BoardStationApp: Reset live session counters";
+	//}
+	//
+	//// Добавляем новую сессию в модель списка сессий
+	//if (m_sessionsListModel)
+	//{
+	//	m_sessionsListModel->addRecordedSession(sessionInfo);
+	//	qDebug() << "BoardStationApp: Added new session to sessions list model";
+	//}
+	//
+	//// Очищаем хранилище живой сессии
+	//liveSession->clearStorage();
+	//qDebug() << "BoardStationApp: Cleared live session storage";
+	//
+	//liveSession->player()->resetState();
 
 	return true;
 }

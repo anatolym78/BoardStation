@@ -18,7 +18,7 @@ public:
 	Q_INVOKABLE void setPosition(QDateTime position) override;
 	
 	// Методы для работы с хранилищем
-	void setStorage(BoardParameterHistoryStorage* storage) override;
+	void setStorage(ParameterTreeStorage* storage) override;
 	
 	// Переопределяем слот для получения параметров
 	void onParameterReceived(BoardParameterSingle* parameter) override;

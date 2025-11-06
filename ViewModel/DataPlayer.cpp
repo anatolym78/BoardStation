@@ -17,7 +17,7 @@ DataPlayer::~DataPlayer()
 	//stop();
 }
 
-void DataPlayer::setStorage(BoardParameterHistoryStorage* storage)
+void DataPlayer::setStorage(ParameterTreeStorage* storage)
 {
 	m_storage = storage;
 }

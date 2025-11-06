@@ -11,7 +11,7 @@ class DesiredAngleRatesGenerator : public ParameterGenerator
 
 public:
     explicit DesiredAngleRatesGenerator(QObject *parent = nullptr);
-    BoardParameterSingle* generate(double time) override;
+    QList<BoardParameterSingle*> generate(double time) override;
     QString getName() const override;
 };
 

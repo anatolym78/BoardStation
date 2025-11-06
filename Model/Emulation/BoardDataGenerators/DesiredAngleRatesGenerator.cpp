@@ -16,7 +16,7 @@ QString DesiredAngleRatesGenerator::getName() const
     return "stabData.desiredAngleRates";
 }
 
-BoardParameterSingle* DesiredAngleRatesGenerator::generate(double time)
+QList<BoardParameterSingle*> DesiredAngleRatesGenerator::generate(double time)
 {
     const double period = 20.0;
     const double amplitude = 90.0;
@@ -30,5 +30,6 @@ BoardParameterSingle* DesiredAngleRatesGenerator::generate(double time)
     values.append(v2);
     values.append(v3);
 
-    return new BoardParameterSingle(getName(), values, QDateTime::currentDateTime());
+    BoardParameterSingle* p = new BoardParameterSingle(getName(), values, QDateTime::currentDateTime());
+    return {p};
 }

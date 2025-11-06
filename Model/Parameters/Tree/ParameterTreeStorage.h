@@ -3,6 +3,8 @@
 
 #include "ParameterTreeItem.h"
 #include "ParameterTreeGroupItem.h"
+#include "Model/Parameters/BoardParameterSingle.h"
+#include <QDateTime>
 
 class ParameterTreeHistoryItem;
 
@@ -16,6 +18,10 @@ public:
 	QList<ParameterTreeItem*> findPath(ParameterTreeHistoryItem* item) const;
 	int topLevelItemIndex(ParameterTreeItem* item) const;
 
+	ParameterTreeStorage* extractRange(const QDateTime& startTime, const QDateTime& endTime) const;
+	QList<BoardParameterSingle*> getParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime) const;
+	void clear();
+
 public slots:
 	void appendSnapshot(ParameterTreeStorage* snapshot);
 	void setSnapshot(ParameterTreeStorage* snapshot);
@@ -28,6 +34,8 @@ signals:
 private:
 	void appendNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
 	void setNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
+	void extractNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode, const QDateTime& startTime, const QDateTime& endTime) const;
+	void collectParameters(ParameterTreeItem* item, const QDateTime& startTime, const QDateTime& endTime, QList<BoardParameterSingle*>& params) const;
 };
 
 #endif // PARAMETERTREESTORAGE_H
