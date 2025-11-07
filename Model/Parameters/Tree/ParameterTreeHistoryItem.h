@@ -21,6 +21,8 @@ public:
     const QList<QVariant>& values() const;
     const QList<QDateTime>& timestamps() const;
 
+    const QDateTime& lastTimestamp() const;
+
 private:
     QList<QVariant> m_values;
     QList<QDateTime> m_timestamps;

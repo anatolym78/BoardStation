@@ -44,15 +44,12 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 void BoardStationApp::connectSignals()
 {
-	//connect(m_driverAdapter, &DriverAdapter::parameterReceived,
-	//        liveSession()->getStorage(), &BoardParameterHistoryStorage::addParameter);
-
 	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
 			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
 	// временное подключение к временной функции, которая передает параметры напрямую в TreeView
-	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
-			liveSession(), &LiveSession::setSnapshot);
+	//connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+	//	liveSession(), &LiveSession::setSnapshot);
 
 	connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 	        liveSession(), &LiveSession::incrementMessageCount);

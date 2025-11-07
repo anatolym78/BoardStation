@@ -31,3 +31,10 @@ const QList<QDateTime>& ParameterTreeHistoryItem::timestamps() const
 {
     return m_timestamps;
 }
+
+const QDateTime& ParameterTreeHistoryItem::lastTimestamp() const
+{
+    if (m_timestamps.isEmpty()) return QDateTime();
+
+    return m_timestamps.last();
+}

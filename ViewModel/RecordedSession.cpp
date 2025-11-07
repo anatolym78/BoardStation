@@ -13,7 +13,8 @@ RecordedSession::RecordedSession(const BoardMessagesSqliteReader::SessionInfo& s
 	m_player = new SessionPlayer(this);
 	m_player->setStorage(m_treeStorage);
 
-	m_parametersModel->setPlayer(m_player);
+	connect(m_player, &SessionPlayer::played, m_parametersModel, &BoardParametersTreeModel::setSnapshot);
+
 	m_chartsModel->setPlayer(m_player);
 	//m_chartsModel->setStorage(m_storage);
 }

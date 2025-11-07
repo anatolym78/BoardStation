@@ -5,7 +5,6 @@
 #include <QDateTime>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
-#include "Model/Parameters/BoardParameterSingle.h"
 #include "Model/Parameters/Tree/ParameterTreeStorage.h"
 
 class DataPlayer : public QObject
@@ -53,9 +52,6 @@ public:
 
 	ParameterTreeStorage* storage() const { return m_storage; }
 
-public slots:
-	virtual void onParameterReceived(BoardParameterSingle* parameter);
-
 signals:
 	void isPlayingChanged();
 	void currentPositionChanged();
@@ -66,7 +62,7 @@ signals:
 	void elapsedTimeChanged();
 	void playbackFinished();
 	void parameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
-	void played(ParameterTreeStorage* subStorage);
+	void played(ParameterTreeStorage* subStorage, bool isBackPlaying);
 	void stopped();
 
 protected:

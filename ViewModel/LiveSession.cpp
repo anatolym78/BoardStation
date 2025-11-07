@@ -15,29 +15,14 @@ LiveSession::LiveSession(QObject *parent)
 	m_player = new DriverDataPlayer(this);
 	m_player->setStorage(m_treeStorage);
 
-	m_parametersModel->setPlayer(m_player);
 	m_chartsModel->setPlayer(m_player);
-	//m_chartsModel->setStorage(m_treeStorage);
 
-	// connect(m_storage, &BoardParameterHistoryStorage::parameterEmitted,
-	// 	[this](BoardParameterSingle*)
-	// 	{
-	// 		m_messageCount = m_storage->getMessagesCount();
-	//
-	// 		emit messageCountChanged(m_messageCount);
-	// 	});
-}
-
-void LiveSession::setSnapshot(ParameterTreeStorage* storage)
-{
-	m_parametersModel->setSnapshot(storage);
+	connect(m_player, &DriverDataPlayer::played, m_parametersModel, &BoardParametersTreeModel::setSnapshot);
 }
 
 void LiveSession::open()
 {
 	Session::open();
-
-
 }
 
 void LiveSession::startSession()

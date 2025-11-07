@@ -7,22 +7,29 @@
 BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	: QAbstractItemModel(parent)
 {
-	m_rootItem = new BoardParameterTreeItem();
 	makeRandomColors();
 
-	m_storage = new ParameterTreeStorage(this);
+	m_rootItem = new ParameterTreeStorage(this);
 
-	connect(m_storage, &ParameterTreeStorage::parameterAdded, this, &BoardParametersTreeModel::onParameterAdded);
-	connect(m_storage, &ParameterTreeStorage::valueAdded, this, &BoardParametersTreeModel::onValueAdded);
-	connect(m_storage, &ParameterTreeStorage::valueChanged, this, &BoardParametersTreeModel::onValueChanged);
+	connect(m_rootItem, &ParameterTreeStorage::parameterAdded, this, &BoardParametersTreeModel::onParameterAdded);
+	connect(m_rootItem, &ParameterTreeStorage::valueAdded, this, &BoardParametersTreeModel::onValueAdded);
+	connect(m_rootItem, &ParameterTreeStorage::valueChanged, this, &BoardParametersTreeModel::onValueChanged);
+}
+
+void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage, bool isBackPlaying)
+{
+	m_rootItem->setSnapshot(storage);
 }
 
 void BoardParametersTreeModel::onParameterAdded(ParameterTreeItem* newItem)
 {
+	// обновляем все, 
+	// ибо удаление параметров не происходит, поэтому эта фукнция не будет вызываться часто
 	this->beginResetModel();
 	this->endResetModel();
 }
 
+// Если прийдет только один снэпшот, то дерево не будет построено :)
 void BoardParametersTreeModel::onValueAdded(ParameterTreeHistoryItem* updatedItem)
 {
 }
@@ -56,81 +63,6 @@ bool BoardParametersTreeModel::findIndexRecursive(ParameterTreeItem* item, QMode
 	return false;
 }
 
-QModelIndex BoardParametersTreeModel::findIndex(ParameterTreeHistoryItem* item)
-{
-	auto currentParent = QModelIndex();
-	for (auto i = 0; i < this->rowCount(currentParent); i++)
-	{
-		auto child = this->index(i, 0, currentParent);
-
-		auto childItem = static_cast<ParameterTreeItem*>(child.internalPointer());
-
-		auto childOfChild = this->index(0, 0, child);
-
-		auto childOfChildItem = static_cast<ParameterTreeItem*>(childOfChild.internalPointer());
-
-		int k = 0;
-	}
-
-	return QModelIndex();
-
-	auto path = m_storage->findPath(item);
-
-	auto p = this->parent(QModelIndex());
-	auto treeItem = static_cast<ParameterTreeHistoryItem*>(p.internalPointer());
-
-	return QModelIndex();
-}
-
-void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage)
-{
-	m_storage->setSnapshot(storage);
-
-	//if (m_storage->childCount() == 0)
-	//{
-	//	this->beginInsertRows(QModelIndex(), m_storage->childCount(), m_storage->childCount());
-	//	this->endInsertRows();
-	//}
-}
-
-void BoardParametersTreeModel::setPlayer(DataPlayer* dataPlayer)
-{
-	m_dataPlayer = dataPlayer;
-
-	if (m_playConnection)
-	{
-		QObject::disconnect(m_playConnection);
-	}
-
-	if (m_stopConnection)
-	{
-		QObject::disconnect(m_stopConnection);
-	}
-
-	clearParameters();
-
-	m_playConnection = connect(m_dataPlayer, &DataPlayer::parameterPlayed,
-		this, &BoardParametersTreeModel::onNewParameterAdded);
-}
-
-void BoardParametersTreeModel::onNewParameterAdded(BoardParameterSingle* parameter)
-{
-	if (parameter == nullptr) return;
-
-	if (m_rootItem->hasParameter(parameter))
-	{
-		m_rootItem->updateParameter(parameter);
-
-		emit dataChanged(index(0, 0), index(1, 0));
-	}
-	else
-	{
-		this->beginInsertRows(QModelIndex(), m_rootItem->childCount(), m_rootItem->childCount());
-		m_rootItem->addParameter(parameter);
-		this->endInsertRows();
-	}
-}
-
 int BoardParametersTreeModel::columnCount(const QModelIndex& parent) const
 {
 	return 2;
@@ -141,7 +73,7 @@ int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
 	ParameterTreeItem* parentItem;
 	if (!parent.isValid())
 	{
-		parentItem = m_storage;
+		parentItem = m_rootItem;
 	}
 	else
 	{
@@ -151,26 +83,7 @@ int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
 	if (parentItem == nullptr)
 		return 0;
 
-	auto rowCount = parentItem->childCount();
-
-	return rowCount;
-
-	//BoardParameterTreeItem* parentItem;
-	//if (!parent.isValid())
-	//{
-	//	parentItem = m_rootItem;
-	//}
-	//else
-	//{
-	//	parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
-	//}
-
-	//if (parentItem == nullptr) 
-	//	return 0;
-
-	//auto rowCount = parentItem->childCount();
-
-	//return rowCount;
+	return parentItem->childCount();
 }
 
 QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelIndex& parent) const
@@ -178,7 +91,7 @@ QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelInd
 	ParameterTreeItem* parentItem;
 	if (!parent.isValid())
 	{
-		parentItem = m_storage;
+		parentItem = m_rootItem;
 	}
 	else
 	{
@@ -198,33 +111,7 @@ QModelIndex BoardParametersTreeModel::index(int row, int column, const QModelInd
 	}
 
 	return QModelIndex();
-
-	//BoardParameterTreeItem* parentItem;
-	//if (!parent.isValid())
-	//{
-	//	parentItem = m_rootItem;
-	//}
-	//else
-	//{
-	//	parentItem = static_cast<BoardParameterTreeItem*>(parent.internalPointer());
-	//}
-
-	//if (parentItem == nullptr)
-	//{
-	//	return QModelIndex();
-	//}
-
-	//auto childItem = parentItem->child(row);
-
-	//if (childItem)
-	//{
-	//	return createIndex(row, column, childItem);
-	//}
-
-	//return QModelIndex();
 }
-
-
 
 QModelIndex BoardParametersTreeModel::parent(const QModelIndex& index) const
 {
@@ -244,23 +131,6 @@ QModelIndex BoardParametersTreeModel::parent(const QModelIndex& index) const
 		return QModelIndex();
 
 	return createIndex(parentItem->row(), 0, parentItem);
-
-	//if (!index.isValid())
-	//	return QModelIndex();
-
-	//auto childItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
-
-	//if (!childItem) 
-	//	return QModelIndex();
-
-	//auto parentItem = childItem->parent();
-
-	//if (!parentItem)
-	//	return QModelIndex();
-	//if (!parentItem->parent()) 
-	//	return QModelIndex();
-
-	//return createIndex(parentItem->row(), 0, parentItem);
 }
 
 QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) const
@@ -292,25 +162,6 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 	}
 
 	return QVariant();
-
-	//if (!index.isValid())
-	//	return QVariant();
-
-	//auto treeItem = static_cast<BoardParameterTreeItem*>(index.internalPointer());
-	//if (treeItem)
-	//{
-	//	switch (static_cast<ParameterRole>(role))
-	//	{
-	//	case ParameterRole::LabelRole:
-	//		return treeItem->label();
-	//	case ParameterRole::ValueRole:
-	//		return treeItem->value();
-	//	default:
-	//		break;
-	//	}
-	//}
-
-	//return QVariant();
 }
 
 bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
@@ -337,28 +188,6 @@ QHash<int, QByteArray> BoardParametersTreeModel::roleNames() const
 	return rolesHash;
 }
 
-int BoardParametersTreeModel::getCountParameters() const
-{
-	return m_rootItem->childCount();
-}
-
-void BoardParametersTreeModel::clearParameters()
-{
-	//m_storage->clear();
-
-	onParametersCleared();
-}
-
-void BoardParametersTreeModel::onParametersCleared()
-{
-	beginResetModel();
-	delete m_rootItem;
-	m_rootItem = new BoardParameterTreeItem();
-	m_chartVisibilities.clear();
-	endResetModel();
-	emit countParametersChanged();
-}
-
 void BoardParametersTreeModel::makeRandomColors()
 {
 	int hue = 0;
@@ -376,21 +205,6 @@ void BoardParametersTreeModel::makeRandomColors()
 	}
 }
 
-QString BoardParametersTreeModel::indexToLabel(int row) const
-{
-	//auto keys = m_parameters.keys();
-	//for (auto i = 0; i < keys.count(); i++)
-	//{
-	//	if (i == row)
-	//	{
-	//		return keys[i];
-	//	}
-	//}
-
-	return QString();
-}
-
 BoardParametersTreeModel::~BoardParametersTreeModel()
 {
-	delete m_rootItem;
 }

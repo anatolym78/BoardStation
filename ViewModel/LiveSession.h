@@ -2,6 +2,7 @@
 #define LIVESESSION_H
 
 #include "Session.h"
+#include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 /**
  * @brief Класс для представления живой сессии (поток данных от драйвера)
@@ -13,9 +14,6 @@ class LiveSession : public Session
 public:
 	explicit LiveSession(QObject *parent = nullptr);
 	~LiveSession() = default;
-
-	// временная функция для тестирования заполенния TreeView
-	void setSnapshot(ParameterTreeStorage* storage);
 
 	// Реализация виртуальных методов
 	int getId() const override { return -1; } // У живой сессии нет ID в БД
@@ -53,6 +51,7 @@ private:
 	int m_messageCount;
 	int m_parameterCount;
 	bool m_isRecording;
+
 };
 
 #endif // LIVESESSION_H

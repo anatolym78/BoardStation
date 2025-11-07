@@ -12,69 +12,52 @@ class BoardParameterTreeItem;
 
 class BoardParametersTreeModel : public QAbstractItemModel
 {
-    Q_OBJECT
-    Q_PROPERTY(int countParameters READ getCountParameters NOTIFY countParametersChanged)
+	Q_OBJECT
 
 public:
-    enum ParameterRole
-    {
-        LabelRole = Qt::UserRole + 1,
-        ValueRole,
-        UnitRole,
-        TimeRole,
-        ChartVisibilityRole,
-        ColorRole,
-        FullPathRole
-    };
-    Q_ENUM(ParameterRole)
+	enum ParameterRole
+	{
+		LabelRole = Qt::UserRole + 1,
+		ValueRole,
+		UnitRole,
+		TimeRole,
+		ChartVisibilityRole,
+		ColorRole,
+		FullPathRole
+	};
+	Q_ENUM(ParameterRole)
 
 public:
-    explicit BoardParametersTreeModel(QObject* parent = nullptr);
-    ~BoardParametersTreeModel() override;
+	explicit BoardParametersTreeModel(QObject* parent = nullptr);
+	~BoardParametersTreeModel() override;
 
-    void setSnapshot(ParameterTreeStorage* storage);
-    void setPlayer(DataPlayer* dataPlayer);
+	void setSnapshot(ParameterTreeStorage* storage, bool isBackPlaying);
 
-    QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex& index) const override;
-    int rowCount(const QModelIndex& parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex& parent = QModelIndex()) const override;
-    QVariant data(const QModelIndex& index, int role) const override;
-    bool setData(const QModelIndex& index, const QVariant& value, int role) override;
-    QHash<int, QByteArray> roleNames() const override;
-
-    Q_INVOKABLE int getCountParameters() const;
-
-    Q_INVOKABLE void clearParameters();
-
-signals:
-    void countParametersChanged();
-
-public slots:
-    void onNewParameterAdded(BoardParameterSingle* parameter);
-    void onParametersCleared();
+	QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex& index) const override;
+	int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+	int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+	QVariant data(const QModelIndex& index, int role) const override;
+	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+	QHash<int, QByteArray> roleNames() const override;
 
 public:
 	void onParameterAdded(ParameterTreeItem* newItem);
-    void onValueAdded(ParameterTreeHistoryItem* updatedItem);
-    void onValueChanged(ParameterTreeHistoryItem* history);
+	void onValueAdded(ParameterTreeHistoryItem* updatedItem);
+	void onValueChanged(ParameterTreeHistoryItem* history);
 
 private:
-    void makeRandomColors();
+	void makeRandomColors();
 
-    QString indexToLabel(int row) const;
-    QModelIndex findIndex(ParameterTreeHistoryItem* item);
 	bool findIndexRecursive(ParameterTreeItem* item, QModelIndex parentIndex, QModelIndex& foundedIndex);
 
 private:
-    ParameterTreeStorage* m_storage = nullptr;
-    BoardParameterTreeItem* m_rootItem;
-    QList<bool> m_chartVisibilities;
-    QList<QColor> m_colors;
+	ParameterTreeStorage* m_rootItem = nullptr;
+	QList<bool> m_chartVisibilities;
+	QList<QColor> m_colors;
 
-    DataPlayer* m_dataPlayer = nullptr;
-    QMetaObject::Connection m_playConnection;
-    QMetaObject::Connection m_stopConnection;
+	//QMetaObject::Connection m_playConnection;
+	//QMetaObject::Connection m_stopConnection;
 };
 
 #endif // BOARDPARAMETERSTREEMODEL_H

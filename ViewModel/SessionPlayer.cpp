@@ -22,8 +22,6 @@ SessionPlayer::~SessionPlayer()
 
 void SessionPlayer::setStorage(ParameterTreeStorage* storage)
 {
-	// В новой архитектуре SessionPlayer также не подписывается на сигналы хранилища,
-	// а работает с данными, которые загружаются по запросу.
 	DataPlayer::setStorage(storage);
 }
 
@@ -34,56 +32,56 @@ void SessionPlayer::setReader(BoardMessagesSqliteReader* reader)
 
 void SessionPlayer::onSessionDataLoaded(int sessionId)
 {
-	if (!m_reader)
-	{
-		return;
-	}
-	
-	// Получаем информацию о сессии
-	auto sessionInfo = m_reader->getSessionInfo(sessionId);
-	if (sessionInfo.id == -1)
-	{
-		qWarning() << "SessionPlayer: Session not found:" << sessionId;
-		return;
-	}
-	
-	m_currentSessionId = sessionId;
-	m_currentSessionName = sessionInfo.name;
-	
-	// Получаем параметры из хранилища для определения временных границ
-	QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
-	
-	if (!sessionParams.isEmpty())
-	{
-		// Определяем время начала и конца сессии
-		auto firstParam = sessionParams.first();
-		auto lastParam = sessionParams.last();
-		
-		if (firstParam && lastParam)
-		{
-			m_sessionStartTime = firstParam->timestamp();
-			m_sessionEndTime = lastParam->timestamp();
-		}
-	}
-	else
-	{
-		// Если параметров нет, используем время создания сессии
-		m_sessionStartTime = sessionInfo.createdAt;
-		m_sessionEndTime = m_sessionStartTime;
-	}
-	
-	// Устанавливаем курсор на начало сессии (после определения временных границ)
-	m_currentPosition = m_sessionStartTime;
-	m_lastPlayedIndex = -1;
-	m_lastPlayedPosition = m_sessionStartTime;
-	
-	emit currentSessionNameChanged();
-	emit sessionStartTimeChanged();
-	emit currentPositionChanged();
-	emit elapsedTimeChanged();
-	
-	emit sessionEndTimeChanged();
-	emit sessionDurationChanged();
+	//if (!m_reader)
+	//{
+	//	return;
+	//}
+	//
+	//// Получаем информацию о сессии
+	//auto sessionInfo = m_reader->getSessionInfo(sessionId);
+	//if (sessionInfo.id == -1)
+	//{
+	//	qWarning() << "SessionPlayer: Session not found:" << sessionId;
+	//	return;
+	//}
+	//
+	//m_currentSessionId = sessionId;
+	//m_currentSessionName = sessionInfo.name;
+	//
+	//// Получаем параметры из хранилища для определения временных границ
+	//QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
+	//
+	//if (!sessionParams.isEmpty())
+	//{
+	//	// Определяем время начала и конца сессии
+	//	auto firstParam = sessionParams.first();
+	//	auto lastParam = sessionParams.last();
+	//	
+	//	if (firstParam && lastParam)
+	//	{
+	//		m_sessionStartTime = firstParam->timestamp();
+	//		m_sessionEndTime = lastParam->timestamp();
+	//	}
+	//}
+	//else
+	//{
+	//	// Если параметров нет, используем время создания сессии
+	//	m_sessionStartTime = sessionInfo.createdAt;
+	//	m_sessionEndTime = m_sessionStartTime;
+	//}
+	//
+	//// Устанавливаем курсор на начало сессии (после определения временных границ)
+	//m_currentPosition = m_sessionStartTime;
+	//m_lastPlayedIndex = -1;
+	//m_lastPlayedPosition = m_sessionStartTime;
+	//
+	//emit currentSessionNameChanged();
+	//emit sessionStartTimeChanged();
+	//emit currentPositionChanged();
+	//emit elapsedTimeChanged();
+	//
+	//emit sessionEndTimeChanged();
+	//emit sessionDurationChanged();
 }
 
 void SessionPlayer::initialPlay()
@@ -98,45 +96,45 @@ void SessionPlayer::moveToBegin()
 
 void SessionPlayer::initializeWithLoadedData()
 {
-	if (!m_storage)// || !m_reader)
-	{
-		qWarning() << "SessionPlayer: Storage or reader not available for initialization";
-		return;
-	}
-	
-	// Получаем параметры из хранилища
-	QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
-	if (sessionParams.isEmpty())
-	{
-		qWarning() << "SessionPlayer: No data available for initialization";
-		return;
-	}
-	
-	// Определяем время начала и конца сессии
-	auto firstParam = sessionParams.first();
-	auto lastParam = sessionParams.last();
-	
-	if (firstParam && lastParam)
-	{
-		m_sessionStartTime = firstParam->timestamp();
-		m_sessionEndTime = lastParam->timestamp();
-		m_currentPosition = m_sessionStartTime;
-		m_lastPlayedIndex = -1;
-		m_lastPlayedPosition = m_sessionStartTime;
-		
-		// Получаем информацию о сессии из первого параметра или используем текущее время
-		m_currentSessionName = QString("Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
-		
-		emit currentSessionNameChanged();
-		emit sessionStartTimeChanged();
-		emit sessionEndTimeChanged();
-		emit sessionDurationChanged();
-		emit currentPositionChanged();
-		emit elapsedTimeChanged();
-		
-		qDebug() << "SessionPlayer: Initialized with loaded data from" 
-				 << m_sessionStartTime.toString() << "to" << m_sessionEndTime.toString();
-	}
+	//if (!m_storage)// || !m_reader)
+	//{
+	//	qWarning() << "SessionPlayer: Storage or reader not available for initialization";
+	//	return;
+	//}
+	//
+	//// Получаем параметры из хранилища
+	//QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
+	//if (sessionParams.isEmpty())
+	//{
+	//	qWarning() << "SessionPlayer: No data available for initialization";
+	//	return;
+	//}
+	//
+	//// Определяем время начала и конца сессии
+	//auto firstParam = sessionParams.first();
+	//auto lastParam = sessionParams.last();
+	//
+	//if (firstParam && lastParam)
+	//{
+	//	m_sessionStartTime = firstParam->timestamp();
+	//	m_sessionEndTime = lastParam->timestamp();
+	//	m_currentPosition = m_sessionStartTime;
+	//	m_lastPlayedIndex = -1;
+	//	m_lastPlayedPosition = m_sessionStartTime;
+	//	
+	//	// Получаем информацию о сессии из первого параметра или используем текущее время
+	//	m_currentSessionName = QString("Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
+	//	
+	//	emit currentSessionNameChanged();
+	//	emit sessionStartTimeChanged();
+	//	emit sessionEndTimeChanged();
+	//	emit sessionDurationChanged();
+	//	emit currentPositionChanged();
+	//	emit elapsedTimeChanged();
+	//	
+	//	qDebug() << "SessionPlayer: Initialized with loaded data from" 
+	//			 << m_sessionStartTime.toString() << "to" << m_sessionEndTime.toString();
+	//}
 }
 
 void SessionPlayer::updatePlaybackPosition()

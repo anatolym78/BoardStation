@@ -71,7 +71,8 @@ SOURCES += \
     Model/Parameters/BoardMessagesSqliteReader.cpp \
     Model/DriverAdapter.cpp \
     main.cpp \
-    QmlMainWindow.cpp
+    QmlMainWindow.cpp \
+    mainwindow.cpp
 
 HEADERS += \
     BoardStationApp.h \
@@ -135,9 +136,11 @@ HEADERS += \
     Model/Parameters/BoardMessagesSqliteReader.h \
     Model/DriverAdapter.h \
     Model/Parameters/Parameters.h \
-    QmlMainWindow.h
+    QmlMainWindow.h \
+    mainwindow.h
 
-FORMS +=
+FORMS += \
+	mainwindow.ui
 
 RESOURCES += \
     qml.qrc

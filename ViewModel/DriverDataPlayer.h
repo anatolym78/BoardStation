@@ -19,10 +19,7 @@ public:
 	
 	// Методы для работы с хранилищем
 	void setStorage(ParameterTreeStorage* storage) override;
-	
-	// Переопределяем слот для получения параметров
-	void onParameterReceived(BoardParameterSingle* parameter) override;
-	
+		
 	// Метод для сброса состояния плеера
 	void resetState() override;
 	void initialPlay() override {}
@@ -30,15 +27,15 @@ public:
 	Q_INVOKABLE void moveToBegin() override;
 	Q_INVOKABLE virtual void reset();
 
-private slots:
-	void onNewParameterAdded(BoardParameterSingle* parameter);
-
 private:
 	void updatePlaybackPosition() override;
 	void extendTimeRange();
 	void initializeTimeRange();
 	void checkAndPlayParameters();
 	void emitTimeRangeSignals();
+
+private:
+	void onStorageValueAdded(ParameterTreeHistoryItem* historyItem);
 
 private:
 	bool m_isInitialized;

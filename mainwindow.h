@@ -28,32 +28,27 @@ public:
     BoardStationApp* getApp() const;
     
     // Метод для загрузки сессии (для QML)
-    Q_INVOKABLE void loadSession(int sessionId);
+    //Q_INVOKABLE void loadSession(int sessionId);
 
-private slots:
-    void onSendToBoardButtonClicked();
-    void onClearDebugButtonClicked();
-    void onParameterDoubleClicked(const QModelIndex &index);
-    void onParameterUpdated(const QString &label);
-    void onChartWindowClosed(const QString &parameterName);
-    void onSendImmediatelyCheckBoxChanged(int state);
+// private slots:
+//     void onSendToBoardButtonClicked();
+//     void onClearDebugButtonClicked();
+//     void onParameterDoubleClicked(const QModelIndex &index);
+//     void onParameterUpdated(const QString &label);
+//     void onChartWindowClosed(const QString &parameterName);
+//     void onSendImmediatelyCheckBoxChanged(int state);
 
-private:
-    void setupModel();
-    void setupOutParametersModel();
-    void setupDockWidgets();
-    void setupConnections();
-    void createChartWindow(const QString &parameterName);
-    void updateChart(const QString &parameterName);
+// private:
+//     void setupModel();
+//     void setupOutParametersModel();
+//     void setupDockWidgets();
+//     void setupConnections();
+//     void createChartWindow(const QString &parameterName);
+//     void updateChart(const QString &parameterName);
 
 private:
     Ui::MainWindow *ui;
     BoardStationApp *m_app;
-    ChartBuilder *m_chartBuilder;
-    OutParametersModel *m_outParametersModel;
-    
-    // Словарь графиков по меткам параметров
-    QMap<QString, QtCharts::QChartView*> m_chartViews;
 };
 
 #endif // MAINWINDOW_H

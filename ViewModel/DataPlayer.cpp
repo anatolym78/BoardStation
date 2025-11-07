@@ -22,15 +22,6 @@ void DataPlayer::setStorage(ParameterTreeStorage* storage)
 	m_storage = storage;
 }
 
-void DataPlayer::onParameterReceived(BoardParameterSingle* parameter)
-{
-	// Базовая реализация - просто эмитируем сигнал parameterPlayed
-	if (parameter)
-	{
-		emit parameterPlayed(parameter, false);
-	}
-}
-
 void DataPlayer::play()
 {
 	if (!m_isPlaying)
@@ -126,6 +117,12 @@ void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDa
 	{
 		std::swap(_startTime, _endTime);
 	}
+
+	auto storageRange = m_storage->extractRange(_startTime, _endTime);
+
+	emit played(storageRange, isReverse);
+
+	return;
 
 	auto paramsInRange = m_storage->getParametersInTimeRange(_startTime, _endTime);
 	if (isReverse)

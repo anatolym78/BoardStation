@@ -4,11 +4,11 @@
 Session::Session(QObject *parent)
 	: QObject(parent)
 	, m_treeStorage(new ParameterTreeStorage(this))
+	, m_parametersModel(new BoardParametersTreeModel(parent))
 	, m_chartsModel(new ChatViewGridModel(parent))
 	, m_player(nullptr)
 	, m_opened(false)
 {
-	m_parametersModel = new BoardParametersTreeModel(parent);
 }
 
 bool Session::operator<(const Session& other) const
