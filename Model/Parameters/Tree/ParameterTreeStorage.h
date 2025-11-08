@@ -5,6 +5,7 @@
 #include "ParameterTreeGroupItem.h"
 #include "Model/Parameters/BoardParameterSingle.h"
 #include <QDateTime>
+#include <QMutex>
 
 class ParameterTreeHistoryItem;
 
@@ -36,6 +37,9 @@ private:
 	void setNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode);
 	void extractNode(ParameterTreeItem* localParent, ParameterTreeItem* incomingNode, const QDateTime& startTime, const QDateTime& endTime) const;
 	void collectParameters(ParameterTreeItem* item, const QDateTime& startTime, const QDateTime& endTime, QList<BoardParameterSingle*>& params) const;
+
+private:
+    mutable QMutex m_mutex;
 };
 
 #endif // PARAMETERTREESTORAGE_H

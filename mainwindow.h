@@ -4,8 +4,11 @@
 #include <QMainWindow>
 #include <QMdiSubWindow>
 #include <QMap>
+#include <QStackedWidget>
 #include <QChartView>
 #include "ViewModel/OutParametersModel.h"
+#include "Interface/SessionsStackWidget.h"
+#include "Interface/SessionListView.h"
 
 class BoardStationApp;
 class ChartBuilder;
@@ -25,7 +28,7 @@ public:
 
     // Методы для работы с приложением
     void setApp(BoardStationApp *app);
-    BoardStationApp* getApp() const;
+    BoardStationApp* app() const;
     
     // Метод для загрузки сессии (для QML)
     //Q_INVOKABLE void loadSession(int sessionId);
@@ -49,6 +52,10 @@ public:
 private:
     Ui::MainWindow *ui;
     BoardStationApp *m_app;
+
+private:
+    SessionsStackWidget* sessionsStack() const;
+    SessionListView* sessionsListView() const;
 };
 
 #endif // MAINWINDOW_H

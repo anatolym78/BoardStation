@@ -85,6 +85,20 @@ public:
 	// Получение текущей активной сессии
 	Session* getCurrentActiveSession() const { return m_currentActiveSession; }
 
+	Session* operator [] (int index) const
+	{
+		return session(index);
+	}
+
+	Session* session(int index) const
+	{
+		if (index >= 0 && index < rowCount())
+		{
+			return m_sessions[index];
+		}
+
+		return nullptr;
+	}
 signals:
 	void sessionsRefreshed();
 	void errorOccurred(const QString &error);

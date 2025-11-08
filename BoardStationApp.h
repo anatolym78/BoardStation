@@ -45,7 +45,7 @@ public:
 	void close();
 
 public:	   
-	SessionsListModel* getSessionsListModel() const { return m_sessionsListModel; }
+	SessionsListModel* sessionsModel() const { return m_sessionsListModel; }
 
 	UplinkParametersModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }
 	
@@ -76,10 +76,6 @@ private:
 private:
 	void loadUplinkParameters() const;
 	void connectSignals();
-
-	// test
-public:
-	SimpleTreeModel* simpleTreeModel() const { return m_simpleTreeModel; }
 };
 
 #endif // BOARDSTATIONAPP_H

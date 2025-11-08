@@ -23,13 +23,13 @@ void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage, bool i
 
 void BoardParametersTreeModel::onParameterAdded(ParameterTreeItem* newItem)
 {
-	// обновляем все, 
-	// ибо удаление параметров не происходит, поэтому эта фукнция не будет вызываться часто
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, 
+	// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 	this->beginResetModel();
 	this->endResetModel();
 }
 
-// Если прийдет только один снэпшот, то дерево не будет построено :)
+// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ :)
 void BoardParametersTreeModel::onValueAdded(ParameterTreeHistoryItem* updatedItem)
 {
 }
@@ -39,7 +39,13 @@ void BoardParametersTreeModel::onValueChanged(ParameterTreeHistoryItem* history)
 	QModelIndex foundedIndex;
 	if (findIndexRecursive(history, QModelIndex(), foundedIndex))
 	{
-		emit dataChanged(foundedIndex, foundedIndex);
+		// foundedIndex - СЌС‚Рѕ РёРЅРґРµРєСЃ РґР»СЏ РєРѕР»РѕРЅРєРё 0. 
+		// РќР°Рј РЅСѓР¶РЅРѕ СЃРѕР·РґР°С‚СЊ РёРЅРґРµРєСЃ РґР»СЏ РєРѕР»РѕРЅРєРё 1, РіРґРµ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ Р·РЅР°С‡РµРЅРёРµ.
+		QModelIndex valueIndex = index(foundedIndex.row(), 1, foundedIndex.parent());
+
+		// РСЃРїСѓСЃРєР°РµРј СЃРёРіРЅР°Р» С‚РѕР»СЊРєРѕ РґР»СЏ СЏС‡РµР№РєРё СЃРѕ Р·РЅР°С‡РµРЅРёРµРј Рё С‚РѕР»СЊРєРѕ РґР»СЏ СЂРѕР»Рё ValueRole.
+		// Р­С‚Рѕ СЌС„С„РµРєС‚РёРІРЅРµРµ, С‡РµРј РѕР±РЅРѕРІР»СЏС‚СЊ РІСЃСЋ СЃС‚СЂРѕРєСѓ.
+		emit dataChanged(valueIndex, valueIndex, { ValueRole });
 	}
 }
 bool BoardParametersTreeModel::findIndexRecursive(ParameterTreeItem* item, QModelIndex parentIndex, QModelIndex& foundedIndex)

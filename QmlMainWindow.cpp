@@ -52,18 +52,13 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 	{       
 		if (context())
 		{
-			context()->setContextProperty("sessionsListModel", app()->getSessionsListModel());
+			context()->setContextProperty("sessionsListModel", app()->sessionsModel());
 				
 			context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
 
 			context()->setContextProperty("debugViewModel", app()->getDebugViewModel());
 
 			context()->setContextProperty("boardMessagesWriter", app()->getBoardMessagesWriter());	
-		
-		
-			// test
-			context()->setContextProperty("simpleTreeModel", app()->simpleTreeModel());
-
 		}
 		
 		setSource(QUrl("qrc:/Interface/Qml/main.qml"));

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>BoardStation</string>
   </property>
-  <widget class="QStackedWidget" name="sessionsStackWidget"/>
+  <widget class="SessionsStackWidget" name="sessionsStackWidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -69,7 +69,7 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QListView" name="listView"/>
+          <widget class="SessionListView" name="listView"/>
          </item>
         </layout>
        </widget>
@@ -139,6 +139,19 @@
    </widget>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SessionsStackWidget</class>
+   <extends>QStackedWidget</extends>
+   <header>interface/SessionsStackWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SessionListView</class>
+   <extends>QListView</extends>
+   <header>interface/SessionListView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

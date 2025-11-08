@@ -16,5 +16,12 @@
         <file>Interface/Qml/SessionListComboBox.qml</file>
         <file>Interface/Qml/BoardParametersTree.qml</file>
         <file>Interface/Qml/SimpleTreeView.qml</file>
+        <file>Resources/_pause_icon.png</file>
+        <file>Resources/_pause_32.png</file>
+        <file>Resources/_play_32.png</file>
+        <file>Resources/_stop_32.png</file>
+        <file>Resources/pause_32.png</file>
+        <file>Resources/run_32.png</file>
+        <file>Resources/stop_32.png</file>
     </qresource>
 </RCC>

@@ -1,6 +1,7 @@
 #include "ParameterTreeStorage.h"
 #include "ParameterTreeHistoryItem.h"
 #include <QDebug>
+#include <QMutexLocker>
 
 ParameterTreeStorage::ParameterTreeStorage(QObject *parent)
 	: ParameterTreeItem("root", nullptr)
@@ -10,6 +11,7 @@ ParameterTreeStorage::ParameterTreeStorage(QObject *parent)
 
 QList<ParameterTreeItem*> ParameterTreeStorage::findPath(ParameterTreeHistoryItem* item) const
 {
+	QMutexLocker locker(&m_mutex);
 	QList<ParameterTreeItem*> path{ item };
 	ParameterTreeItem* currentItem = item;
 	// перебираем узлы снизу вверх до корневого (хранилище)
@@ -32,6 +34,7 @@ QList<ParameterTreeItem*> ParameterTreeStorage::findPath(ParameterTreeHistoryIte
 
 ParameterTreeStorage* ParameterTreeStorage::extractRange(const QDateTime& startTime, const QDateTime& endTime) const
 {
+	QMutexLocker locker(&m_mutex);
 	auto subStorage = new ParameterTreeStorage();
 
 	for (ParameterTreeItem* child : m_childItems)
@@ -44,6 +47,7 @@ ParameterTreeStorage* ParameterTreeStorage::extractRange(const QDateTime& startT
 
 QList<BoardParameterSingle*> ParameterTreeStorage::getParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime) const
 {
+	QMutexLocker locker(&m_mutex);
 	QList<BoardParameterSingle*> params;
 	collectParameters(const_cast<ParameterTreeStorage*>(this), startTime, endTime, params);
 	return params;
@@ -51,12 +55,14 @@ QList<BoardParameterSingle*> ParameterTreeStorage::getParametersInTimeRange(cons
 
 void ParameterTreeStorage::clear()
 {
+	QMutexLocker locker(&m_mutex);
 	qDeleteAll(m_childItems);
 	m_childItems.clear();
 }
 
 int ParameterTreeStorage::topLevelItemIndex(ParameterTreeItem* item) const
 {
+	QMutexLocker locker(&m_mutex);
 	for (auto i = 0; i < m_childItems.count(); i++)
 	{
 		if (m_childItems[i] == item) return i;
@@ -67,6 +73,7 @@ int ParameterTreeStorage::topLevelItemIndex(ParameterTreeItem* item) const
 
 void ParameterTreeStorage::appendSnapshot(ParameterTreeStorage* snapshot)
 {
+	QMutexLocker locker(&m_mutex);
 	if (!snapshot)
 	{
 		return;
@@ -83,6 +90,7 @@ void ParameterTreeStorage::appendSnapshot(ParameterTreeStorage* snapshot)
 
 void ParameterTreeStorage::setSnapshot(ParameterTreeStorage* snapshot)
 {
+	QMutexLocker locker(&m_mutex);
 	if (!snapshot)
 	{
 		return;

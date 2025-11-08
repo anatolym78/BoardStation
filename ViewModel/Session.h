@@ -27,6 +27,10 @@ public:
 		RecordedSession,
 		LiveSession
 	};
+	ParameterTreeStorage* storage() const;
+	DataPlayer* player() const { return m_player; }
+	BoardParametersTreeModel* parametersModel()  const;
+	ChatViewGridModel* chartsModel() const { return m_chartsModel; }
 
 	explicit Session(QObject *parent = nullptr);
 	virtual ~Session() = default;
@@ -41,19 +45,15 @@ public:
 	virtual SessionType getType() const = 0;
 	virtual bool isRecording() const = 0;
 
-	// Методы для работы с хранилищем
-	ParameterTreeStorage* storage() const;
-	virtual void clearStorage() = 0;
 
 	// Методы для сравнения сессий (для сортировки)
 	virtual bool operator<(const Session& other) const;
 	virtual bool operator==(const Session& other) const;
 
-	DataPlayer* player() const { return m_player; }
-	BoardParametersTreeModel* parametersModel()  const;
-	ChatViewGridModel* chartsModel() const { return m_chartsModel; }
 
 	virtual void open() { m_opened = true; }
+	// Методы для работы с хранилищем
+	virtual void clearStorage() = 0;
 
 	bool isOpened() const { return m_opened; }
 

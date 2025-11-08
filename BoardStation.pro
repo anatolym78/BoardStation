@@ -15,6 +15,13 @@ CONFIG += c++17
 
 SOURCES += \
     BoardStationApp.cpp \
+    Interface/BoardParametersTreeModelProxy.cpp \
+    Interface/ChartsPanel.cpp \
+    Interface/ParametersTreeView.cpp \
+    Interface/PlayerView.cpp \
+    Interface/SessionFrame.cpp \
+    Interface/SessionListView.cpp \
+    Interface/SessionsStackWidget.cpp \
     Model/Emulation/BoardDataEmulator.cpp \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.cpp \
@@ -76,6 +83,13 @@ SOURCES += \
 
 HEADERS += \
     BoardStationApp.h \
+    Interface/BoardParametersTreeModelProxy.h \
+    Interface/ChartsPanel.h \
+    Interface/ParametersTreeView.h \
+    Interface/PlayerView.h \
+    Interface/SessionFrame.h \
+    Interface/SessionListView.h \
+    Interface/SessionsStackWidget.h \
     Model/Emulation/BoardDataEmulator.h \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.h \
     Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.h \
@@ -154,3 +168,5 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES +=
