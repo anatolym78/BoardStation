@@ -20,13 +20,27 @@ void ChatViewGridModel::setPlayer(DataPlayer* dataPlayer)
 		QObject::disconnect(m_playConnection);
 	}
 
-	m_playConnection = connect(dataPlayer, &DataPlayer::parameterPlayed, 
-		this, &ChatViewGridModel::onParameterPlayed);
+	//m_playConnection = connect(dataPlayer, &DataPlayer::parameterPlayed, 
+	//	this, &ChatViewGridModel::onParameterPlayed);
+	m_playConnection = connect(dataPlayer, &DataPlayer::played,
+		this, &ChatViewGridModel::onPlayed);
 }
 
 void ChatViewGridModel::setStorage(BoardParameterHistoryStorage* pStorage)
 {
 	m_pStorage = pStorage;
+}
+
+void ChatViewGridModel::addChart(ParameterTreeItem* parameter)//QString chartName)
+{
+	if (parameter == nullptr) return;
+
+	auto parameterFullName = parameter->fullName();
+	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
+	m_charts.append(ChartInfo{ parameterFullName, QStringList()<< parameterFullName });
+	endInsertRows();
+
+	emit chartAdded(parameterFullName);
 }
 
 void ChatViewGridModel::toggleParameter(const QString &label, const QColor &color)
@@ -56,7 +70,7 @@ void ChatViewGridModel::addSeries(const QString &label, const QColor& color)
 	}
 
 	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-	m_charts.append(ChartInfo{ QList<QString>() << label, color, false });
+	m_charts.append(ChartInfo{ "", QList<QString>() << label, color, false});
 	endInsertRows();
 
 	emit parameterAdded(m_charts.count() - 1, label, color);
@@ -94,6 +108,8 @@ void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, c
 	m_charts[chartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
 	m_charts[chartIndex].timeAxis = timeAxis;
 	m_charts[chartIndex].valueAxis = valueAxis;
+
+	return;//
 
 	fillSeries(label, color, true);
 }
@@ -389,6 +405,11 @@ void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool 
 	}
 }
 
+void ChatViewGridModel::onPlayed(ParameterTreeStorage* parameter, bool isBackPlaying)
+{
+
+}
+
 void ChatViewGridModel::mergeSelectedCharts()
 {
 	auto indices = selectedIndices();
@@ -509,7 +530,7 @@ void ChatViewGridModel::splitSeries(int chartIndex)
 		m_charts.removeAt(chartIndex);
 		for(auto s : series)
 		{
-			m_charts.append(ChartInfo{ QStringList() << s, Qt::darkGray, false });
+			m_charts.append(ChartInfo{ "", QStringList() << s, Qt::darkGray, false});
 		}
 	}
 

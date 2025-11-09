@@ -42,8 +42,8 @@ void MainWindow::setApp(BoardStationApp *pApp)
 		auto sessions = pApp->sessionsModel();
 		for (auto i = 0; i < sessions->rowCount(); i++)
 		{
-			auto sessionFrame = new SessionFrame(this);
-			sessionFrame->attachModels(sessions->session(i));
+			auto sessionFrame = new SessionFrame(sessions->session(i), this);
+			//sessionFrame->attachModels(sessions->session(i));
 			sessionsStack()->addWidget(sessionFrame);
 		}
 

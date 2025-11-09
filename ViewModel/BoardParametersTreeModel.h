@@ -39,6 +39,8 @@ public:
 	int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 	QVariant data(const QModelIndex& index, int role) const override;
 	bool setData(const QModelIndex& index, const QVariant& value, int role) override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	bool setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role = Qt::EditRole) override;
 	QHash<int, QByteArray> roleNames() const override;
 
 public:
@@ -55,6 +57,8 @@ private:
 	ParameterTreeStorage* m_rootItem = nullptr;
 	QList<bool> m_chartVisibilities;
 	QList<QColor> m_colors;
+	// Для Qt Widgets: хранение заголовков колонок
+	QVariant m_horizontalHeaders[2];
 
 	//QMetaObject::Connection m_playConnection;
 	//QMetaObject::Connection m_stopConnection;

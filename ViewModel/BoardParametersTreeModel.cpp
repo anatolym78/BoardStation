@@ -23,13 +23,10 @@ void BoardParametersTreeModel::setSnapshot(ParameterTreeStorage* storage, bool i
 
 void BoardParametersTreeModel::onParameterAdded(ParameterTreeItem* newItem)
 {
-	// ��������� ���, 
-	// ��� �������� ���������� �� ����������, ������� ��� ������� �� ����� ���������� �����
 	this->beginResetModel();
 	this->endResetModel();
 }
 
-// ���� ������� ������ ���� �������, �� ������ �� ����� ��������� :)
 void BoardParametersTreeModel::onValueAdded(ParameterTreeHistoryItem* updatedItem)
 {
 }
@@ -147,6 +144,30 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 	auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
 	if (treeItem)
 	{
+		// ========== КОД ДЛЯ QT WIDGETS (QTreeView) ==========
+		// Для работы с Qt Widgets: оставить этот блок активным
+		// Для работы только с QML: закомментировать этот блок
+		if (role == Qt::DisplayRole)
+		{
+			if (index.column() == 0)
+			{
+				return treeItem->label();
+			}
+			if (index.column() == 1)
+			{
+				if (treeItem->type() == ParameterTreeItem::ItemType::History)
+				{
+					auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+					return leafItem->values().last();
+				}
+				return QVariant();
+			}
+		}
+		// =====================================================
+		
+		// ========== КОД ДЛЯ QML ==========
+		// Для работы с QML: оставить этот блок активным
+		// Для работы только с Qt Widgets: закомментировать этот блок
 		switch (static_cast<ParameterRole>(role))
 		{
 		case ParameterRole::LabelRole:
@@ -165,6 +186,7 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		default:
 			break;
 		}
+		// ==================================
 	}
 
 	return QVariant();
@@ -184,6 +206,29 @@ bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant&
 	}
 
 	return false;
+}
+
+QVariant BoardParametersTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+	// Для Qt Widgets: возвращаем заголовки колонок
+	// Для QML: этот метод не используется
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < 2)
+		return m_horizontalHeaders[section];
+
+	return QAbstractItemModel::headerData(section, orientation, role);
+}
+
+bool BoardParametersTreeModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant& value, int role)
+{
+	// Для Qt Widgets: устанавливаем заголовки колонок
+	// Для QML: этот метод не используется
+	if (orientation == Qt::Horizontal && role == Qt::EditRole && section < 2)
+	{
+		m_horizontalHeaders[section] = value;
+		emit headerDataChanged(orientation, section, section);
+		return true;
+	}
+	return QAbstractItemModel::setHeaderData(section, orientation, value, role);
 }
 
 QHash<int, QByteArray> BoardParametersTreeModel::roleNames() const

@@ -30,6 +30,7 @@ public:
 	ParameterTreeStorage* storage() const;
 	DataPlayer* player() const { return m_player; }
 	BoardParametersTreeModel* parametersModel()  const;
+	QItemSelectionModel* parametersSelectionModel() const { return m_parametersSelectionModel; }
 	ChatViewGridModel* chartsModel() const { return m_chartsModel; }
 
 	explicit Session(QObject *parent = nullptr);
@@ -57,6 +58,9 @@ public:
 
 	bool isOpened() const { return m_opened; }
 
+	// Метод для создания графика из выбранного параметра
+	void createChartFromSelectedParameter();
+
 signals:
 	void sessionChanged();
 	void messageCountChanged(int count);
@@ -69,6 +73,7 @@ protected:
 
 protected:
 	BoardParametersTreeModel* m_parametersModel;
+	QItemSelectionModel* m_parametersSelectionModel;
 	ChatViewGridModel* m_chartsModel;
 	DataPlayer* m_player;
 	ParameterTreeStorage* m_treeStorage;

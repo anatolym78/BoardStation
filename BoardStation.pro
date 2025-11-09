@@ -15,7 +15,6 @@ CONFIG += c++17
 
 SOURCES += \
     BoardStationApp.cpp \
-    Interface/BoardParametersTreeModelProxy.cpp \
     Interface/ChartsPanel.cpp \
     Interface/ParametersTreeView.cpp \
     Interface/PlayerView.cpp \
@@ -44,6 +43,7 @@ SOURCES += \
     Model/Parameters/ParameterTreeJsonParser.cpp \
     Model/Parameters/Tree/ParameterTreeGroupItem.cpp \
     Model/Parameters/Tree/ParameterTreeHistoryItem.cpp \
+    Model/Parameters/Tree/ParameterTreeArrayItem.cpp \
     Model/Parameters/Tree/ParameterTreeItem.cpp \
     Model/Parameters/Tree/ParameterTreeStorage.cpp \
     ViewModel/BoardParameterTreeItem.cpp \
@@ -83,7 +83,6 @@ SOURCES += \
 
 HEADERS += \
     BoardStationApp.h \
-    Interface/BoardParametersTreeModelProxy.h \
     Interface/ChartsPanel.h \
     Interface/ParametersTreeView.h \
     Interface/PlayerView.h \
@@ -113,6 +112,7 @@ HEADERS += \
     Model/Parameters/ParameterTreeJsonParser.h \
     Model/Parameters/Tree/ParameterTreeGroupItem.h \
     Model/Parameters/Tree/ParameterTreeHistoryItem.h \
+    Model/Parameters/Tree/ParameterTreeArrayItem.h \
     Model/Parameters/Tree/ParameterTreeItem.h \
     Model/Parameters/Tree/ParameterTreeStorage.h \
     ViewModel/BoardParameterTreeItem.h \

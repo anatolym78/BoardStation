@@ -2,6 +2,7 @@
 #include "Tree/ParameterTreeStorage.h"
 #include "Tree/ParameterTreeGroupItem.h"
 #include "Tree/ParameterTreeHistoryItem.h"
+#include "Tree/ParameterTreeArrayItem.h"
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -89,22 +90,22 @@ void ParameterTreeJsonParser::processValue(const QString &key, const QJsonValue 
 
     if (value.isArray())
     {
-        ParameterTreeItem *groupItem = currentItem->findChildByLabel(finalKey);
-        if (!groupItem)
+        ParameterTreeItem *arrayItem = currentItem->findChildByLabel(finalKey);
+        if (!arrayItem)
         {
-            groupItem = new ParameterTreeGroupItem(finalKey, currentItem);
-            currentItem->appendChild(groupItem);
+            arrayItem = new ParameterTreeArrayItem(finalKey, currentItem);
+            currentItem->appendChild(arrayItem);
         }
 
         QJsonArray array = value.toArray();
         for (int i = 0; i < array.size(); ++i)
         {
             QString itemKey = QString::number(i);
-            ParameterTreeHistoryItem *historyItem = static_cast<ParameterTreeHistoryItem*>(groupItem->findChildByLabel(itemKey));
+            ParameterTreeHistoryItem *historyItem = static_cast<ParameterTreeHistoryItem*>(arrayItem->findChildByLabel(itemKey));
             if (!historyItem)
             {
-                historyItem = new ParameterTreeHistoryItem(itemKey, groupItem);
-                groupItem->appendChild(historyItem);
+                historyItem = new ParameterTreeHistoryItem(itemKey, arrayItem);
+                arrayItem->appendChild(historyItem);
             }
             historyItem->addValue(convertJsonValue(array[i]), QDateTime::currentDateTime());
         }

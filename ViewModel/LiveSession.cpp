@@ -17,7 +17,8 @@ LiveSession::LiveSession(QObject *parent)
 
 	m_chartsModel->setPlayer(m_player);
 
-	connect(m_player, &DriverDataPlayer::played, m_parametersModel, &BoardParametersTreeModel::setSnapshot);
+	connect(m_player, &DataPlayer::played, m_parametersModel, &BoardParametersTreeModel::setSnapshot);
+
 }
 
 void LiveSession::open()

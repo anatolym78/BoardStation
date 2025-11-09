@@ -1,5 +1,7 @@
 #include "ParameterTreeStorage.h"
 #include "ParameterTreeHistoryItem.h"
+#include "ParameterTreeGroupItem.h"
+#include "ParameterTreeArrayItem.h"
 #include <QDebug>
 #include <QMutexLocker>
 
@@ -141,6 +143,17 @@ void ParameterTreeStorage::appendNode(ParameterTreeItem* localParent, ParameterT
 				appendNode(newGroupItem, incomingChild);
 			}
 		}
+		else if (incomingNode->type() == ItemType::Array)
+		{
+			auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
+			localParent->appendChild(newArrayItem);
+			emit parameterAdded(newArrayItem);
+
+			for(ParameterTreeItem* incomingChild : incomingNode->children())
+			{
+				appendNode(newArrayItem, incomingChild);
+			}
+		}
 	}
 	else
 	{
@@ -167,6 +180,13 @@ void ParameterTreeStorage::appendNode(ParameterTreeItem* localParent, ParameterT
 		else
 		{
 			if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
+			{
+				for (ParameterTreeItem* incomingChild : incomingNode->children())
+				{
+					appendNode(existingNode, incomingChild);
+				}
+			}
+			else if (existingNode->type() == ItemType::Array && incomingNode->type() == ItemType::Array)
 			{
 				for (ParameterTreeItem* incomingChild : incomingNode->children())
 				{
@@ -209,6 +229,17 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 				setNode(newGroupItem, incomingChild);
 			}
 		}
+		else if (incomingNode->type() == ItemType::Array)
+		{
+			auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
+			localParent->appendChild(newArrayItem);
+			emit parameterAdded(newArrayItem);
+
+			for(ParameterTreeItem* incomingChild : incomingNode->children())
+			{
+				setNode(newArrayItem, incomingChild);
+			}
+		}
 	}
 	else
 	{
@@ -222,6 +253,13 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 			emit valueChanged(existingHistory);
 		}
 		else if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
+		{
+			for(ParameterTreeItem* incomingChild : incomingNode->children())
+			{
+				setNode(existingNode, incomingChild);
+			}
+		}
+		else if (existingNode->type() == ItemType::Array && incomingNode->type() == ItemType::Array)
 		{
 			for(ParameterTreeItem* incomingChild : incomingNode->children())
 			{
@@ -275,6 +313,24 @@ void ParameterTreeStorage::extractNode(ParameterTreeItem* localParent, Parameter
 		else
 		{
 			delete newGroupItem;
+		}
+	}
+	else if (incomingNode->type() == ItemType::Array)
+	{
+		auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
+
+		for (ParameterTreeItem* incomingChild : incomingNode->children())
+		{
+			extractNode(newArrayItem, incomingChild, startTime, endTime);
+		}
+
+		if (newArrayItem->childCount() > 0)
+		{
+			localParent->appendChild(newArrayItem);
+		}
+		else
+		{
+			delete newArrayItem;
 		}
 	}
 }

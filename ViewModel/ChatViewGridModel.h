@@ -15,7 +15,8 @@
 #include <QColor>
 
 #include "./Model/Parameters/BoardParameterHistoryStorage.h"
-
+#include "./Model/Parameters/Tree/ParameterTreeItem.h"
+#include "./Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 #include "./DataPlayer.h"
 
 class ChatViewGridModel : public QAbstractListModel
@@ -38,6 +39,7 @@ public:
 	};
 	struct ChartInfo
 	{
+		QString chartName;
 		QStringList series;
 		QColor color = Qt::darkGray;
 		bool isSelected = false;
@@ -45,6 +47,8 @@ public:
 		QPointer<QtCharts::QDateTimeAxis> timeAxis = nullptr;
 		QPointer<QtCharts::QValueAxis> valueAxis = nullptr;
 	};
+
+	void addChart(ParameterTreeItem* parameter);// QString chartName);
 
 	explicit ChatViewGridModel(QObject *parent = nullptr);
 
@@ -107,6 +111,7 @@ signals:
 	void parametersNeedToMove(int chartIndex, QStringList labels);
 	void parameterNeedToRemove(int chartIndex, const QString& label);
 	void isCanMergeChartsChanged();
+	void chartAdded(const QString& chartName);
 
 private:
 	DataPlayer* m_dataPlayer = nullptr;
@@ -130,6 +135,7 @@ private:
 
 private:
 	void onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
+	void onPlayed(ParameterTreeStorage* parameter, bool isBackPlaying);
 	const qint64 minuteIntervalMsec() { return 60 * 1000; }
 };
 

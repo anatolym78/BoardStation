@@ -30,7 +30,8 @@ public:
     enum class ItemType {
         Root,
         Group,
-        History
+        History,
+        Array
     };
     virtual ItemType type() const = 0;
 
