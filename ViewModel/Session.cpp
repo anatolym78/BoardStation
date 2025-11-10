@@ -89,6 +89,6 @@ void Session::createChartFromSelectedParameter()
 	//QMessageBox::information(nullptr, "BoardStation", treeItem->fullName());
 
 	// Добавляем серию в модель графиков
-	m_chartsModel->addChart(treeItem);
+	m_chartsModel->toggleParameter(treeItem);
 	qDebug() << "Session::createChartFromSelectedParameter: added chart for parameter" << parameterLabel;
 }

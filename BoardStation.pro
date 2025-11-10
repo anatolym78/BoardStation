@@ -16,6 +16,7 @@ CONFIG += c++17
 SOURCES += \
     BoardStationApp.cpp \
     Interface/ChartsPanel.cpp \
+    Interface/ParametersChartView.cpp \
     Interface/ParametersTreeView.cpp \
     Interface/PlayerView.cpp \
     Interface/SessionFrame.cpp \
@@ -84,6 +85,7 @@ SOURCES += \
 HEADERS += \
     BoardStationApp.h \
     Interface/ChartsPanel.h \
+    Interface/ParametersChartView.h \
     Interface/ParametersTreeView.h \
     Interface/PlayerView.h \
     Interface/SessionFrame.h \

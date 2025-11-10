@@ -31,16 +31,141 @@ void ChatViewGridModel::setStorage(BoardParameterHistoryStorage* pStorage)
 	m_pStorage = pStorage;
 }
 
-void ChatViewGridModel::addChart(ParameterTreeItem* parameter)//QString chartName)
+void ChatViewGridModel::toggleParameter(ParameterTreeItem* parameter)//QString chartName)
 {
 	if (parameter == nullptr) return;
 
 	auto parameterFullName = parameter->fullName();
-	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-	m_charts.append(ChartInfo{ parameterFullName, QStringList()<< parameterFullName });
-	endInsertRows();
+	if (hasSeries(parameterFullName))
+	{
+		removeSeries(parameterFullName);
 
-	emit chartAdded(parameterFullName);
+		return;
+
+		auto chartIndex = findChartIndex(parameterFullName);
+		this->beginRemoveRows(QModelIndex(), chartIndex, chartIndex);
+		m_charts.removeAt(chartIndex);
+		this->endRemoveRows();
+
+		emit parameterNeedToRemove(chartIndex, parameterFullName);
+	}
+	else
+	{
+		beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
+		m_charts.append(ChartInfo{ parameterFullName, QStringList() << parameterFullName });
+		endInsertRows();
+
+		emit parameterAdded(m_charts.count() - 1, parameter, Qt::red);
+	}
+}
+
+void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis)
+{
+	if (chartIndex < 0 || chartIndex >= m_charts.count()) return;
+
+	series->setColor(color);
+	series->setName(label);
+	m_charts[chartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
+	m_charts[chartIndex].timeAxis = timeAxis;
+	m_charts[chartIndex].valueAxis = valueAxis;
+
+	return;//
+
+	fillSeries(label, color, true);
+}
+
+void ChatViewGridModel::onPlayed(ParameterTreeStorage* snapshot, bool isBackPlaying)
+{
+	for (auto chart : m_charts)
+	{
+		for(auto key : chart.seriesMap.keys())
+		{
+			auto series = chart.seriesMap[key];
+			auto data = snapshot->findHistoryItemByFullName(key);
+
+			updateSeries(key, data);
+		}
+	}
+}
+
+void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryItem* data)
+{
+	if (data == nullptr) return;
+
+	auto chartIndex = findChartIndex(label);
+	if (chartIndex == -1) return;
+
+	auto& chart = m_charts[chartIndex];
+
+	auto series = chart.seriesMap[label];
+
+	if (series == nullptr) return;
+
+	auto timeAxis = chart.timeAxis;
+	auto valueAxis = chart.valueAxis;
+
+	auto& times = data->timestamps();
+	auto& values = data->values();
+
+	if (times.isEmpty()) return;
+
+	if (!chart.isAxesInitialized)
+	{
+		timeAxis->setMin(times.first());
+		timeAxis->setMax(timeAxis->min().addMSecs(minuteIntervalMsec()));
+		chart.isAxesInitialized = true;
+	}
+
+	auto startTime = timeAxis->min();
+	auto endTime = timeAxis->max();
+
+	if (times.last() > endTime)
+	{
+		timeAxis->setMin(times.last().addMSecs(-minuteIntervalMsec()));
+		timeAxis->setMax(times.last());
+	}
+
+	if (values.isEmpty()) return;
+
+	auto lastValue = values.last();
+	if (!lastValue.canConvert<double>())
+	{
+		return;
+	}
+
+	for (auto i = 0; i < values.count(); i++)
+	{
+		auto value = values[i];
+		auto time = times[i];
+		series->append(time.toMSecsSinceEpoch(), value.toDouble());
+	}
+
+	bool hasOldValues = true;
+	while (hasOldValues)
+	{
+		auto p = series->at(0);
+		auto time = p.x();
+		if (time < startTime.toMSecsSinceEpoch())
+		{
+			series->remove(0);
+		}
+		else
+		{
+			hasOldValues = false;
+		}
+	}
+
+	auto doubleValue = lastValue.toDouble();
+
+	if (valueAxis->min() > doubleValue)
+	{
+		valueAxis->setMin(doubleValue);
+	}
+
+	if (valueAxis->max() < doubleValue)
+	{
+		valueAxis->setMax(doubleValue);
+	}
 }
 
 void ChatViewGridModel::toggleParameter(const QString &label, const QColor &color)
@@ -57,23 +182,23 @@ void ChatViewGridModel::toggleParameter(const QString &label, const QColor &colo
 
 void ChatViewGridModel::addSeries(const QString &label, const QColor& color)
 {
-	if (!parameterExistsInHistory(label))
-	{
-		qWarning() << "ChatViewGridModel: Parameter" << label << "does not exist in history";
-		return;
-	}
-	
-	if (hasSeries(label))
-	{
-		//qDebug() << "ChatViewGridModel: Chart with label" << label << "already exists";
-		return;
-	}
+	//if (!parameterExistsInHistory(label))
+	//{
+	//	qWarning() << "ChatViewGridModel: Parameter" << label << "does not exist in history";
+	//	return;
+	//}
+	//
+	//if (hasSeries(label))
+	//{
+	//	//qDebug() << "ChatViewGridModel: Chart with label" << label << "already exists";
+	//	return;
+	//}
 
-	beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
-	m_charts.append(ChartInfo{ "", QList<QString>() << label, color, false});
-	endInsertRows();
+	//beginInsertRows(QModelIndex(), rowCount(QModelIndex()), rowCount(QModelIndex()));
+	//m_charts.append(ChartInfo{ "", QList<QString>() << label, color, false});
+	//endInsertRows();
 
-	emit parameterAdded(m_charts.count() - 1, label, color);
+	//emit parameterAdded(m_charts.count() - 1, label, color);
 }
 
 void ChatViewGridModel::removeSeries(const QString &label)
@@ -96,22 +221,9 @@ void ChatViewGridModel::removeSeries(const QString &label)
 	}
 	else
 	{
+		return; // !!!
 		updateValueAxisRange(chartIndex);
 	}
-}
-
-void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, const QColor& color, QtCharts::QLineSeries* series, QtCharts::QDateTimeAxis* timeAxis, QtCharts::QValueAxis* valueAxis)
-{
-	if (chartIndex < 0 || chartIndex >= m_charts.count()) return;
-
-	series->setColor(color);
-	m_charts[chartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
-	m_charts[chartIndex].timeAxis = timeAxis;
-	m_charts[chartIndex].valueAxis = valueAxis;
-
-	return;//
-
-	fillSeries(label, color, true);
 }
 
 void ChatViewGridModel::moveSeriesToChart(int targetChartIndex, const QString& label, QtCharts::QLineSeries* series)
@@ -403,11 +515,6 @@ void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool 
 		valueAxis->setMin(std::min(minValue, parameterValue));
 		valueAxis->setMax(std::max(maxValue, parameterValue));
 	}
-}
-
-void ChatViewGridModel::onPlayed(ParameterTreeStorage* parameter, bool isBackPlaying)
-{
-
 }
 
 void ChatViewGridModel::mergeSelectedCharts()

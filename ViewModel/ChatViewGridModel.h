@@ -46,9 +46,10 @@ public:
 		QMap<QString, QPointer<QtCharts::QLineSeries>> seriesMap;
 		QPointer<QtCharts::QDateTimeAxis> timeAxis = nullptr;
 		QPointer<QtCharts::QValueAxis> valueAxis = nullptr;
+		bool isAxesInitialized = false;
 	};
 
-	void addChart(ParameterTreeItem* parameter);// QString chartName);
+	void toggleParameter(ParameterTreeItem* parameter);// QString chartName);
 
 	explicit ChatViewGridModel(QObject *parent = nullptr);
 
@@ -105,13 +106,15 @@ public:
 
 	void fillSeries(const QString& label, QColor color, bool isInitialFill);
 	QColor labelColor(QString label);
+
+	int findChartIndex(const QString& label) const;
+	bool hasChart(const QString& label) const { return findChartIndex(label) != -1; }
 	
 signals:
-	void parameterAdded(int chartIndex, const QString& label, const QColor& color);
+	void parameterAdded(int chartIndex, ParameterTreeItem* parameter, const QColor& color);
 	void parametersNeedToMove(int chartIndex, QStringList labels);
 	void parameterNeedToRemove(int chartIndex, const QString& label);
 	void isCanMergeChartsChanged();
-	void chartAdded(const QString& chartName);
 
 private:
 	DataPlayer* m_dataPlayer = nullptr;
@@ -125,7 +128,6 @@ private:
 	int m_hoverIndex = -1;
 
 	// Вспомогательные методы
-	int findChartIndex(const QString &label) const;
 	bool parameterExistsInHistory(const QString &label) const;
 	void updateValueAxisRange(int chartIndex);
 
@@ -135,8 +137,9 @@ private:
 
 private:
 	void onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
-	void onPlayed(ParameterTreeStorage* parameter, bool isBackPlaying);
-	const qint64 minuteIntervalMsec() { return 60 * 1000; }
+	void onPlayed(ParameterTreeStorage* snapshot, bool isBackPlaying);
+	void updateSeries(const QString& label, ParameterTreeHistoryItem* data);
+	const qint64 minuteIntervalMsec() { return 15 * 1000; }
 };
 
 #endif // CHATVIEWGRIDMODEL_H

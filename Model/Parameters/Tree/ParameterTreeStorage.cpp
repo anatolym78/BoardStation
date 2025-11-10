@@ -73,6 +73,52 @@ int ParameterTreeStorage::topLevelItemIndex(ParameterTreeItem* item) const
 	return -1;
 }
 
+ParameterTreeHistoryItem* ParameterTreeStorage::findHistoryItemByFullName(const QString& fullName) const
+{
+	QMutexLocker locker(&m_mutex);
+	
+	if (fullName.isEmpty())
+	{
+		return nullptr;
+	}
+	
+	QStringList pathParts = fullName.split('.');
+	pathParts.removeAll(QString()); // Удаляем пустые строки
+	if (pathParts.isEmpty())
+	{
+		return nullptr;
+	}
+	
+	ParameterTreeItem* currentItem = const_cast<ParameterTreeStorage*>(this);
+	
+	// Проходим по пути от корня до конечного узла
+	for (int i = 0; i < pathParts.size(); ++i)
+	{
+		const QString& part = pathParts[i];
+		ParameterTreeItem* foundChild = currentItem->findChildByLabel(part);
+		
+		if (!foundChild)
+		{
+			return nullptr;
+		}
+		
+		// Если это последняя часть пути, проверяем, что это History узел
+		if (i == pathParts.size() - 1)
+		{
+			if (foundChild->type() == ItemType::History)
+			{
+				return static_cast<ParameterTreeHistoryItem*>(foundChild);
+			}
+			return nullptr;
+		}
+		
+		// Продолжаем поиск в следующем уровне
+		currentItem = foundChild;
+	}
+	
+	return nullptr;
+}
+
 void ParameterTreeStorage::appendSnapshot(ParameterTreeStorage* snapshot)
 {
 	QMutexLocker locker(&m_mutex);

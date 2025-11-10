@@ -18,6 +18,7 @@ public:
 
 	QList<ParameterTreeItem*> findPath(ParameterTreeHistoryItem* item) const;
 	int topLevelItemIndex(ParameterTreeItem* item) const;
+	ParameterTreeHistoryItem* findHistoryItemByFullName(const QString& fullName) const;
 
 	ParameterTreeStorage* extractRange(const QDateTime& startTime, const QDateTime& endTime) const;
 	QList<BoardParameterSingle*> getParametersInTimeRange(const QDateTime& startTime, const QDateTime& endTime) const;
@@ -39,7 +40,7 @@ private:
 	void collectParameters(ParameterTreeItem* item, const QDateTime& startTime, const QDateTime& endTime, QList<BoardParameterSingle*>& params) const;
 
 private:
-    mutable QMutex m_mutex;
+	mutable QMutex m_mutex;
 };
 
 #endif // PARAMETERTREESTORAGE_H
