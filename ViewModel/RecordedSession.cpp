@@ -85,41 +85,40 @@ void RecordedSession::updateParameterCount(int count)
 
 void RecordedSession::clearStorage()
 {
-	//if (m_storage)
-	//{
-	//	m_storage->clear();
-	//	qDebug() << "RecordedSession: Storage cleared for session" << m_sessionInfo.id;
-	//}
-	//if (m_treeStorage)
-	//{
-	//	delete m_treeStorage;
-	//	m_treeStorage = new ParameterTreeStorage(this);
-	//}
+	if (m_treeStorage)
+	{
+		m_treeStorage->clear();
+		qDebug() << "RecordedSession: Tree storage cleared for session" << m_sessionInfo.id;
+	}
 }
 
 void RecordedSession::loadDataFromDatabase(BoardMessagesSqliteReader* reader)
 {
-	//if (!reader || !m_storage)
-	//{
-	//	qWarning() << "RecordedSession: Reader or storage is not available";
-	//	return;
-	//}
-	//
-	//qDebug() << "RecordedSession: Loading data from database for session" << m_sessionInfo.id;
-	//
-	//// Загружаем данные сессии из базы в хранилище
-	//m_storage->loadSessionData(m_sessionInfo.id, reader);
-	//
-	//qDebug() << "RecordedSession: Data loaded for session" << m_sessionInfo.id;
+	if (!reader || !m_treeStorage || !m_parametersModel)
+	{
+		qWarning() << "RecordedSession: Reader, tree storage or model is not available";
+		return;
+	}
+
+	qDebug() << "RecordedSession: Loading tree data from database for session" << m_sessionInfo.id;
+
+	if (!reader->loadSessionToTree(m_sessionInfo.id, m_treeStorage))
+	{
+		qWarning() << "RecordedSession: Failed to load session into tree";
+		return;
+	}
+
+	// Обновляем модель представления
+	m_parametersModel->setSnapshot(m_treeStorage, /*isBackPlaying*/ false);
+
+	qDebug() << "RecordedSession: Tree data loaded for session" << m_sessionInfo.id;
 }
 
 bool RecordedSession::isDataLoaded() const
 {
-	return false;
-	//if (!m_storage)
-	//{
-	//	return false;
-	//}
-	//
-	//return !m_storage->getSessionParameters().isEmpty();
+	if (!m_treeStorage)
+	{
+		return false;
+	}
+	return m_treeStorage->childCount() > 0;
 }

@@ -43,10 +43,13 @@ void MainWindow::setApp(BoardStationApp *pApp)
 			auto sessionFrame = new SessionFrame(sessions->session(i), this);
 			sessionsStack()->addWidget(sessionFrame);
 		}
-
 		sessionsListView()->setModel(pApp->sessionsModel());
-		
-		qDebug() << "MainWindow: Приложение установлено";
+		sessionsListView()->createSelectionModel();
+		connect(sessionsListView(), &SessionListView::sessionSelected, this,
+			[this](int index) 
+			{
+				sessionsStack()->setCurrentIndex(index);
+			});
 	}
 }
 

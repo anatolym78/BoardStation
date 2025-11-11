@@ -3,66 +3,37 @@
 #include <QPainter>
 #include <QFont>
 #include <QFontMetrics>
+#include "SessionSelectionModel.h"
 
-SessionListView::SessionListView(QWidget *parent)
-    : QListView(parent)
-    , m_headerHeight(30)
+SessionListView::SessionListView(QWidget *parent) : QListView(parent)
 {
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setAlternatingRowColors(true);
-    
-    // Устанавливаем отступы для viewport, чтобы заголовок не перекрывал содержимое
-    setViewportMargins(0, m_headerHeight, 0, 0);
+	setSelectionMode(QAbstractItemView::SingleSelection);
+
+	auto selectionModel = this->selectionModel();
+	connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SessionListView::onSelectionChanged);
 }
 
-void SessionListView::paintEvent(QPaintEvent *event)
+void SessionListView::createSelectionModel()
 {
-    // Сначала рисуем стандартный вид списка
-    QListView::paintEvent(event);
-    
-    // Затем рисуем заголовок поверх
-    QPainter painter(this);
-    drawHeader(&painter);
+	// Создаём и назначаем специализированную модель выделения на основе текущей модели данных
+	auto dataModel = model();
+	if (!dataModel) return;
+
+	auto selModel = new SessionSelectionModel(dataModel, this);
+	setSelectionModel(selModel);
+
+	// Переподключаем сигнал на новый selectionModel
+	disconnect(this->selectionModel(), nullptr, this, nullptr);
+	connect(this->selectionModel(), &QItemSelectionModel::selectionChanged, this, &SessionListView::onSelectionChanged);
 }
 
-void SessionListView::resizeEvent(QResizeEvent *event)
+void SessionListView::onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected)
 {
-    QListView::resizeEvent(event);
-    viewport()->update();
-}
+	auto selectedIndexes = selected.indexes();
 
-void SessionListView::drawHeader(QPainter *painter)
-{
-    // Настройки для рисования заголовка
-    QRect headerRect(0, 0, width(), m_headerHeight);
-    
-    // Рисуем фон заголовка
-    painter->fillRect(headerRect, QColor(240, 240, 240));
-    
-    // Рисуем границу снизу
-    painter->setPen(QColor(208, 208, 208));
-    painter->drawLine(0, m_headerHeight - 1, width(), m_headerHeight - 1);
-    
-    // Настройки шрифта
-    QFont headerFont = font();
-    headerFont.setBold(true);
-    headerFont.setPointSize(10);
-    painter->setFont(headerFont);
-    painter->setPen(QColor(51, 51, 51));
-    
-    // Вычисляем ширину колонок (пропорции 2:2:1)
-    int totalWidth = width();
-    int nameWidth = totalWidth * 2 / 5;
-    int dateWidth = totalWidth * 2 / 5;
-    int messagesWidth = totalWidth * 1 / 5;
-    
-    // Рисуем текст заголовков
-    QRect nameRect(5, 0, nameWidth - 10, m_headerHeight);
-    QRect dateRect(nameWidth + 5, 0, dateWidth - 10, m_headerHeight);
-    QRect messagesRect(nameWidth + dateWidth + 5, 0, messagesWidth - 10, m_headerHeight);
-    
-    painter->drawText(nameRect, Qt::AlignLeft | Qt::AlignVCenter, "Имя");
-    painter->drawText(dateRect, Qt::AlignLeft | Qt::AlignVCenter, "Дата создания");
-    painter->drawText(messagesRect, Qt::AlignLeft | Qt::AlignVCenter, "Количество сообщений");
+	if (selectedIndexes.count() == 1)
+	{
+		emit sessionSelected(selectedIndexes.first().row());
+	}
 }
 

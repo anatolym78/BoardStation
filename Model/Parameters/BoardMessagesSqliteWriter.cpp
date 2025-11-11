@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QApplication>
 #include <QDir>
+#include "Model/Parameters/Tree/ParameterTreeItem.h"
+#include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 BoardMessagesSqliteWriter::BoardMessagesSqliteWriter(const QString &databasePath, QObject *parent)
     : QObject(parent)
@@ -560,4 +562,86 @@ int BoardMessagesSqliteWriter::getParameterId(const QString &label, const QStrin
         qWarning() << "BoardMessagesSqliteWriter: Ошибка создания параметра:" << query.lastError().text();
         return -1;
     }
+}
+
+static void traverseAndCollectHistory(ParameterTreeItem* node, QList<ParameterTreeHistoryItem*>& out)
+{
+	if (!node) return;
+	if (node->type() == ParameterTreeItem::ItemType::History)
+	{
+		out.append(static_cast<ParameterTreeHistoryItem*>(node));
+	}
+	for (auto child : node->children())
+	{
+		traverseAndCollectHistory(child, out);
+	}
+}
+
+bool BoardMessagesSqliteWriter::writeTree(ParameterTreeStorage* storage)
+{
+	if (!storage)
+	{
+		emit writeError("writeTree: storage is null");
+		return false;
+	}
+	if (m_currentSessionId <= 0)
+	{
+		emit writeError("writeTree: no active session");
+		return false;
+	}
+
+	// Соберём все узлы-истории
+	QList<ParameterTreeHistoryItem*> historyNodes;
+	traverseAndCollectHistory(storage, historyNodes);
+	if (historyNodes.isEmpty()) return true;
+
+	QMutexLocker locker(&m_databaseMutex);
+	if (!m_database.transaction())
+	{
+		qWarning() << "BoardMessagesSqliteWriter: Не удалось начать транзакцию для writeTree";
+		return false;
+	}
+
+	QSqlQuery query(m_database);
+
+	for (auto history : historyNodes)
+	{
+		if (!history) continue;
+		const QString label = history->fullName();
+		const QString unit; // единица измерения отсутствует в дереве
+		const int paramId = getParameterId(label, unit);
+		if (paramId <= 0)
+		{
+			qWarning() << "BoardMessagesSqliteWriter: Не удалось получить/создать параметр для" << label;
+			m_database.rollback();
+			return false;
+		}
+
+		const auto& values = history->values();
+		const auto& timestamps = history->timestamps();
+		const int n = qMin(values.size(), timestamps.size());
+		for (int i = 0; i < n; ++i)
+		{
+			query.prepare("INSERT INTO parameter_values (session_id, parameter_id, value, timestamp) VALUES (?, ?, ?, ?)");
+			query.addBindValue(m_currentSessionId);
+			query.addBindValue(paramId);
+			query.addBindValue(values.at(i).toString());
+			query.addBindValue(timestamps.at(i).toLocalTime());
+			if (!query.exec())
+			{
+				qWarning() << "BoardMessagesSqliteWriter: Ошибка записи значения дерева:" << query.lastError().text();
+				m_database.rollback();
+				return false;
+			}
+		}
+	}
+
+	if (!m_database.commit())
+	{
+		qWarning() << "BoardMessagesSqliteWriter: Не удалось подтвердить транзакцию writeTree";
+		return false;
+	}
+
+	emit writeSuccess(QString("Записаны данные дерева: %1 параметров").arg(historyNodes.size()));
+	return true;
 }

@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QList>
 #include "BoardParameterSingle.h"
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
 
 class BoardMessagesSqliteReader : public QObject
 {
@@ -52,6 +53,9 @@ public:
     // Удаление сессии
     bool removeSession(int sessionId);
 
+	// Загрузка данных сессии в древовидную модель параметров
+	bool loadSessionToTree(int sessionId, ParameterTreeStorage* storage);
+
 signals:
     void readError(const QString &error);
 
@@ -61,6 +65,9 @@ private:
     
     // Создание объекта BoardParameterSingle из данных БД
     BoardParameterSingle* createParameterFromQuery(const QSqlQuery &query) const;
+
+	// Вспомогательное: гарантировать существование узла-истории по пути метки и вернуть его
+	ParameterTreeHistoryItem* ensureHistoryPath(ParameterTreeStorage* storage, const QStringList& labelParts) const;
 
 private:
     QString m_databasePath;

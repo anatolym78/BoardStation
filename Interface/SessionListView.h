@@ -9,13 +9,15 @@ class SessionListView : public QListView
 public:
     explicit SessionListView(QWidget *parent = nullptr);
 
-protected:
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+public:
+	void createSelectionModel();
+
+
+signals:
+    void sessionSelected(int sessionIndex);
 
 private:
-    void drawHeader(QPainter *painter);
-    int m_headerHeight;
+    void onSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 };
 
 #endif // SESSIONLISTVIEW_H

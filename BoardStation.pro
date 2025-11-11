@@ -21,6 +21,7 @@ SOURCES += \
     Interface/PlayerView.cpp \
     Interface/SessionFrame.cpp \
     Interface/SessionListView.cpp \
+    Interface/SessionSelectionModel.cpp \
     Interface/SessionsStackWidget.cpp \
     Model/Emulation/BoardDataEmulator.cpp \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.cpp \
@@ -90,6 +91,7 @@ HEADERS += \
     Interface/PlayerView.h \
     Interface/SessionFrame.h \
     Interface/SessionListView.h \
+    Interface/SessionSelectionModel.h \
     Interface/SessionsStackWidget.h \
     Model/Emulation/BoardDataEmulator.h \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.h \

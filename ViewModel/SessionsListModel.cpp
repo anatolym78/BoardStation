@@ -164,18 +164,14 @@ void SessionsListModel::refreshSessions()
 	// Создаем живую сессию, если она еще не создана и добавляем в список
 	createLiveSession();
 	
-	// Пока не создаем
-	if (false)
-	{
-		// Создаем записанные сессии через фабрику
-		QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
+	// Создаем записанные сессии через фабрику
+	QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
 	
 
-		m_sessions.append(recordedSessions);
+	m_sessions.append(recordedSessions);
 	
-		// Сортируем сессии
-		sortSessions();
-	}
+	// Сортируем сессии
+	sortSessions();
 	
 	qDebug() << "SessionsListModel: Загружено" << m_sessions.size() << "сессий";
 	
@@ -446,6 +442,8 @@ void SessionsListModel::onNewParameterAdded(BoardParameterSingle* parameter)
 
 void SessionsListModel::sortSessions()
 {
+	return; // !!!
+
 	// Сортируем сессии: LiveSession первыми, затем RecordedSession по убыванию даты
 	std::sort(m_sessions.begin(), m_sessions.end(),
 			  [](Session* a, Session* b)

@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QDebug>
 #include <QApplication>
+#include "Model/Parameters/Tree/ParameterTreeGroupItem.h"
+#include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 BoardMessagesSqliteReader::BoardMessagesSqliteReader(const QString &databasePath, QObject *parent)
     : QObject(parent)
@@ -383,4 +385,115 @@ bool BoardMessagesSqliteReader::removeSession(int sessionId)
         m_database.rollback();
         return false;
     }
+}
+
+bool BoardMessagesSqliteReader::loadSessionToTree(int sessionId, ParameterTreeStorage* storage)
+{
+	if (!storage)
+	{
+		qWarning() << "BoardMessagesSqliteReader: loadSessionToTree - storage is null";
+		return false;
+	}
+
+	// Очищаем текущее дерево
+	storage->clear();
+
+	QSqlQuery query(m_database);
+	query.prepare(R"(
+		SELECT p.label, p.unit, pv.value, pv.timestamp
+		FROM parameter_values pv
+		JOIN parameters p ON pv.parameter_id = p.id
+		WHERE pv.session_id = ?
+		ORDER BY pv.timestamp ASC, p.label ASC
+	)");
+	query.addBindValue(sessionId);
+
+	if (!query.exec())
+	{
+		qWarning() << "BoardMessagesSqliteReader: Ошибка загрузки сессии в дерево:" << query.lastError().text();
+		emit readError("Ошибка загрузки сессии в дерево");
+		return false;
+	}
+
+	// Восстанавливаем узлы-истории и добавляем значения
+	while (query.next())
+	{
+		const QString label = query.value("label").toString();
+		const QString valueStr = query.value("value").toString();
+		const QDateTime ts = query.value("timestamp").toDateTime();
+
+		// Парсим значение как число/булево/строку (как при createParameterFromQuery)
+		QVariant value;
+		bool ok = false;
+		const double dbl = valueStr.toDouble(&ok);
+		if (ok)
+		{
+			value = dbl;
+		}
+		else
+		{
+			const QString lower = valueStr.toLower();
+			if (lower == "true" || lower == "false")
+			{
+				value = (lower == "true");
+			}
+			else
+			{
+				value = valueStr;
+			}
+		}
+
+		// Получаем части составной метки
+		const QStringList parts = BoardParameterSingle(label).labelParts();
+		if (parts.isEmpty()) continue;
+
+		auto historyItem = ensureHistoryPath(storage, parts);
+		if (!historyItem) continue;
+		historyItem->addValue(value, ts);
+	}
+
+	return true;
+}
+
+ParameterTreeHistoryItem* BoardMessagesSqliteReader::ensureHistoryPath(ParameterTreeStorage* storage, const QStringList& labelParts) const
+{
+	if (!storage || labelParts.isEmpty()) return nullptr;
+
+	ParameterTreeItem* current = storage;
+	// Все части пути, кроме последней, считаем группами
+	for (int i = 0; i < labelParts.size() - 1; ++i)
+	{
+		const QString& part = labelParts.at(i);
+		auto existing = current->findChildByLabel(part, false);
+		if (!existing)
+		{
+			auto group = new ParameterTreeGroupItem(part, current);
+			current->appendChild(group);
+			current = group;
+		}
+		else
+		{
+			current = existing;
+		}
+	}
+
+	// Последняя часть — узел-история
+	const QString& leaf = labelParts.last();
+	auto existingLeaf = current->findChildByLabel(leaf, false);
+	if (existingLeaf && existingLeaf->type() == ParameterTreeItem::ItemType::History)
+	{
+		return static_cast<ParameterTreeHistoryItem*>(existingLeaf);
+	}
+
+	if (!existingLeaf)
+	{
+		auto history = new ParameterTreeHistoryItem(leaf, current);
+		current->appendChild(history);
+		return history;
+	}
+
+	// Если по какой-то причине лист существует, но не History — создадим новый History с уникальным именем
+	auto history = new ParameterTreeHistoryItem(leaf + "_hist", current);
+	current->appendChild(history);
+	return history;
 }

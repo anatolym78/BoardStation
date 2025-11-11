@@ -39,6 +39,8 @@ public:
 	// Получение времени начала сессии
 	QDateTime getStartTime() const { return m_startTime; }
 
+	void onPlayed(ParameterTreeStorage* subStorage, bool isBackPlaying);
+
 	void open() override;
 
 signals:

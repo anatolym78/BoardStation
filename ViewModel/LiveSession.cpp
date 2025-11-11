@@ -17,8 +17,18 @@ LiveSession::LiveSession(QObject *parent)
 
 	m_chartsModel->setPlayer(m_player);
 
-	connect(m_player, &DataPlayer::played, m_parametersModel, &BoardParametersTreeModel::setSnapshot);
+	connect(m_player, &DataPlayer::played, this, &LiveSession::onPlayed);
 
+}
+
+void LiveSession::onPlayed(ParameterTreeStorage* subStorage, bool isBackPlaying)
+{
+	m_parametersModel->setSnapshot(subStorage, isBackPlaying);
+
+	if (m_startTime.isNull())
+	{
+		m_startTime = QDateTime::currentDateTime();
+	}
 }
 
 void LiveSession::open()
