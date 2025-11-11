@@ -1,6 +1,9 @@
 #include "SessionPlayer.h"
 #include <QDebug>
 #include <QDateTime>
+#include "Model/Parameters/Tree/ParameterTreeStorage.h"
+#include "Model/Parameters/Tree/ParameterTreeItem.h"
+#include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 SessionPlayer::SessionPlayer(QObject *parent)
 	: DataPlayer(parent)
@@ -11,7 +14,7 @@ SessionPlayer::SessionPlayer(QObject *parent)
 {
 	connect(this, &DataPlayer::stopped, this, [this]()
 		{
-			initialPlay();
+			//initialPlay();
 		});
 }
 
@@ -86,7 +89,7 @@ void SessionPlayer::onSessionDataLoaded(int sessionId)
 
 void SessionPlayer::initialPlay()
 {
-	playParametersInTimeRange(m_sessionStartTime, m_sessionStartTime.addMSecs(1));
+	//playParametersInTimeRange(m_sessionStartTime, m_sessionStartTime.addMSecs(1));
 }
 
 void SessionPlayer::moveToBegin()
@@ -96,45 +99,60 @@ void SessionPlayer::moveToBegin()
 
 void SessionPlayer::initializeWithLoadedData()
 {
-	//if (!m_storage)// || !m_reader)
-	//{
-	//	qWarning() << "SessionPlayer: Storage or reader not available for initialization";
-	//	return;
-	//}
-	//
-	//// Получаем параметры из хранилища
-	//QList<BoardParameterSingle*> sessionParams = m_storage->getParametersInTimeRange(QDateTime::fromSecsSinceEpoch(0), QDateTime::currentDateTime().addYears(100));
-	//if (sessionParams.isEmpty())
-	//{
-	//	qWarning() << "SessionPlayer: No data available for initialization";
-	//	return;
-	//}
-	//
-	//// Определяем время начала и конца сессии
-	//auto firstParam = sessionParams.first();
-	//auto lastParam = sessionParams.last();
-	//
-	//if (firstParam && lastParam)
-	//{
-	//	m_sessionStartTime = firstParam->timestamp();
-	//	m_sessionEndTime = lastParam->timestamp();
-	//	m_currentPosition = m_sessionStartTime;
-	//	m_lastPlayedIndex = -1;
-	//	m_lastPlayedPosition = m_sessionStartTime;
-	//	
-	//	// Получаем информацию о сессии из первого параметра или используем текущее время
-	//	m_currentSessionName = QString("Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm"));
-	//	
-	//	emit currentSessionNameChanged();
-	//	emit sessionStartTimeChanged();
-	//	emit sessionEndTimeChanged();
-	//	emit sessionDurationChanged();
-	//	emit currentPositionChanged();
-	//	emit elapsedTimeChanged();
-	//	
-	//	qDebug() << "SessionPlayer: Initialized with loaded data from" 
-	//			 << m_sessionStartTime.toString() << "to" << m_sessionEndTime.toString();
-	//}
+	//return; // !!!
+	if (!m_storage)
+	{
+		qWarning() << "SessionPlayer: Storage not available for initialization";
+		return;
+	}
+
+	// Обходим дерево и находим минимальную и максимальную метки времени
+	QDateTime minTs;
+	QDateTime maxTs;
+
+	std::function<void(ParameterTreeItem*)> traverse = [&](ParameterTreeItem* node)
+	{
+		if (!node) return;
+		if (node->type() == ParameterTreeItem::ItemType::History)
+		{
+			auto hist = static_cast<ParameterTreeHistoryItem*>(node);
+			const auto& timestamps = hist->timestamps();
+			if (!timestamps.isEmpty())
+			{
+				const QDateTime first = timestamps.first();
+				const QDateTime last = timestamps.last();
+				if (minTs.isNull() || first < minTs) minTs = first;
+				if (maxTs.isNull() || last > maxTs) maxTs = last;
+			}
+		}
+		for (auto child : node->children())
+		{
+			traverse(child);
+		}
+	};
+
+	traverse(m_storage);
+
+	if (minTs.isNull() || maxTs.isNull())
+	{
+		qWarning() << "SessionPlayer: No timestamps found in storage";
+		return;
+	}
+
+	m_sessionStartTime = minTs;
+	m_sessionEndTime = maxTs;
+	m_currentPosition = m_sessionStartTime;
+	m_lastPlayedIndex = -1;
+	m_lastPlayedPosition = m_sessionStartTime;
+
+	emit sessionStartTimeChanged();
+	emit sessionEndTimeChanged();
+	emit sessionDurationChanged();
+	emit currentPositionChanged();
+	emit elapsedTimeChanged();
+
+	qDebug() << "SessionPlayer: Initialized time range from"
+			 << m_sessionStartTime.toString() << "to" << m_sessionEndTime.toString();
 }
 
 void SessionPlayer::updatePlaybackPosition()

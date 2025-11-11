@@ -6,19 +6,28 @@
 class QToolButton;
 class QSlider;
 class QLabel;
+class DataPlayer;
 
 class PlayerView : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit PlayerView(QWidget *parent = nullptr);
+	explicit PlayerView(QWidget *parent = nullptr);
 
-    void onPlayButtonToggled();
+	void onPlayButtonToggled();
+
+	// Подключение к модели плеера
+	void setPlayer(DataPlayer* player);
+
 private:
-    QToolButton* m_playPauseButton;
-    QToolButton* m_stopButton;
-    QSlider* m_positionSlider;
-    QLabel* m_infoLabel;
+	void updateInfoLabel(double elapsedSeconds, double durationSeconds);
+
+private:
+	QToolButton* m_playPauseButton;
+	QToolButton* m_stopButton;
+	QSlider* m_positionSlider;
+	QLabel* m_infoLabel;
+	DataPlayer* m_player = nullptr;
 };
 
 #endif // PLAYERVIEW_H

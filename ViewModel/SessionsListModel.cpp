@@ -162,7 +162,7 @@ void SessionsListModel::refreshSessions()
 	m_sessions.clear();
 	
 	// Создаем живую сессию, если она еще не создана и добавляем в список
-	createLiveSession();
+	//createLiveSession();
 	
 	// Создаем записанные сессии через фабрику
 	QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();
@@ -589,8 +589,8 @@ void SessionsListModel::selectSession(int sessionIndex)
 		return;
 	}
 
-	// Если это RecordedSession, загружаем данные из базы при первом выборе
-	if (session->getType() == Session::RecordedSession && !session->isOpened())
+	// Если это RecordedSession, загружаем данные из базы при необходимости
+	if (session->getType() == Session::RecordedSession)
 	{
 		RecordedSession* recordedSession = qobject_cast<RecordedSession*>(session);
 		if (recordedSession && m_reader)
@@ -604,6 +604,11 @@ void SessionsListModel::selectSession(int sessionIndex)
 			else
 			{
 				qDebug() << "SessionsListModel: Data already loaded for session" << recordedSession->getId();
+				// Даже если данные уже загружены, обновляем модель при переключении
+				if (recordedSession->parametersModel())
+				{
+					recordedSession->parametersModel()->setSnapshot(recordedSession->storage(), false);
+				}
 			}
 			
 			// Инициализируем плеер для установки временного диапазона

@@ -49,6 +49,7 @@ public:
 
 private:
 	BoardMessagesSqliteReader::SessionInfo m_sessionInfo;
+	bool m_dataLoaded = false;
 };
 
 #endif // RECORDEDSESSION_H

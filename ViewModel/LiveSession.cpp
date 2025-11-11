@@ -19,6 +19,11 @@ LiveSession::LiveSession(QObject *parent)
 
 	connect(m_player, &DataPlayer::played, this, &LiveSession::onPlayed);
 
+	// Увеличиваем счетчик сообщений при добавлении нового значения в хранилище
+	connect(m_treeStorage, &ParameterTreeStorage::valueAdded, this, [this](ParameterTreeHistoryItem*)
+	{
+		incrementMessageCount();
+	});
 }
 
 void LiveSession::onPlayed(ParameterTreeStorage* subStorage, bool isBackPlaying)

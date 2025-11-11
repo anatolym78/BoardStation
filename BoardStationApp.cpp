@@ -44,11 +44,15 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 
 void BoardStationApp::connectSignals()
 {
-	connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+	if (liveSession())
+	{
+		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
 			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
-	connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
-	        liveSession(), &LiveSession::incrementMessageCount);
+		connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
+			liveSession(), &LiveSession::incrementMessageCount);
+
+	}
 
 	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
 		m_driverAdapter, &DriverAdapter::sendParameter);
@@ -67,6 +71,8 @@ void BoardStationApp::close()
 
 bool BoardStationApp::saveLiveData()
 {
+	if (!liveSession()) return false;
+
 	qDebug() << "BoardStationApp: Starting to save live tree data to database";
 
 	auto live = m_sessionsListModel ? m_sessionsListModel->liveSession() : nullptr;

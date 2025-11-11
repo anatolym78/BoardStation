@@ -49,6 +49,7 @@ void MainWindow::setApp(BoardStationApp *pApp)
 			[this](int index) 
 			{
 				sessionsStack()->setCurrentIndex(index);
+				app()->sessionsModel()->selectSession(index);
 			});
 	}
 }

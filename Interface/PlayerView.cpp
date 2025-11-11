@@ -4,6 +4,8 @@
 #include <QToolButton>
 #include <QSlider>
 #include <QLabel>
+#include <QTime>
+#include "./../ViewModel/DataPlayer.h"
 
 PlayerView::PlayerView(QWidget *parent)
 	: QWidget(parent)
@@ -38,6 +40,19 @@ PlayerView::PlayerView(QWidget *parent)
 	mainLayout->setSpacing(5);
 
 	connect(m_playPauseButton, &QToolButton::toggled, this, &PlayerView::onPlayButtonToggled);
+	connect(m_stopButton, &QToolButton::clicked, [this]() 
+	{
+		if (m_player) m_player->stop();
+	});
+
+	connect(m_positionSlider, &QSlider::sliderMoved, [this](int value)
+	{
+		if (m_player)
+		{
+			m_player->setElapsedTime(static_cast<double>(value));
+		}
+		updateInfoLabel(value, m_player ? m_player->sessionDuration() : 0.0);
+	});
 }
 
 void PlayerView::onPlayButtonToggled()
@@ -52,4 +67,63 @@ void PlayerView::onPlayButtonToggled()
 		m_playPauseButton->setIcon(QIcon(":/Resources/run_32.png"));
 
 	}
+}
+
+void PlayerView::setPlayer(DataPlayer* player)
+{
+	if (m_player == player) return;
+	m_player = player;
+	if (!m_player) return;
+
+	// Начальная инициализация состояния
+	m_positionSlider->setMaximum(static_cast<int>(m_player->sessionDuration()));
+	m_positionSlider->setValue(static_cast<int>(m_player->elapsedTime()));
+	m_playPauseButton->setChecked(m_player->isPlaying());
+	onPlayButtonToggled();
+	updateInfoLabel(m_player->elapsedTime(), m_player->sessionDuration());
+
+	// Управление воспроизведением с кнопки
+	connect(m_playPauseButton, &QToolButton::toggled, this, [this](bool checked)
+	{
+		if (!m_player) return;
+		if (checked) m_player->play();
+		else m_player->pause();
+	});
+
+	// Слушаем изменения от плеера
+	connect(m_player, &DataPlayer::isPlayingChanged, this, [this]()
+	{
+		if (!m_player) return;
+		const bool playing = m_player->isPlaying();
+		if (m_playPauseButton->isChecked() != playing)
+		{
+			m_playPauseButton->setChecked(playing);
+		}
+		onPlayButtonToggled();
+	});
+
+	connect(m_player, &DataPlayer::sessionDurationChanged, this, [this]()
+	{
+		if (!m_player) return;
+		m_positionSlider->setMaximum(static_cast<int>(m_player->sessionDuration()));
+		updateInfoLabel(m_player->elapsedTime(), m_player->sessionDuration());
+	});
+
+	connect(m_player, &DataPlayer::elapsedTimeChanged, this, [this]()
+	{
+		if (!m_player) return;
+		const int elapsed = static_cast<int>(m_player->elapsedTime());
+		if (!m_positionSlider->isSliderDown())
+		{
+			m_positionSlider->setValue(elapsed);
+		}
+		updateInfoLabel(m_player->elapsedTime(), m_player->sessionDuration());
+	});
+}
+
+void PlayerView::updateInfoLabel(double elapsedSeconds, double durationSeconds)
+{
+	const QTime elapsed = QTime(0,0).addSecs(static_cast<int>(elapsedSeconds));
+	const QTime duration = QTime(0,0).addSecs(static_cast<int>(durationSeconds));
+	m_infoLabel->setText(QString("%1 / %2").arg(elapsed.toString("mm:ss")).arg(duration.toString("mm:ss")));
 }

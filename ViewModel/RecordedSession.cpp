@@ -111,11 +111,22 @@ void RecordedSession::loadDataFromDatabase(BoardMessagesSqliteReader* reader)
 	// Обновляем модель представления
 	m_parametersModel->setSnapshot(m_treeStorage, /*isBackPlaying*/ false);
 
+	// Инициализируем временные границы плеера по загруженным данным,
+	// чтобы PlayerView отобразил длительность и текущую позицию
+	if (m_player)
+	{
+		static_cast<SessionPlayer*>(m_player)->initializeWithLoadedData();
+	}
+
+	m_dataLoaded = true;
+
 	qDebug() << "RecordedSession: Tree data loaded for session" << m_sessionInfo.id;
 }
 
 bool RecordedSession::isDataLoaded() const
 {
+	 //return m_dataLoaded;
+
 	if (!m_treeStorage)
 	{
 		return false;
