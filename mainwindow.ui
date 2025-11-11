@@ -69,6 +69,30 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="buttonSaveRecord">
+             <property name="text">
+              <string>Save</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="buttonDeleteRecord">
+             <property name="text">
+              <string>Delete</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="SessionListView" name="listView"/>
          </item>
         </layout>

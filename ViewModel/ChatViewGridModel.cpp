@@ -516,10 +516,41 @@ void ChatViewGridModel::onParameterPlayed(BoardParameterSingle* parameter, bool 
 		valueAxis->setMax(std::max(maxValue, parameterValue));
 	}
 }
+void ChatViewGridModel::mergeCharts()
+{
+	auto indices = selectedIndices();
+
+	if (indices.count() < 2) return;
+
+	auto targetChartIndex = indices.first();
+	auto indicesToRemove = QList(indices.begin() + 1, indices.end());
+
+	QStringList labelsToMove;
+	for (auto index : indicesToRemove)
+	{
+		auto chart = m_charts[index];
+		auto labels = chart.seriesMap.keys();
+		labelsToMove.append(labels);
+		for (auto label : labels)
+		{
+			m_charts[targetChartIndex].seriesMap.insert(label, chart.seriesMap[label]);
+		}
+		m_charts[index].seriesMap.clear();
+	}
+
+	removeEmptyCharts();
+
+	emit parametersNeedToMove(targetChartIndex, labelsToMove);
+
+	clearSelection();
+}
+
 
 void ChatViewGridModel::mergeSelectedCharts()
 {
 	auto indices = selectedIndices();
+
+	if (indices.count() < 2) return;
 
 	auto targetChartIndex = indices.first();
 	auto indicesToRemove = QList(indices.begin() + 1, indices.end());

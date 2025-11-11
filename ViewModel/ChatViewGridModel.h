@@ -67,6 +67,7 @@ public:
 	Q_INVOKABLE void clearCharts();
 	Q_INVOKABLE QStringList getChartSeriesLabels(int chartIndex) const;
 
+	void mergeCharts();
 	/// <summary>
 	/// Вызывается по кнопке объединения графиков
 	/// Подготавливает названия серий, который должны быть перемещены

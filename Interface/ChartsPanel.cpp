@@ -1,11 +1,14 @@
 #include "ChartsPanel.h"
-#include "ParametersChartView.h"
 
 #include <QScrollArea>
 #include <QGridLayout>
 #include <QWidget>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLayoutItem>
+#include <QCheckBox>
+#include <QDebug>
+#include <algorithm>
 
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
@@ -19,6 +22,28 @@
 ChartsPanel::ChartsPanel(QWidget *parent)
 	: QFrame(parent)
 {
+	// Верхняя панель с элементами управления
+	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	mainLayout->setContentsMargins(0, 0, 0, 0);
+
+	QHBoxLayout* topBarLayout = new QHBoxLayout();
+	topBarLayout->setContentsMargins(10, 5, 10, 0);
+
+	m_twoRowsCheckbox = new QCheckBox(this);
+	m_twoRowsCheckbox->setChecked(false);
+	updateRowsToggleText(false); // начальный текст "two rows"
+	connect(m_twoRowsCheckbox, &QCheckBox::toggled, this, &ChartsPanel::onTwoRowsToggled);
+
+	QPushButton* mergeButton = new QPushButton("Merge charts", this);
+	connect(mergeButton, &QPushButton::clicked, this, &ChartsPanel::onMergeChartsClicked);
+
+	topBarLayout->addWidget(m_twoRowsCheckbox, 0, Qt::AlignLeft);
+	topBarLayout->addSpacing(8);
+	topBarLayout->addWidget(mergeButton, 0, Qt::AlignLeft);
+	topBarLayout->addStretch(1);
+
+	mainLayout->addLayout(topBarLayout);
+
 	m_scrollArea = new QScrollArea(this);
 	m_scrollArea->setWidgetResizable(true);
 	m_scrollArea->setFrameShape(QFrame::NoFrame);
@@ -30,9 +55,7 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 
 	m_scrollArea->setWidget(m_scrollContent);
 
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 	mainLayout->addWidget(m_scrollArea);
-	mainLayout->setContentsMargins(0, 0, 0, 0);
 
 	// Следим за изменением ширины области просмотра, чтобы пересчитывать размеры ячеек (квадратов)
 	m_scrollArea->viewport()->installEventFilter(this);
@@ -44,6 +67,7 @@ void ChartsPanel::setModel(ChatViewGridModel* chartsModel)
 
 	connect(m_chartsModel, &ChatViewGridModel::parameterAdded, this, &ChartsPanel::onParameterAdded);
 	connect(m_chartsModel, &ChatViewGridModel::parameterNeedToRemove, this, &ChartsPanel::onParameterRemoved);
+	connect(m_chartsModel, &ChatViewGridModel::parametersNeedToMove, this, &ChartsPanel::onParameterMoved);
 }
 
 void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter, const QColor& color)
@@ -57,6 +81,7 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter,
 
 	// create chart
 	auto chartView = new ParametersChartView(chartIndex, row, column, this);
+	chartView->setModel(m_chartsModel);
 	chartView->setRenderHint(QPainter::Antialiasing, true);
 	auto chart = new QtCharts::QChart();
 	chart->setBackgroundBrush(QBrush());
@@ -144,34 +169,76 @@ void ChartsPanel::onParameterRemoved(int chartIndex, const QString& label)
 			}
 		}
 	}
+	updateCellSizes();
+}
 
-	return;
-	// Вычисляем позицию в grid layout из индекса чарта
-	auto row = chartIndex / m_columnCount;
-	auto column = chartIndex % m_columnCount;
-	
-	// Получаем item из layout по позиции
-	QLayoutItem* item = m_gridLayout->itemAtPosition(row, column);
-	
-	if (item != nullptr)
+void ChartsPanel::onParameterMoved(int targetChartIndex, const QStringList& labels)
+{
+	auto targetChartView = getChartView(targetChartIndex);
+	if (!targetChartView) return;
+
+	auto targetChart = targetChartView->chart();
+	if (!targetChart) return;
+
+	const QSet<QString> labelsSet = QSet<QString>(labels.begin(), labels.end());
+
+	// Обходим все графики, кроме целевого, и переносим подходящие серии
+	for (int i = 0; i < m_gridLayout->count(); ++i)
 	{
-		// Получаем виджет из item
-		QWidget* widget = item->widget();
-		
-		if (widget != nullptr)
+		if (auto item = m_gridLayout->itemAt(i))
 		{
-			auto chartView = (ParametersChartView*)widget;
-			// Удаляем виджет из layout
-			// removeWidget() автоматически удаляет соответствующий item из layout
-			m_gridLayout->removeWidget(widget);
-			
-			// Удаляем сам виджет (освобождаем память)
-			widget->deleteLater();
+			auto sourceView = qobject_cast<ParametersChartView*>(item->widget());
+			if (!sourceView || sourceView == targetChartView) continue;
+
+			auto sourceChart = sourceView->chart();
+			if (!sourceChart) continue;
+
+			// Копируем список, чтобы безопасно модифицировать исходный график
+			const auto sourceSeriesList = sourceChart->series();
+			bool anyMovedFromSource = false;
+			for (auto series : sourceSeriesList)
+			{
+				if (!series) continue;
+				if (!labelsSet.contains(series->name())) continue;
+
+				// Сначала удаляем из исходного графика
+				sourceChart->removeSeries(series);
+				// Затем добавляем в целевой график
+				targetChart->addSeries(series);
+				// Подключаем оси целевого графика
+				if (targetChart->axisX()) series->attachAxis(targetChart->axisX());
+				if (targetChart->axisY()) series->attachAxis(targetChart->axisY());
+
+				anyMovedFromSource = true;
+			}
+
+			// Если исходный график опустел — удаляем виджет
+			if (anyMovedFromSource && sourceChart->series().isEmpty())
+			{
+				m_gridLayout->removeWidget(sourceView);
+				sourceView->deleteLater();
+			}
 		}
 	}
-	
-	// После удаления - пересчитать размеры оставшихся ячеек
+
+	targetChartView->setSelected(false);
 	updateCellSizes();
+}
+
+ParametersChartView* ChartsPanel::getChartView(int chartIndex)
+{
+	for (int i = 0; i < m_gridLayout->count(); ++i)
+	{
+		if (auto item = m_gridLayout->itemAt(i))
+		{
+			auto view = qobject_cast<ParametersChartView*>(item->widget());
+			if (view && view->chartIndex() == chartIndex)
+			{
+				return view;
+			}
+		}
+	}
+	return nullptr;
 }
 
 bool ChartsPanel::eventFilter(QObject* watched, QEvent* event)
@@ -182,6 +249,8 @@ bool ChartsPanel::eventFilter(QObject* watched, QEvent* event)
 	}
 	return QFrame::eventFilter(watched, event);
 }
+
+
 
 void ChartsPanel::updateCellSizes()
 {
@@ -216,4 +285,64 @@ void ChartsPanel::updateCellSizes()
 
 	// Обновление размеров контента для корректной вертикальной прокрутки
 	m_scrollContent->adjustSize();
+}
+
+void ChartsPanel::updateRowsToggleText(bool twoRowsEnabled)
+{
+	if (!m_twoRowsCheckbox) return;
+	// При включении: показываем "one row", при выключении: "two rows"
+	m_twoRowsCheckbox->setText(twoRowsEnabled ? "one row" : "two rows");
+}
+
+void ChartsPanel::onTwoRowsToggled(bool checked)
+{
+	updateRowsToggleText(checked);
+
+	// Переключаем количество колонок: checked -> 1 колонка, unchecked -> 2 колонки
+	m_columnCount = checked ? 1 : 2;
+	relayoutChartsGrid();
+}
+
+void ChartsPanel::onMergeChartsClicked()
+{
+	m_chartsModel->mergeCharts();
+}
+
+void ChartsPanel::relayoutChartsGrid()
+{
+	if (!m_gridLayout) return;
+
+	// Собираем все текущие виды графиков
+	QList<ParametersChartView*> views;
+	for (int i = 0; i < m_gridLayout->count(); ++i)
+	{
+		if (auto item = m_gridLayout->itemAt(i))
+		{
+			if (auto v = qobject_cast<ParametersChartView*>(item->widget()))
+			{
+				views.append(v);
+			}
+		}
+	}
+
+	// Стабильный порядок по chartIndex
+	std::sort(views.begin(), views.end(), [](ParametersChartView* a, ParametersChartView* b)
+	{
+		return a->chartIndex() < b->chartIndex();
+	});
+
+	// Убираем из layout, затем добавим заново согласно новым колонкам
+	for (auto v : views)
+	{
+		m_gridLayout->removeWidget(v);
+	}
+
+	for (int idx = 0; idx < views.size(); ++idx)
+	{
+		int row = m_columnCount > 0 ? idx / m_columnCount : 0;
+		int col = m_columnCount > 0 ? idx % m_columnCount : 0;
+		m_gridLayout->addWidget(views.at(idx), row, col);
+	}
+
+	updateCellSizes();
 }

@@ -30,24 +30,7 @@ public:
     void setApp(BoardStationApp *app);
     BoardStationApp* app() const;
     
-    // Метод для загрузки сессии (для QML)
-    //Q_INVOKABLE void loadSession(int sessionId);
-
-// private slots:
-//     void onSendToBoardButtonClicked();
-//     void onClearDebugButtonClicked();
-//     void onParameterDoubleClicked(const QModelIndex &index);
-//     void onParameterUpdated(const QString &label);
-//     void onChartWindowClosed(const QString &parameterName);
-//     void onSendImmediatelyCheckBoxChanged(int state);
-
-// private:
-//     void setupModel();
-//     void setupOutParametersModel();
-//     void setupDockWidgets();
-//     void setupConnections();
-//     void createChartWindow(const QString &parameterName);
-//     void updateChart(const QString &parameterName);
+    void saveRecord();
 
 private:
     Ui::MainWindow *ui;

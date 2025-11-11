@@ -49,6 +49,8 @@ void ParametersChartView::mousePressEvent(QMouseEvent* event)
 	{
 		m_selected = !m_selected;
 
+		m_chartsModel->selectElement(m_chartIndex, true);
+
 		updateBackground();
 	}
 }
