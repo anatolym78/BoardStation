@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QApplication>
 #include "Model/Parameters/Tree/ParameterTreeGroupItem.h"
+#include "Model/Parameters/Tree/ParameterTreeArrayItem.h"
 #include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 BoardMessagesSqliteReader::BoardMessagesSqliteReader(const QString &databasePath, QObject *parent)
@@ -467,6 +468,8 @@ ParameterTreeHistoryItem* BoardMessagesSqliteReader::ensureHistoryPath(Parameter
 		auto existing = current->findChildByLabel(part, false);
 		if (!existing)
 		{
+			// По умолчанию создаем как Group, но если узел уже существует как Array, используем его
+			// При установке снимка через setSnapshot типы будут исправлены при несовпадении
 			auto group = new ParameterTreeGroupItem(part, current);
 			current->appendChild(group);
 			current = group;

@@ -19,6 +19,7 @@ SOURCES += \
     Interface/ParametersChartView.cpp \
     Interface/ParametersTreeView.cpp \
     Interface/UplinkParametersTreeView.cpp \
+    Interface/ControlDelegate.cpp \
     Interface/PlayerView.cpp \
     Interface/SessionFrame.cpp \
     Interface/SessionListView.cpp \
@@ -91,6 +92,7 @@ HEADERS += \
     Interface/ParametersChartView.h \
     Interface/ParametersTreeView.h \
     Interface/UplinkParametersTreeView.h \
+    Interface/ControlDelegate.h \
     Interface/PlayerView.h \
     Interface/SessionFrame.h \
     Interface/SessionListView.h \

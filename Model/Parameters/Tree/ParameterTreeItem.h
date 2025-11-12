@@ -15,6 +15,7 @@ public:
     ~ParameterTreeItem() override;
 
     void appendChild(ParameterTreeItem *child);
+    void removeChild(ParameterTreeItem *child);
 
     ParameterTreeItem *child(int row);
     ParameterTreeItem* findChildByLabel(const QString& label, bool recursive = false);

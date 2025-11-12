@@ -171,6 +171,11 @@ void ParameterTreeStorage::appendNode(ParameterTreeItem* localParent, ParameterT
 				newHistoryItem->addValue(values[i], timestamps[i]);
 			}
 
+			// Копируем поля control, min, max
+			newHistoryItem->setControl(incomingHistory->control());
+			newHistoryItem->setMin(incomingHistory->min());
+			newHistoryItem->setMax(incomingHistory->max());
+
 			localParent->appendChild(newHistoryItem);
 			emit parameterAdded(newHistoryItem);
 			if (!values.isEmpty())
@@ -218,25 +223,85 @@ void ParameterTreeStorage::appendNode(ParameterTreeItem* localParent, ParameterT
 				hasNewValues = true;
 			}
 
+			// Обновляем поля control, min, max если они заданы во входящем узле
+			if (!incomingHistory->control().isEmpty())
+			{
+				existingHistory->setControl(incomingHistory->control());
+			}
+			if (incomingHistory->min().isValid())
+			{
+				existingHistory->setMin(incomingHistory->min());
+			}
+			if (incomingHistory->max().isValid())
+			{
+				existingHistory->setMax(incomingHistory->max());
+			}
+
 			if (hasNewValues) 
 			{
 				 emit valueAdded(existingHistory);
 			}
 		}
+		else if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
+		{
+			for (ParameterTreeItem* incomingChild : incomingNode->children())
+			{
+				appendNode(existingNode, incomingChild);
+			}
+		}
+		else if (existingNode->type() == ItemType::Array && incomingNode->type() == ItemType::Array)
+		{
+			for (ParameterTreeItem* incomingChild : incomingNode->children())
+			{
+				appendNode(existingNode, incomingChild);
+			}
+		}
 		else
 		{
-			if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)
+			// Типы не совпадают - нужно пересоздать узел с правильным типом
+			// Удаляем существующий узел
+			localParent->removeChild(existingNode);
+			existingNode->deleteLater();
+			
+			// Создаем новый узел с правильным типом
+			if (incomingNode->type() == ItemType::History)
 			{
-				for (ParameterTreeItem* incomingChild : incomingNode->children())
+				auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
+				auto newHistoryItem = new ParameterTreeHistoryItem(incomingHistory->label(), localParent);
+
+				const auto& values = incomingHistory->values();
+				const auto& timestamps = incomingHistory->timestamps();
+				for(int i = 0; i < values.size(); ++i) {
+					newHistoryItem->addValue(values[i], timestamps[i]);
+				}
+
+				localParent->appendChild(newHistoryItem);
+				emit parameterAdded(newHistoryItem);
+				if (!values.isEmpty())
 				{
-					appendNode(existingNode, incomingChild);
+					emit valueAdded(newHistoryItem);
 				}
 			}
-			else if (existingNode->type() == ItemType::Array && incomingNode->type() == ItemType::Array)
+			else if (incomingNode->type() == ItemType::Group)
 			{
-				for (ParameterTreeItem* incomingChild : incomingNode->children())
+				auto newGroupItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
+				localParent->appendChild(newGroupItem);
+				emit parameterAdded(newGroupItem);
+
+				for(ParameterTreeItem* incomingChild : incomingNode->children())
 				{
-					appendNode(existingNode, incomingChild);
+					appendNode(newGroupItem, incomingChild);
+				}
+			}
+			else if (incomingNode->type() == ItemType::Array)
+			{
+				auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
+				localParent->appendChild(newArrayItem);
+				emit parameterAdded(newArrayItem);
+
+				for(ParameterTreeItem* incomingChild : incomingNode->children())
+				{
+					appendNode(newArrayItem, incomingChild);
 				}
 			}
 		}
@@ -312,6 +377,51 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 				setNode(existingNode, incomingChild);
 			}
 		}
+		else
+		{
+			// Типы не совпадают - нужно пересоздать узел с правильным типом
+			// Удаляем существующий узел
+			localParent->removeChild(existingNode);
+			existingNode->deleteLater();
+			
+			// Создаем новый узел с правильным типом
+			if (incomingNode->type() == ItemType::History)
+			{
+				auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
+				auto newHistoryItem = new ParameterTreeHistoryItem(incomingHistory->label(), localParent);
+
+				newHistoryItem->setValues(incomingHistory->values(), incomingHistory->timestamps());
+
+				localParent->appendChild(newHistoryItem);
+				emit parameterAdded(newHistoryItem);
+				if (!incomingHistory->values().isEmpty())
+				{
+					emit valueAdded(newHistoryItem);
+				}
+			}
+			else if (incomingNode->type() == ItemType::Group)
+			{
+				auto newGroupItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
+				localParent->appendChild(newGroupItem);
+				emit parameterAdded(newGroupItem);
+
+				for(ParameterTreeItem* incomingChild : incomingNode->children())
+				{
+					setNode(newGroupItem, incomingChild);
+				}
+			}
+			else if (incomingNode->type() == ItemType::Array)
+			{
+				auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
+				localParent->appendChild(newArrayItem);
+				emit parameterAdded(newArrayItem);
+
+				for(ParameterTreeItem* incomingChild : incomingNode->children())
+				{
+					setNode(newArrayItem, incomingChild);
+				}
+			}
+		}
 	}
 }
 
@@ -343,40 +453,52 @@ void ParameterTreeStorage::extractNode(ParameterTreeItem* localParent, Parameter
 			delete newHistoryItem;
 		}
 	}
-	else if (incomingNode->type() == ItemType::Group)
+	else if (incomingNode->type() == ItemType::Group || incomingNode->type() == ItemType::Array)
 	{
-		auto newGroupItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
-
-		for (ParameterTreeItem* incomingChild : incomingNode->children())
+		// Определяем тип узла: если все дочерние элементы имеют числовые метки, это Array
+		bool isArray = true;
+		const auto& children = incomingNode->children();
+		if (!children.isEmpty())
 		{
-			extractNode(newGroupItem, incomingChild, startTime, endTime);
-		}
-
-		if (newGroupItem->childCount() > 0)
-		{
-			localParent->appendChild(newGroupItem);
+			for (ParameterTreeItem* child : children)
+			{
+				bool ok;
+				child->label().toInt(&ok);
+				if (!ok)
+				{
+					isArray = false;
+					break;
+				}
+			}
 		}
 		else
 		{
-			delete newGroupItem;
-		}
-	}
-	else if (incomingNode->type() == ItemType::Array)
-	{
-		auto newArrayItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
-
-		for (ParameterTreeItem* incomingChild : incomingNode->children())
-		{
-			extractNode(newArrayItem, incomingChild, startTime, endTime);
+			// Если нет дочерних элементов, используем исходный тип узла
+			isArray = (incomingNode->type() == ItemType::Array);
 		}
 
-		if (newArrayItem->childCount() > 0)
+		ParameterTreeItem* newItem = nullptr;
+		if (isArray)
 		{
-			localParent->appendChild(newArrayItem);
+			newItem = new ParameterTreeArrayItem(incomingNode->label(), localParent);
 		}
 		else
 		{
-			delete newArrayItem;
+			newItem = new ParameterTreeGroupItem(incomingNode->label(), localParent);
+		}
+
+		for (ParameterTreeItem* incomingChild : incomingNode->children())
+		{
+			extractNode(newItem, incomingChild, startTime, endTime);
+		}
+
+		if (newItem->childCount() > 0)
+		{
+			localParent->appendChild(newItem);
+		}
+		else
+		{
+			delete newItem;
 		}
 	}
 }

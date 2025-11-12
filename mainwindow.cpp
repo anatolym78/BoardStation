@@ -14,6 +14,7 @@
 #include <QTextEdit>
 #include <QMessageBox>
 #include <QChartView>
+#include <QIcon>
 
 QT_CHARTS_USE_NAMESPACE
 
@@ -23,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
 	, m_app(nullptr)
 {
 	ui->setupUi(this);
+
+	// Устанавливаем иконки для вкладок
+	ui->tabWidget->setTabIcon(0, QIcon(":/Resources/sessions_16.png"));
+	ui->tabWidget->setTabIcon(1, QIcon(":/Resources/control_parameters_16.png"));
 
 	connect(ui->buttonSaveRecord, &QPushButton::clicked, this, &MainWindow::saveRecord);
 }

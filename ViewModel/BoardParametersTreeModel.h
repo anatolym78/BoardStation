@@ -23,7 +23,8 @@ public:
 		TimeRole,
 		ChartVisibilityRole,
 		ColorRole,
-		FullPathRole
+		FullPathRole,
+		ControlRole
 	};
 	Q_ENUM(ParameterRole)
 
@@ -58,7 +59,7 @@ private:
 	QList<bool> m_chartVisibilities;
 	QList<QColor> m_colors;
 	// Для Qt Widgets: хранение заголовков колонок
-	QVariant m_horizontalHeaders[2];
+	QVariant m_horizontalHeaders[3];
 
 	//QMetaObject::Connection m_playConnection;
 	//QMetaObject::Connection m_stopConnection;

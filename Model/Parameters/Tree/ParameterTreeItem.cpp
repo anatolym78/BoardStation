@@ -17,6 +17,11 @@ void ParameterTreeItem::appendChild(ParameterTreeItem *child)
 	m_childItems.append(child);
 }
 
+void ParameterTreeItem::removeChild(ParameterTreeItem *child)
+{
+	m_childItems.removeOne(child);
+}
+
 ParameterTreeItem *ParameterTreeItem::child(int row)
 {
 	if (row < 0 || row >= m_childItems.size())

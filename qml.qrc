@@ -23,5 +23,12 @@
         <file>Resources/pause_32.png</file>
         <file>Resources/run_32.png</file>
         <file>Resources/stop_32.png</file>
+        <file>Resources/parameter_group_16.png</file>
+        <file>Resources/parameter_list_16.png</file>
+        <file>Resources/parameter_value_16.png</file>
+        <file>Resources/parameters_root_16.png</file>
+        <file>Resources/parameter_value_16_2.png</file>
+        <file>Resources/control_parameters_16.png</file>
+        <file>Resources/sessions_16.png</file>
     </qresource>
 </RCC>

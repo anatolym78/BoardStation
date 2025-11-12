@@ -1,8 +1,13 @@
 #include "BoardParametersTreeModel.h"
 #include "BoardParameterTreeItem.h"
 #include "./Model/Parameters/Tree/ParameterTreeHistoryItem.h"
+#include "./Model/Parameters/Tree/ParameterTreeStorage.h"
+#include "./Model/Parameters/Tree/ParameterTreeGroupItem.h"
+#include "./Model/Parameters/Tree/ParameterTreeArrayItem.h"
 
 #include <random>
+#include <QDateTime>
+#include <QIcon>
 
 BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	: QAbstractItemModel(parent)
@@ -68,7 +73,7 @@ bool BoardParametersTreeModel::findIndexRecursive(ParameterTreeItem* item, QMode
 
 int BoardParametersTreeModel::columnCount(const QModelIndex& parent) const
 {
-	return 2;
+	return 3;
 }
 
 int BoardParametersTreeModel::rowCount(const QModelIndex& parent) const
@@ -147,6 +152,23 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		// ========== КОД ДЛЯ QT WIDGETS (QTreeView) ==========
 		// Для работы с Qt Widgets: оставить этот блок активным
 		// Для работы только с QML: закомментировать этот блок
+		if (role == Qt::DecorationRole && index.column() == 0)
+		{
+			// Возвращаем иконку в зависимости от типа узла
+			switch (treeItem->type())
+			{
+			case ParameterTreeItem::ItemType::Root:
+				return QIcon(":/Resources/parameters_root_16.png");
+			case ParameterTreeItem::ItemType::Group:
+				return QIcon(":/Resources/parameters_root_16.png");
+			case ParameterTreeItem::ItemType::Array:
+				return QIcon(":/Resources/parameter_group_16.png");
+			case ParameterTreeItem::ItemType::History:
+				return QIcon(":/Resources/parameter_value_16_2.png");
+			default:
+				return QVariant();
+			}
+		}
 		if (role == Qt::DisplayRole)
 		{
 			if (index.column() == 0)
@@ -161,6 +183,30 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 					return leafItem->values().last();
 				}
 				return QVariant();
+			}
+			if (index.column() == 2)
+			{
+				// Третья колонка - control, только для History элементов
+				if (treeItem->type() == ParameterTreeItem::ItemType::History)
+				{
+					auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+					return leafItem->control();
+				}
+				return QVariant();
+			}
+		}
+		if (role == Qt::EditRole && index.column() == 2)
+		{
+			// Для редактирования возвращаем данные о контроле
+			if (treeItem->type() == ParameterTreeItem::ItemType::History)
+			{
+				auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+				QVariantMap controlData;
+				controlData["control"] = leafItem->control();
+				controlData["min"] = leafItem->min();
+				controlData["max"] = leafItem->max();
+				controlData["value"] = leafItem->values().last();
+				return controlData;
 			}
 		}
 		// =====================================================
@@ -194,9 +240,25 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 
 bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-	return false;
-
 	if (!index.isValid()) return false;
+
+	// Обновление значения параметра через контрол
+	if (role == Qt::EditRole && index.column() == 2)
+	{
+		auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
+		if (treeItem && treeItem->type() == ParameterTreeItem::ItemType::History)
+		{
+			auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+			// Добавляем новое значение в историю
+			leafItem->addValue(value, QDateTime::currentDateTime());
+			
+			// Обновляем отображение значения во второй колонке
+			QModelIndex valueIndex = this->index(index.row(), 1, index.parent());
+			emit dataChanged(valueIndex, valueIndex, { Qt::DisplayRole, ValueRole });
+			
+			return true;
+		}
+	}
 
 	if (role == (int)ParameterRole::ChartVisibilityRole)
 	{
@@ -212,7 +274,7 @@ QVariant BoardParametersTreeModel::headerData(int section, Qt::Orientation orien
 {
 	// Для Qt Widgets: возвращаем заголовки колонок
 	// Для QML: этот метод не используется
-	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < 2)
+	if (orientation == Qt::Horizontal && role == Qt::DisplayRole && section < 3)
 		return m_horizontalHeaders[section];
 
 	return QAbstractItemModel::headerData(section, orientation, role);
@@ -222,7 +284,7 @@ bool BoardParametersTreeModel::setHeaderData(int section, Qt::Orientation orient
 {
 	// Для Qt Widgets: устанавливаем заголовки колонок
 	// Для QML: этот метод не используется
-	if (orientation == Qt::Horizontal && role == Qt::EditRole && section < 2)
+	if (orientation == Qt::Horizontal && role == Qt::EditRole && section < 3)
 	{
 		m_horizontalHeaders[section] = value;
 		emit headerDataChanged(orientation, section, section);
