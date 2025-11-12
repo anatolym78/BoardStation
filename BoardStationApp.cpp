@@ -55,8 +55,8 @@ void BoardStationApp::connectSignals()
 
 	}
 
-	connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
-		m_driverAdapter, &DriverAdapter::sendParameter);
+    // connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,
+    // 	m_driverAdapter, &DriverAdapter::sendParameter);
 
 	connect(this, &QApplication::aboutToQuit, this, &BoardStationApp::close);
 }
@@ -158,53 +158,53 @@ void BoardStationApp::loadUplinkParameters()
 
 void BoardStationApp::sendParametersToBoard()
 {    
-	if (!m_uplinkParametersModel) 
-	{
-		qWarning() << "BoardStationApp: UplinkParametersModel is not available";
-		return;
-	}
+    // if (!m_uplinkParametersModel)
+    // {
+    // 	qWarning() << "BoardStationApp: UplinkParametersModel is not available";
+    // 	return;
+    // }
 	
-	// Получаем все uplink параметры из модели
-	QList<BasicUplinkParameter*> uplinkParameters = m_uplinkParametersModel->getParameters();
+    // // Получаем все uplink параметры из модели
+    // QList<BasicUplinkParameter*> uplinkParameters = m_uplinkParametersModel->getParameters();
 	
-	if (uplinkParameters.isEmpty()) 
-	{
-		return;
-	}
+    // if (uplinkParameters.isEmpty())
+    // {
+    // 	return;
+    // }
 	
-	// Создаем JSON массив из параметров в формате для исходящих параметров
-	QJsonArray parametersArray;
-	for (BasicUplinkParameter *param : uplinkParameters) 
-	{
-		if (param && param->isValid())
-		{
-			QJsonObject paramObj;
-			paramObj["label"] = param->getLabel();
-			paramObj["value"] = QJsonValue::fromVariant(param->getValue());
+    // // Создаем JSON массив из параметров в формате для исходящих параметров
+    // QJsonArray parametersArray;
+    // for (BasicUplinkParameter *param : uplinkParameters)
+    // {
+    // 	if (param && param->isValid())
+    // 	{
+    // 		QJsonObject paramObj;
+    // 		paramObj["label"] = param->getLabel();
+    // 		paramObj["value"] = QJsonValue::fromVariant(param->getValue());
 			
-			parametersArray.append(paramObj);
-		}
-	}
+    // 		parametersArray.append(paramObj);
+    // 	}
+    // }
 	
-	if (parametersArray.isEmpty())
-	{
-		return;
-	}
+    // if (parametersArray.isEmpty())
+    // {
+    // 	return;
+    // }
 	
-	// Создаем JSON документ
-	QJsonDocument doc(parametersArray);
-	QString jsonString = doc.toJson(QJsonDocument::Indented);
+    // // Создаем JSON документ
+    // QJsonDocument doc(parametersArray);
+    // QString jsonString = doc.toJson(QJsonDocument::Indented);
 		
-	// Отправляем данные через драйвер
-	if (m_driver) 
-	{
-		std::string data = jsonString.toStdString();
-		m_driver->write(data);
-	}
-	else 
-	{
-		qWarning() << "BoardStationApp: Driver is not available";
-	}
+    // // Отправляем данные через драйвер
+    // if (m_driver)
+    // {
+    // 	std::string data = jsonString.toStdString();
+    // 	m_driver->write(data);
+    // }
+    // else
+    // {
+    // 	qWarning() << "BoardStationApp: Driver is not available";
+    // }
 }
 
 BoardStationApp::~BoardStationApp()
