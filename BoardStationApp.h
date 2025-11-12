@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QObject>
 #include "ViewModel/OutParametersModel.h"
-#include "ViewModel/UplinkParametersModel.h"
+#include "ViewModel/UplinkParametersTreeModel.h"
 #include "ViewModel/DebugViewModel.h"
 #include "Model/IDriver.h"
 #include "Model/Parameters/BoardParameterHistoryStorage.h"
@@ -47,7 +47,7 @@ public:
 public:	   
 	SessionsListModel* sessionsModel() const { return m_sessionsListModel; }
 
-	UplinkParametersModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }
+	UplinkParametersTreeModel* getUplinkParametersModel() const { return m_uplinkParametersModel; }
 	
 	DebugViewModel* getDebugViewModel() const { return m_debugViewModel; }
 	  
@@ -65,7 +65,7 @@ private:
 	DriverAdapter *m_driverAdapter;
 	SessionsListModel *m_sessionsListModel;
 
-	UplinkParametersModel *m_uplinkParametersModel;
+	UplinkParametersTreeModel *m_uplinkParametersModel;
 	DebugViewModel *m_debugViewModel;
 
 	BoardMessagesSqliteWriter* m_boardMessagesWriter;
@@ -74,7 +74,7 @@ private:
 	SimpleTreeModel* m_simpleTreeModel;
 
 private:
-	void loadUplinkParameters() const;
+	void loadUplinkParameters();
 	void connectSignals();
 };
 

@@ -35,14 +35,41 @@ void ParameterTreeJsonParser::updateJson(const QString &jsonString, ParameterTre
         return;
     }
 
-    if (!doc.isArray())
+    QJsonArray array;
+    
+    // Поддержка формата с объектом, содержащим поле "Parameters"
+    if (doc.isObject())
     {
-        m_lastError = "Root element is not a JSON array.";
+        QJsonObject obj = doc.object();
+        if (obj.contains("Parameters") && obj["Parameters"].isArray())
+        {
+            array = obj["Parameters"].toArray();
+        }
+        else
+        {
+            m_lastError = "JSON object does not contain 'Parameters' array.";
+            return;
+        }
+    }
+    // Поддержка формата с массивом на верхнем уровне
+    else if (doc.isArray())
+    {
+        array = doc.array();
+    }
+    else
+    {
+        m_lastError = "Root element is neither a JSON array nor an object with 'Parameters' field.";
         return;
     }
 
-    QJsonArray array = doc.array();
-    for (const QJsonValue &value : array)
+    updateJsonFromArray(array, root);
+}
+
+void ParameterTreeJsonParser::updateJsonFromArray(const QJsonArray &jsonArray, ParameterTreeStorage *root)
+{
+    m_lastError.clear();
+    
+    for (const QJsonValue &value : jsonArray)
     {
         if (value.isObject())
         {
@@ -66,10 +93,31 @@ void ParameterTreeJsonParser::processJsonObject(const QJsonObject &jsonObject, P
     QString label = jsonObject["label"].toString();
     QJsonValue value = jsonObject["value"];
 
-    processValue(label, value, parent);
+    // Извлекаем дополнительные поля для ParameterTreeHistoryItem
+    QString control;
+    QVariant minValue;
+    QVariant maxValue;
+
+    if (jsonObject.contains("control"))
+    {
+        control = jsonObject["control"].toString();
+    }
+
+    if (jsonObject.contains("min"))
+    {
+        minValue = convertJsonValue(jsonObject["min"]);
+    }
+
+    if (jsonObject.contains("max"))
+    {
+        maxValue = convertJsonValue(jsonObject["max"]);
+    }
+
+    processValue(label, value, parent, control, minValue, maxValue);
 }
 
-void ParameterTreeJsonParser::processValue(const QString &key, const QJsonValue &value, ParameterTreeItem *parent)
+void ParameterTreeJsonParser::processValue(const QString &key, const QJsonValue &value, ParameterTreeItem *parent, 
+                                           const QString &control, const QVariant &min, const QVariant &max)
 {
     QStringList parts = key.split('.');
     ParameterTreeItem *currentItem = parent;
@@ -108,6 +156,19 @@ void ParameterTreeJsonParser::processValue(const QString &key, const QJsonValue 
                 arrayItem->appendChild(historyItem);
             }
             historyItem->addValue(convertJsonValue(array[i]), QDateTime::currentDateTime());
+            // Устанавливаем дополнительные поля для элементов массива
+            if (!control.isEmpty())
+            {
+                historyItem->setControl(control);
+            }
+            if (min.isValid())
+            {
+                historyItem->setMin(min);
+            }
+            if (max.isValid())
+            {
+                historyItem->setMax(max);
+            }
         }
     }
     else
@@ -119,6 +180,19 @@ void ParameterTreeJsonParser::processValue(const QString &key, const QJsonValue 
             currentItem->appendChild(historyItem);
         }
         historyItem->addValue(convertJsonValue(value), QDateTime::currentDateTime());
+        // Устанавливаем дополнительные поля
+        if (!control.isEmpty())
+        {
+            historyItem->setControl(control);
+        }
+        if (min.isValid())
+        {
+            historyItem->setMin(min);
+        }
+        if (max.isValid())
+        {
+            historyItem->setMax(max);
+        }
     }
 }
 

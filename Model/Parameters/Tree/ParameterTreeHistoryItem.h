@@ -23,9 +23,21 @@ public:
 
     const QDateTime& lastTimestamp() const;
 
+    QString control() const;
+    void setControl(const QString &control);
+
+    QVariant min() const;
+    void setMin(const QVariant &min);
+
+    QVariant max() const;
+    void setMax(const QVariant &max);
+
 private:
     QList<QVariant> m_values;
     QList<QDateTime> m_timestamps;
+    QString m_control;
+    QVariant m_min;
+    QVariant m_max;
 };
 
 #endif // PARAMETERTREEHISTORYITEM_H

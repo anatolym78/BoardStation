@@ -14,6 +14,7 @@
 #include <QDateTime>
 #include "ViewModel/LiveSession.h"
 #include "Model/Parameters/Tree/ParameterTreeStorage.h"
+#include "Model/Parameters/ParameterTreeJsonParser.h"
 
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
@@ -34,7 +35,7 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 	
 	m_driverAdapter = new DriverAdapter(m_driver, this); 
 			 
-	m_uplinkParametersModel = new UplinkParametersModel(this);
+	m_uplinkParametersModel = new UplinkParametersTreeModel(this);
 	loadUplinkParameters();
 
 	m_debugViewModel = new DebugViewModel(this);
@@ -46,8 +47,8 @@ void BoardStationApp::connectSignals()
 {
 	if (liveSession())
 	{
-		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
-			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
+		//connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+		//	liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
 		connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 			liveSession(), &LiveSession::incrementMessageCount);
@@ -104,7 +105,7 @@ bool BoardStationApp::saveLiveData()
 	return true;
 }
 
-void BoardStationApp::loadUplinkParameters() const
+void BoardStationApp::loadUplinkParameters()
 {
 	qDebug() << "BoardStationApp: Loading new uplink parameters from configuration.json";
 	
@@ -130,16 +131,28 @@ void BoardStationApp::loadUplinkParameters() const
 		return;
 	}
 	
-	// Создаем парсер новых параметров
-	UplinkParametersParser parser;
+	// Создаем парсер новых параметров для ParameterTreeStorage
+	ParameterTreeJsonParser parser(this);
 	
-	// Парсим параметры
-	QList<BasicUplinkParameter*> parsedUplinkParameters = parser.parseParameters(parametersArray);
+	// Создаем хранилище для uplink параметров
+	ParameterTreeStorage* uplinkParametersStorage = new ParameterTreeStorage(this);
 	
-	// Заполняем модель uplink параметров
+	// Парсим параметры в ParameterTreeStorage
+	parser.updateJsonFromArray(parametersArray, uplinkParametersStorage);
+	
+	if (!parser.getLastError().isEmpty())
+	{
+		qWarning() << "BoardStationApp: Failed to parse uplink parameters. Error:" << parser.getLastError();
+		return;
+	}
+	
+	qDebug() << "BoardStationApp: Successfully loaded" << uplinkParametersStorage->childCount() << "top-level parameter groups";
+	
+	// Устанавливаем параметры в модель
 	if (m_uplinkParametersModel)
 	{
-		m_uplinkParametersModel->setParameters(parsedUplinkParameters);
+		m_uplinkParametersModel->setSnapshot(uplinkParametersStorage, false);
+		qDebug() << "BoardStationApp: Parameters set to model";
 	}
 }
 

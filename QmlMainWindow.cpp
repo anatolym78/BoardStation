@@ -54,7 +54,7 @@ void QmlMainWindow::setApp(BoardStationApp *pApp)
 		{
 			context()->setContextProperty("sessionsListModel", app()->sessionsModel());
 				
-			context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
+			//context()->setContextProperty("uplinkParametersModel", app()->getUplinkParametersModel());
 
 			context()->setContextProperty("debugViewModel", app()->getDebugViewModel());
 

@@ -4,6 +4,7 @@
 #include "Model/Parameters/BoardParameterHistory.h"
 #include "Interface/Charts/ChartBuilder.h"
 #include "Interface/ParametersTreeView.h"
+#include "Interface/UplinkParametersTreeView.h"
 #include "./Interface/SessionFrame.h"
 #include "./ViewModel/SessionsListModel.h"
 
@@ -51,6 +52,12 @@ void MainWindow::setApp(BoardStationApp *pApp)
 				sessionsStack()->setCurrentIndex(index);
 				app()->sessionsModel()->selectSession(index);
 			});
+		
+		// Устанавливаем модель для uplink параметров
+		if (pApp->getUplinkParametersModel())
+		{
+			ui->uplinkParametersView->setModel(pApp->getUplinkParametersModel());
+		}
 	}
 }
 

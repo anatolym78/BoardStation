@@ -18,6 +18,7 @@ SOURCES += \
     Interface/ChartsPanel.cpp \
     Interface/ParametersChartView.cpp \
     Interface/ParametersTreeView.cpp \
+    Interface/UplinkParametersTreeView.cpp \
     Interface/PlayerView.cpp \
     Interface/SessionFrame.cpp \
     Interface/SessionListView.cpp \
@@ -51,6 +52,7 @@ SOURCES += \
     ViewModel/BoardParameterTreeItem.cpp \
     ViewModel/BoardParametersListModel.cpp \
     ViewModel/BoardParametersTreeModel.cpp \
+    ViewModel/UplinkParametersTreeModel.cpp \
     ViewModel/ChartViewModel.cpp \
     ViewModel/ChatViewGridModel.cpp \
     ViewModel/UplinkParametersModel.cpp \
@@ -88,6 +90,7 @@ HEADERS += \
     Interface/ChartsPanel.h \
     Interface/ParametersChartView.h \
     Interface/ParametersTreeView.h \
+    Interface/UplinkParametersTreeView.h \
     Interface/PlayerView.h \
     Interface/SessionFrame.h \
     Interface/SessionListView.h \
@@ -122,6 +125,7 @@ HEADERS += \
     ViewModel/BoardParameterTreeItem.h \
     ViewModel/BoardParametersListModel.h \
     ViewModel/BoardParametersTreeModel.h \
+    ViewModel/UplinkParametersTreeModel.h \
     ViewModel/ChartViewModel.h \
     ViewModel/ChatViewGridModel.h \
     ViewModel/UplinkParametersModel.h \

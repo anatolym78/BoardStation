@@ -61,7 +61,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="tab_2">
         <attribute name="title">
@@ -102,25 +102,6 @@
          <string>Drone control</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
-          <widget class="QTableView" name="enginesTableView">
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
-           </property>
-           <property name="sortingEnabled">
-            <bool>false</bool>
-           </property>
-           <attribute name="horizontalHeaderStretchLastSection">
-            <bool>true</bool>
-           </attribute>
-          </widget>
-         </item>
          <item row="0" column="0">
           <layout class="QHBoxLayout" name="sendButtonLayout">
            <item>
@@ -155,6 +136,19 @@
            </item>
           </layout>
          </item>
+         <item row="1" column="0">
+          <widget class="UplinkParametersTreeView" name="uplinkParametersView">
+           <property name="alternatingRowColors">
+            <bool>true</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
@@ -174,6 +168,11 @@
    <class>SessionListView</class>
    <extends>QListView</extends>
    <header>interface/SessionListView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UplinkParametersTreeView</class>
+   <extends>QTreeView</extends>
+   <header>Interface/UplinkParametersTreeView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

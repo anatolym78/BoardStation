@@ -38,3 +38,33 @@ const QDateTime& ParameterTreeHistoryItem::lastTimestamp() const
 
     return m_timestamps.last();
 }
+
+QString ParameterTreeHistoryItem::control() const
+{
+    return m_control;
+}
+
+void ParameterTreeHistoryItem::setControl(const QString &control)
+{
+    m_control = control;
+}
+
+QVariant ParameterTreeHistoryItem::min() const
+{
+    return m_min;
+}
+
+void ParameterTreeHistoryItem::setMin(const QVariant &min)
+{
+    m_min = min;
+}
+
+QVariant ParameterTreeHistoryItem::max() const
+{
+    return m_max;
+}
+
+void ParameterTreeHistoryItem::setMax(const QVariant &max)
+{
+    m_max = max;
+}
