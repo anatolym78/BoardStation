@@ -28,9 +28,6 @@ public:
 private:
 	void updatePlaybackPosition() override;
 
-private slots:
-	void onSessionDataLoaded(int sessionId);
-
 private:
 	BoardMessagesSqliteReader* m_reader;
 	int m_currentSessionId;

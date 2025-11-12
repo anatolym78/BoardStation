@@ -162,7 +162,7 @@ void SessionsListModel::refreshSessions()
 	m_sessions.clear();
 	
 	// Создаем живую сессию, если она еще не создана и добавляем в список
-	//createLiveSession();
+	createLiveSession();
 	
 	// Создаем записанные сессии через фабрику
 	QList<Session*> recordedSessions = m_recordedSessionsFactory->createSessions();

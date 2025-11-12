@@ -108,8 +108,10 @@ void RecordedSession::loadDataFromDatabase(BoardMessagesSqliteReader* reader)
 		return;
 	}
 
-	// Обновляем модель представления
-	m_parametersModel->setSnapshot(m_treeStorage, /*isBackPlaying*/ false);
+	// Обновляем модель представления 
+	// Это ошибка, и мы ее закомментируем, заменив на вызов played со стартовым интервалом
+	//m_parametersModel->setSnapshot(m_treeStorage, /*isBackPlaying*/ false);
+	player()->initialPlay();
 
 	// Инициализируем временные границы плеера по загруженным данным,
 	// чтобы PlayerView отобразил длительность и текущую позицию
