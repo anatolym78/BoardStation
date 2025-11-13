@@ -188,11 +188,7 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 			if (index.column() == 2)
 			{
 				// Третья колонка - control, только для History элементов
-				if (treeItem->type() == ParameterTreeItem::ItemType::History)
-				{
-					auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
-					return leafItem->control();
-				}
+				// Не возвращаем текст, так как там отображается виджет-контрол
 				return QVariant();
 			}
 		}
@@ -207,10 +203,31 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 				controlData["control"] = control;
 				controlData["min"] = leafItem->min();
 				controlData["max"] = leafItem->max();
-				controlData["value"] = leafItem->values().last();
+				QVariant lastValue = leafItem->values().last();
+				controlData["value"] = lastValue;
+				
+				// Определяем тип значения для валидации
+				QString valueType;
+				if (lastValue.type() == QVariant::Int || lastValue.type() == QVariant::LongLong)
+				{
+					valueType = "int";
+				}
+				else if (lastValue.type() == QVariant::Double)
+				{
+					valueType = "double";
+				}
+				else if (lastValue.type() == QVariant::String)
+				{
+					valueType = "string";
+				}
+				else if (lastValue.type() == QVariant::Bool)
+				{
+					valueType = "bool";
+				}
+				controlData["valueType"] = valueType;
 				
 				qDebug() << "BoardParametersTreeModel::data - EditRole, column 2, control:" << control
-						 << "min:" << leafItem->min() << "max:" << leafItem->max();
+						 << "min:" << leafItem->min() << "max:" << leafItem->max() << "valueType:" << valueType;
 				
 				return controlData;
 			}

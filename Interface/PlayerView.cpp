@@ -69,8 +69,6 @@ void PlayerView::onPlayButtonToggled()
 	else
 	{
 		m_playPauseButton->setIcon(QIcon(":/Resources/_play_32.png"));
-
-
 	}
 	m_playPauseButton->setText(m_playPauseButton->isChecked() ? "Stop" : "Play");
 }

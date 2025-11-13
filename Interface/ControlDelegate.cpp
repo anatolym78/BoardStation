@@ -6,6 +6,8 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QTextEdit>
 #include <QDebug>
 
 ControlDelegate::ControlDelegate(QObject *parent)
@@ -42,23 +44,40 @@ QWidget* ControlDelegate::createEditor(QWidget* parent,
 		QSlider *slider = new QSlider(Qt::Horizontal, parent);
 		return slider;
 	}
-	else if (controlType == "QSpinBox")
+	
+	if (controlType == "QSpinBox")
 	{
 		QSpinBox *spinBox = new QSpinBox(parent);
 		spinBox->setFrame(false);
 		return spinBox;
 	}
-	else if (controlType == "QDoubleSpinBox")
+	
+	if (controlType == "QDoubleSpinBox")
 	{
 		QDoubleSpinBox *doubleSpinBox = new QDoubleSpinBox(parent);
 		doubleSpinBox->setFrame(false);
 		return doubleSpinBox;
 	}
-	else if (controlType == "QComboBox")
+	
+	if (controlType == "QComboBox")
 	{
 		QComboBox *comboBox = new QComboBox(parent);
 		comboBox->setFrame(false);
 		return comboBox;
+	}
+	
+	if (controlType == "QCheckBox")
+	{
+		QCheckBox *checkBox = new QCheckBox(parent);
+		return checkBox;
+	}
+	
+	if (controlType == "QTextEdit")
+	{
+		QTextEdit *textEdit = new QTextEdit(parent);
+		textEdit->setMaximumHeight(60);
+		textEdit->setMaximumWidth(200);
+		return textEdit;
 	}
 	
 	return nullptr;
@@ -77,6 +96,7 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 	QVariant minValue = controlData["min"];
 	QVariant maxValue = controlData["max"];
 	QVariant currentValue = controlData["value"];
+	QString valueType = controlData["valueType"].toString();
 	
 	qDebug() << "ControlDelegate::setEditorData - controlType:" << controlType
 			 << "min:" << minValue << "max:" << maxValue << "value:" << currentValue;
@@ -97,7 +117,8 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 			}
 		}
 	}
-	else if (controlType == "QSpinBox")
+	
+	if (controlType == "QSpinBox")
 	{
 		QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor);
 		if (spinBox)
@@ -113,7 +134,8 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 			}
 		}
 	}
-	else if (controlType == "QDoubleSpinBox")
+	
+	if (controlType == "QDoubleSpinBox")
 	{
 		QDoubleSpinBox *doubleSpinBox = qobject_cast<QDoubleSpinBox*>(editor);
 		if (doubleSpinBox)
@@ -129,7 +151,8 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 			}
 		}
 	}
-	else if (controlType == "QComboBox")
+	
+	if (controlType == "QComboBox")
 	{
 		QComboBox *comboBox = qobject_cast<QComboBox*>(editor);
 		if (comboBox)
@@ -137,6 +160,30 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 			comboBox->clear();
 			// Для QComboBox можно добавить логику заполнения списка значений
 			// Пока оставляем пустым
+		}
+	}
+	
+	if (controlType == "QCheckBox")
+	{
+		QCheckBox *checkBox = qobject_cast<QCheckBox*>(editor);
+		if (checkBox)
+		{
+			if (currentValue.isValid())
+			{
+				checkBox->setChecked(currentValue.toBool());
+			}
+		}
+	}
+	
+	if (controlType == "QTextEdit")
+	{
+		QTextEdit *textEdit = qobject_cast<QTextEdit*>(editor);
+		if (textEdit)
+		{
+			if (currentValue.isValid())
+			{
+				textEdit->setPlainText(currentValue.toString());
+			}
 		}
 	}
 }
@@ -152,6 +199,9 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 	// Получаем данные о контроле
 	QVariantMap controlData = index.data(Qt::EditRole).toMap();
 	QString controlType = controlData["control"].toString();
+	QString valueType = controlData["valueType"].toString();
+	QVariant minValue = controlData["min"];
+	QVariant maxValue = controlData["max"];
 	
 	QVariant newValue;
 	
@@ -163,7 +213,8 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 			newValue = slider->value();
 		}
 	}
-	else if (controlType == "QSpinBox")
+	
+	if (controlType == "QSpinBox")
 	{
 		QSpinBox *spinBox = qobject_cast<QSpinBox*>(editor);
 		if (spinBox)
@@ -171,7 +222,8 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 			newValue = spinBox->value();
 		}
 	}
-	else if (controlType == "QDoubleSpinBox")
+	
+	if (controlType == "QDoubleSpinBox")
 	{
 		QDoubleSpinBox *doubleSpinBox = qobject_cast<QDoubleSpinBox*>(editor);
 		if (doubleSpinBox)
@@ -179,7 +231,8 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 			newValue = doubleSpinBox->value();
 		}
 	}
-	else if (controlType == "QComboBox")
+	
+	if (controlType == "QComboBox")
 	{
 		QComboBox *comboBox = qobject_cast<QComboBox*>(editor);
 		if (comboBox)
@@ -188,6 +241,91 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 			if (!newValue.isValid())
 			{
 				newValue = comboBox->currentText();
+			}
+		}
+	}
+	
+	if (controlType == "QCheckBox")
+	{
+		QCheckBox *checkBox = qobject_cast<QCheckBox*>(editor);
+		if (checkBox)
+		{
+			newValue = checkBox->isChecked();
+		}
+	}
+	
+	if (controlType == "QTextEdit")
+	{
+		QTextEdit *textEdit = qobject_cast<QTextEdit*>(editor);
+		if (textEdit)
+		{
+			QString text = textEdit->toPlainText();
+			bool isValid = true;
+			
+			if (valueType == "int")
+			{
+				bool ok;
+				int intValue = text.toInt(&ok);
+				if (ok)
+				{
+					if (minValue.isValid() && maxValue.isValid())
+					{
+						if (intValue >= minValue.toInt() && intValue <= maxValue.toInt())
+						{
+							newValue = intValue;
+						}
+						else
+						{
+							isValid = false;
+						}
+					}
+					else
+					{
+						newValue = intValue;
+					}
+				}
+				else if (!text.isEmpty())
+				{
+					isValid = false;
+				}
+			}
+			else if (valueType == "double")
+			{
+				bool ok;
+				double doubleValue = text.toDouble(&ok);
+				if (ok)
+				{
+					if (minValue.isValid() && maxValue.isValid())
+					{
+						if (doubleValue >= minValue.toDouble() && doubleValue <= maxValue.toDouble())
+						{
+							newValue = doubleValue;
+						}
+						else
+						{
+							isValid = false;
+						}
+					}
+					else
+					{
+						newValue = doubleValue;
+					}
+				}
+				else if (!text.isEmpty())
+				{
+					isValid = false;
+				}
+			}
+			else
+			{
+				// Для строковых значений просто сохраняем текст
+				newValue = text;
+			}
+			
+			if (!isValid)
+			{
+				// Не сохраняем невалидное значение
+				return;
 			}
 		}
 	}

@@ -9,6 +9,9 @@
 #include <QSpinBox>
 #include <QDoubleSpinBox>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QTextEdit>
+#include <QLineEdit>
 #include <QVariantMap>
 #include <QTimer>
 #include <QDebug>
@@ -24,7 +27,7 @@ UplinkParametersTreeView::UplinkParametersTreeView(QWidget *parent)
 	setUniformRowHeights(true);
 	setSelectionMode(QAbstractItemView::SingleSelection);
 	setSelectionBehavior(QAbstractItemView::SelectRows);
-	setExpandsOnDoubleClick(true);
+	setExpandsOnDoubleClick(false);
 
 	// Настройка заголовка
 	header()->setStretchLastSection(true);
@@ -190,6 +193,7 @@ QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index)
 	QVariant minValue = controlData["min"];
 	QVariant maxValue = controlData["max"];
 	QVariant currentValue = controlData["value"];
+	QString valueType = controlData["valueType"].toString();
 	
 	QWidget* widget = nullptr;
 	
@@ -216,7 +220,8 @@ QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index)
 					}
 				});
 	}
-	else if (controlType == "QSpinBox")
+	
+	if (controlType == "QSpinBox")
 	{
 		QSpinBox *spinBox = new QSpinBox(const_cast<UplinkParametersTreeView*>(this));
 		spinBox->setFrame(false);
@@ -239,7 +244,8 @@ QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index)
 					}
 				});
 	}
-	else if (controlType == "QDoubleSpinBox")
+	
+	if (controlType == "QDoubleSpinBox")
 	{
 		QDoubleSpinBox *doubleSpinBox = new QDoubleSpinBox(const_cast<UplinkParametersTreeView*>(this));
 		doubleSpinBox->setFrame(false);
@@ -262,7 +268,8 @@ QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index)
 					}
 				});
 	}
-	else if (controlType == "QComboBox")
+	
+	if (controlType == "QComboBox")
 	{
 		QComboBox *comboBox = new QComboBox(const_cast<UplinkParametersTreeView*>(this));
 		comboBox->setFrame(false);
@@ -279,6 +286,114 @@ QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index)
 							value = comboBox->currentText();
 						}
 						model()->setData(index, value, Qt::EditRole);
+					}
+				});
+	}
+	
+	if (controlType == "QCheckBox")
+	{
+		QCheckBox *checkBox = new QCheckBox(const_cast<UplinkParametersTreeView*>(this));
+		if (currentValue.isValid())
+		{
+			checkBox->setChecked(currentValue.toBool());
+		}
+		widget = checkBox;
+		
+		connect(checkBox, &QCheckBox::stateChanged,
+				[this, index](int state) {
+					if (model())
+					{
+						bool checked = (state == Qt::Checked);
+						model()->setData(index, checked, Qt::EditRole);
+					}
+				});
+	}
+	
+	if (controlType == "QLineEdit")
+	{
+		QLineEdit*textEdit = new QLineEdit(const_cast<UplinkParametersTreeView*>(this));
+		textEdit->setMaximumHeight(60);
+		textEdit->setMaximumWidth(200);
+		
+		if (currentValue.isValid())
+		{
+			textEdit->setText(currentValue.toString());
+		}
+		widget = textEdit;
+		
+		// Подключаем сигнал изменения текста с валидацией
+		connect(textEdit, &QLineEdit::textChanged,
+				[this, index, textEdit, valueType, minValue, maxValue]() {
+					if (model())
+					{
+						QString text = textEdit->text();
+						QVariant newValue;
+						bool isValid = true;
+						
+						if (valueType == "int")
+						{
+							bool ok;
+							int intValue = text.toInt(&ok);
+							if (ok)
+							{
+								if (minValue.isValid() && maxValue.isValid())
+								{
+									if (intValue >= minValue.toInt() && intValue <= maxValue.toInt())
+									{
+										newValue = intValue;
+									}
+									else
+									{
+										isValid = false;
+									}
+								}
+								else
+								{
+									newValue = intValue;
+								}
+							}
+							else if (!text.isEmpty())
+							{
+								isValid = false;
+							}
+						}
+						else if (valueType == "double")
+						{
+							bool ok;
+							double doubleValue = text.toDouble(&ok);
+							if (ok)
+							{
+								if (minValue.isValid() && maxValue.isValid())
+								{
+									if (doubleValue >= minValue.toDouble() && doubleValue <= maxValue.toDouble())
+									{
+										newValue = doubleValue;
+									}
+									else
+									{
+										isValid = false;
+									}
+								}
+								else
+								{
+									newValue = doubleValue;
+								}
+							}
+							else if (!text.isEmpty())
+							{
+								isValid = false;
+							}
+						}
+						else
+						{
+							// Для строковых значений просто сохраняем текст
+							newValue = text;
+						}
+						
+						if (isValid && newValue.isValid())
+						{
+							model()->setData(index, newValue, Qt::EditRole);
+						}
 					}
 				});
 	}
