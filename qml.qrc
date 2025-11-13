@@ -30,5 +30,8 @@
         <file>Resources/parameter_value_16_2.png</file>
         <file>Resources/control_parameters_16.png</file>
         <file>Resources/sessions_16.png</file>
+        <file>Resources/remove_record_16.png</file>
+        <file>Resources/toggle_chart_16.png</file>
+        <file>Resources/toggle_parameter_16.png</file>
     </qresource>
 </RCC>

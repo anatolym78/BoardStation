@@ -322,6 +322,11 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 
 			newHistoryItem->setValues(incomingHistory->values(), incomingHistory->timestamps());
 
+			// Копируем поля control, min, max
+			newHistoryItem->setControl(incomingHistory->control());
+			newHistoryItem->setMin(incomingHistory->min());
+			newHistoryItem->setMax(incomingHistory->max());
+
 			localParent->appendChild(newHistoryItem);
 			emit parameterAdded(newHistoryItem);
 			if (!incomingHistory->values().isEmpty())
@@ -361,6 +366,21 @@ void ParameterTreeStorage::setNode(ParameterTreeItem* localParent, ParameterTree
 			auto incomingHistory = static_cast<ParameterTreeHistoryItem*>(incomingNode);
 
 			existingHistory->setValues(incomingHistory->values(), incomingHistory->timestamps());
+
+			// Обновляем поля control, min, max если они заданы во входящем узле
+			if (!incomingHistory->control().isEmpty())
+			{
+				existingHistory->setControl(incomingHistory->control());
+			}
+			if (incomingHistory->min().isValid())
+			{
+				existingHistory->setMin(incomingHistory->min());
+			}
+			if (incomingHistory->max().isValid())
+			{
+				existingHistory->setMax(incomingHistory->max());
+			}
+
 			emit valueChanged(existingHistory);
 		}
 		else if (existingNode->type() == ItemType::Group && incomingNode->type() == ItemType::Group)

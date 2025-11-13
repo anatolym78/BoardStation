@@ -47,8 +47,8 @@ void BoardStationApp::connectSignals()
 {
 	if (liveSession())
 	{
-		//connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
-		//	liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
+		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
 		connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 			liveSession(), &LiveSession::incrementMessageCount);
@@ -84,7 +84,7 @@ bool BoardStationApp::saveLiveData()
 	}
 
 	// Создаём новую сессию
-	QString sessionName = QString("Live Session %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+	QString sessionName = QString("Record %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	m_boardMessagesWriter->createNewSession(sessionName);
 
 	int newSessionId = m_boardMessagesWriter->getCurrentSessionId();

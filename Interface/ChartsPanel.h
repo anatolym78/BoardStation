@@ -8,7 +8,7 @@
 class QScrollArea;
 class QGridLayout;
 class QWidget;
-class QCheckBox;
+class QPushButton;
 
 class ChartsPanel : public QFrame
 {
@@ -27,17 +27,18 @@ protected:
 
 private:
 	void updateCellSizes();
-	void updateRowsToggleText(bool twoRowsEnabled);
 	void relayoutChartsGrid();
 
-	void onTwoRowsToggled(bool checked);
+	void onOneColumnClicked();
+	void onTwoColumnClicked();
 	void onMergeChartsClicked();
 
 	ChatViewGridModel* m_chartsModel;
 	QScrollArea* m_scrollArea;
 	QWidget* m_scrollContent;
 	QGridLayout* m_gridLayout;
-	QCheckBox* m_twoRowsCheckbox;
+	QPushButton* m_oneColumnButton;
+	QPushButton* m_twoColumnButton;
 	int m_columnCount = 2;
 };
 

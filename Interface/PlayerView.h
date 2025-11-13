@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class QPushButton;
 class QToolButton;
 class QSlider;
 class QLabel;
@@ -23,8 +24,8 @@ private:
 	void updateInfoLabel(double elapsedSeconds, double durationSeconds);
 
 private:
-	QToolButton* m_playPauseButton;
-	QToolButton* m_stopButton;
+	QPushButton* m_playPauseButton;
+	QPushButton* m_stopButton;
 	QSlider* m_positionSlider;
 	QLabel* m_infoLabel;
 	DataPlayer* m_player = nullptr;

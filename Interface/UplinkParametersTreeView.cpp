@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QVariantMap>
 #include <QTimer>
+#include <QDebug>
 
 UplinkParametersTreeView::UplinkParametersTreeView(QWidget *parent)
 	: QTreeView(parent)
@@ -64,16 +65,25 @@ void UplinkParametersTreeView::setModel(QAbstractItemModel* model)
 
 void UplinkParametersTreeView::setupControlWidgets()
 {
+	qDebug() << "UplinkParametersTreeView::setupControlWidgets - called";
+	
 	// Очищаем все существующие виджеты
 	QAbstractItemModel* model = this->model();
 	if (!model)
+	{
+		qDebug() << "UplinkParametersTreeView::setupControlWidgets - no model";
 		return;
+	}
+	
+	qDebug() << "UplinkParametersTreeView::setupControlWidgets - model has" << model->rowCount() << "rows";
 	
 	// Очищаем виджеты рекурсивно
 	clearControlWidgetsRecursive();
 	
 	// Рекурсивно создаем виджеты для всех History элементов
 	setupControlWidgetsRecursive();
+	
+	qDebug() << "UplinkParametersTreeView::setupControlWidgets - completed";
 }
 
 void UplinkParametersTreeView::clearControlWidgetsRecursive(const QModelIndex &parent)
@@ -111,6 +121,8 @@ void UplinkParametersTreeView::setupControlWidgetsRecursive(const QModelIndex &p
 		return;
 	
 	int rowCount = model->rowCount(parent);
+	qDebug() << "UplinkParametersTreeView::setupControlWidgetsRecursive - rowCount:" << rowCount;
+	
 	for (int row = 0; row < rowCount; ++row)
 	{
 		QModelIndex index = model->index(row, 0, parent);
@@ -121,6 +133,8 @@ void UplinkParametersTreeView::setupControlWidgetsRecursive(const QModelIndex &p
 		auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
 		if (treeItem && treeItem->type() == ParameterTreeItem::ItemType::History)
 		{
+			qDebug() << "UplinkParametersTreeView::setupControlWidgetsRecursive - found History item at row:" << row;
+			
 			// Создаем виджет-контрол для третьей колонки
 			QModelIndex controlIndex = model->index(row, 2, parent);
 			if (controlIndex.isValid())
@@ -128,8 +142,17 @@ void UplinkParametersTreeView::setupControlWidgetsRecursive(const QModelIndex &p
 				QWidget* controlWidget = createControlWidget(controlIndex);
 				if (controlWidget)
 				{
+					qDebug() << "UplinkParametersTreeView::setupControlWidgetsRecursive - created widget for row:" << row;
 					setIndexWidget(controlIndex, controlWidget);
 				}
+				else
+				{
+					qDebug() << "UplinkParametersTreeView::setupControlWidgetsRecursive - failed to create widget for row:" << row;
+				}
+			}
+			else
+			{
+				qDebug() << "UplinkParametersTreeView::setupControlWidgetsRecursive - invalid controlIndex for row:" << row;
 			}
 		}
 		
@@ -144,14 +167,25 @@ void UplinkParametersTreeView::setupControlWidgetsRecursive(const QModelIndex &p
 QWidget* UplinkParametersTreeView::createControlWidget(const QModelIndex &index) const
 {
 	if (!index.isValid())
+	{
+		qDebug() << "UplinkParametersTreeView::createControlWidget - invalid index";
 		return nullptr;
+	}
 	
 	// Получаем данные о контроле через EditRole
 	QVariantMap controlData = index.data(Qt::EditRole).toMap();
 	QString controlType = controlData["control"].toString();
 	
+	qDebug() << "UplinkParametersTreeView::createControlWidget - row:" << index.row() 
+			 << "column:" << index.column() 
+			 << "controlType:" << controlType
+			 << "controlData keys:" << controlData.keys();
+	
 	if (controlType.isEmpty())
+	{
+		qDebug() << "UplinkParametersTreeView::createControlWidget - controlType is empty";
 		return nullptr;
+	}
 	
 	QVariant minValue = controlData["min"];
 	QVariant maxValue = controlData["max"];

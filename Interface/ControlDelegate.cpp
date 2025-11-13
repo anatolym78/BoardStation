@@ -13,9 +13,9 @@ ControlDelegate::ControlDelegate(QObject *parent)
 {
 }
 
-QWidget* ControlDelegate::createEditor(QWidget *parent, 
-                                       const QStyleOptionViewItem &option, 
-                                       const QModelIndex &index) const
+QWidget* ControlDelegate::createEditor(QWidget* parent,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index) const
 {
 	Q_UNUSED(option)
 	
@@ -79,7 +79,7 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 	QVariant currentValue = controlData["value"];
 	
 	qDebug() << "ControlDelegate::setEditorData - controlType:" << controlType
-	         << "min:" << minValue << "max:" << maxValue << "value:" << currentValue;
+			 << "min:" << minValue << "max:" << maxValue << "value:" << currentValue;
 	
 	if (controlType == "QSlider")
 	{
@@ -142,7 +142,7 @@ void ControlDelegate::setEditorData(QWidget *editor, const QModelIndex &index) c
 }
 
 void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, 
-                                   const QModelIndex &index) const
+								   const QModelIndex &index) const
 {
 	if (!editor || !model || index.column() != 2)
 	{
@@ -199,8 +199,8 @@ void ControlDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 }
 
 void ControlDelegate::updateEditorGeometry(QWidget *editor, 
-                                          const QStyleOptionViewItem &option, 
-                                          const QModelIndex &index) const
+										  const QStyleOptionViewItem &option, 
+										  const QModelIndex &index) const
 {
 	Q_UNUSED(index)
 	
@@ -217,6 +217,7 @@ bool ControlDelegate::isHistoryItem(const QModelIndex &index) const
 		return false;
 	}
 	
+	// internalPointer() работает для любой колонки, так как указывает на один и тот же элемент
 	auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
 	if (treeItem && treeItem->type() == ParameterTreeItem::ItemType::History)
 	{

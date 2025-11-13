@@ -8,6 +8,7 @@
 #include <random>
 #include <QDateTime>
 #include <QIcon>
+#include <QDebug>
 
 BoardParametersTreeModel::BoardParametersTreeModel(QObject* parent)
 	: QAbstractItemModel(parent)
@@ -202,10 +203,15 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 			{
 				auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
 				QVariantMap controlData;
-				controlData["control"] = leafItem->control();
+				QString control = leafItem->control();
+				controlData["control"] = control;
 				controlData["min"] = leafItem->min();
 				controlData["max"] = leafItem->max();
 				controlData["value"] = leafItem->values().last();
+				
+				qDebug() << "BoardParametersTreeModel::data - EditRole, column 2, control:" << control
+						 << "min:" << leafItem->min() << "max:" << leafItem->max();
+				
 				return controlData;
 			}
 		}

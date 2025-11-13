@@ -2,6 +2,7 @@
 
 #include <QHBoxLayout>
 #include <QToolButton>
+#include <QPushButton>
 #include <QSlider>
 #include <QLabel>
 #include <QTime>
@@ -10,16 +11,19 @@
 PlayerView::PlayerView(QWidget *parent)
 	: QWidget(parent)
 {
-	m_playPauseButton = new QToolButton(this);
-	m_playPauseButton->setIcon(QIcon(":/Resources/run_32.png"));
-	m_playPauseButton->setIconSize(QSize(32, 32));
-	m_playPauseButton->setToolTip("Play/Pause");
+	m_playPauseButton = new QPushButton(this);
+	m_playPauseButton->setText("Stop");
+	m_playPauseButton->setIcon(QIcon(":/Resources/_pause_32.png"));
+	//m_playPauseButton->setIconSize(QSize(32, 32));
+	//m_playPauseButton->setToolTip("Play/Pause");
 	m_playPauseButton->setCheckable(true);
 
-	m_stopButton = new QToolButton(this);
+	m_stopButton = new QPushButton(this);
+	m_stopButton->setText("Stop");
 	m_stopButton->setIcon(QIcon(":/Resources/stop_32.png"));
-	m_stopButton->setIconSize(QSize(32, 32));
+	//m_stopButton->setIconSize(QSize(32, 32));
 	m_stopButton->setToolTip("Stop");
+
 
 	m_positionSlider = new QSlider(Qt::Horizontal, this);
 	m_positionSlider->setMinimum(0);
@@ -59,14 +63,16 @@ void PlayerView::onPlayButtonToggled()
 {
 	if (m_playPauseButton->isChecked())
 	{
-		m_playPauseButton->setIcon(QIcon(":/Resources/pause_32.png"));
+		m_playPauseButton->setIcon(QIcon(":/Resources/_pause_32.png"));
 
 	}
 	else
 	{
-		m_playPauseButton->setIcon(QIcon(":/Resources/run_32.png"));
+		m_playPauseButton->setIcon(QIcon(":/Resources/_play_32.png"));
+
 
 	}
+	m_playPauseButton->setText(m_playPauseButton->isChecked() ? "Stop" : "Play");
 }
 
 void PlayerView::setPlayer(DataPlayer* player)
@@ -74,6 +80,11 @@ void PlayerView::setPlayer(DataPlayer* player)
 	if (m_player == player) return;
 	m_player = player;
 	if (!m_player) return;
+
+	if (!m_player->isPlayable())
+	{
+		m_stopButton->setVisible(false);
+	}
 
 	// Начальная инициализация состояния
 	m_positionSlider->setMaximum(static_cast<int>(m_player->sessionDuration()));
@@ -88,6 +99,10 @@ void PlayerView::setPlayer(DataPlayer* player)
 		if (!m_player) return;
 		if (checked) m_player->play();
 		else m_player->pause();
+
+		//m_playPauseButton->setText(checked ? "Stop" : "Play");
+		//m_playPauseButton->setIcon(checked ? QIcon(":/Resources/_pause_32.png") : QIcon(":/Resources/play_32.png"));
+
 	});
 
 	// Слушаем изменения от плеера

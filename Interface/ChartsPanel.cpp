@@ -6,7 +6,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLayoutItem>
-#include <QCheckBox>
 #include <QDebug>
 #include <algorithm>
 
@@ -27,18 +26,23 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 
 	QHBoxLayout* topBarLayout = new QHBoxLayout();
-	topBarLayout->setContentsMargins(10, 5, 10, 0);
+	topBarLayout->setContentsMargins(2, 2, 2, 0);
 
-	m_twoRowsCheckbox = new QCheckBox(this);
-	m_twoRowsCheckbox->setChecked(false);
-	updateRowsToggleText(false); // начальный текст "two rows"
-	connect(m_twoRowsCheckbox, &QCheckBox::toggled, this, &ChartsPanel::onTwoRowsToggled);
+	m_oneColumnButton = new QPushButton("One column", this);
+	m_twoColumnButton = new QPushButton("Two column", this);
+	connect(m_oneColumnButton, &QPushButton::clicked, this, &ChartsPanel::onOneColumnClicked);
+	connect(m_twoColumnButton, &QPushButton::clicked, this, &ChartsPanel::onTwoColumnClicked);
+	
+	// Устанавливаем начальное состояние: две колонки активны
+	m_twoColumnButton->setEnabled(false);
 
 	QPushButton* mergeButton = new QPushButton("Merge charts", this);
 	connect(mergeButton, &QPushButton::clicked, this, &ChartsPanel::onMergeChartsClicked);
 
-	topBarLayout->addWidget(m_twoRowsCheckbox, 0, Qt::AlignLeft);
-	topBarLayout->addSpacing(8);
+	topBarLayout->addWidget(m_oneColumnButton, 0, Qt::AlignLeft);
+	topBarLayout->addSpacing(2);
+	topBarLayout->addWidget(m_twoColumnButton, 0, Qt::AlignLeft);
+	topBarLayout->addSpacing(2);
 	topBarLayout->addWidget(mergeButton, 0, Qt::AlignLeft);
 	topBarLayout->addStretch(1);
 
@@ -50,8 +54,8 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 
 	m_scrollContent = new QWidget();
 	m_gridLayout = new QGridLayout(m_scrollContent);
-	m_gridLayout->setSpacing(5);
-	m_gridLayout->setContentsMargins(10, 10, 10, 10);
+	m_gridLayout->setSpacing(2);
+	m_gridLayout->setContentsMargins(2, 2, 2, 2);
 
 	m_scrollArea->setWidget(m_scrollContent);
 
@@ -287,19 +291,19 @@ void ChartsPanel::updateCellSizes()
 	m_scrollContent->adjustSize();
 }
 
-void ChartsPanel::updateRowsToggleText(bool twoRowsEnabled)
+void ChartsPanel::onOneColumnClicked()
 {
-	if (!m_twoRowsCheckbox) return;
-	// При включении: показываем "one row", при выключении: "two rows"
-	m_twoRowsCheckbox->setText(twoRowsEnabled ? "one row" : "two rows");
+	m_columnCount = 1;
+	m_oneColumnButton->setEnabled(false);
+	m_twoColumnButton->setEnabled(true);
+	relayoutChartsGrid();
 }
 
-void ChartsPanel::onTwoRowsToggled(bool checked)
+void ChartsPanel::onTwoColumnClicked()
 {
-	updateRowsToggleText(checked);
-
-	// Переключаем количество колонок: checked -> 1 колонка, unchecked -> 2 колонки
-	m_columnCount = checked ? 1 : 2;
+	m_columnCount = 2;
+	m_oneColumnButton->setEnabled(true);
+	m_twoColumnButton->setEnabled(false);
 	relayoutChartsGrid();
 }
 
