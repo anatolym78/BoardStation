@@ -5,6 +5,7 @@
 #include <QList>
 #include <QString>
 #include <QVariant>
+#include <QColor>
 
 class ParameterTreeItem : public QObject
 {
@@ -27,6 +28,7 @@ public:
     QString label() const;
     QString fullName() const;
     QList<ParameterTreeItem*> children() const;
+    QColor color() const;
 
     enum class ItemType {
         Root,
@@ -43,6 +45,7 @@ protected:
     QString m_label;
     ParameterTreeItem *m_parentItem;
     QList<ParameterTreeItem*> m_childItems;
+    QColor m_color = Qt::black;
 };
 
 #endif // PARAMETERTREEITEM_H

@@ -112,7 +112,7 @@ public:
 	bool hasChart(const QString& label) const { return findChartIndex(label) != -1; }
 	
 signals:
-	void parameterAdded(int chartIndex, ParameterTreeItem* parameter, const QColor& color);
+	void parameterAdded(int chartIndex, ParameterTreeItem* parameter);
 	void parametersNeedToMove(int chartIndex, QStringList labels);
 	void parameterNeedToRemove(int chartIndex, const QString& label);
 	void isCanMergeChartsChanged();

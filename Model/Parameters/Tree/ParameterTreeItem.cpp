@@ -103,3 +103,8 @@ QList<ParameterTreeItem*> ParameterTreeItem::children() const
 {
 	return m_childItems;
 }
+
+QColor ParameterTreeItem::color() const
+{
+	return m_color;
+}

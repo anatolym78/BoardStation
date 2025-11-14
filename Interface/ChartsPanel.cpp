@@ -74,7 +74,7 @@ void ChartsPanel::setModel(ChatViewGridModel* chartsModel)
 	connect(m_chartsModel, &ChatViewGridModel::parametersNeedToMove, this, &ChartsPanel::onParameterMoved);
 }
 
-void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter, const QColor& color)
+void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
 {
 	auto parameterFullName = parameter->fullName();
 
@@ -114,9 +114,12 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter,
 		series->attachAxis(timeAxis);
 		series->attachAxis(valueAxis);
 
+		// Получаем цвет из параметра
+		auto color = parameter->color();
+
 		// add series to model
 		m_chartsModel->addSeriesToChart(chartIndex, parameterFullName,
-			Qt::red, series, timeAxis, valueAxis);
+			color, series, timeAxis, valueAxis);
 	}
 	// create series list
 	if (parameter->type() == ParameterTreeItem::ItemType::Array)
@@ -136,9 +139,12 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter,
 			series->attachAxis(timeAxis);
 			series->attachAxis(valueAxis);
 
+			// Получаем цвет из параметра
+			auto color = parameterHistory->color();
+
 			// add series to model
 			m_chartsModel->addSeriesToChart(chartIndex, parameterName,
-				Qt::blue, series, timeAxis, valueAxis);
+				color, series, timeAxis, valueAxis);
 		}
 	}
 

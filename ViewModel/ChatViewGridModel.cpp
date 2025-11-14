@@ -55,7 +55,7 @@ void ChatViewGridModel::toggleParameter(ParameterTreeItem* parameter)//QString c
 		m_charts.append(ChartInfo{ parameterFullName, QStringList() << parameterFullName });
 		endInsertRows();
 
-		emit parameterAdded(m_charts.count() - 1, parameter, Qt::red);
+		emit parameterAdded(m_charts.count() - 1, parameter);
 	}
 }
 

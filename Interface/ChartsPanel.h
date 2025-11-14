@@ -18,7 +18,7 @@ public:
 	void setModel(ChatViewGridModel* chartsModel);
 
 protected:
-	void onParameterAdded(int chartIndex, ParameterTreeItem* parameter, const QColor& color);
+	void onParameterAdded(int chartIndex, ParameterTreeItem* parameter);
 	void onParameterRemoved(int chartIndex, const QString& label);
 	void onParameterMoved(int chartIndex, const QStringList& labels);
 	bool eventFilter(QObject* watched, QEvent* event) override;
