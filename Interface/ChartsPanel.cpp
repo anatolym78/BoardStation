@@ -30,6 +30,8 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 
 	m_oneColumnButton = new QPushButton("One column", this);
 	m_twoColumnButton = new QPushButton("Two column", this);
+	m_oneColumnButton->setIcon(QIcon(":/Resources/one_column.png"));
+	m_twoColumnButton->setIcon(QIcon(":/Resources/two_columns.png"));
 	connect(m_oneColumnButton, &QPushButton::clicked, this, &ChartsPanel::onOneColumnClicked);
 	connect(m_twoColumnButton, &QPushButton::clicked, this, &ChartsPanel::onTwoColumnClicked);
 	
@@ -37,6 +39,7 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 	m_twoColumnButton->setEnabled(false);
 
 	QPushButton* mergeButton = new QPushButton("Merge charts", this);
+	mergeButton->setIcon(QIcon(":/Resources/merge_charts_32.png"));
 	connect(mergeButton, &QPushButton::clicked, this, &ChartsPanel::onMergeChartsClicked);
 
 	topBarLayout->addWidget(m_oneColumnButton, 0, Qt::AlignLeft);
@@ -101,8 +104,8 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
 	//create value axis
 	auto valueAxis = new QtCharts::QValueAxis(chart);
 	valueAxis->setTickCount(3);
-	valueAxis->setMin(10);
-	valueAxis->setMax(30);
+	valueAxis->setMin(0);
+	valueAxis->setMax(1);
 	chart->addAxis(valueAxis, Qt::AlignLeft);
 
 

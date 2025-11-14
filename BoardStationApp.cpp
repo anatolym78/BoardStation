@@ -50,6 +50,13 @@ void BoardStationApp::connectSignals()
 		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
 			liveSession()->storage(), &ParameterTreeStorage::appendSnapshot);
 
+		// Увеличиваем счетчик сообщений при получении каждого сообщения от драйвера
+		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+			liveSession(), [this](ParameterTreeStorage*)
+			{
+				liveSession()->incrementMessageCount();
+			});
+
 		connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 			liveSession(), &LiveSession::incrementMessageCount);
 

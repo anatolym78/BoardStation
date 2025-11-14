@@ -1,5 +1,6 @@
 #include "SessionsListModel.h"
 #include <QDebug>
+#include <QIcon>
 #include <algorithm>
 
 SessionsListModel::SessionsListModel(QObject *parent)
@@ -62,6 +63,16 @@ QVariant SessionsListModel::data(const QModelIndex &index, int role) const
 	
 	switch (role) 
 	{
+		case Qt::DecorationRole:
+			// Для QListView возвращаем иконку
+			if (session->getType() == Session::LiveSession)
+			{
+				return QIcon(":/Resources/live_session_16.png");
+			}
+			else
+			{
+				return QIcon(":/Resources/sessions_16.png");
+			}
 		case SessionIdRole:
 			return session->getId();
 		case SessionNameRole:
@@ -96,6 +107,15 @@ QVariant SessionsListModel::data(const QModelIndex &index, int role) const
 			return index.row() > 1 ?
 				QVariant::fromValue(QColor::fromRgb(255, 0, 0)) :
 				QVariant::fromValue(QColor::fromRgb(255, 225, 0));
+		case IconRole:
+			if (session->getType() == Session::LiveSession)
+			{
+				return ":/Resources/live_session_16.png";
+			}
+			else
+			{
+				return ":/Resources/sessions_16.png";
+			}
 		default:
 			return QVariant();
 	}
@@ -119,6 +139,7 @@ QHash<int, QByteArray> SessionsListModel::roleNames() const
 	roles[PlayerModelRole] = "playerModel";
 	roles[ChartsModelRole] = "chartModel";
 	roles[TestColorRole] = "testColorRole";
+	roles[IconRole] = "icon";
 
 	return roles;
 }

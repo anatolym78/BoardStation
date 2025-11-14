@@ -37,6 +37,7 @@ public:
 		PlayerModelRole,
 		ChartsModelRole,
 		TestColorRole,
+		IconRole,
 	};
 
 	explicit SessionsListModel(QObject *parent = nullptr);

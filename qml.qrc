@@ -33,5 +33,12 @@
         <file>Resources/remove_record_16.png</file>
         <file>Resources/toggle_chart_16.png</file>
         <file>Resources/toggle_parameter_16.png</file>
+        <file>Resources/one_column.png</file>
+        <file>Resources/two_columns.png</file>
+        <file>Resources/merge_charts_32.png</file>
+        <file>Resources/remove_record_16_2.png</file>
+        <file>Resources/save_record_16.png</file>
+        <file>Resources/send_parameters_32.png</file>
+        <file>Resources/live_session_16.png</file>
     </qresource>
 </RCC>
