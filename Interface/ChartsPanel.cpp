@@ -28,8 +28,8 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 	QHBoxLayout* topBarLayout = new QHBoxLayout();
 	topBarLayout->setContentsMargins(2, 2, 2, 0);
 
-	m_oneColumnButton = new QPushButton("One column", this);
-	m_twoColumnButton = new QPushButton("Two column", this);
+	m_oneColumnButton = new QPushButton(tr("One column"), this);
+	m_twoColumnButton = new QPushButton(tr("Two column"), this);
 	m_oneColumnButton->setIcon(QIcon(":/Resources/one_column.png"));
 	m_twoColumnButton->setIcon(QIcon(":/Resources/two_columns.png"));
 	connect(m_oneColumnButton, &QPushButton::clicked, this, &ChartsPanel::onOneColumnClicked);
@@ -38,7 +38,7 @@ ChartsPanel::ChartsPanel(QWidget *parent)
 	// Устанавливаем начальное состояние: две колонки активны
 	m_twoColumnButton->setEnabled(false);
 
-	QPushButton* mergeButton = new QPushButton("Merge charts", this);
+	QPushButton* mergeButton = new QPushButton(tr("Merge charts"), this);
 	mergeButton->setIcon(QIcon(":/Resources/merge_charts_32.png"));
 	connect(mergeButton, &QPushButton::clicked, this, &ChartsPanel::onMergeChartsClicked);
 

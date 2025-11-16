@@ -17,7 +17,7 @@ public:
 
 	// Реализация виртуальных методов
 	int getId() const override { return -1; } // У живой сессии нет ID в БД
-	QString getName() const override { return "Live Data"; }
+	QString getName() const override { return tr("Live Data"); }
 	QDateTime getCreatedAt() const override { return m_startTime; }
 	QString getDescription() const override { return "Поток данных в реальном времени"; }
 	int getMessageCount() const override { return m_messageCount; }

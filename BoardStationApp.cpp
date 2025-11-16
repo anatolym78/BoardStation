@@ -91,7 +91,7 @@ bool BoardStationApp::saveLiveData()
 	}
 
 	// Создаём новую сессию
-	QString sessionName = QString("Record %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+	QString sessionName = QString(tr("Record")) +  QString(" %1").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 	m_boardMessagesWriter->createNewSession(sessionName);
 
 	int newSessionId = m_boardMessagesWriter->getCurrentSessionId();

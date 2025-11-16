@@ -40,5 +40,6 @@
         <file>Resources/save_record_16.png</file>
         <file>Resources/send_parameters_32.png</file>
         <file>Resources/live_session_16.png</file>
+        <file>BoardStation_ru_RU.qm</file>
     </qresource>
 </RCC>

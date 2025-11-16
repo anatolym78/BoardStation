@@ -46,9 +46,9 @@ void UplinkParametersTreeView::setModel(QAbstractItemModel* model)
 	if (!model)
 		return;
 	
-	model->setHeaderData(0, Qt::Horizontal, "label");
-	model->setHeaderData(1, Qt::Horizontal, "value");
-	model->setHeaderData(2, Qt::Horizontal, "control");
+	model->setHeaderData(0, Qt::Horizontal, tr("label"));
+	model->setHeaderData(1, Qt::Horizontal, tr("value"));
+	model->setHeaderData(2, Qt::Horizontal, tr("control"));
 
 	header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header()->setSectionResizeMode(1, QHeaderView::Stretch);

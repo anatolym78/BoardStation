@@ -169,8 +169,8 @@ FORMS += \
 RESOURCES += \
     qml.qrc
 
-# TRANSLATIONS += \
-#     BoardStation_ru_RU.ts
+TRANSLATIONS += \
+     BoardStation_ru_RU.ts
 CONFIG -= lrelease
 CONFIG += embed_translations
 

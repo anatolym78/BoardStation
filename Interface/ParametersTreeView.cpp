@@ -25,10 +25,10 @@ void ParametersTreeView::setModel(QAbstractItemModel* model)
 
 	if (!model)
 		return;
-    
-    model->setHeaderData(0, Qt::Horizontal, "label");
-    model->setHeaderData(1, Qt::Horizontal, "value");
+	
+	model->setHeaderData(0, Qt::Horizontal, tr("label"));
+	model->setHeaderData(1, Qt::Horizontal, tr("value"));
 
-    header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    header()->setSectionResizeMode(1, QHeaderView::Stretch);
+	header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+	header()->setSectionResizeMode(1, QHeaderView::Stretch);
 }

@@ -10,7 +10,7 @@ DriverDataPlayer::DriverDataPlayer(QObject *parent)
 {
 	m_isPlayable = false;
 
-	m_currentSessionName = "Live Data";
+	m_currentSessionName = tr("Live Data");
 	emit currentSessionNameChanged();
 }
 

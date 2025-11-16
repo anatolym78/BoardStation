@@ -12,17 +12,17 @@ PlayerView::PlayerView(QWidget *parent)
 	: QWidget(parent)
 {
 	m_playPauseButton = new QPushButton(this);
-	m_playPauseButton->setText("Stop");
+	m_playPauseButton->setText(tr("Pause"));
 	m_playPauseButton->setIcon(QIcon(":/Resources/_pause_32.png"));
 	//m_playPauseButton->setIconSize(QSize(32, 32));
 	//m_playPauseButton->setToolTip("Play/Pause");
 	m_playPauseButton->setCheckable(true);
 
 	m_stopButton = new QPushButton(this);
-	m_stopButton->setText("Stop");
+	m_stopButton->setText(tr("Stop"));
 	m_stopButton->setIcon(QIcon(":/Resources/stop_32.png"));
 	//m_stopButton->setIconSize(QSize(32, 32));
-	m_stopButton->setToolTip("Stop");
+	m_stopButton->setToolTip(tr("Stop"));
 
 
 	m_positionSlider = new QSlider(Qt::Horizontal, this);
@@ -70,7 +70,7 @@ void PlayerView::onPlayButtonToggled()
 	{
 		m_playPauseButton->setIcon(QIcon(":/Resources/_play_32.png"));
 	}
-	m_playPauseButton->setText(m_playPauseButton->isChecked() ? "Stop" : "Play");
+	m_playPauseButton->setText(m_playPauseButton->isChecked() ? tr("Pause") : tr("Play"));
 }
 
 void PlayerView::setPlayer(DataPlayer* player)
@@ -97,10 +97,6 @@ void PlayerView::setPlayer(DataPlayer* player)
 		if (!m_player) return;
 		if (checked) m_player->play();
 		else m_player->pause();
-
-		//m_playPauseButton->setText(checked ? "Stop" : "Play");
-		//m_playPauseButton->setIcon(checked ? QIcon(":/Resources/_pause_32.png") : QIcon(":/Resources/play_32.png"));
-
 	});
 
 	// Слушаем изменения от плеера

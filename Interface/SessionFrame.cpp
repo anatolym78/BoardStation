@@ -19,7 +19,7 @@ SessionFrame::SessionFrame(Session* session, QWidget *parent) : QFrame(parent)
 	m_parametersTreeLayout->setSpacing(5);
 
 	// Создаем кнопку "Добавить график"
-	m_addChartButton = new QPushButton("Toggle chart", this);
+	m_addChartButton = new QPushButton(tr("Toggle chart"), this);
 	m_addChartButton->setIcon(QIcon(":/Resources/toggle_parameter_16.png"));
 	connect(m_addChartButton, &QPushButton::clicked, this, &SessionFrame::onAddChartButtonClicked);
 
