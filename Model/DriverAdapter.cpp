@@ -18,8 +18,8 @@ DriverAdapter::DriverAdapter(drv::IDriver* driver, QObject *parent)
     if (m_driver)
     {
         connectToDriver();
-        // Автоматически запускаем прослушивание
-        startListening();
+        //// Автоматически запускаем прослушивание
+        //startListening();
     }
 }
 

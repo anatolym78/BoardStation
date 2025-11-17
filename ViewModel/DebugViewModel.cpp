@@ -1,5 +1,6 @@
 #include "DebugViewModel.h"
 #include <QDebug>
+#include <QIcon>
 
 DebugViewModel::DebugViewModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -30,6 +31,29 @@ QVariant DebugViewModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     const DebugMessage &message = m_messages[index.row()];
+
+    // Обрабатываем стандартную роль DisplayRole для отображения в QListView
+    if (role == Qt::DisplayRole)
+    {
+        return formatMessage(message);
+    }
+
+    // Обрабатываем роль DecorationRole для отображения иконок
+    if (role == Qt::DecorationRole)
+    {
+        if (message.type == MessageType::Info)
+        {
+            return QIcon(":/Resources/info_16.png");
+        }
+        return QVariant();
+    }
+
+    // Обрабатываем кастомные роли только если role >= Qt::UserRole
+    if (role < Qt::UserRole)
+    {
+        return QVariant();
+    }
+
     auto debugRole = (DebugRole)role;
 
     switch (debugRole)
@@ -42,13 +66,13 @@ QVariant DebugViewModel::data(const QModelIndex &index, int role) const
         switch (message.type)
         {
         case MessageType::UplinkParameters:
-            return "Uplink";
+            return tr("Uplink");
         case MessageType::DataReceived:
-            return "Received";
+            return tr("Received");
         case MessageType::Error:
-            return "Error";
+            return tr("Error");
         case MessageType::Info:
-            return "Info";
+            return tr("Info");
         }
         break;
     case DebugRole::FormattedMessageRole:
@@ -92,16 +116,16 @@ QString DebugViewModel::formatMessage(const DebugMessage &msg) const
     switch (msg.type)
     {
     case MessageType::UplinkParameters:
-        typeStr = "[Uplink]";
+        typeStr = tr("[Uplink]");
         break;
     case MessageType::DataReceived:
-        typeStr = "[Received]";
+        typeStr = tr("[Received]");
         break;
     case MessageType::Error:
-        typeStr = "[Error]";
+        typeStr = tr("[Error]");
         break;
     case MessageType::Info:
-        typeStr = "[Info]";
+        typeStr = tr("[Info]");
         break;
     }
 

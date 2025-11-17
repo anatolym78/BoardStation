@@ -150,7 +150,7 @@
     <set>QDockWidget::DockWidgetClosable</set>
    </property>
    <property name="windowTitle">
-    <string>Boardstation console</string>
+    <string>Console</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -173,7 +173,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QTextEdit" name="consoleTextEdit"/>
+      <widget class="DebugView" name="consoleListView"/>
      </item>
     </layout>
    </widget>
@@ -206,6 +206,11 @@
    <class>UplinkParametersTreeView</class>
    <extends>QTreeView</extends>
    <header>Interface/UplinkParametersTreeView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DebugView</class>
+   <extends>QListView</extends>
+   <header>Interface/DebugView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -16,6 +16,7 @@ CONFIG += c++17
 SOURCES += \
     BoardStationApp.cpp \
     Interface/ChartsPanel.cpp \
+    Interface/DebugView.cpp \
     Interface/ParametersChartView.cpp \
     Interface/ParametersTreeView.cpp \
     Interface/UplinkParametersTreeView.cpp \
@@ -89,6 +90,7 @@ SOURCES += \
 HEADERS += \
     BoardStationApp.h \
     Interface/ChartsPanel.h \
+    Interface/DebugView.h \
     Interface/ParametersChartView.h \
     Interface/ParametersTreeView.h \
     Interface/UplinkParametersTreeView.h \

@@ -11,56 +11,60 @@
 #include <QJsonObject>
 #include <cmath>
 
-namespace drv {
+namespace drv 
+{
 
-class BoardDataEmulator : public IDriver {
-    Q_OBJECT
+    class BoardDataEmulator : public IDriver
+    {
+        Q_OBJECT
 
-public:
-    explicit BoardDataEmulator(QObject *parent = nullptr);
-    ~BoardDataEmulator() override;
+    public:
+        explicit BoardDataEmulator(QObject *parent = nullptr);
+        ~BoardDataEmulator() override;
 
-    // IDriver interface implementation
-    void write(const std::string &data) override;
-    const std::string &read() override;
-    void flushData() override;
+        // IDriver interface implementation
+        void write(const std::string &data) override;
+        const std::string &read() override;
+        void flushData() override;
     
-    // Функции управления прослушиванием
-    void startListening() override;
-    void stopListening() override;
-    bool isListening() const override;
+        // Функции управления прослушиванием
+        void startListening() override;
+        void stopListening() override;
+        bool isListening() const override;
 
-    // Control methods
-    void start();
-    void stop();
 
-private slots:
-    void onStateTimerTimeout();
-    void onDataTimerTimeout();
+    private slots:
+        void onStateTimerTimeout();
+        void onDataTimerTimeout();
 
-private:
-    void setupGenerators();
-    void generateParameters();
-    void saveSentParametersToFile(const QString &jsonString);
+    private:
+        void setupGenerators();
+        void generateParameters();
+        void saveSentParametersToFile(const QString &jsonString);
 
-private:
-    QTimer *m_stateTimer;
-    QTimer *m_dataTimer;
-    QQueue<std::string> m_messageQueue;
+    private:
+        QTimer *m_stateTimer;
+        QTimer *m_dataTimer;
+        QQueue<std::string> m_messageQueue;
     
-    // Генераторы параметров
-    QList<ParameterGenerator*> m_generators;
+        // Генераторы параметров
+        QList<ParameterGenerator*> m_generators;
     
-    // JSON writer для создания JSON строк
-    BoardDataJsonGenerator *m_jsonWriter;
+        // JSON writer для создания JSON строк
+        BoardDataJsonGenerator *m_jsonWriter;
     
-    // Время для генерации параметров
-    double m_time;
+        // Время для генерации параметров
+        double m_time;
     
-    State m_currentState;
-    bool m_isRunning;
-    bool m_isListening;
-};
+        State m_currentState;
+        bool m_isRunning;
+        bool m_isListening;
+
+    private:
+        // Control methods
+        void start();
+        void stop();
+    };
 
 } // namespace drv
 

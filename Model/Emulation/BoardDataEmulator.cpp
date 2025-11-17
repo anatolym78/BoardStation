@@ -41,8 +41,8 @@ namespace drv
         // Настраиваем генераторы параметров
         setupGenerators();
     
-        // Автоматически запускаем эмулятор
-        start();
+        /// Автоматически запускаем эмулятор
+        //start();
     }
 
     BoardDataEmulator::~BoardDataEmulator()
@@ -86,7 +86,8 @@ namespace drv
 
     void BoardDataEmulator::start()
     {
-        if (m_isRunning) {
+        if (m_isRunning)
+        {
             return;
         }
     
@@ -236,12 +237,16 @@ namespace drv
     void BoardDataEmulator::startListening()
     {
         m_isListening = true;
+
+        start();
         qDebug() << "BoardDataEmulator: Started listening";
     }
 
     void BoardDataEmulator::stopListening()
     {
         m_isListening = false;
+
+        stop();
         qDebug() << "BoardDataEmulator: Stopped listening";
     }
 

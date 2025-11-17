@@ -31,7 +31,28 @@
 <context>
     <name>BoardStationApp</name>
     <message>
-        <location filename="BoardStationApp.cpp" line="94"/>
+        <location filename="BoardStationApp.cpp" line="74"/>
+        <source>First message received from driver</source>
+        <translation type="unfinished">Первое сообщение от драйвера получено</translation>
+    </message>
+    <message>
+        <location filename="BoardStationApp.cpp" line="87"/>
+        <source>Connected</source>
+        <translation type="unfinished">Соединение с дроном установлено</translation>
+    </message>
+    <message>
+        <location filename="BoardStationApp.cpp" line="88"/>
+        <source>Disconnected</source>
+        <translation type="unfinished">Соединение с дроном разорвано</translation>
+    </message>
+    <message>
+        <location filename="BoardStationApp.cpp" line="89"/>
+        <source>Driver state changed: </source>
+        <oldsource>Driver state changed</oldsource>
+        <translation type="unfinished">Состояние драйвера изменилось: </translation>
+    </message>
+    <message>
+        <location filename="BoardStationApp.cpp" line="123"/>
         <source>Record</source>
         <translation type="unfinished">Запись</translation>
     </message>
@@ -63,6 +84,49 @@
         <location filename="Interface/ChartsPanel.cpp" line="41"/>
         <source>Merge charts</source>
         <translation type="unfinished">Объединить графики</translation>
+    </message>
+</context>
+<context>
+    <name>DebugViewModel</name>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="69"/>
+        <source>Uplink</source>
+        <translation type="unfinished">Отправка</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="71"/>
+        <source>Received</source>
+        <translation type="unfinished">Получение</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="73"/>
+        <source>Error</source>
+        <translation type="unfinished">Ошибка</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="75"/>
+        <source>Info</source>
+        <translation type="unfinished">Информация</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="119"/>
+        <source>[Uplink]</source>
+        <translation type="unfinished">[Отправка]</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="122"/>
+        <source>[Received]</source>
+        <translation type="unfinished">[Получение]</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="125"/>
+        <source>[Error]</source>
+        <translation type="unfinished">[Ошибка]</translation>
+    </message>
+    <message>
+        <location filename="ViewModel/DebugViewModel.cpp" line="128"/>
+        <source>[Info]</source>
+        <translation type="unfinished">[Информация]</translation>
     </message>
 </context>
 <context>
@@ -169,6 +233,11 @@
         <location filename="mainwindow.ui" line="85"/>
         <source>Drone control</source>
         <translation type="unfinished">Управление дроном</translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="153"/>
+        <source>Console</source>
+        <translation type="unfinished">Логи</translation>
     </message>
     <message>
         <source>Parameters</source>
@@ -292,12 +361,12 @@
     <message>
         <location filename="Interface/ParametersTreeView.cpp" line="29"/>
         <source>label</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">метка</translation>
     </message>
     <message>
         <location filename="Interface/ParametersTreeView.cpp" line="30"/>
         <source>value</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">значение</translation>
     </message>
 </context>
 <context>

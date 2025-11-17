@@ -8,6 +8,7 @@
 #include "Model/Parameters/BoolUplinkParameter.h"
 #include "Model/DriverAdapter.h"
 #include "ViewModel/RecordedSession.h"
+#include "ViewModel/DebugViewModel.h"
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -15,6 +16,7 @@
 #include "ViewModel/LiveSession.h"
 #include "Model/Parameters/Tree/ParameterTreeStorage.h"
 #include "Model/Parameters/ParameterTreeJsonParser.h"
+#include "Model/IDriver.h"
 
 
 BoardStationApp::BoardStationApp(int &argc, char **argv)
@@ -29,7 +31,6 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 	// test
 
 	m_driver = new drv::BoardDataEmulator(this);
-
 	m_sessionsListModel = new SessionsListModel(this);
 	m_sessionsListModel->setReader(m_boardMessagesReader);
 	
@@ -41,6 +42,9 @@ BoardStationApp::BoardStationApp(int &argc, char **argv)
 	m_debugViewModel = new DebugViewModel(this);
 
 	connectSignals(); 
+
+	// запускаем прослушивание после того как созданы все подключения
+	m_driver->startListening();
 }
 
 void BoardStationApp::connectSignals()
@@ -60,6 +64,31 @@ void BoardStationApp::connectSignals()
 		connect(m_boardMessagesWriter, &BoardMessagesSqliteWriter::writeSuccess,
 			liveSession(), &LiveSession::incrementMessageCount);
 
+		// Логируем первое сообщение от драйвера
+		static bool isFirstMessage = true;
+		connect(m_driverAdapter, &DriverAdapter::parameterTreeReceived,
+			this, [this](ParameterTreeStorage*)
+			{
+				if (isFirstMessage && m_debugViewModel)
+				{
+					m_debugViewModel->addInfoMessage(tr("First message received from driver"));
+					isFirstMessage = false;
+				}
+			});
+	}
+
+	// Логируем изменения состояния драйвера
+	if (m_driver && m_debugViewModel)
+	{
+		connect(m_driver, &drv::IDriver::stateChanged,
+			this, [this](drv::IDriver::State state)
+			{
+				QString stateStr = (state == drv::IDriver::State::k_Connected) 
+					? tr("Соединение с дроном установлено") 
+					: tr("Соединение с дроном разорвано");
+				auto driverMessageInfo = tr("Состояние драйвера изменилось: ");
+				m_debugViewModel->addInfoMessage(driverMessageInfo + QString("%1").arg(stateStr));
+			});
 	}
 
 	// connect(m_uplinkParametersModel, &UplinkParametersModel::parameterChanged,

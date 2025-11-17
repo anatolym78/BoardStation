@@ -7,6 +7,7 @@
 #include "Interface/UplinkParametersTreeView.h"
 #include "./Interface/SessionFrame.h"
 #include "./ViewModel/SessionsListModel.h"
+#include "ViewModel/DebugViewModel.h"
 
 #include <QDebug>
 #include <QStyledItemDelegate>
@@ -62,6 +63,12 @@ void MainWindow::setApp(BoardStationApp *pApp)
 		if (pApp->getUplinkParametersModel())
 		{
 			ui->uplinkParametersView->setModel(pApp->getUplinkParametersModel());
+		}
+		
+		// Устанавливаем модель для консоли
+		if (pApp->getDebugViewModel())
+		{
+			ui->consoleListView->setModel(pApp->getDebugViewModel());
 		}
 	}
 }
