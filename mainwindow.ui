@@ -173,7 +173,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="DebugView" name="consoleListView"/>
+      <widget class="DebugView" name="consoleTableView"/>
      </item>
     </layout>
    </widget>
@@ -209,7 +209,7 @@
   </customwidget>
   <customwidget>
    <class>DebugView</class>
-   <extends>QListView</extends>
+   <extends>QTableView</extends>
    <header>Interface/DebugView.h</header>
   </customwidget>
  </customwidgets>

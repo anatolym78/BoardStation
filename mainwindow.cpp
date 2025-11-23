@@ -68,7 +68,7 @@ void MainWindow::setApp(BoardStationApp *pApp)
 		// Устанавливаем модель для консоли
 		if (pApp->getDebugViewModel())
 		{
-			ui->consoleListView->setModel(pApp->getDebugViewModel());
+			ui->consoleTableView->setModel(pApp->getDebugViewModel());
 		}
 	}
 }

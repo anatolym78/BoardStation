@@ -1,13 +1,20 @@
 #ifndef DEBUGVIEW_H
 #define DEBUGVIEW_H
 
-#include <QListView>
+#include <QTableView>
 
-class DebugView : public QListView
+class QAbstractItemModel;
+
+class DebugView : public QTableView
 {
 	Q_OBJECT
 public:
 	explicit DebugView(QWidget *parent = nullptr);
+	
+	void setModel(QAbstractItemModel *model) override;
+
+private:
+	void setupColumnWidths();
 };
 
 #endif // DEBUGVIEW_H
