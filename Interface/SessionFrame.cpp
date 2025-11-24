@@ -46,6 +46,8 @@ SessionFrame::SessionFrame(Session* session, QWidget *parent) : QFrame(parent)
 	mainLayout->setColumnStretch(1, 6);
 
 	attachModels(m_session);
+
+	connect(m_parametersTree, &ParametersTreeView::itemHovered, m_chartsPanel, &ChartsPanel::onParameterItemHovered);
 }
 
 void SessionFrame::attachModels(Session* session)

@@ -9,6 +9,11 @@ class ParametersTreeView : public QTreeView
 public:
     explicit ParametersTreeView(QWidget *parent = nullptr);
     void setModel(QAbstractItemModel* model) override;
+
+    void mouseMoveEvent(QMouseEvent* event) override;
+
+signals:
+    void itemHovered(const QModelIndex& index);
 };
 
 #endif // PARAMETERSTREEVIEW_H

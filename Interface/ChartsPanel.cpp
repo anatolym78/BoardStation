@@ -77,6 +77,32 @@ void ChartsPanel::setModel(ChatViewGridModel* chartsModel)
 	connect(m_chartsModel, &ChatViewGridModel::parametersNeedToMove, this, &ChartsPanel::onParameterMoved);
 }
 
+void ChartsPanel::onParameterItemHovered(const QModelIndex& index)
+{
+	auto treeItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+
+	if (treeItem == nullptr) return;
+
+	if (treeItem->type() == ParameterTreeItem::ItemType::History)
+	{
+		auto fullName = treeItem->fullName();
+
+		auto chartViews = chartViewList();
+		for (auto chartView : chartViews)
+		{
+			for (auto series : chartView->chart()->series())
+			{
+				if (series->name() == fullName)
+				{
+					auto lineSeries = (QtCharts::QLineSeries*)(series);
+					lineSeries->setColor(QColor(255, 225, 0));
+					//int k = 0;
+				}
+			}
+		}
+	}
+}
+
 void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
 {
 	auto parameterFullName = parameter->fullName();
@@ -141,6 +167,7 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
 			chart->addSeries(series);
 			series->attachAxis(timeAxis);
 			series->attachAxis(valueAxis);
+			//series->setColor
 
 			// Получаем цвет из параметра
 			auto color = parameterHistory->color();
@@ -319,6 +346,23 @@ void ChartsPanel::onTwoColumnClicked()
 void ChartsPanel::onMergeChartsClicked()
 {
 	m_chartsModel->mergeCharts();
+}
+
+QList<ParametersChartView*> ChartsPanel::chartViewList() const
+{
+	QList<ParametersChartView*> chartViews;
+	for (auto i = 0; i < m_gridLayout->count(); i++)
+	{
+		auto item = m_gridLayout->itemAt(i);
+		auto chartView = (ParametersChartView*)(item->widget());
+
+		if (chartView)
+		{
+			chartViews.append(chartView);
+		}
+	}
+
+	return chartViews;
 }
 
 void ChartsPanel::relayoutChartsGrid()

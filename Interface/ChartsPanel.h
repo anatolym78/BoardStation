@@ -2,6 +2,7 @@
 #define CHARTSPANEL_H
 
 #include <QFrame>
+#include <QList>
 #include "./ViewModel/ChatViewGridModel.h"
 #include "ParametersChartView.h"
 
@@ -16,6 +17,8 @@ class ChartsPanel : public QFrame
 public:
 	explicit ChartsPanel(QWidget *parent = nullptr);
 	void setModel(ChatViewGridModel* chartsModel);
+
+	void onParameterItemHovered(const QModelIndex& index);
 
 protected:
 	void onParameterAdded(int chartIndex, ParameterTreeItem* parameter);
@@ -40,6 +43,9 @@ private:
 	QPushButton* m_oneColumnButton;
 	QPushButton* m_twoColumnButton;
 	int m_columnCount = 2;
+
+private:
+	QList<ParametersChartView*> chartViewList() const;
 };
 
 #endif // CHARTSPANEL_H
