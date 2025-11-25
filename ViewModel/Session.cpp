@@ -4,6 +4,7 @@
 #include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <functional>
 
 Session::Session(QObject *parent)
 	: QObject(parent)
@@ -90,5 +91,30 @@ void Session::createChartFromSelectedParameter()
 
 	// Добавляем серию в модель графиков
 	m_chartsModel->toggleParameter(treeItem);
+
+	// Обновляем статус видимости в модели параметров (рекурсивно для массивов)
+	std::function<void(const QModelIndex&)> updateVisibility;
+	updateVisibility = [&](const QModelIndex& index) 
+	{
+		auto item = static_cast<ParameterTreeItem*>(index.internalPointer());
+		if (!item) return;
+
+		if (item->type() == ParameterTreeItem::ItemType::History)
+		{
+			bool isVisible = m_chartsModel->hasSeries(item->fullName());
+			m_parametersModel->setData(index, isVisible, BoardParametersTreeModel::ChartVisibilityRole);
+		}
+
+		// Обходим детей
+		int rows = m_parametersModel->rowCount(index);
+		for (int i = 0; i < rows; ++i)
+		{
+			QModelIndex childIndex = m_parametersModel->index(i, 0, index);
+			updateVisibility(childIndex);
+		}
+	};
+
+	updateVisibility(currentIndex);
+
 	qDebug() << "Session::createChartFromSelectedParameter: added chart for parameter" << parameterLabel;
 }

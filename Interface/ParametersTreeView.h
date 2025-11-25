@@ -2,6 +2,7 @@
 #define PARAMETERSTREEVIEW_H
 
 #include <QTreeView>
+#include "./../Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 class ParametersTreeView : public QTreeView
 {
@@ -11,9 +12,10 @@ public:
     void setModel(QAbstractItemModel* model) override;
 
     void mouseMoveEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
 
 signals:
-    void itemHovered(const QModelIndex& index);
+    void itemHovered(ParameterTreeHistoryItem* treeItem);
 };
 
 #endif // PARAMETERSTREEVIEW_H

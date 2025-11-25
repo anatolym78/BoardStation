@@ -17,6 +17,7 @@ public:
 	void setSelected(bool selected);
 	bool isSelected() const { return m_selected; }
 
+	void setHovered(bool hover);
 	int chartIndex() const { return m_chartIndex; }
 
 protected:

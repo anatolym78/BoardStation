@@ -26,6 +26,7 @@ SOURCES += \
     Interface/SessionListView.cpp \
     Interface/SessionSelectionModel.cpp \
     Interface/SessionsStackWidget.cpp \
+    Interface/ValueColumnDelegate.cpp \
     Model/Emulation/BoardDataEmulator.cpp \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.cpp \
     Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
     Interface/SessionListView.h \
     Interface/SessionSelectionModel.h \
     Interface/SessionsStackWidget.h \
+    Interface/ValueColumnDelegate.h \
     Model/Emulation/BoardDataEmulator.h \
     Model/Emulation/BoardDataGenerators/AccelerationGenerator.h \
     Model/Emulation/BoardDataGenerators/BatteryVoltageGenerator.h \

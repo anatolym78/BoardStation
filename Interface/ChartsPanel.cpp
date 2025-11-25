@@ -72,38 +72,67 @@ void ChartsPanel::setModel(ChatViewGridModel* chartsModel)
 {
 	m_chartsModel = chartsModel;
 
-	connect(m_chartsModel, &ChatViewGridModel::parameterAdded, this, &ChartsPanel::onParameterAdded);
+	connect(m_chartsModel, &ChatViewGridModel::parameterAdded, this, &ChartsPanel::onAddChart);
 	connect(m_chartsModel, &ChatViewGridModel::parameterNeedToRemove, this, &ChartsPanel::onParameterRemoved);
 	connect(m_chartsModel, &ChatViewGridModel::parametersNeedToMove, this, &ChartsPanel::onParameterMoved);
 }
 
-void ChartsPanel::onParameterItemHovered(const QModelIndex& index)
+void ChartsPanel::onParameterItemHovered(ParameterTreeHistoryItem* treeItem)
 {
-	auto treeItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
-
-	if (treeItem == nullptr) return;
-
-	if (treeItem->type() == ParameterTreeItem::ItemType::History)
+	for (auto chartView : chartViewList())
 	{
-		auto fullName = treeItem->fullName();
-
-		auto chartViews = chartViewList();
-		for (auto chartView : chartViews)
+		for (auto series : chartView->chart()->series())
 		{
-			for (auto series : chartView->chart()->series())
+			if (treeItem && (treeItem->fullName() == series->name()))
 			{
-				if (series->name() == fullName)
-				{
-					auto lineSeries = (QtCharts::QLineSeries*)(series);
-					lineSeries->setColor(QColor(255, 225, 0));
-					//int k = 0;
-				}
+				chartView->setHovered(true);
+				hoverSeries(series);
+			}
+			else
+			{
+				chartView->setHovered(false);
+				restoreSeriesColor(series);
 			}
 		}
 	}
 }
+void ChartsPanel::restoreSeriesColor(QtCharts::QAbstractSeries* series)
+{
+	if (series->type() != QtCharts::QAbstractSeries::SeriesTypeLine) return;
 
-void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
+	auto lineSeries = (QtCharts::QLineSeries*)(series);
+
+	if (m_seriesColors.contains(series))
+	{
+		lineSeries->setColor(m_seriesColors[series]);
+	}
+
+	auto seriesPen = lineSeries->pen();
+	seriesPen.setStyle(Qt::PenStyle::SolidLine);
+
+	lineSeries->setPen(seriesPen);
+}
+
+void ChartsPanel::hoverSeries(QtCharts::QAbstractSeries* series)
+{
+	if (series->type() != QtCharts::QAbstractSeries::SeriesTypeLine) return;
+	
+	auto lineSeries = (QtCharts::QLineSeries*)(series);
+
+	if (!m_seriesColors.contains(series))
+	{
+		m_seriesColors.insert(series, lineSeries->color());
+	}
+
+	//lineSeries->setColor(QColor(225, 192, 0));
+
+	auto seriesPen = lineSeries->pen();
+	seriesPen.setStyle(Qt::PenStyle::DashLine);
+
+	lineSeries->setPen(seriesPen);
+}
+
+void ChartsPanel::onAddChart(int chartIndex, ParameterTreeItem* parameter)
 {
 	auto parameterFullName = parameter->fullName();
 
@@ -138,48 +167,62 @@ void ChartsPanel::onParameterAdded(int chartIndex, ParameterTreeItem* parameter)
 	// create series
 	if (parameter->type() == ParameterTreeItem::ItemType::History)
 	{
-		auto series = new QtCharts::QLineSeries();
-		chart->addSeries(series);
-		series->attachAxis(timeAxis);
-		series->attachAxis(valueAxis);
-
-		// Получаем цвет из параметра
-		auto color = parameter->color();
-
-		// add series to model
-		m_chartsModel->addSeriesToChart(chartIndex, parameterFullName,
-			color, series, timeAxis, valueAxis);
+		addSeriesToChart(chartIndex, chart, parameter);
 	}
+
 	// create series list
 	if (parameter->type() == ParameterTreeItem::ItemType::Array)
 	{
 		chart->setTitle(parameterFullName);
 		auto parameterList = static_cast<ParameterTreeArrayItem*>(parameter);
 
-		for (auto childParameter : parameterList->children())
+		for (auto parameter : parameterList->children())
 		{
-			if(childParameter->type() != ParameterTreeItem::ItemType::History) continue;
-		
-			auto parameterHistory = static_cast<ParameterTreeHistoryItem*>(childParameter);
-
-			auto parameterName = parameterHistory->fullName();
-			auto series = new QtCharts::QLineSeries();
-			chart->addSeries(series);
-			series->attachAxis(timeAxis);
-			series->attachAxis(valueAxis);
-			//series->setColor
-
-			// Получаем цвет из параметра
-			auto color = parameterHistory->color();
-
-			// add series to model
-			m_chartsModel->addSeriesToChart(chartIndex, parameterName,
-				color, series, timeAxis, valueAxis);
+			if (parameter->type() == ParameterTreeItem::ItemType::History)
+			{
+				addSeriesToChart(chartIndex, chart, parameter);
+			}
 		}
 	}
 
 	// После добавления - пересчитать размеры ячеек, чтобы они вписались по ширине и имели квадратную форму
 	updateCellSizes();
+}
+
+void ChartsPanel::addSeriesToChart(int chartIndex, QtCharts::QChart* chart, ParameterTreeItem* parameter)
+{
+	auto timeAxis = (QtCharts::QDateTimeAxis*)chart->axisX();
+	auto valueAxis = (QtCharts::QValueAxis*)chart->axisY();
+
+	auto series = new QtCharts::QLineSeries();
+	chart->addSeries(series);
+	series->attachAxis(timeAxis);
+	series->attachAxis(valueAxis);
+
+	auto seriesPen = series->pen();
+	seriesPen.setCapStyle(Qt::PenCapStyle::RoundCap);
+
+	auto color = parameter->color();
+
+	m_chartsModel->addSeriesToChart(
+		chartIndex,
+		parameter->fullName(),
+		color,
+		series,
+		timeAxis,
+		valueAxis);
+
+	connect(series, &QtCharts::QLineSeries::hovered, this, [this, series](const QPointF& point, bool state)
+		{
+			if (state)
+			{
+				hoverSeries(series);
+			}
+			else
+			{
+				restoreSeriesColor(series);
+			}
+		});
 }
 
 void ChartsPanel::onParameterRemoved(int chartIndex, const QString& label)
@@ -196,7 +239,7 @@ void ChartsPanel::onParameterRemoved(int chartIndex, const QString& label)
 				if (seires->name() == label)
 				{
 					chart->removeSeries(seires);
-
+					seires->deleteLater();
 					break;
 				}
 			}
@@ -364,6 +407,8 @@ QList<ParametersChartView*> ChartsPanel::chartViewList() const
 
 	return chartViews;
 }
+
+
 
 void ChartsPanel::relayoutChartsGrid()
 {

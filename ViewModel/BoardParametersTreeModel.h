@@ -56,7 +56,6 @@ private:
 
 private:
 	ParameterTreeStorage* m_rootItem = nullptr;
-	QList<bool> m_chartVisibilities;
 	QList<QColor> m_colors;
 	// Для Qt Widgets: хранение заголовков колонок
 	QVariant m_horizontalHeaders[3];

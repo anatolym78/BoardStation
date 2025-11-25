@@ -90,6 +90,7 @@ QVariant DebugViewModel::data(const QModelIndex &index, int role) const
 		case MessageColumn:
 			return message.message;
 		case TimeColumn:
+			return message.timestamp.toString("hh:mm:ss");
 			return message.timestamp.toString("hh:mm:ss.zzz");
 		}
 	}

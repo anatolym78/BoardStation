@@ -25,6 +25,13 @@ void ParametersChartView::setSelected(bool selected)
 	updateBackground();
 }
 
+void ParametersChartView::setHovered(bool hover)
+{
+	m_hovered = hover;
+
+	updateBackground();
+}
+
 void ParametersChartView::enterEvent(QEvent* event)
 {
 	QtCharts::QChartView::enterEvent(event);

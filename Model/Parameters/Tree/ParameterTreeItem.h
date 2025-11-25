@@ -29,6 +29,9 @@ public:
     QString fullName() const;
     QList<ParameterTreeItem*> children() const;
     QColor color() const;
+    
+    bool isChartVisible() const;
+    void setIsChartVisible(bool visible);
 
     enum class ItemType {
         Root,
@@ -46,6 +49,7 @@ protected:
     ParameterTreeItem *m_parentItem;
     QList<ParameterTreeItem*> m_childItems;
     QColor m_color = Qt::black;
+    bool m_isChartVisible = false;
 };
 
 #endif // PARAMETERTREEITEM_H

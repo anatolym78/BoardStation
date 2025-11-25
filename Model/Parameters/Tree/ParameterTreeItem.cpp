@@ -108,3 +108,13 @@ QColor ParameterTreeItem::color() const
 {
 	return m_color;
 }
+
+bool ParameterTreeItem::isChartVisible() const
+{
+	return m_isChartVisible;
+}
+
+void ParameterTreeItem::setIsChartVisible(bool visible)
+{
+	m_isChartVisible = visible;
+}

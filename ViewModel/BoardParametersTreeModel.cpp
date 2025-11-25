@@ -153,6 +153,15 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		// ========== КОД ДЛЯ QT WIDGETS (QTreeView) ==========
 		// Для работы с Qt Widgets: оставить этот блок активным
 		// Для работы только с QML: закомментировать этот блок
+		if (role == ParameterRole::ColorRole)
+		{
+			return treeItem->color();
+		}
+		if (role == ParameterRole::ChartVisibilityRole)
+		{
+			return treeItem->isChartVisible();
+		}
+
 		if (role == Qt::DecorationRole && index.column() == 0)
 		{
 			// Возвращаем иконку в зависимости от типа узла
@@ -234,28 +243,32 @@ QVariant BoardParametersTreeModel::data(const QModelIndex& index, int role) cons
 		}
 		// =====================================================
 		
-		// ========== КОД ДЛЯ QML ==========
-		// Для работы с QML: оставить этот блок активным
-		// Для работы только с Qt Widgets: закомментировать этот блок
-		switch (static_cast<ParameterRole>(role))
-		{
-		case ParameterRole::LabelRole:
-			return treeItem->label();
-		case ParameterRole::ValueRole:
-			if (treeItem->type() == ParameterTreeItem::ItemType::History)
-			{
-				auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
-				
-				return leafItem->values().last();
-			}
-			else
-			{
-				return QVariant();
-			}
-		default:
-			break;
-		}
-		// ==================================
+		//// ========== КОД ДЛЯ QML ==========
+		//// Для работы с QML: оставить этот блок активным
+		//// Для работы только с Qt Widgets: закомментировать этот блок
+		//switch (static_cast<ParameterRole>(role))
+		//{
+		//case ParameterRole::ColorRole:
+		//	return treeItem->color();
+		//case ParameterRole::ChartVisibilityRole:
+		//	return m_chartVisibilities.value(index.row(), false);
+		//case ParameterRole::LabelRole:
+		//	return treeItem->label();
+		//case ParameterRole::ValueRole:
+		//	if (treeItem->type() == ParameterTreeItem::ItemType::History)
+		//	{
+		//		auto leafItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
+		//		
+		//		return leafItem->values().last();
+		//	}
+		//	else
+		//	{
+		//		return QVariant();
+		//	}
+		//default:
+		//	break;
+		//}
+		//// ==================================
 	}
 
 	return QVariant();
@@ -285,9 +298,13 @@ bool BoardParametersTreeModel::setData(const QModelIndex& index, const QVariant&
 
 	if (role == (int)ParameterRole::ChartVisibilityRole)
 	{
-		m_chartVisibilities[index.row()] = value.toBool();
-		emit dataChanged(index, index, { role });
-		return true;
+		auto treeItem = static_cast<ParameterTreeItem*>(index.internalPointer());
+		if (treeItem)
+		{
+			treeItem->setIsChartVisible(value.toBool());
+			emit dataChanged(index, index, { role });
+			return true;
+		}
 	}
 
 	return false;

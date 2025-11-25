@@ -1,4 +1,5 @@
 #include "ParametersTreeView.h"
+#include "ValueColumnDelegate.h"
 
 #include <QHeaderView>
 #include <QMouseEvent>
@@ -36,33 +37,31 @@ void ParametersTreeView::setModel(QAbstractItemModel* model)
 
 	header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 	header()->setSectionResizeMode(1, QHeaderView::Stretch);
+
+	// Устанавливаем делегат для колонки значений (индекс 1)
+	setItemDelegateForColumn(1, new ValueColumnDelegate(this));
 }
 
 void ParametersTreeView::mouseMoveEvent(QMouseEvent* event)
 {
-	// 1. Получаем индекс элемента по текущим координатам мыши
 	QModelIndex index = indexAt(event->pos());
 
-	// 2. Проверяем, действительно ли курсор находится над каким-то элементом (а не на пустом месте)
 	if (index.isValid())
 	{
-		// --- Что делать дальше: ---
+		auto treeItem = static_cast<ParameterTreeHistoryItem*>(index.internalPointer());
 
-		// A) Если вам нужно просто подсветить этот элемент внутри этого же TreeView (как стандартное поведение Windows/macOS):
-		// Используйте метод setCurrentIndex(), чтобы выделить элемент.
-		//setCurrentIndex(index);
-
-		// B) Если вам нужно сообщить ДРУГОМУ виджету об этом индексе (как в вашем предыдущем вопросе с двумя списками):
-		// Вам нужно создать пользовательский сигнал в вашем классе.
-		emit itemHovered(index);
-	}
-	else
-	{
-		// Курсор ушел с элементов списка, можно сбросить подсветку
-		// setCurrentIndex(QModelIndex()); // Сброс выделения
-		emit itemHovered(QModelIndex()); // Отправляем пустой индекс
+		if (treeItem && treeItem->type() == ParameterTreeItem::ItemType::History)
+		{
+			emit itemHovered(treeItem);
+		}
 	}
 
-	// Обязательно вызываем базовый класс, чтобы сохранить стандартное поведение QTreeView
 	QTreeView::mouseMoveEvent(event);
+}
+
+void ParametersTreeView::leaveEvent(QEvent* event)
+{
+	emit itemHovered(nullptr); // Отправляем пустой индекс
+
+	QTreeView::leaveEvent(event);
 }

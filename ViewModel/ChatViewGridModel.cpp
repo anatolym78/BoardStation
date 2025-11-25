@@ -68,10 +68,6 @@ void ChatViewGridModel::addSeriesToChart(int chartIndex, const QString& label, c
 	m_charts[chartIndex].seriesMap[label] = QPointer<QtCharts::QLineSeries>(series);
 	m_charts[chartIndex].timeAxis = timeAxis;
 	m_charts[chartIndex].valueAxis = valueAxis;
-
-	return;//
-
-	fillSeries(label, color, true);
 }
 
 void ChatViewGridModel::onPlayed(ParameterTreeStorage* snapshot, bool isBackPlaying)

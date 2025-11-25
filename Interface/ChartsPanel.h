@@ -3,8 +3,10 @@
 
 #include <QFrame>
 #include <QList>
+#include <QMap>
 #include "./ViewModel/ChatViewGridModel.h"
 #include "ParametersChartView.h"
+#include "./../Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 class QScrollArea;
 class QGridLayout;
@@ -18,10 +20,10 @@ public:
 	explicit ChartsPanel(QWidget *parent = nullptr);
 	void setModel(ChatViewGridModel* chartsModel);
 
-	void onParameterItemHovered(const QModelIndex& index);
+	void onParameterItemHovered(ParameterTreeHistoryItem* treeItem);
 
 protected:
-	void onParameterAdded(int chartIndex, ParameterTreeItem* parameter);
+	void onAddChart(int chartIndex, ParameterTreeItem* parameter);
 	void onParameterRemoved(int chartIndex, const QString& label);
 	void onParameterMoved(int chartIndex, const QStringList& labels);
 	bool eventFilter(QObject* watched, QEvent* event) override;
@@ -43,9 +45,13 @@ private:
 	QPushButton* m_oneColumnButton;
 	QPushButton* m_twoColumnButton;
 	int m_columnCount = 2;
+	QMap<QtCharts::QAbstractSeries*, QColor>  m_seriesColors;
 
 private:
+	void addSeriesToChart(int chartIndex, QtCharts::QChart* chart, ParameterTreeItem* parameter);
 	QList<ParametersChartView*> chartViewList() const;
+	void hoverSeries(QtCharts::QAbstractSeries* series);
+	void restoreSeriesColor(QtCharts::QAbstractSeries* series);
 };
 
 #endif // CHARTSPANEL_H
