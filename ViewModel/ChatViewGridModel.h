@@ -139,7 +139,7 @@ private:
 private:
 	void onParameterPlayed(BoardParameterSingle* parameter, bool isBackPlaying);
 	void onPlayed(ParameterTreeStorage* snapshot, bool isBackPlaying);
-	void updateSeries(const QString& label, ParameterTreeHistoryItem* data);
+	void updateSeries(const QString& label, ParameterTreeHistoryItem* data, bool isBackPlaying);
 	const qint64 minuteIntervalMsec() { return 15 * 1000; }
 };
 

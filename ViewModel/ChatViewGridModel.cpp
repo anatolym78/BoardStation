@@ -79,12 +79,12 @@ void ChatViewGridModel::onPlayed(ParameterTreeStorage* snapshot, bool isBackPlay
 			auto series = chart.seriesMap[key];
 			auto data = snapshot->findHistoryItemByFullName(key);
 
-			updateSeries(key, data);
+			updateSeries(key, data, isBackPlaying);
 		}
 	}
 }
 
-void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryItem* data)
+void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryItem* data, bool isBackPlaying)
 {
 	if (data == nullptr) return;
 
@@ -129,27 +129,35 @@ void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryI
 		return;
 	}
 
-	for (auto i = 0; i < values.count(); i++)
+	if (isBackPlaying)
 	{
-		auto value = values[i];
-		auto time = times[i];
-		series->append(time.toMSecsSinceEpoch(), value.toDouble());
+
+	}
+	else
+	{
+		for (auto i = 0; i < values.count(); i++)
+		{
+			auto value = values[i];
+			auto time = times[i];
+			series->append(time.toMSecsSinceEpoch(), value.toDouble());
+		}
+
+		bool hasOldValues = true;
+		while (hasOldValues)
+		{
+			auto p = series->at(0);
+			auto time = p.x();
+			if (time < startTime.toMSecsSinceEpoch())
+			{
+				series->remove(0);
+			}
+			else
+			{
+				hasOldValues = false;
+			}
+		}
 	}
 
-	bool hasOldValues = true;
-	while (hasOldValues)
-	{
-		auto p = series->at(0);
-		auto time = p.x();
-		if (time < startTime.toMSecsSinceEpoch())
-		{
-			series->remove(0);
-		}
-		else
-		{
-			hasOldValues = false;
-		}
-	}
 
 	auto doubleValue = lastValue.toDouble();
 
