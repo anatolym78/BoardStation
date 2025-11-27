@@ -110,6 +110,16 @@ public:
 
 	int findChartIndex(const QString& label) const;
 	bool hasChart(const QString& label) const { return findChartIndex(label) != -1; }
+
+	// Вспомогательная функция для фильтрации данных за пределами диапазона
+	void filterDataOutsideRange(
+		const QList<QDateTime>& times, 
+		const QList<QVariant>& values, 
+		const QDateTime& seriesStartTime, 
+		const QDateTime& seriesEndTime, 
+		bool isBackPlaying,
+		QList<QDateTime>& outTimes, 
+		QList<QVariant>& outValues);
 	
 signals:
 	void parameterAdded(int chartIndex, ParameterTreeItem* parameter);

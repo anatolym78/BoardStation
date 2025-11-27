@@ -57,6 +57,9 @@ void MainWindow::setApp(BoardStationApp *pApp)
 			{
 				sessionsStack()->setCurrentIndex(index);
 				app()->sessionsModel()->selectSession(index);
+
+				//sessionsStack()->getSessionFrame(index)->parametersTree()->expandAll();
+				sessionsStack()->getSessionFrame(index)->parametersTree()->expandToDepth(0);
 			});
 		
 		// Устанавливаем модель для uplink параметров

@@ -86,7 +86,10 @@ void SessionPlayer::initializeWithLoadedData()
 
 	m_sessionStartTime = minTs;
 	m_sessionEndTime = maxTs;
-	m_currentPosition = m_sessionStartTime;
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = m_sessionStartTime;
+	}
 	m_lastPlayedIndex = -1;
 	m_lastPlayedPosition = m_sessionStartTime;
 
@@ -103,22 +106,29 @@ void SessionPlayer::initializeWithLoadedData()
 void SessionPlayer::updatePlaybackPosition()
 {
 	// Сохраняем предыдущую позицию для определения временного интервала
-	QDateTime previousPosition = m_currentPosition;
-	
-	// Для SessionPlayer увеличиваем позицию на 100мс (0.1 секунды)
-	m_currentPosition = m_currentPosition.addMSecs(100);
-	 
-	// Проверяем, не достигли ли конца сессии
-	if (m_currentPosition >= m_sessionEndTime)
+	QDateTime previousPosition;
+	QDateTime currentPos;
+
 	{
-		m_currentPosition = m_sessionEndTime;
-		// Можно добавить логику завершения воспроизведения
+		QMutexLocker locker(&m_positionMutex);
+		previousPosition = m_currentPosition;
+	
+		// Для SessionPlayer увеличиваем позицию на 100мс (0.1 секунды)
+		m_currentPosition = m_currentPosition.addMSecs(100);
+	 
+		// Проверяем, не достигли ли конца сессии
+		if (m_currentPosition >= m_sessionEndTime)
+		{
+			m_currentPosition = m_sessionEndTime;
+			// Можно добавить логику завершения воспроизведения
+		}
+		currentPos = m_currentPosition;
 	}
 	
 	// Проигрываем параметры, которые попадают в текущий временной интервал
 	if (m_storage && m_isPlaying)
 	{
-		playParametersInTimeRange(previousPosition, m_currentPosition);
+		playParametersInTimeRange(previousPosition, currentPos);
 	}
 	
 	emit currentPositionChanged();

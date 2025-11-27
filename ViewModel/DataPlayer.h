@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
+#include <QMutex>
 #include "Model/Parameters/Tree/ParameterTreeStorage.h"
 
 class DataPlayer : public QObject
@@ -25,7 +26,7 @@ public:
 
 	// Свойства
 	bool isPlaying() const { return m_isPlaying; }
-	QDateTime currentPosition() const { return m_currentPosition; }
+	QDateTime currentPosition() const;
 	QString currentSessionName() const { return m_currentSessionName; }
 	QDateTime sessionStartTime() const { return m_sessionStartTime; }
 	QDateTime sessionEndTime() const { return m_sessionEndTime; }
@@ -84,6 +85,8 @@ protected:
 	QDateTime m_currentPosition; // Текущая позиция как время
 	QDateTime m_sessionStartTime;
 	QDateTime m_sessionEndTime;
+
+	mutable QMutex m_positionMutex;
 
 	bool m_isPlayable = true;
 };

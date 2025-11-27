@@ -40,6 +40,8 @@ void ParametersTreeView::setModel(QAbstractItemModel* model)
 
 	// Устанавливаем делегат для колонки значений (индекс 1)
 	setItemDelegateForColumn(1, new ValueColumnDelegate(this));
+
+	this->expandAll();
 }
 
 void ParametersTreeView::mouseMoveEvent(QMouseEvent* event)

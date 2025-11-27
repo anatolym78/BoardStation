@@ -36,7 +36,10 @@ void DriverDataPlayer::onStorageValueAdded(ParameterTreeHistoryItem* historyItem
 	if (!m_isInitialized)
 	{
 		m_sessionStartTime = historyItem->lastTimestamp();
-		m_currentPosition = m_sessionStartTime;
+		{
+			QMutexLocker locker(&m_positionMutex);
+			m_currentPosition = m_sessionStartTime;
+		}
 		m_sessionEndTime = m_sessionStartTime.addSecs(TIME_RANGE);
 
 		m_isInitialized = true;
@@ -91,7 +94,10 @@ void DriverDataPlayer::setPosition(QDateTime position)
 		position = m_sessionEndTime;
 	}
 	
-	m_currentPosition = position;
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = position;
+	}
 	emit currentPositionChanged();
 	emit elapsedTimeChanged();
 }
@@ -107,7 +113,10 @@ void DriverDataPlayer::resetState()
 	// Сбрасываем временные диапазоны
 	m_sessionStartTime = QDateTime();
 	m_sessionEndTime = QDateTime();
-	m_currentPosition = QDateTime();
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = QDateTime();
+	}
 	
 	// Эмитируем сигналы об изменении состояния
 	emitTimeRangeSignals();
@@ -143,11 +152,20 @@ void DriverDataPlayer::updatePlaybackPosition()
 		}
 	}
 
-	auto storageRange = m_storage->extractRange(m_currentPosition, currentTime);
+	QDateTime currentPos;
+	{
+		QMutexLocker locker(&m_positionMutex);
+		currentPos = m_currentPosition;
+	}
+
+	auto storageRange = m_storage->extractRange(currentPos, currentTime);
 
 	emit played(storageRange, false);
 	
-	m_currentPosition = currentTime;
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = currentTime;
+	}
 	
 	// Проверяем, нужно ли расширить диапазон за 10 секунд до конца
 	QDateTime thresholdTime = m_sessionEndTime.addSecs(-10);

@@ -19,6 +19,8 @@ public:
 
     void attachModels(Session* session);
 
+    ParametersTreeView* parametersTree() const { return m_parametersTree; }
+
 private slots:
     void onAddChartButtonClicked();
 

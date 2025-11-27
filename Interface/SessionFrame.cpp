@@ -48,6 +48,7 @@ SessionFrame::SessionFrame(Session* session, QWidget *parent) : QFrame(parent)
 	attachModels(m_session);
 
 	connect(m_parametersTree, &ParametersTreeView::itemHovered, m_chartsPanel, &ChartsPanel::onParameterItemHovered);
+
 }
 
 void SessionFrame::attachModels(Session* session)

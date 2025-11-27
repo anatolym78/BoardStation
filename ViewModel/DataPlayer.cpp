@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QThread>
+#include <functional>
+#include "Model/Parameters/Tree/ParameterTreeHistoryItem.h"
 
 DataPlayer::DataPlayer(QObject *parent)
 	: QObject(parent)
@@ -15,6 +17,12 @@ DataPlayer::DataPlayer(QObject *parent)
 DataPlayer::~DataPlayer()
 {
 	//stop();
+}
+
+QDateTime DataPlayer::currentPosition() const
+{
+	QMutexLocker locker(&m_positionMutex);
+	return m_currentPosition;
 }
 
 void DataPlayer::setStorage(ParameterTreeStorage* storage)
@@ -44,7 +52,10 @@ void DataPlayer::stop()
 	}
 	
 	// Сбрасываем позицию на начало сессии
-	m_currentPosition = m_sessionStartTime;
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = m_sessionStartTime;
+	}
 	emit currentPositionChanged();
 	emit elapsedTimeChanged();
 	emit stopped();
@@ -74,12 +85,21 @@ void DataPlayer::setPosition(QDateTime position)
 	}
 	
 	// Проигрываем параметры, которые попадают в текущий временной интервал
-	if (m_storage && !m_isPlaying)
+	QDateTime currentPos;
 	{
-		playParametersInTimeRange(m_currentPosition, position);
+		QMutexLocker locker(&m_positionMutex);
+		currentPos = m_currentPosition;
 	}
 
-	m_currentPosition = position;
+	if (m_storage && !m_isPlaying)
+	{
+		playParametersInTimeRange(currentPos, position);
+	}
+
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = position;
+	}
 
 	emit currentPositionChanged();
 	emit elapsedTimeChanged();
@@ -119,6 +139,28 @@ void DataPlayer::playParametersInTimeRange(const QDateTime& startTime, const QDa
 	}
 
 	auto storageRange = m_storage->extractRange(_startTime, _endTime);
+
+	if (isReverse)
+	{
+		std::function<void(ParameterTreeItem*)> reverseRecursive;
+		reverseRecursive = [&](ParameterTreeItem* item)
+		{
+			if (item->type() == ParameterTreeItem::ItemType::History)
+			{
+				auto histItem = static_cast<ParameterTreeHistoryItem*>(item);
+				auto values = histItem->values();
+				auto timestamps = histItem->timestamps();
+				std::reverse(values.begin(), values.end());
+				std::reverse(timestamps.begin(), timestamps.end());
+				histItem->setValues(values, timestamps);
+			}
+			for (auto child : item->children())
+			{
+				reverseRecursive(child);
+			}
+		};
+		reverseRecursive(storageRange);
+	}
 
 	emit played(storageRange, isReverse);
 
@@ -162,8 +204,14 @@ void DataPlayer::playbackLoop()
 		{
 			updatePlaybackPosition();
 			
+			QDateTime currentPos;
+			{
+				QMutexLocker locker(&m_positionMutex);
+				currentPos = m_currentPosition;
+			}
+
 			// Проверяем, не достигли ли конца сессии
-			if (m_currentPosition >= m_sessionEndTime)
+			if (currentPos >= m_sessionEndTime)
 			{
 				// Завершаем проигрывание
 				m_shouldStop = 1;
@@ -180,7 +228,10 @@ void DataPlayer::playbackLoop()
 void DataPlayer::updatePlaybackPosition()
 {
 	// Увеличиваем позицию на 0.1 секунды (100мс)
-	m_currentPosition = QDateTime::currentDateTime();// m_currentPosition.addMSecs(100);
+	{
+		QMutexLocker locker(&m_positionMutex);
+		m_currentPosition = QDateTime::currentDateTime();// m_currentPosition.addMSecs(100);
+	}
 	emit currentPositionChanged();
 	emit elapsedTimeChanged();
 }
@@ -206,6 +257,7 @@ double DataPlayer::sessionDuration() const
 
 double DataPlayer::elapsedTime() const
 {
+	QMutexLocker locker(&m_positionMutex);
 	if (m_sessionStartTime.isNull() || m_currentPosition.isNull())
 	{
 		return 0.0;

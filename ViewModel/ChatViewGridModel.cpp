@@ -88,52 +88,33 @@ void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryI
 {
 	if (data == nullptr) return;
 
+	// find chart
 	auto chartIndex = findChartIndex(label);
 	if (chartIndex == -1) return;
 
+	// find series
 	auto& chart = m_charts[chartIndex];
-
 	auto series = chart.seriesMap[label];
-
 	if (series == nullptr) return;
 
+	// get chart axes
 	auto timeAxis = chart.timeAxis;
 	auto valueAxis = chart.valueAxis;
 
+	// get data values and times
 	auto& times = data->timestamps();
 	auto& values = data->values();
+	if (times.isEmpty() || values.isEmpty()) return;
 
-	if (times.isEmpty()) return;
-
-	if (!chart.isAxesInitialized)
-	{
-		timeAxis->setMin(times.first());
-		timeAxis->setMax(timeAxis->min().addMSecs(minuteIntervalMsec()));
-		chart.isAxesInitialized = true;
-	}
-
-	auto startTime = timeAxis->min();
-	auto endTime = timeAxis->max();
-
-	if (times.last() > endTime)
-	{
-		timeAxis->setMin(times.last().addMSecs(-minuteIntervalMsec()));
-		timeAxis->setMax(times.last());
-	}
-
-	if (values.isEmpty()) return;
-
+	// check parameter type (must be double)
 	auto lastValue = values.last();
 	if (!lastValue.canConvert<double>())
 	{
 		return;
 	}
 
-	if (isBackPlaying)
-	{
-
-	}
-	else
+	// if series has no points, then add points and return
+	if (series->count() == 0)
 	{
 		for (auto i = 0; i < values.count(); i++)
 		{
@@ -142,33 +123,193 @@ void ChatViewGridModel::updateSeries(const QString& label, ParameterTreeHistoryI
 			series->append(time.toMSecsSinceEpoch(), value.toDouble());
 		}
 
-		bool hasOldValues = true;
-		while (hasOldValues)
+		timeAxis->setMin(times.first());
+		timeAxis->setMax(timeAxis->min().addMSecs(minuteIntervalMsec()));
+		chart.isAxesInitialized = true;
+
+		return;
+	}
+
+	auto playerCurrentTime = player()->currentPosition();
+
+	auto axisStartTime = timeAxis->min();
+	auto axisEndTime = timeAxis->max();
+
+	QDateTime seriesStatTime;
+	QDateTime seriesEndTime;
+
+	if (series->count() > 0)
+	{
+		seriesStatTime = QDateTime::fromMSecsSinceEpoch(series->at(0).x());
+		seriesEndTime = QDateTime::fromMSecsSinceEpoch(series->at(series->count() - 1).x());
+	}
+
+	// Фильтруем данные, оставляя только те, что за пределами диапазона серии
+	QList<QDateTime> newTimes;
+	QList<QVariant> newValues;
+	
+	if (series->count() == 0)
+	{
+		newTimes = times;
+		newValues = values;
+	}
+	else
+	{
+		filterDataOutsideRange(times, values, seriesStatTime, seriesEndTime, isBackPlaying, newTimes, newValues);
+	}
+
+	// Если нет новых данных для добавления
+	if (newTimes.isEmpty())
+	{
+		return;
+	}
+
+	// Добавляем отфильтрованные данные в серию
+	if (isBackPlaying)
+	{
+		for (auto i = 0; i < newTimes.count(); i++)
 		{
-			auto p = series->at(0);
-			auto time = p.x();
-			if (time < startTime.toMSecsSinceEpoch())
+			auto value = newValues[i];
+			auto time = newTimes[i];
+			series->insert(0, QPointF(time.toMSecsSinceEpoch(), value.toDouble()));
+		}
+	}
+	else
+	{
+		for (auto i = 0; i < newTimes.count(); i++)
+		{
+			auto value = newValues[i];
+			auto time = newTimes[i];
+			series->append(time.toMSecsSinceEpoch(), value.toDouble());
+		}
+	}
+	
+	// Удаление лишних точек (Trim)
+	qint64 intervalMs = minuteIntervalMsec();
+	if (isBackPlaying)
+	{
+		// Добавляли в начало, удаляем с конца
+		while (series->count() > 0)
+		{
+			qint64 first = (qint64)series->at(0).x();
+			qint64 last = (qint64)series->at(series->count() - 1).x();
+			
+			if (last - first > intervalMs)
+			{
+				series->remove(series->count() - 1);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	else
+	{
+		// Добавляли в конец, удаляем с начала
+		while (series->count() > 0)
+		{
+			qint64 first = (qint64)series->at(0).x();
+			qint64 last = (qint64)series->at(series->count() - 1).x();
+			
+			if (last - first > intervalMs)
 			{
 				series->remove(0);
 			}
 			else
 			{
-				hasOldValues = false;
+				break;
 			}
 		}
 	}
 
-
-	auto doubleValue = lastValue.toDouble();
-
-	if (valueAxis->min() > doubleValue)
+	// Обновляем оси
+	if (series->count() > 0)
 	{
-		valueAxis->setMin(doubleValue);
+		auto beginTime = series->at(0).x();
+		auto endTime = series->at(series->count() - 1).x();
+		timeAxis->setMin(QDateTime::fromMSecsSinceEpoch(beginTime));
+		timeAxis->setMax(QDateTime::fromMSecsSinceEpoch(endTime));
+		
+		// Для оси значений нужно найти min/max среди всех точек (или только новых?)
+		// Лучше среди всех, так как диапазон мог сместиться
+		// Но это дорого для большого количества точек. 
+		// Оптимизация: при добавлении мы знаем новые значения. При удалении старых - сложнее.
+		// Пока оставим старую логику обновления ValueAxis, но она берет lastValue
+		// Обновим с учетом новых добавленных значений.
+		
+		// Упрощенно обновляем по последнему пришедшему (как было), или лучше по всей видимой серии?
+		// В оригинале:
+		// auto doubleValue = lastValue.toDouble();
+		// if (valueAxis->min() > doubleValue) ...
+		
+		// Обновим границы по новым данным
+		double localMin = std::numeric_limits<double>::max();
+		double localMax = std::numeric_limits<double>::min();
+		bool hasNew = false;
+		
+		for(const auto& v : newValues) {
+			double d = v.toDouble();
+			if(d < localMin) localMin = d;
+			if(d > localMax) localMax = d;
+			hasNew = true;
+		}
+		
+		if(hasNew) {
+			if (valueAxis->min() > localMin) valueAxis->setMin(localMin);
+			if (valueAxis->max() < localMax) valueAxis->setMax(localMax);
+		}
+	}
+}
+
+void ChatViewGridModel::filterDataOutsideRange(
+	const QList<QDateTime>& times,
+	const QList<QVariant>& values,
+	const QDateTime& seriesStartTime,
+	const QDateTime& seriesEndTime,
+	bool isBackPlaying,
+	QList<QDateTime>& outTimes,
+	QList<QVariant>& outValues)
+{
+	if (times.isEmpty() || values.isEmpty() || times.count() != values.count())
+	{
+		return;
 	}
 
-	if (valueAxis->max() < doubleValue)
+	outTimes.clear();
+	outValues.clear();
+	outTimes.reserve(times.count());
+	outValues.reserve(values.count());
+
+	for (int i = 0; i < times.count(); ++i)
 	{
-		valueAxis->setMax(doubleValue);
+		const auto& time = times[i];
+		bool isOutside = false;
+
+		if (isBackPlaying)
+		{
+			// При обратном воспроизведении нас интересуют данные, которые РАНЬШЕ начала серии
+			// (или позже конца, если мы "прыгнули", но основной кейс - расширение влево)
+			// times при backPlaying обычно идут в обратном порядке (от новых к старым), но проверим каждое значение.
+			if (time < seriesStartTime)
+			{
+				isOutside = true;
+			}
+		}
+		else
+		{
+			// При прямом воспроизведении нас интересуют данные, которые ПОЗЖЕ конца серии
+			if (time > seriesEndTime)
+			{
+				isOutside = true;
+			}
+		}
+
+		if (isOutside)
+		{
+			outTimes.append(time);
+			outValues.append(values[i]);
+		}
 	}
 }
 
@@ -321,12 +462,12 @@ void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isIn
 	// calc time range
 	if (isInitialFill)
 	{
-		QDateTime firstTime = playerTime;	// ��������� ����� ��� �����
+		QDateTime firstTime = playerTime;	//    
 		QDateTime firstParameterTime = parameters.first()->timestamp();
 		QDateTime lastParameterTime = parameters.last()->timestamp();
 		for (auto p : parameters)
 		{
-			// ���� �� ������ ������ ��� ������, �� ��� ��������� �����
+			//      ,    
 			if (p->timestamp().msecsTo(playerTime) < minuteIntervalMsec()/2)
 			{
 				firstTime = p->timestamp();
@@ -334,7 +475,7 @@ void ChatViewGridModel::fillSeries(const QString& label, QColor color, bool isIn
 				break;
 			}
 
-			// ���� �� ����� ����� ������ ������, �� ��� ��������� �����
+			//      ,    
 			if (p->timestamp().msecsTo(lastParameterTime) >= minuteIntervalMsec())
 			{
 				firstTime = p->timestamp();
